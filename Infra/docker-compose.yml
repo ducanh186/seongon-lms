@@ -1,0 +1,46 @@
+# SEONGON LMS — Infrastructure (Docker Compose)
+#
+# NOTE: Trong môi trường dev hiện tại, dự án dùng MySQL local sẵn có trên máy
+# (127.0.0.1:3306, db seongon_lms). File này là đường hạ tầng thay thế/đóng gói
+# khi cần chạy bằng Docker. MySQL ở đây map ra host cổng 3307 để KHÔNG đụng
+# MySQL local 3306. Bên trong network, các service kết nối tới mysql:3306.
+#
+# Chạy DB bằng Docker (khi Docker Desktop đang bật):
+#   docker compose -f Infra/docker-compose.yml up -d mysql phpmyadmin
+# Khi đó đặt BE/.env: DB_HOST=127.0.0.1  DB_PORT=3307
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: seongon-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: seongon_lms
+      MYSQL_USER: seongon
+      MYSQL_PASSWORD: seongon_secret
+      MYSQL_ROOT_PASSWORD: root_secret
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_secret"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: seongon-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
