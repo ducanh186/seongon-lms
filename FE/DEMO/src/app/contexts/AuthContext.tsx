@@ -1,51 +1,105 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { User } from '../types';
-import { mockUsers } from '../data/mockData';
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { api } from '../lib/api';
+import type { ApiUser } from '../lib/contracts';
+
+const SESSION_KEY = 'seongon.session';
+
+type StoredSession = { token: string };
 
 interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => boolean;
-  logout: () => void;
-  switchRole: (role: 'student' | 'admin' | 'recruiter') => void;
+  user: ApiUser | null;
+  token: string | null;
+  isReady: boolean;
+  login: (email: string, password: string) => Promise<ApiUser>;
+  register: (name: string, email: string, password: string, passwordConfirmation: string) => Promise<ApiUser>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-
-  const login = (email: string, password: string) => {
-    // Mock login - in real app, this would call API
-    const foundUser = mockUsers.find(u => u.email === email);
-    if (foundUser) {
-      setUser(foundUser);
-      return true;
+function readStoredSession(): StoredSession | null {
+  try {
+    const value = localStorage.getItem(SESSION_KEY);
+    if (!value) {
+      return null;
     }
-    return false;
+
+    const parsed = JSON.parse(value) as Partial<StoredSession>;
+    return typeof parsed.token === 'string' && parsed.token ? { token: parsed.token } : null;
+  } catch {
+    localStorage.removeItem(SESSION_KEY);
+    return null;
+  }
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<ApiUser | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
+
+  const saveSession = (nextToken: string, nextUser: ApiUser) => {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ token: nextToken }));
+    setToken(nextToken);
+    setUser(nextUser);
   };
 
-  const logout = () => {
+  const clearSession = () => {
+    localStorage.removeItem(SESSION_KEY);
+    setToken(null);
     setUser(null);
   };
 
-  const switchRole = (role: 'student' | 'admin' | 'recruiter') => {
-    const newUser = mockUsers.find(u => u.role === role);
-    if (newUser) {
-      setUser(newUser);
+  useEffect(() => {
+    const session = readStoredSession();
+    if (!session) {
+      setIsReady(true);
+      return;
     }
-  };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, switchRole }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    api.me(session.token)
+      .then(({ data }) => saveSession(session.token, data))
+      .catch(clearSession)
+      .finally(() => setIsReady(true));
+  }, []);
+
+  const value = useMemo<AuthContextType>(() => ({
+    user,
+    token,
+    isReady,
+    login: async (email, password) => {
+      const result = await api.login({ email, password });
+      saveSession(result.token, result.user);
+      return result.user;
+    },
+    register: async (name, email, password, passwordConfirmation) => {
+      const result = await api.register({
+        name,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+      });
+      saveSession(result.token, result.user);
+      return result.user;
+    },
+    logout: async () => {
+      try {
+        if (token) {
+          await api.logout(token);
+        }
+      } finally {
+        clearSession();
+      }
+    },
+  }), [isReady, token, user]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+
   return context;
 }

@@ -31,6 +31,10 @@ vendor/
 /FE/dist-ssr/
 /FE/coverage/
 /FE/*.local
+/FE/DEMO/dist/
+/FE/DEMO/dist-ssr/
+/FE/DEMO/coverage/
+/FE/DEMO/npm-install.log
 
 # ===== IDE / Editor =====
 .idea/
