@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ApiError, apiRequest } from './api';
+import { ApiError, api, apiRequest } from './api';
 
 describe('apiRequest', () => {
   afterEach(() => {
@@ -45,5 +45,23 @@ describe('apiRequest', () => {
       status: 422,
       fields: { email: ['The email field is required.'] },
     });
+  });
+
+  it('sends lesson order and question replacement through the matching admin routes', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 18, content: 'Cau hoi moi', options: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.reorderLessons('admin-token', 41, [7, 9]);
+    await api.updateQuestion('admin-token', 18, {
+      content: 'Cau hoi moi',
+      options: [{ content: 'Dung', is_correct: true }, { content: 'Sai', is_correct: false }],
+    });
+
+    expect(fetchMock.mock.calls[0][0]).toMatch(/\/admin\/courses\/41\/lessons\/reorder$/);
+    expect(fetchMock.mock.calls[0][1].body).toBe(JSON.stringify({ order: [7, 9] }));
+    expect(fetchMock.mock.calls[1][0]).toMatch(/\/admin\/questions\/18$/);
+    expect(fetchMock.mock.calls[1][1].method).toBe('PUT');
   });
 });

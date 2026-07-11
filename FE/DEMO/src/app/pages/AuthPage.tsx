@@ -13,7 +13,7 @@ export function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const submit = async (event: FormEvent) => {
@@ -27,7 +27,7 @@ export function AuthPage() {
       const returnPath = (location.state as { from?: string } | null)?.from;
       navigate(returnPath ?? (user.role === 'admin' ? '/admin' : '/my-courses'));
     } catch (reason) {
-      setError(reason instanceof ApiError ? reason.message : 'Không thể xác thực tài khoản.');
+      setError(reason instanceof ApiError ? reason : new ApiError('Không thể xác thực tài khoản.', 0));
     } finally {
       setSubmitting(false);
     }
@@ -44,11 +44,11 @@ export function AuthPage() {
             <Tab value="register" label="Đăng ký" />
           </Tabs>
           <Stack spacing={2} sx={{ mt: 3 }}>
-            {error && <Alert severity="error">{error}</Alert>}
+            {error && <Alert severity="error">{error.message}</Alert>}
             {mode === 'register' && <TextField required label="Họ và tên" value={name} onChange={(event) => setName(event.target.value)} />}
-            <TextField required label="Email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-            <TextField required label="Mật khẩu" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} helperText={mode === 'register' ? 'Dùng ít nhất 8 ký tự, bao gồm chữ và số.' : undefined} />
-            {mode === 'register' && <TextField required label="Xác nhận mật khẩu" type="password" autoComplete="new-password" value={passwordConfirmation} onChange={(event) => setPasswordConfirmation(event.target.value)} />}
+            <TextField required label="Email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} error={Boolean(error?.fields.email?.[0])} helperText={error?.fields.email?.[0]} />
+            <TextField required label="Mật khẩu" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} error={Boolean(error?.fields.password?.[0])} helperText={error?.fields.password?.[0] ?? (mode === 'register' ? 'Dùng ít nhất 8 ký tự, bao gồm chữ và số.' : undefined)} />
+            {mode === 'register' && <TextField required label="Xác nhận mật khẩu" type="password" autoComplete="new-password" value={passwordConfirmation} onChange={(event) => setPasswordConfirmation(event.target.value)} error={Boolean(error?.fields.password_confirmation?.[0])} helperText={error?.fields.password_confirmation?.[0]} />}
             <Button type="submit" variant="contained" disabled={submitting}>{submitting ? 'Đang xử lý...' : mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}</Button>
           </Stack>
         </Paper>

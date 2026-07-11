@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, Button, Card, CardContent, CircularProgress, Container, FormControl, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, CardContent, Container, FormControl, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiCourse, ApiOrder } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
+import { PageSkeleton } from '../components/AsyncState';
 
 export function CheckoutPage() {
   const { slug = '' } = useParams();
@@ -41,7 +42,7 @@ export function CheckoutPage() {
     } finally { setSubmitting(false); }
   };
 
-  if (!course && !error) return <Box sx={{ display: 'grid', minHeight: '55dvh', placeItems: 'center' }}><CircularProgress /></Box>;
+  if (!course && !error) return <Container sx={{ py: 6 }}><PageSkeleton rows={3} /></Container>;
   if (!course) return <Container sx={{ py: 6 }}><Alert severity="error">{error}</Alert></Container>;
 
   return (

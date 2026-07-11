@@ -12,6 +12,7 @@ interface AuthContextType {
   isReady: boolean;
   login: (email: string, password: string) => Promise<ApiUser>;
   register: (name: string, email: string, password: string, passwordConfirmation: string) => Promise<ApiUser>;
+  refreshUser: () => Promise<ApiUser | null>;
   logout: () => Promise<void>;
 }
 
@@ -80,6 +81,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       saveSession(result.token, result.user);
       return result.user;
+    },
+    refreshUser: async () => {
+      if (!token) {
+        return null;
+      }
+
+      try {
+        const { data } = await api.me(token);
+        setUser(data);
+        return data;
+      } catch (error) {
+        clearSession();
+        throw error;
+      }
     },
     logout: async () => {
       try {

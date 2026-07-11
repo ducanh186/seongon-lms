@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, Button, Card, CardContent, CircularProgress, Container, LinearProgress, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, CardContent, Container, LinearProgress, Stack, Typography } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Link, useLocation } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiEnrollment } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
+import { PageSkeleton } from '../components/AsyncState';
 
 export function MyCoursesPage() {
   const { token } = useAuth();
@@ -23,7 +24,7 @@ export function MyCoursesPage() {
     <Box><Typography component="h1" variant="h3" fontWeight={800}>Khóa học của tôi</Typography><Typography color="text.secondary" sx={{ mt: 1 }}>Tiếp tục từ bài học gần nhất và theo dõi tiến độ từng lộ trình.</Typography></Box>
     {notice && <Alert severity="success">{notice}</Alert>}
     {error && <Alert severity="error">{error}</Alert>}
-    {loading && <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}><CircularProgress /></Box>}
+    {loading && <PageSkeleton rows={3} />}
     {!loading && !error && enrollments.length === 0 && <Alert severity="info" action={<Button component={Link} to="/courses" color="inherit" size="small">Khám phá</Button>}>Bạn chưa đăng ký khóa học nào.</Alert>}
     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
       {enrollments.map((enrollment) => <Card key={enrollment.id} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={1.5}>

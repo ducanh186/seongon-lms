@@ -53,4 +53,13 @@ describe('CatalogPage', () => {
     expect(screen.getByText('12 bài học')).toBeInTheDocument();
     expect(api.courses).toHaveBeenCalledWith(expect.objectContaining({ page: 1 }));
   });
+
+  it('renders the shared skeleton while the catalog request is pending', () => {
+    vi.mocked(api.categories).mockResolvedValue({ data: [] });
+    vi.mocked(api.courses).mockImplementation(() => new Promise(() => {}));
+
+    render(<MemoryRouter><CatalogPage /></MemoryRouter>);
+
+    expect(screen.getByLabelText('Đang tải nội dung')).toBeInTheDocument();
+  });
 });

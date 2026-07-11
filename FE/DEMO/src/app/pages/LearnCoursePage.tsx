@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  CircularProgress,
   Container,
   Divider,
   FormControl,
@@ -24,6 +23,7 @@ import { useParams } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiEnrollment, ApiLesson, ApiProgress, ApiQuiz } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
+import { PageSkeleton } from '../components/AsyncState';
 
 export function LearnCoursePage() {
   const { courseId: courseIdParam = '' } = useParams();
@@ -99,7 +99,7 @@ export function LearnCoursePage() {
     } catch (reason) { setError(reason instanceof ApiError ? reason.message : 'Bạn chưa có chứng chỉ để tải.'); }
   };
 
-  if (loading) return <Box sx={{ display: 'grid', minHeight: '55dvh', placeItems: 'center' }}><CircularProgress /></Box>;
+  if (loading) return <Container sx={{ py: 6 }}><PageSkeleton rows={4} /></Container>;
   if (error && !enrollment) return <Container sx={{ py: 6 }}><Alert severity="error">{error}</Alert></Container>;
 
   return <Box sx={{ py: { xs: 3, md: 5 }, bgcolor: '#f7fafb', minHeight: '70dvh' }}><Container maxWidth="lg"><Stack spacing={3}>

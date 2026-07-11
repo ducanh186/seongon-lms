@@ -1,5 +1,8 @@
 import type {
   ApiCategory,
+  ApiAdminCourse,
+  ApiAdminQuestion,
+  ApiAdminQuiz,
   ApiCertificate,
   ApiCourse,
   ApiEnrollment,
@@ -149,7 +152,7 @@ export const api = {
   deleteCategory: (token: string, categoryId: number) => apiRequest<void>(`/admin/categories/${categoryId}`, { method: 'DELETE', token }),
   adminCourses: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiCourse>>(`/admin/courses${queryString(filters)}`, { token }),
-  adminCourse: (token: string, courseId: number) => apiRequest<{ data: ApiCourse }>(`/admin/courses/${courseId}`, { token }),
+  adminCourse: (token: string, courseId: number) => apiRequest<{ data: ApiAdminCourse }>(`/admin/courses/${courseId}`, { token }),
   saveCourse: (token: string, body: Record<string, unknown>, courseId?: number) =>
     apiRequest<{ data: ApiCourse }>(courseId ? `/admin/courses/${courseId}` : '/admin/courses', {
       method: courseId ? 'PUT' : 'POST',
@@ -166,10 +169,19 @@ export const api = {
       body,
     }),
   deleteLesson: (token: string, lessonId: number) => apiRequest<void>(`/admin/lessons/${lessonId}`, { method: 'DELETE', token }),
+  reorderLessons: (token: string, courseId: number, order: number[]) =>
+    apiRequest<{ data: ApiLesson[] }>(`/admin/courses/${courseId}/lessons/reorder`, {
+      method: 'PATCH',
+      token,
+      body: { order },
+    }),
   saveQuiz: (token: string, courseId: number, body: { title: string; pass_score: number; max_attempts: number }) =>
-    apiRequest<ApiQuiz>(`/admin/courses/${courseId}/quiz`, { method: 'POST', token, body }),
+    apiRequest<ApiAdminQuiz>(`/admin/courses/${courseId}/quiz`, { method: 'POST', token, body }),
   saveQuestion: (token: string, quizId: number, body: { content: string; options: Array<{ content: string; is_correct: boolean }> }) =>
-    apiRequest<{ id: number }>(`/admin/quizzes/${quizId}/questions`, { method: 'POST', token, body }),
+    apiRequest<ApiAdminQuestion>(`/admin/quizzes/${quizId}/questions`, { method: 'POST', token, body }),
+  updateQuestion: (token: string, questionId: number, body: { content: string; options: Array<{ content: string; is_correct: boolean }> }) =>
+    apiRequest<ApiAdminQuestion>(`/admin/questions/${questionId}`, { method: 'PUT', token, body }),
+  deleteQuestion: (token: string, questionId: number) => apiRequest<void>(`/admin/questions/${questionId}`, { method: 'DELETE', token }),
   adminReviews: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiReview>>(`/admin/reviews${queryString(filters)}`, { token }),
   updateReviewStatus: (token: string, reviewId: number, status: 'visible' | 'hidden') =>

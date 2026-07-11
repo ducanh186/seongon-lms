@@ -100,6 +100,25 @@ export interface ApiQuizOption {
   content: string;
 }
 
+export interface ApiAdminQuestionOption extends ApiQuizOption {
+  is_correct: boolean;
+}
+
+export interface ApiAdminQuestion {
+  id: number;
+  content: string;
+  options: ApiAdminQuestionOption[];
+}
+
+export interface ApiAdminQuiz {
+  id: number;
+  course_id: number;
+  title: string;
+  pass_score: number;
+  max_attempts: number;
+  questions: ApiAdminQuestion[];
+}
+
 export interface ApiQuizQuestion {
   id: number;
   content: string;
@@ -113,6 +132,10 @@ export interface ApiQuiz {
   pass_score: number;
   max_attempts: number;
   questions: ApiQuizQuestion[];
+}
+
+export interface ApiAdminCourse extends ApiCourse {
+  quiz: ApiAdminQuiz | null;
 }
 
 export interface ApiQuizAttempt {

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -8,7 +7,6 @@ import {
   CardContent,
   CardMedia,
   Chip,
-  CircularProgress,
   Container,
   FormControl,
   InputLabel,
@@ -22,6 +20,7 @@ import {
 import { Link } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiCategory, ApiCourse, Paginated } from '../lib/contracts';
+import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 
 const FALLBACK_COURSE_IMAGE = 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=80';
 
@@ -40,6 +39,7 @@ export function CatalogPage() {
   const [category, setCategory] = useState('');
   const [sort, setSort] = useState('newest');
   const [page, setPage] = useState(1);
+  const [reloadKey, setReloadKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,9 +58,12 @@ export function CatalogPage() {
     return () => {
       active = false;
     };
-  }, [category, page, query, sort]);
+  }, [category, page, query, reloadKey, sort]);
 
-  const applyQuery = () => setPage(1);
+  const applyQuery = () => {
+    setPage(1);
+    setReloadKey((value) => value + 1);
+  };
 
   return (
     <Box component="section" sx={{ py: { xs: 4, md: 7 }, bgcolor: '#f7fafb', minHeight: '70dvh' }}>
@@ -110,17 +113,14 @@ export function CatalogPage() {
             <Button variant="contained" size="large" onClick={applyQuery} sx={{ whiteSpace: 'nowrap' }}>Tìm kiếm</Button>
           </Stack>
 
-          {error && <Alert severity="error" action={<Button color="inherit" size="small" onClick={applyQuery}>Thử lại</Button>}>{error}</Alert>}
+          {error && <RequestError message={error} onRetry={() => setReloadKey((value) => value + 1)} />}
 
           {!catalog && !error && (
-            <Stack alignItems="center" spacing={2} sx={{ py: 10 }} aria-label="Đang tải khóa học">
-              <CircularProgress />
-              <Typography color="text.secondary">Đang tải khóa học...</Typography>
-            </Stack>
+            <PageSkeleton rows={4} />
           )}
 
           {catalog?.data.length === 0 && (
-            <Alert severity="info">Không tìm thấy khóa học phù hợp. Hãy thử thay đổi từ khóa hoặc bộ lọc.</Alert>
+            <EmptyState title="Không tìm thấy khóa học phù hợp. Hãy thử thay đổi từ khóa hoặc bộ lọc." />
           )}
 
           {catalog && catalog.data.length > 0 && (

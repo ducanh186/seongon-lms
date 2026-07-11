@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import {
-  Alert,
   Box,
   Button,
   Card,
   CardContent,
   Chip,
-  CircularProgress,
   Container,
   Divider,
   Rating,
@@ -18,6 +16,7 @@ import { Link, useParams } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiCourse, ApiReview } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
+import { PageSkeleton, RequestError } from '../components/AsyncState';
 
 const FALLBACK_COURSE_IMAGE = 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&w=1200&q=80';
 
@@ -27,6 +26,7 @@ export function CoursePage() {
   const [course, setCourse] = useState<ApiCourse | null>(null);
   const [reviews, setReviews] = useState<ApiReview[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -38,10 +38,10 @@ export function CoursePage() {
       })
       .catch((reason: unknown) => active && setError(reason instanceof ApiError ? reason.message : 'Không thể tải chi tiết khóa học.'));
     return () => { active = false; };
-  }, [slug]);
+  }, [reloadKey, slug]);
 
-  if (error) return <Container sx={{ py: 6 }}><Alert severity="error">{error}</Alert></Container>;
-  if (!course) return <Box sx={{ display: 'grid', minHeight: '55dvh', placeItems: 'center' }}><CircularProgress /></Box>;
+  if (error) return <Container sx={{ py: 6 }}><RequestError message={error} onRetry={() => setReloadKey((value) => value + 1)} /></Container>;
+  if (!course) return <Container sx={{ py: 6 }}><PageSkeleton rows={4} /></Container>;
 
   const checkoutPath = user ? `/checkout/${course.slug}` : '/login';
 
