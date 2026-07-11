@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AdminCourseResource;
 use App\Http\Resources\CourseResource;
 use App\Models\Course;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ class CourseController extends Controller
         $course->load(['category', 'lessons', 'quiz.questions.options'])
             ->loadCount(['lessons', 'enrollments', 'reviews']);
 
-        return new CourseResource($course);
+        return new AdminCourseResource($course);
     }
 
     public function store(Request $request)
