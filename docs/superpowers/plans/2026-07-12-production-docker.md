@@ -18,6 +18,7 @@
 - Use `VITE_API_BASE_URL=/api/v1` in the production Frontend build.
 - Use automatic `php artisan migrate --force` and fail startup on migration errors.
 - Seed only when the `users` table is empty; never run the existing factory seeder unconditionally on restart.
+- Keep `fakerphp/faker` as a runtime Composer dependency because the approved production bootstrap invokes factory-based demo seeders.
 - Use valid PowerShell for host commands and POSIX `sh` only inside Linux container scripts.
 - Preserve all unrelated workspace changes.
 
@@ -205,28 +206,43 @@ if ($LASTEXITCODE -ne 0) {
     throw 'docker compose config failed.'
 }
 
+$profileJson = docker compose --env-file $envFile -f $composeFile --profile admin config --format json
+if ($LASTEXITCODE -ne 0) {
+    throw 'docker compose config with admin profile failed.'
+}
+
 $config = $json | ConvertFrom-Json
+$profileConfig = $profileJson | ConvertFrom-Json
 $serviceNames = @($config.services.PSObject.Properties.Name)
 
-foreach ($required in @('nginx', 'app', 'mysql', 'phpmyadmin')) {
+foreach ($required in @('nginx', 'app', 'mysql')) {
     if ($required -notin $serviceNames) {
         throw "Missing required service: $required"
     }
 }
 
-if (@($config.services.app.ports).Count -ne 0) {
+if ('phpmyadmin' -in $serviceNames) {
+    throw 'phpmyadmin must not be enabled by default.'
+}
+
+$profileServiceNames = @($profileConfig.services.PSObject.Properties.Name)
+if ('phpmyadmin' -notin $profileServiceNames) {
+    throw 'phpmyadmin must be enabled by the admin profile.'
+}
+
+if ($null -ne $config.services.app.PSObject.Properties['ports']) {
     throw 'app must not publish host ports.'
 }
 
-if (@($config.services.mysql.ports).Count -ne 0) {
+if ($null -ne $config.services.mysql.PSObject.Properties['ports']) {
     throw 'mysql must not publish host ports.'
 }
 
-if ('admin' -notin @($config.services.phpmyadmin.profiles)) {
+if ('admin' -notin @($profileConfig.services.phpmyadmin.profiles)) {
     throw 'phpmyadmin must use the admin profile.'
 }
 
-$pmaHostIp = $config.services.phpmyadmin.ports[0].host_ip
+$pmaHostIp = $profileConfig.services.phpmyadmin.ports[0].host_ip
 if ($pmaHostIp -ne '127.0.0.1') {
     throw 'phpmyadmin must bind to 127.0.0.1.'
 }
@@ -291,7 +307,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$$MYSQL_ROOT_PASSWORD\""]
+      test: ["CMD-SHELL", "mysqladmin ping --protocol=TCP -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\""]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -462,7 +478,8 @@ COPY BE/ ./
 COPY Infra/docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 COPY Infra/docker/php/entrypoint.sh /usr/local/bin/app-entrypoint
 
-RUN composer dump-autoload --no-dev --classmap-authoritative --no-scripts \
+RUN rm -f bootstrap/cache/*.php \
+    && composer dump-autoload --no-dev --classmap-authoritative --no-scripts \
     && php artisan package:discover --ansi \
     && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
@@ -614,6 +631,7 @@ SPEC
 !**/.env.example
 BE/vendor
 BE/node_modules
+BE/bootstrap/cache/*.php
 BE/storage/logs/*
 BE/storage/framework/cache/*
 BE/storage/framework/sessions/*
@@ -631,7 +649,7 @@ vendor
 ```powershell
 $RepoRoot = git rev-parse --show-toplevel
 docker compose --env-file (Join-Path $RepoRoot 'Infra\.env') -f (Join-Path $RepoRoot 'Infra\docker-compose.yml') build nginx
-docker compose --env-file (Join-Path $RepoRoot 'Infra\.env') -f (Join-Path $RepoRoot 'Infra\docker-compose.yml') run --rm --no-deps nginx nginx -t
+docker run --rm --add-host app:127.0.0.1 seongon-lms-nginx nginx -t
 ```
 
 Expected: image build and `nginx -t` exit `0`.
@@ -757,10 +775,10 @@ if ($deepLink.StatusCode -ne 200 -or $deepLink.Content -notmatch '<div id="root"
 $api = Invoke-WebRequest -Uri "$baseUrl/api/v1/courses" -UseBasicParsing
 if ($api.StatusCode -ne 200) { throw 'Laravel API proxy failed.' }
 
-$before = docker compose @compose exec -T app php artisan tinker --execute="echo App\\Models\\User::count();"
+$before = docker compose @compose exec -T app php artisan tinker --execute="echo App\Models\User::count();"
 docker compose @compose restart app
 docker compose @compose up -d --wait app nginx
-$after = docker compose @compose exec -T app php artisan tinker --execute="echo App\\Models\\User::count();"
+$after = docker compose @compose exec -T app php artisan tinker --execute="echo App\Models\User::count();"
 
 if ($before.Trim() -ne $after.Trim()) { throw "Seed count changed after restart: $before -> $after" }
 ```
@@ -771,8 +789,8 @@ Expected: health, home, deep-link, and API return `200`; user count is unchanged
 
 ```powershell
 $config = docker compose @compose config --format json | ConvertFrom-Json
-if (@($config.services.app.ports).Count -ne 0) { throw 'app exposes a host port.' }
-if (@($config.services.mysql.ports).Count -ne 0) { throw 'mysql exposes a host port.' }
+if ($null -ne $config.services.app.PSObject.Properties['ports']) { throw 'app exposes a host port.' }
+if ($null -ne $config.services.mysql.PSObject.Properties['ports']) { throw 'mysql exposes a host port.' }
 
 $defaultServices = docker compose @compose ps --services
 if ('phpmyadmin' -in $defaultServices) { throw 'phpMyAdmin unexpectedly enabled by default.' }

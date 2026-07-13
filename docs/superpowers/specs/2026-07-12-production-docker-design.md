@@ -72,7 +72,7 @@ Nginx routing:
 
 ### 4.1 Thứ tự khởi động
 
-1. `mysql` khởi động và vượt qua `mysqladmin ping` health check.
+1. `mysql` khởi động và vượt qua `mysqladmin ping` bằng TCP trên `127.0.0.1` để cùng kiểm tra transport mà Laravel sử dụng.
 2. `app` bắt đầu sau khi MySQL healthy.
 3. Application entrypoint chạy `php artisan migrate --force`.
 4. Entry point chạy command `app:seed-demo-once`.
@@ -91,6 +91,8 @@ Một Artisan command nhỏ, có test, sẽ thực hiện quy tắc sau:
 - không sửa `DatabaseSeeder` hiện tại và không chạy seed vô điều kiện.
 
 Quy tắc này phù hợp với mục tiêu “seed demo lần đầu” và tránh nhân đôi dữ liệu factory sau mỗi restart. Database production đã có user sẽ không bị thêm demo data.
+
+Vì `DatabaseSeeder` hiện dùng Laravel factories, `fakerphp/faker` là runtime dependency của bootstrap seed. Package này được chuyển riêng sang Composer `require`; các development package khác vẫn bị loại khỏi production image.
 
 ## 5. Configuration và secret
 

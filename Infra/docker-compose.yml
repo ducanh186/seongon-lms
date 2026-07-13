@@ -1,46 +1,93 @@
-# SEONGON LMS — Infrastructure (Docker Compose)
-#
-# NOTE: Trong môi trường dev hiện tại, dự án dùng MySQL local sẵn có trên máy
-# (127.0.0.1:3306, db seongon_lms). File này là đường hạ tầng thay thế/đóng gói
-# khi cần chạy bằng Docker. MySQL ở đây map ra host cổng 3307 để KHÔNG đụng
-# MySQL local 3306. Bên trong network, các service kết nối tới mysql:3306.
-#
-# Chạy DB bằng Docker (khi Docker Desktop đang bật):
-#   docker compose -f Infra/docker-compose.yml up -d mysql phpmyadmin
-# Khi đó đặt BE/.env: DB_HOST=127.0.0.1  DB_PORT=3307
+name: seongon-lms
 
 services:
   mysql:
     image: mysql:8.0
-    container_name: seongon-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: seongon_lms
-      MYSQL_USER: seongon
-      MYSQL_PASSWORD: seongon_secret
-      MYSQL_ROOT_PASSWORD: root_secret
-    ports:
-      - "3307:3306"
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Set MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER:?Set MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
+    expose:
+      - "3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_secret"]
+      test: ["CMD-SHELL", "mysqladmin ping --protocol=TCP -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\""]
       interval: 5s
-      timeout: 3s
+      timeout: 5s
       retries: 20
+      start_period: 20s
+
+  app:
+    build:
+      context: ..
+      dockerfile: Infra/docker/php/Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_NAME: SEONGON LMS
+      APP_ENV: production
+      APP_KEY: ${APP_KEY:?Set APP_KEY}
+      APP_DEBUG: "false"
+      APP_URL: ${APP_URL:?Set APP_URL}
+      LOG_CHANNEL: stderr
+      LOG_LEVEL: info
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: ${MYSQL_DATABASE:?Set MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER:?Set MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      FILESYSTEM_DISK: local
+    expose:
+      - "9000"
+    volumes:
+      - app_storage:/var/www/html/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm -t && kill -0 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: Infra/docker/nginx/Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/healthz | grep -q '^ok$'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   phpmyadmin:
     image: phpmyadmin:5
-    container_name: seongon-phpmyadmin
+    profiles: ["admin"]
     restart: unless-stopped
     environment:
       PMA_HOST: mysql
-      PMA_PORT: 3306
+      PMA_PORT: "3306"
     ports:
-      - "8081:80"
+      - "127.0.0.1:${PHPMYADMIN_PORT:-8081}:80"
     depends_on:
       mysql:
         condition: service_healthy
 
 volumes:
   mysql_data:
+  app_storage:
