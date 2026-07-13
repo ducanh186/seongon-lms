@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, Button, Card, CardContent, Container, FormControl, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, CardContent, Chip, Container, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiCourse, ApiOrder } from '../lib/contracts';
@@ -46,17 +46,18 @@ export function CheckoutPage() {
   if (!course) return <Container sx={{ py: 6 }}><Alert severity="error">{error}</Alert></Container>;
 
   return (
-    <Box sx={{ bgcolor: '#f7fafb', py: { xs: 5, md: 8 }, minHeight: '70dvh' }}><Container maxWidth="sm"><Card sx={{ borderRadius: 3 }}><CardContent sx={{ p: { xs: 3, md: 4 } }}>
-      <Typography component="h1" variant="h4" fontWeight={800}>Xác nhận đăng ký</Typography>
-      <Typography color="text.secondary" sx={{ mt: 1 }}>{course.title}</Typography>
-      <Typography variant="h5" color="primary.main" fontWeight={800} sx={{ mt: 2 }}>{Number(course.price).toLocaleString('vi-VN')} đ</Typography>
+    <Box sx={{ py: { xs: 5, md: 8 }, minHeight: '70dvh' }}><Container maxWidth="md"><Card><CardContent sx={{ p: { xs: 3, md: 5 } }}>
+      <Chip label="Thanh toán demo" color="secondary" variant="outlined" size="small" />
+      <Typography component="h1" variant="h3" sx={{ mt: 2 }}>Xác nhận đăng ký</Typography>
+      <Box sx={{ mt: 3, p: 2.5, borderRadius: 3, bgcolor: 'primary.light' }}><Typography fontWeight={700}>{course.title}</Typography><Typography variant="h5" color="primary.dark" fontWeight={800} sx={{ mt: 1 }}>{Number(course.price) === 0 ? 'Miễn phí' : `${Number(course.price).toLocaleString('vi-VN')} đ`}</Typography></Box>
       <Stack spacing={2} sx={{ mt: 4 }}>
         {error && <Alert severity="error">{error}</Alert>}
-        {!order ? <Button variant="contained" disabled={submitting} onClick={() => void createOrder()}>{submitting ? 'Đang tạo đơn...' : 'Tạo đơn đăng ký'}</Button> : <>
+        {!order ? <Button size="large" variant="contained" disabled={submitting} aria-busy={submitting} onClick={() => void createOrder()}>{submitting ? 'Đang tạo đơn...' : 'Tạo đơn đăng ký'}</Button> : <>
+          <Divider />
           <Typography fontWeight={700}>Chọn phương thức thanh toán giả lập</Typography>
-          <FormControl><RadioGroup value={method} onChange={(event) => setMethod(event.target.value as 'card' | 'qr')}><FormControlLabel value="qr" control={<Radio />} label="QR banking" /><FormControlLabel value="card" control={<Radio />} label="Thẻ thanh toán" /></RadioGroup></FormControl>
+          <FormControl><RadioGroup value={method} onChange={(event) => setMethod(event.target.value as 'card' | 'qr')}><FormControlLabel value="qr" control={<Radio />} label="QR banking (giả lập)" /><FormControlLabel value="card" control={<Radio />} label="Thẻ thanh toán (giả lập)" /></RadioGroup></FormControl>
           <Alert severity="info">Đây là cổng thanh toán mock của môi trường demo. Bấm xác nhận để hoàn tất đơn.</Alert>
-          <Button variant="contained" disabled={submitting} onClick={() => void pay()}>{submitting ? 'Đang xác nhận...' : 'Xác nhận thanh toán'}</Button>
+          <Button size="large" variant="contained" disabled={submitting} aria-busy={submitting} onClick={() => void pay()}>{submitting ? 'Đang xác nhận...' : 'Xác nhận thanh toán'}</Button>
         </>}
         <Button component={Link} to={`/courses/${course.slug}`} variant="text">Quay lại chi tiết khóa học</Button>
       </Stack>

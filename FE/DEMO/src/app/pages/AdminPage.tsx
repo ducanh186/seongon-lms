@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   Container,
   Divider,
   FormControl,
@@ -26,6 +25,8 @@ import { api, ApiError } from '../lib/api';
 import type { ApiAdminCourse, ApiAdminQuestion, ApiCategory, ApiCourse, ApiReview, ApiUser, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { useAuth } from '../contexts/AuthContext';
+import { PageHeader } from '../components/PageHeader';
+import { StatusChip } from '../components/StatusChip';
 
 type Stats = {
   students: number;
@@ -187,7 +188,7 @@ export function AdminPage() {
     setError(null);
     try {
       await loadCourseDetail(courseId);
-      setTab('content');
+      setTab('courses');
     } catch (reason) {
       setError(getErrorMessage(reason, 'Không thể tải nội dung khóa học.'));
     }
@@ -345,23 +346,19 @@ export function AdminPage() {
   }
 
   return (
-    <Box sx={{ py: { xs: 4, md: 6 }, bgcolor: '#f7fafb', minHeight: '70dvh' }}>
+    <Box sx={{ py: { xs: 4, md: 7 }, minHeight: '70dvh' }}>
       <Container maxWidth="lg">
         <Stack spacing={3}>
-          <Box>
-            <Typography component="h1" variant="h3" fontWeight={800}>Quản trị SEONGON LMS</Typography>
-            <Typography color="text.secondary" sx={{ mt: 1 }}>Quản lý dữ liệu học tập bằng dữ liệu và quyền hạn từ Laravel API.</Typography>
-          </Box>
+          <PageHeader eyebrow="ADMIN CONSOLE" title="Quản trị SEONGON LMS" description="Quản lý dữ liệu học tập bằng dữ liệu và quyền hạn từ Laravel API." />
           {notice && <Alert severity="success" onClose={() => setNotice(null)}>{notice}</Alert>}
           {error && <RequestError message={error} onRetry={() => void load()} />}
-          <Tabs value={tab} onChange={(_, nextTab) => setTab(nextTab)} variant="scrollable" allowScrollButtonsMobile>
+          <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', borderRadius: '14px 14px 0 0', px: 1, overflowX: 'auto' }}><Tabs value={tab} onChange={(_, nextTab) => setTab(nextTab)} variant="scrollable" allowScrollButtonsMobile aria-label="Khu vực quản trị">
             <Tab value="overview" label="Tổng quan" />
             <Tab value="students" label="Học viên" />
             <Tab value="categories" label="Danh mục" />
             <Tab value="courses" label="Khóa học" />
-            <Tab value="content" label="Nội dung học" />
             <Tab value="reviews" label="Đánh giá" />
-          </Tabs>
+          </Tabs></Box>
 
           {tab === 'overview' && <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2 }}>
             {[
@@ -379,7 +376,7 @@ export function AdminPage() {
               <Button variant="contained" onClick={() => void load()} sx={{ whiteSpace: 'nowrap' }}>Áp dụng</Button>
             </Stack>
             <Card sx={{ borderRadius: 3 }}><CardContent><Stack divider={<Divider flexItem />}>
-              {users?.data.map((user) => <Stack key={user.id} direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }} sx={{ py: 1.5 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{user.name}</Typography><Typography variant="body2" color="text.secondary">{user.email}</Typography></Box><Chip label={user.status === 'active' ? 'Đang hoạt động' : 'Đã khóa'} color={user.status === 'active' ? 'success' : 'default'} size="small" /><Button size="small" variant="outlined" onClick={() => token && void runMutation(() => api.updateUserStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button></Stack>)}
+              {users?.data.map((user) => <Stack key={user.id} direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }} sx={{ py: 1.5 }}><Box sx={{ flexGrow: 1, minWidth: 0 }}><Typography fontWeight={700}>{user.name}</Typography><Typography variant="body2" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>{user.email}</Typography></Box><StatusChip status={user.status} /><Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => api.updateUserStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button></Stack>)}
               {!users?.data.length && <EmptyState title="Không có học viên phù hợp." />}
             </Stack></CardContent></Card>
             {users && users.meta.last_page > 1 && <Pagination count={users.meta.last_page} page={userPage} onChange={(_, page) => setUserPage(page)} color="primary" sx={{ alignSelf: 'center' }} />}
@@ -399,19 +396,19 @@ export function AdminPage() {
             {courses && courses.meta.last_page > 1 && <Pagination count={courses.meta.last_page} page={coursePage} onChange={(_, page) => setCoursePage(page)} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
 
-          {tab === 'content' && <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(270px, .55fr) 1fr' }, gap: 3 }}>
+          {tab === 'courses' && selectedCourse && <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(270px, .55fr) 1fr' }, gap: 3, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
             <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Chọn khóa học</Typography><Stack divider={<Divider flexItem />} sx={{ mt: 1 }}>{courses?.data.map((course) => <Button key={course.id} onClick={() => void selectContent(course.id)} color="inherit" sx={{ justifyContent: 'flex-start', textAlign: 'left', py: 1.5, fontWeight: selectedCourse?.id === course.id ? 800 : 400 }}>{course.title}</Button>)}</Stack></CardContent></Card>
-            <Stack spacing={3}>{!selectedCourse ? <EmptyState title="Chọn một khóa học để quản lý bài học và bài kiểm tra." /> : <>
+            <Stack spacing={3}><>
               <Card component="form" onSubmit={submitLesson} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingLessonId ? 'Sửa bài học' : `Thêm bài học cho ${selectedCourse.title}`}</Typography><TextField required label="Tiêu đề bài học" value={lessonForm.title} onChange={(event) => setLessonForm({ ...lessonForm, title: event.target.value })} /><TextField required label="Video embed URL" value={lessonForm.video_url} onChange={(event) => setLessonForm({ ...lessonForm, video_url: event.target.value })} /><TextField label="Mô tả" multiline minRows={2} value={lessonForm.description} onChange={(event) => setLessonForm({ ...lessonForm, description: event.target.value })} /><TextField label="Thời lượng (giây)" type="number" value={lessonForm.duration} onChange={(event) => setLessonForm({ ...lessonForm, duration: event.target.value })} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingLessonId ? 'Cập nhật bài học' : 'Thêm bài học'}</Button>{editingLessonId && <Button onClick={() => { setEditingLessonId(null); setLessonForm(blankLesson); }}>Hủy</Button>}</Stack></Stack></CardContent></Card>
               <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Thứ tự bài học</Typography><Stack divider={<Divider flexItem />} sx={{ mt: 1 }}>{orderedLessons.map((lesson, index) => <Stack key={lesson.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{lesson.position}. {lesson.title}</Typography><Typography variant="body2" color="text.secondary">{lesson.duration ? `${lesson.duration} giây` : 'Chưa có thời lượng'}</Typography></Box><Button size="small" disabled={index === 0} onClick={() => moveLesson(lesson.id, -1)} aria-label={`Di chuyển bài học ${lesson.position} lên`}>Lên</Button><Button size="small" disabled={index === orderedLessons.length - 1} onClick={() => moveLesson(lesson.id, 1)} aria-label={`Di chuyển bài học ${lesson.position} xuống`}>Xuống</Button><Button size="small" onClick={() => { setEditingLessonId(lesson.id); setLessonForm({ title: lesson.title, video_url: lesson.video_url, description: lesson.description ?? '', duration: lesson.duration === null ? '' : String(lesson.duration) }); }}>Sửa</Button><Button size="small" color="error" onClick={() => token && confirmAndRun('Xóa bài học này?', () => api.deleteLesson(token, lesson.id), 'Đã xóa bài học.', true)}>Xóa</Button></Stack>)}{orderedLessons.length === 0 && <EmptyState title="Khóa học chưa có bài học." />}</Stack></CardContent></Card>
               <Card component="form" onSubmit={submitQuiz} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>Bài kiểm tra cuối khóa</Typography><TextField required label="Tiêu đề bài kiểm tra" value={quizTitle} onChange={(event) => setQuizTitle(event.target.value)} /><TextField required label="Điểm đạt" type="number" inputProps={{ min: 1, max: 100 }} value={quizPassScore} onChange={(event) => setQuizPassScore(event.target.value)} /><TextField required label="Số lần làm tối đa" type="number" inputProps={{ min: 1, max: 20 }} value={quizMaxAttempts} onChange={(event) => setQuizMaxAttempts(event.target.value)} /><Button type="submit" variant="outlined">Lưu bài kiểm tra</Button></Stack></CardContent></Card>
               {selectedCourse.quiz && <Card component="form" onSubmit={submitQuestion} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Stack direction="row" justifyContent="space-between" alignItems="center"><Typography component="h2" variant="h6" fontWeight={800}>{editingQuestionId ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}</Typography>{editingQuestionId && <Button size="small" onClick={() => { setEditingQuestionId(null); setQuestionContent(''); setQuestionOptions(blankQuestionOptions); }}>Tạo câu hỏi mới</Button>}</Stack><Stack direction="row" spacing={1} flexWrap="wrap">{selectedCourse.quiz.questions.map((question) => <Button key={question.id} size="small" variant={question.id === editingQuestionId ? 'contained' : 'outlined'} onClick={() => chooseQuestion(question)}>Câu hỏi {question.id}</Button>)}</Stack><TextField required label="Câu hỏi" value={questionContent} onChange={(event) => setQuestionContent(event.target.value)} />{questionOptions.map((option, index) => <Stack key={index} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}><TextField required fullWidth label={`Phương án ${index + 1}`} value={option.content} onChange={(event) => updateQuestionOption(index, { content: event.target.value })} /><RadioGroup row value={String(index)} onChange={() => markCorrectOption(index)}><FormControlLabel value={String(index)} control={<Radio checked={option.is_correct} />} label="Đáp án đúng" /></RadioGroup>{questionOptions.length > 2 && <Button color="error" onClick={() => setQuestionOptions((options) => options.filter((_, optionIndex) => optionIndex !== index))}>Xóa</Button>}</Stack>)}<Button onClick={() => setQuestionOptions((options) => [...options, { content: '', is_correct: false }])}>Thêm phương án</Button><Button type="submit" variant="contained">{editingQuestionId ? 'Cập nhật câu hỏi' : 'Lưu câu hỏi'}</Button>{editingQuestionId && <Button color="error" onClick={() => token && confirmAndRun('Xóa câu hỏi này?', () => api.deleteQuestion(token, editingQuestionId), 'Đã xóa câu hỏi.', true)}>Xóa câu hỏi</Button>}</Stack></CardContent></Card>}
-            </>}</Stack>
+            </></Stack>
           </Box>}
 
           {tab === 'reviews' && <Stack spacing={2}>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}><FormControl fullWidth><InputLabel id="review-status">Trạng thái</InputLabel><Select labelId="review-status" label="Trạng thái" value={reviewStatus} onChange={(event) => { setReviewStatus(event.target.value); setReviewPage(1); }}><MenuItem value="">Tất cả</MenuItem><MenuItem value="visible">Hiển thị</MenuItem><MenuItem value="hidden">Đã ẩn</MenuItem></Select></FormControl><Button variant="contained" onClick={() => void load()}>Áp dụng</Button></Stack>
-            <Card sx={{ borderRadius: 3 }}><CardContent><Stack divider={<Divider flexItem />}>{reviews?.data.map((review) => <Stack key={review.id} direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }} sx={{ py: 1.5 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{review.user.name} · {review.rating}/5</Typography><Typography variant="body2" color="text.secondary">{review.comment || 'Không có nhận xét'}</Typography></Box><Chip size="small" label={review.status === 'visible' ? 'Hiển thị' : 'Đã ẩn'} /><Button size="small" variant="outlined" onClick={() => token && void runMutation(() => api.updateReviewStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'), 'Đã cập nhật trạng thái đánh giá.')}>{review.status === 'visible' ? 'Ẩn' : 'Hiện'}</Button><Button size="small" color="error" onClick={() => token && confirmAndRun('Xóa đánh giá này?', () => api.deleteReview(token, review.id), 'Đã xóa đánh giá.')}>Xóa</Button></Stack>)}{!reviews?.data.length && <EmptyState title="Không có đánh giá phù hợp." />}</Stack></CardContent></Card>
+            <Card><CardContent><Stack divider={<Divider flexItem />}>{reviews?.data.map((review) => <Stack key={review.id} direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }} sx={{ py: 1.5 }}><Box sx={{ flexGrow: 1, minWidth: 0 }}><Typography fontWeight={700}>{review.user.name} · {review.rating}/5</Typography><Typography variant="body2" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>{review.comment || 'Không có nhận xét'}</Typography></Box><StatusChip status={review.status} /><Button size="small" variant="outlined" onClick={() => token && void runMutation(() => api.updateReviewStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'), 'Đã cập nhật trạng thái đánh giá.')}>{review.status === 'visible' ? 'Ẩn' : 'Hiện'}</Button><Button size="small" color="error" onClick={() => token && confirmAndRun('Xóa đánh giá này?', () => api.deleteReview(token, review.id), 'Đã xóa đánh giá.')}>Xóa</Button></Stack>)}{!reviews?.data.length && <EmptyState title="Không có đánh giá phù hợp." />}</Stack></CardContent></Card>
             {reviews && reviews.meta.last_page > 1 && <Pagination count={reviews.meta.last_page} page={reviewPage} onChange={(_, page) => setReviewPage(page)} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
         </Stack>

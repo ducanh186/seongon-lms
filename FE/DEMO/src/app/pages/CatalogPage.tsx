@@ -2,11 +2,6 @@ import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  Chip,
   Container,
   FormControl,
   InputLabel,
@@ -15,29 +10,22 @@ import {
   Select,
   Stack,
   TextField,
-  Typography,
 } from '@mui/material';
-import { Link } from 'react-router';
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import { useSearchParams } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiCategory, ApiCourse, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
-
-const FALLBACK_COURSE_IMAGE = 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=80';
-
-function priceLabel(price: string | number): string {
-  return `${Number(price).toLocaleString('vi-VN')} đ`;
-}
-
-function levelLabel(level: ApiCourse['level']): string {
-  return ({ beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao' } as const)[level ?? 'beginner'];
-}
+import { CourseCard } from '../components/CourseCard';
+import { PageHeader } from '../components/PageHeader';
 
 export function CatalogPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [catalog, setCatalog] = useState<Paginated<ApiCourse> | null>(null);
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('');
-  const [sort, setSort] = useState('newest');
+  const [query, setQuery] = useState(searchParams.get('q') ?? '');
+  const [category, setCategory] = useState(searchParams.get('category') ?? '');
+  const [sort, setSort] = useState(searchParams.get('sort') ?? 'newest');
   const [page, setPage] = useState(1);
   const [reloadKey, setReloadKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -62,26 +50,21 @@ export function CatalogPage() {
 
   const applyQuery = () => {
     setPage(1);
+    setSearchParams({ ...(query && { q: query }), ...(category && { category }), ...(sort !== 'newest' && { sort }) });
     setReloadKey((value) => value + 1);
   };
 
   return (
-    <Box component="section" sx={{ py: { xs: 4, md: 7 }, bgcolor: '#f7fafb', minHeight: '70dvh' }}>
+    <Box component="section" sx={{ py: { xs: 5, md: 8 }, minHeight: '70dvh' }}>
       <Container maxWidth="lg">
-        <Stack spacing={3}>
-          <Box>
-            <Typography component="h1" variant="h3" fontWeight={800} color="primary.main">
-              Khóa học thực chiến
-            </Typography>
-            <Typography sx={{ mt: 1, color: 'text.secondary', maxWidth: 650 }}>
-              Chọn một lộ trình rõ ràng, học theo từng bài và theo dõi tiến độ của bạn trong một nơi.
-            </Typography>
-          </Box>
+        <Stack spacing={4}>
+          <PageHeader eyebrow="THƯ VIỆN KHÓA HỌC" title="Tìm đúng lộ trình cho mục tiêu của bạn" description="Tìm theo từ khóa, lọc theo chủ đề và sắp xếp các khóa học đang được xuất bản từ hệ thống." />
 
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }}>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }} sx={{ p: { xs: 2, md: 2.5 }, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3, boxShadow: 1 }}>
             <TextField
               fullWidth
               label="Tìm khóa học"
+              placeholder="Ví dụ: SEO, Content Marketing..."
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={(event) => event.key === 'Enter' && applyQuery()}
@@ -95,6 +78,7 @@ export function CatalogPage() {
                 onChange={(event) => {
                   setCategory(event.target.value);
                   setPage(1);
+                  setSearchParams({ ...(query && { q: query }), ...(event.target.value && { category: event.target.value }), ...(sort !== 'newest' && { sort }) });
                 }}
               >
                 <MenuItem value="">Tất cả danh mục</MenuItem>
@@ -103,14 +87,14 @@ export function CatalogPage() {
             </FormControl>
             <FormControl fullWidth>
               <InputLabel id="course-sort-label">Sắp xếp</InputLabel>
-              <Select labelId="course-sort-label" label="Sắp xếp" value={sort} onChange={(event) => setSort(event.target.value)}>
+              <Select labelId="course-sort-label" label="Sắp xếp" value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }}>
                 <MenuItem value="newest">Mới nhất</MenuItem>
                 <MenuItem value="popular">Phổ biến</MenuItem>
                 <MenuItem value="price_asc">Giá tăng dần</MenuItem>
                 <MenuItem value="price_desc">Giá giảm dần</MenuItem>
               </Select>
             </FormControl>
-            <Button variant="contained" size="large" onClick={applyQuery} sx={{ whiteSpace: 'nowrap' }}>Tìm kiếm</Button>
+            <Button variant="contained" size="large" onClick={applyQuery} startIcon={<SearchRoundedIcon />} sx={{ whiteSpace: 'nowrap' }}>Tìm kiếm</Button>
           </Stack>
 
           {error && <RequestError message={error} onRetry={() => setReloadKey((value) => value + 1)} />}
@@ -124,26 +108,8 @@ export function CatalogPage() {
           )}
 
           {catalog && catalog.data.length > 0 && (
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 3 }}>
-              {catalog.data.map((course) => (
-                <Card key={course.id} sx={{ height: '100%', borderRadius: 3, boxShadow: '0 8px 28px rgb(11 81 96 / 10%)' }}>
-                  <CardActionArea component={Link} to={`/courses/${course.slug}`} sx={{ height: '100%', alignItems: 'stretch' }}>
-                    <CardMedia component="img" height="168" image={course.thumbnail ?? FALLBACK_COURSE_IMAGE} alt={course.title} />
-                    <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.25, height: '100%' }}>
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Chip label={levelLabel(course.level)} size="small" color="primary" variant="outlined" />
-                        {course.rating && <Typography variant="body2" color="text.secondary">{course.rating.toFixed(1)} / 5</Typography>}
-                      </Stack>
-                      <Typography component="h2" variant="h6" fontWeight={750}>{course.title}</Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                        {course.description || 'Khóa học được thiết kế theo lộ trình thực hành rõ ràng.'}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">{course.lessons_count ?? 0} bài học</Typography>
-                      <Typography variant="subtitle1" fontWeight={800} color="primary.main">{priceLabel(course.price)}</Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              ))}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 3 }}>
+              {catalog.data.map((course) => <CourseCard key={course.id} course={course} headingLevel="h2" />)}
             </Box>
           )}
 

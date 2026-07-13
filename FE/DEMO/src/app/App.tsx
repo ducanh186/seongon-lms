@@ -1,18 +1,13 @@
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import '@fontsource/be-vietnam-pro/400.css';
+import '@fontsource/be-vietnam-pro/500.css';
+import '@fontsource/be-vietnam-pro/600.css';
+import '@fontsource/be-vietnam-pro/700.css';
+import '@fontsource/be-vietnam-pro/800.css';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import { RouterProvider } from 'react-router';
 import { AuthProvider } from './contexts/AuthContext';
 import { router } from './routes';
-
-const theme = createTheme({
-  palette: {
-    primary: { main: '#007E87', dark: '#005B61', contrastText: '#FFFFFF' },
-    secondary: { main: '#BC2672' },
-    background: { default: '#FFFFFF', paper: '#FFFFFF' },
-  },
-  shape: { borderRadius: 12 },
-  typography: { fontFamily: 'Arial, Helvetica, sans-serif', button: { fontWeight: 700, textTransform: 'none' } },
-  components: { MuiButton: { styleOverrides: { root: { minHeight: 42 } } } },
-});
+import { theme } from './theme';
 
 export default function App() {
   return (

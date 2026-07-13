@@ -13,8 +13,9 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { Link, Outlet, useNavigate } from 'react-router';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
 import logoSeongon from 'figma:asset/dd45f331e8a4458443255a6f01a8333b19d6c86a.png';
 
@@ -26,8 +27,16 @@ const publicLinks = [
 export function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isActive = (to: string) => to === '/' ? pathname === '/' : pathname.startsWith(to);
+  const linkSx = (to: string) => ({
+    color: isActive(to) ? 'primary.dark' : 'text.primary',
+    bgcolor: isActive(to) ? 'primary.light' : 'transparent',
+    '&:hover': { bgcolor: 'primary.light' },
+  });
 
   const handleLogout = async () => {
     await logout();
@@ -37,23 +46,44 @@ export function Layout() {
 
   const closeMobile = () => setMobileOpen(false);
 
+  const navLink = (label: string, to: string, mobile = false) => (
+    <Button
+      key={to}
+      component={Link}
+      to={to}
+      onClick={mobile ? closeMobile : undefined}
+      aria-current={isActive(to) ? 'page' : undefined}
+      color="inherit"
+      sx={{ ...linkSx(to), justifyContent: mobile ? 'flex-start' : 'center' }}
+    >
+      {label}
+    </Button>
+  );
+
   return (
     <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
-      <AppBar position="sticky" color="inherit" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
+      <AppBar position="sticky" color="inherit" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'rgba(255,255,255,.94)', backdropFilter: 'blur(14px)' }}>
         <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ minHeight: { xs: 64, md: 72 }, gap: 2 }}>
-            <Box component={Link} to="/" aria-label="SEONGON Academy" sx={{ display: 'inline-flex', alignItems: 'center', mr: { md: 3 } }}>
-              <Box component="img" src={logoSeongon} alt="SEONGON" sx={{ width: 145, height: 'auto' }} />
+          <Toolbar disableGutters sx={{ minHeight: { xs: 66, md: 76 }, gap: 1.5 }}>
+            <Box component={Link} to="/" aria-label="SEONGON Academy - Trang chủ" sx={{ display: 'inline-flex', alignItems: 'center', mr: { md: 2 } }}>
+              <Box component="img" src={logoSeongon} alt="" sx={{ width: { xs: 132, md: 148 }, height: 'auto' }} />
             </Box>
-            <Stack direction="row" spacing={0.5} sx={{ display: { xs: 'none', md: 'flex' }, flexGrow: 1 }}>
-              {publicLinks.map((item) => <Button key={item.to} component={Link} to={item.to} color="inherit">{item.label}</Button>)}
-              {user && <Button component={Link} to="/my-courses" color="inherit">Khóa học của tôi</Button>}
-              {user?.role === 'admin' && <Button component={Link} to="/admin" color="inherit">Quản trị</Button>}
+            <Stack component="nav" aria-label="Điều hướng chính" direction="row" spacing={0.5} sx={{ display: { xs: 'none', md: 'flex' }, flexGrow: 1 }}>
+              {publicLinks.map((item) => navLink(item.label, item.to))}
+              {user && navLink('Khóa học của tôi', '/my-courses')}
+              {user?.role === 'admin' && navLink('Quản trị', '/admin')}
             </Stack>
             <Box sx={{ flexGrow: { xs: 1, md: 0 } }} />
             {user ? (
               <>
-                <Button onClick={(event) => setMenuAnchor(event.currentTarget)} startIcon={<Avatar src={user.avatar ?? undefined} sx={{ width: 24, height: 24 }}>{user.name[0]}</Avatar>} color="primary">
+                <Button
+                  onClick={(event) => setMenuAnchor(event.currentTarget)}
+                  startIcon={<Avatar src={user.avatar ?? undefined} sx={{ width: 28, height: 28, bgcolor: 'secondary.main' }}>{user.name[0]}</Avatar>}
+                  color="primary"
+                  aria-haspopup="menu"
+                  aria-expanded={Boolean(menuAnchor)}
+                  sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+                >
                   {user.name}
                 </Button>
                 <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
@@ -64,21 +94,39 @@ export function Layout() {
                   <MenuItem onClick={() => void handleLogout()}>Đăng xuất</MenuItem>
                 </Menu>
               </>
-            ) : <Button component={Link} to="/login" variant="contained">Đăng nhập</Button>}
-            <IconButton onClick={() => setMobileOpen((open) => !open)} sx={{ display: { md: 'none' } }} aria-label="Mở menu"><MenuIcon /></IconButton>
+            ) : <Button component={Link} to="/login" variant="contained" sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>Đăng nhập</Button>}
+            <IconButton
+              onClick={() => setMobileOpen((open) => !open)}
+              sx={{ display: { md: 'none' } }}
+              aria-label={mobileOpen ? 'Đóng menu' : 'Mở menu'}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-navigation"
+            >
+              {mobileOpen ? <CloseRoundedIcon /> : <MenuRoundedIcon />}
+            </IconButton>
           </Toolbar>
           {mobileOpen && (
-            <Stack spacing={0.5} sx={{ display: { md: 'none' }, pb: 2 }}>
-              {publicLinks.map((item) => <Button key={item.to} component={Link} to={item.to} onClick={closeMobile} color="inherit" sx={{ justifyContent: 'flex-start' }}>{item.label}</Button>)}
-              {user && <Button component={Link} to="/my-courses" onClick={closeMobile} color="inherit" sx={{ justifyContent: 'flex-start' }}>Khóa học của tôi</Button>}
-              {user?.role === 'admin' && <Button component={Link} to="/admin" onClick={closeMobile} color="inherit" sx={{ justifyContent: 'flex-start' }}>Quản trị</Button>}
+            <Stack id="mobile-navigation" component="nav" aria-label="Điều hướng di động" spacing={0.5} sx={{ display: { md: 'none' }, pb: 2 }}>
+              {publicLinks.map((item) => navLink(item.label, item.to, true))}
+              {user && navLink('Khóa học của tôi', '/my-courses', true)}
+              {user?.role === 'admin' && navLink('Quản trị', '/admin', true)}
+              {!user && <Button component={Link} to="/login" onClick={closeMobile} variant="contained" sx={{ mt: 1 }}>Đăng nhập</Button>}
+              {user && <Button component={Link} to="/profile" onClick={closeMobile} variant="outlined" sx={{ mt: 1 }}>Hồ sơ cá nhân</Button>}
             </Stack>
           )}
         </Container>
       </AppBar>
       <Box component="main" sx={{ flexGrow: 1 }}><Outlet /></Box>
-      <Box component="footer" sx={{ borderTop: '1px solid', borderColor: 'divider', py: 3, mt: 'auto' }}>
-        <Container maxWidth="lg"><Typography variant="body2" color="text.secondary">SEONGON Academy · Nền tảng học trực tuyến cho marketing thực chiến.</Typography></Container>
+      <Box component="footer" sx={{ borderTop: '1px solid', borderColor: 'divider', bgcolor: '#102E38', color: 'common.white', py: { xs: 4, md: 5 }, mt: 'auto' }}>
+        <Container maxWidth="lg">
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ md: 'center' }}>
+            <Box>
+              <Typography fontWeight={800}>SEONGON Academy</Typography>
+              <Typography variant="body2" sx={{ mt: 0.5, color: 'rgba(255,255,255,.7)' }}>Nền tảng học trực tuyến cho marketing thực chiến.</Typography>
+            </Box>
+            <Button component={Link} to="/courses" color="inherit" variant="outlined" sx={{ borderColor: 'rgba(255,255,255,.4)' }}>Khám phá khóa học</Button>
+          </Stack>
+        </Container>
       </Box>
     </Box>
   );
