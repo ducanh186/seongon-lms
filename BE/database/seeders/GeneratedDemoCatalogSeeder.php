@@ -134,13 +134,15 @@ class GeneratedDemoCatalogSeeder extends Seeder
 
     private function createDemoStudents(): Collection
     {
-        return collect(range(1, 100))->map(function (int $number): User {
+        $password = Hash::make('password');
+
+        return collect(range(1, 100))->map(function (int $number) use ($password): User {
             $email = sprintf('student%03d@demo.seongon.vn', $number);
             $student = User::query()->firstOrNew(['email' => $email]);
 
             $student->forceFill([
                 'name' => sprintf('Học viên Demo %03d', $number),
-                'password' => Hash::make('password'),
+                'password' => $password,
                 'role' => 'student',
                 'status' => 'active',
                 'email_verified_at' => now(),
