@@ -8,6 +8,34 @@ Stack production gồm một Nginx public, Laravel PHP-FPM, MySQL 8 và phpMyAdm
 - Port public mặc định `80` đang trống.
 - File `Infra/.env` chứa secret production thật và không được commit.
 
+## Chạy nhanh bằng PowerShell script
+
+Từ repository root, lệnh mặc định để build và khởi động toàn bộ production stack là:
+
+```powershell
+& '.\Infra\run-docker.ps1' up
+```
+
+Ở lần chạy đầu tiên, script sẽ tạo `Infra/.env` từ template rồi dừng lại. Điền các secret thật theo mục **Chuẩn bị configuration**, sau đó chạy lại lệnh `up`.
+
+Các action được hỗ trợ:
+
+| Lệnh | Tác dụng |
+|---|---|
+| `& '.\Infra\run-docker.ps1' up` | Validate, build và start stack |
+| `& '.\Infra\run-docker.ps1' status` | Xem trạng thái container |
+| `& '.\Infra\run-docker.ps1' logs` | Theo dõi logs của app, Nginx và MySQL; nhấn `Ctrl+C` để thoát |
+| `& '.\Infra\run-docker.ps1' restart` | Restart container và giữ nguyên dữ liệu |
+| `& '.\Infra\run-docker.ps1' admin` | Bật phpMyAdmin tùy chọn |
+| `& '.\Infra\run-docker.ps1' down` | Dừng stack nhưng giữ persistent volume |
+
+Nếu PowerShell chặn script unsigned, chỉ bypass cho terminal hiện tại rồi chạy lại:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+& '.\Infra\run-docker.ps1' up
+```
+
 ## 1. Chuẩn bị configuration
 
 Chạy từ repository root bằng PowerShell:

@@ -3,6 +3,18 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
 $composeFile = Join-Path $repoRoot 'Infra\docker-compose.yml'
 $envFile = Join-Path $repoRoot 'Infra\.env'
+$runScript = Join-Path $repoRoot 'Infra\run-docker.ps1'
+
+if (-not (Test-Path -LiteralPath $runScript)) {
+    throw 'Missing Infra/run-docker.ps1.'
+}
+
+$runScriptContent = Get-Content -LiteralPath $runScript -Raw
+foreach ($action in @('up', 'down', 'restart', 'logs', 'status', 'admin')) {
+    if ($runScriptContent -notmatch "'$action'") {
+        throw "Infra/run-docker.ps1 must support the '$action' action."
+    }
+}
 
 if (-not (Test-Path -LiteralPath $envFile)) {
     throw "Missing $envFile. Copy Infra/.env.example before verification."
