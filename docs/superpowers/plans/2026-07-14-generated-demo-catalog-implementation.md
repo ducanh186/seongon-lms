@@ -305,7 +305,7 @@ foreach ($students->values() as $studentIndex => $student) {
             'course_id' => $course->id,
             'amount' => $course->price,
             'status' => 'paid',
-            'payment_method' => 'mock',
+            'payment_method' => 'card',
             'transaction_ref' => sprintf('DEMO-%03d-%03d', $studentIndex + 1, $slot + 1),
             'paid_at' => now()->subDays(($studentIndex + $slot) % 30),
         ]);
