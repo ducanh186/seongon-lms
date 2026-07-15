@@ -1,6 +1,6 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { theme } from '../theme';
 import { Layout } from './Layout';
@@ -10,6 +10,10 @@ const useAuth = vi.hoisted(() => vi.fn());
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
 afterEach(cleanup);
+
+function CurrentPath() {
+  return <span data-testid="current-path">{useLocation().pathname}</span>;
+}
 
 function contrastRatio(foreground: string, background: string) {
   const luminance = (hex: string) => {
@@ -28,20 +32,23 @@ function contrastRatio(foreground: string, background: string) {
 }
 
 function renderLayout(path = '/', role: 'student' | 'admin' | null = null) {
+  const logout = vi.fn();
   useAuth.mockReturnValue({
     user: role ? { id: 1, name: role === 'admin' ? 'SEONGON Admin' : 'Học viên', email: `${role}@seongon.vn`, role, avatar: null } : null,
-    logout: vi.fn(),
+    logout,
   });
 
-  return render(
+  const view = render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="*" element={<div>Nội dung</div>} />
+          <Route path="*" element={<div>Nội dung<CurrentPath /></div>} />
         </Route>
       </Routes>
     </MemoryRouter>,
   );
+
+  return { ...view, logout };
 }
 
 describe('Layout', () => {
@@ -108,5 +115,17 @@ describe('Layout', () => {
     expect(screen.getByRole('menuitem', { name: 'Khóa học của tôi' })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Quản trị' })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Đăng xuất' })).toBeInTheDocument();
+  });
+
+  it('lets authenticated users log out from the mobile navigation', async () => {
+    const { logout } = renderLayout('/courses', 'student');
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: 'Mở menu' }));
+    const mobileNavigation = screen.getByRole('navigation', { name: 'Điều hướng di động' });
+    await user.click(within(mobileNavigation).getByRole('button', { name: 'Đăng xuất' }));
+
+    expect(logout).toHaveBeenCalledOnce();
+    await waitFor(() => expect(screen.getByTestId('current-path')).toHaveTextContent('/'));
   });
 });

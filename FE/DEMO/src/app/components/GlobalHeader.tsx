@@ -147,6 +147,7 @@ export function GlobalHeader() {
             {links.map((link) => navLink(link, true))}
             {!user && <Button component={Link} to="/login" onClick={closeMobile} variant="contained" sx={{ mt: 1 }}>Đăng nhập</Button>}
             {user && <Button component={Link} to="/profile" onClick={closeMobile} variant="outlined" sx={{ mt: 1 }}>Hồ sơ cá nhân</Button>}
+            {user && <Button onClick={() => { closeMobile(); void handleLogout(); }}>Đăng xuất</Button>}
           </Stack>
         )}
       </Container>
