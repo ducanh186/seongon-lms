@@ -54,4 +54,12 @@ describe('ProfilePage', () => {
 
     expect(await screen.findByText('Mật khẩu hiện tại không đúng.')).toBeInTheDocument();
   });
+
+  it('groups account, learning summary, and security information', () => {
+    render(<ProfilePage />);
+
+    expect(screen.getByRole('region', { name: 'Thông tin tài khoản' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Tổng quan học tập' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Bảo mật tài khoản' })).toBeInTheDocument();
+  });
 });

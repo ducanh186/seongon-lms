@@ -36,4 +36,16 @@ describe('MyCoursesPage', () => {
 
     expect(screen.getByLabelText('Đang tải nội dung')).toBeInTheDocument();
   });
+
+  it('shows progress hierarchy and defaults to active enrollments', async () => {
+    myCourses.mockResolvedValue({
+      data: [{ id: 2, course_id: 20, enrolled_at: '2026-01-01T00:00:00Z', expires_at: '2027-01-01T00:00:00Z', status: 'active', is_expired: false, course: { title: 'SEO AI Max' }, progress: { completed: 3, total: 10, percent: 30, can_take_exam: false } }],
+      meta: { current_page: 1, last_page: 1, per_page: 12, total: 1 },
+    });
+
+    render(<MemoryRouter><MyCoursesPage /></MemoryRouter>);
+
+    expect(await screen.findByRole('region', { name: 'Tiến độ học tập' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Đang học' })).toHaveAttribute('aria-pressed', 'true');
+  });
 });

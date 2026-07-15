@@ -28,6 +28,8 @@ describe('LearnCoursePage', () => {
     render(<MemoryRouter initialEntries={['/learn/10']}><Routes><Route path="/learn/:courseId" element={<LearnCoursePage />} /></Routes></MemoryRouter>);
 
     expect(await screen.findByText('Hoàn thành 100% bài học để mở bài kiểm tra.')).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Nội dung khóa học' })).toBeInTheDocument();
+    expect(screen.getByRole('complementary', { name: 'Tiến độ và tài nguyên' })).toBeInTheDocument();
     expect(quiz).not.toHaveBeenCalled();
   });
 
