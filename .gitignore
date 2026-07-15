@@ -59,4 +59,5 @@ yarn-error.log*
 /.codegraph/
 /.code-review-graph/
 /.claude/worktrees/
+/.worktrees/
 /Infra/.env
