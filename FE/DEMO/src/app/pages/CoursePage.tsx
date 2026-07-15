@@ -49,17 +49,14 @@ export function CoursePage() {
   return (
     <Box sx={{ py: { xs: 4, md: 7 } }}>
       <Container maxWidth="lg">
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1.55fr) minmax(290px, .7fr)' }, gap: 4, alignItems: 'start' }}>
-          <Stack spacing={4}>
-            <Box sx={{ bgcolor: '#E9F7F5', border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
-              <Box component="img" src={course.thumbnail ?? FALLBACK_COURSE_IMAGE} alt="" sx={{ width: '100%', height: { xs: 220, md: 360 }, objectFit: 'cover', display: 'block' }} />
-            </Box>
-            <Box sx={{ maxWidth: 760 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) 360px' }, gap: { xs: 3, md: 4 }, alignItems: 'start' }}>
+          <Stack spacing={{ xs: 3, md: 4 }} sx={{ minWidth: 0 }}>
+            <Box sx={{ maxWidth: 820 }}>
               <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
                 {course.category && <Chip label={course.category.name} color="primary" variant="outlined" />}
                 {course.level && <Chip label={{ beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao' }[course.level]} />}
               </Stack>
-              <Typography component="h1" variant="h2" sx={{ fontSize: { xs: '2.25rem', md: '3rem' } }}>{course.title}</Typography>
+              <Typography component="h1" variant="h2" sx={{ fontSize: { xs: '2rem', md: '2.75rem' }, maxWidth: 760 }}>{course.title}</Typography>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 2 }}>
                 <Rating value={course.rating ?? 0} precision={0.1} readOnly size="small" />
                 <Typography variant="body2" color="text.secondary">{course.rating?.toFixed(1) ?? 'Chưa có'} · {course.reviews_count ?? 0} đánh giá</Typography>
@@ -67,10 +64,13 @@ export function CoursePage() {
               <Typography color="text.secondary" sx={{ mt: 3, whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>{course.description || 'Nội dung khóa học đang được cập nhật.'}</Typography>
               {course.instructor_name && <Typography sx={{ mt: 2 }}><Typography component="span" fontWeight={700}>Giảng viên:</Typography> {course.instructor_name}</Typography>}
             </Box>
+            <Box sx={{ bgcolor: '#E9F7F5', border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden' }}>
+              <Box component="img" src={course.thumbnail ?? FALLBACK_COURSE_IMAGE} alt="" sx={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', display: 'block' }} />
+            </Box>
             <Divider />
             <Box>
               <Typography component="h2" variant="h5" fontWeight={800}>Nội dung khóa học</Typography>
-              <Stack spacing={1} sx={{ mt: 2, border: '1px solid', borderColor: 'divider', borderRadius: 3, bgcolor: 'background.paper', px: 2.5 }} divider={<Divider flexItem />}>
+              <Stack spacing={1} sx={{ mt: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2.5, bgcolor: 'background.paper', px: { xs: 2, sm: 2.5 } }} divider={<Divider flexItem />}>
                 {(course.lessons ?? []).length === 0 && <Box sx={{ py: 2 }}><EmptyState title="Nội dung bài học đang được cập nhật." /></Box>}
                 {(course.lessons ?? []).map((lesson) => (
                   <Stack key={lesson.id} direction="row" spacing={1.5} alignItems="center" sx={{ py: 1.75 }}>
@@ -95,16 +95,16 @@ export function CoursePage() {
               </Stack>
             </Box>
           </Stack>
-          <Card sx={{ position: { md: 'sticky' }, top: 96 }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="overline" color="text.secondary" fontWeight={700}>ĐĂNG KÝ KHÓA HỌC</Typography>
-              <Typography variant="h4" fontWeight={800} color="primary.dark" sx={{ mt: 1 }}>{Number(course.price) === 0 ? 'Miễn phí' : `${Number(course.price).toLocaleString('vi-VN')} đ`}</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{course.lessons_count ?? course.lessons?.length ?? 0} bài học · Truy cập trong 1 năm</Typography>
+          <Card component="aside" aria-label="Thông tin đăng ký" variant="outlined" sx={{ position: { md: 'sticky' }, top: 96, borderRadius: 2.5 }}>
+            <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
+              <Typography component="h2" variant="h6" fontWeight={800}>Thông tin đăng ký</Typography>
+              <Typography variant="h4" fontWeight={800} color="primary.dark" sx={{ mt: 1.5 }}>{Number(course.price) === 0 ? 'Miễn phí' : `${Number(course.price).toLocaleString('vi-VN')} đ`}</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{course.lessons_count ?? course.lessons?.length ?? 0} bài học</Typography>
               <Button component={Link} to={checkoutPath} state={{ course }} variant="contained" fullWidth sx={{ mt: 3 }}>
                 {user ? 'Đăng ký khóa học' : 'Đăng nhập để đăng ký'}
               </Button>
               <Stack spacing={1.25} sx={{ mt: 3 }}>
-                {['Theo dõi tiến độ học', 'Bài kiểm tra cuối khóa', 'Chứng chỉ khi đạt điều kiện'].map((text) => <Stack key={text} direction="row" spacing={1} alignItems="center"><CheckRoundedIcon color="success" fontSize="small" /><Typography variant="body2">{text}</Typography></Stack>)}
+                {['Theo dõi tiến độ học', 'Bài kiểm tra cuối khóa', 'Chứng chỉ khi đạt điều kiện'].map((text) => <Stack key={text} direction="row" spacing={1} alignItems="center"><CheckRoundedIcon color="primary" fontSize="small" /><Typography variant="body2">{text}</Typography></Stack>)}
               </Stack>
             </CardContent>
           </Card>

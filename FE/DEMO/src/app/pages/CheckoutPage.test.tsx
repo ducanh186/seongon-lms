@@ -38,11 +38,14 @@ describe('CheckoutPage', () => {
     payOrder.mockRejectedValue(new ApiError('Thanh toán thất bại.', 422));
 
     render(<MemoryRouter><CheckoutPage /></MemoryRouter>);
+    expect(await screen.findByRole('complementary', { name: 'Tóm tắt đơn đăng ký' })).toBeInTheDocument();
     const user = userEvent.setup();
-    await user.click(await screen.findByRole('button', { name: 'Tạo đơn đăng ký' }));
+    await user.click(screen.getByRole('button', { name: 'Tạo đơn đăng ký' }));
     await user.click(await screen.findByRole('button', { name: 'Xác nhận thanh toán' }));
 
     expect(await screen.findByText('Thanh toán thất bại.')).toBeInTheDocument();
+    expect(createOrder).toHaveBeenCalledWith('student-token', 10);
+    expect(payOrder).toHaveBeenCalledWith('student-token', 44, 'qr');
     expect(navigate).not.toHaveBeenCalled();
   });
 

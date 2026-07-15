@@ -10,6 +10,7 @@ import {
   Select,
   Stack,
   TextField,
+  Typography,
 } from '@mui/material';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import { useSearchParams } from 'react-router';
@@ -57,65 +58,92 @@ export function CatalogPage() {
   return (
     <Box component="section" sx={{ py: { xs: 5, md: 8 }, minHeight: '70dvh' }}>
       <Container maxWidth="lg">
-        <Stack spacing={4}>
+        <Stack spacing={{ xs: 3, md: 4 }}>
           <PageHeader eyebrow="THƯ VIỆN KHÓA HỌC" title="Tìm đúng lộ trình cho mục tiêu của bạn" description="Tìm theo từ khóa, lọc theo chủ đề và sắp xếp các khóa học đang được xuất bản từ hệ thống." />
 
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }} sx={{ p: { xs: 2, md: 2.5 }, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3, boxShadow: 1 }}>
-            <TextField
-              fullWidth
-              label="Tìm khóa học"
-              placeholder="Ví dụ: SEO, Content Marketing..."
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={(event) => event.key === 'Enter' && applyQuery()}
-            />
-            <FormControl fullWidth>
-              <InputLabel id="course-category-label">Danh mục</InputLabel>
-              <Select
-                labelId="course-category-label"
-                label="Danh mục"
-                value={category}
-                onChange={(event) => {
-                  setCategory(event.target.value);
-                  setPage(1);
-                  setSearchParams({ ...(query && { q: query }), ...(event.target.value && { category: event.target.value }), ...(sort !== 'newest' && { sort }) });
-                }}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '260px minmax(0, 1fr)' }, gap: { xs: 2.5, md: 3 }, alignItems: 'start' }}>
+            <Stack
+              component="aside"
+              aria-label="Bộ lọc khóa học"
+              spacing={2.25}
+              sx={{ p: 2.5, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2.5, position: { md: 'sticky' }, top: 96 }}
+            >
+              <Box>
+                <Typography component="h2" variant="h6" fontWeight={800}>Bộ lọc</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: .5 }}>Thu hẹp danh sách theo nhu cầu học.</Typography>
+              </Box>
+              <FormControl fullWidth>
+                <InputLabel id="course-category-label">Danh mục</InputLabel>
+                <Select
+                  labelId="course-category-label"
+                  label="Danh mục"
+                  value={category}
+                  onChange={(event) => {
+                    setCategory(event.target.value);
+                    setPage(1);
+                    setSearchParams({ ...(query && { q: query }), ...(event.target.value && { category: event.target.value }), ...(sort !== 'newest' && { sort }) });
+                  }}
+                >
+                  <MenuItem value="">Tất cả danh mục</MenuItem>
+                  {categories.map((item) => <MenuItem key={item.id} value={item.slug}>{item.name}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel id="course-sort-label">Sắp xếp</InputLabel>
+                <Select labelId="course-sort-label" label="Sắp xếp" value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }}>
+                  <MenuItem value="newest">Mới nhất</MenuItem>
+                  <MenuItem value="popular">Phổ biến</MenuItem>
+                  <MenuItem value="price_asc">Giá tăng dần</MenuItem>
+                  <MenuItem value="price_desc">Giá giảm dần</MenuItem>
+                </Select>
+              </FormControl>
+            </Stack>
+
+            <Stack spacing={3} sx={{ minWidth: 0 }}>
+              <Stack
+                component="form"
+                role="search"
+                aria-label="Tìm khóa học"
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={1.5}
+                onSubmit={(event) => { event.preventDefault(); applyQuery(); }}
+                sx={{ p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2.5 }}
               >
-                <MenuItem value="">Tất cả danh mục</MenuItem>
-                {categories.map((item) => <MenuItem key={item.id} value={item.slug}>{item.name}</MenuItem>)}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel id="course-sort-label">Sắp xếp</InputLabel>
-              <Select labelId="course-sort-label" label="Sắp xếp" value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }}>
-                <MenuItem value="newest">Mới nhất</MenuItem>
-                <MenuItem value="popular">Phổ biến</MenuItem>
-                <MenuItem value="price_asc">Giá tăng dần</MenuItem>
-                <MenuItem value="price_desc">Giá giảm dần</MenuItem>
-              </Select>
-            </FormControl>
-            <Button variant="contained" size="large" onClick={applyQuery} startIcon={<SearchRoundedIcon />} sx={{ whiteSpace: 'nowrap' }}>Tìm kiếm</Button>
-          </Stack>
+                <TextField
+                  fullWidth
+                  label="Tìm khóa học"
+                  placeholder="Ví dụ: SEO, Content Marketing..."
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+                <Button type="submit" variant="contained" size="large" startIcon={<SearchRoundedIcon />} sx={{ whiteSpace: 'nowrap', minWidth: 132 }}>Tìm kiếm</Button>
+              </Stack>
 
-          {error && <RequestError message={error} onRetry={() => setReloadKey((value) => value + 1)} />}
+              {catalog && (
+                <Typography variant="body2" color="text.secondary">
+                  {catalog.meta.total.toLocaleString('vi-VN')} khóa học phù hợp
+                </Typography>
+              )}
 
-          {!catalog && !error && (
-            <PageSkeleton rows={4} />
-          )}
+              {error && <RequestError message={error} onRetry={() => setReloadKey((value) => value + 1)} />}
 
-          {catalog?.data.length === 0 && (
-            <EmptyState title="Không tìm thấy khóa học phù hợp. Hãy thử thay đổi từ khóa hoặc bộ lọc." />
-          )}
+              {!catalog && !error && <PageSkeleton rows={4} />}
 
-          {catalog && catalog.data.length > 0 && (
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 3 }}>
-              {catalog.data.map((course) => <CourseCard key={course.id} course={course} headingLevel="h2" />)}
-            </Box>
-          )}
+              {catalog?.data.length === 0 && (
+                <EmptyState title="Không tìm thấy khóa học phù hợp. Hãy thử thay đổi từ khóa hoặc bộ lọc." />
+              )}
 
-          {catalog && catalog.meta.last_page > 1 && (
-            <Pagination count={catalog.meta.last_page} page={page} onChange={(_, nextPage) => setPage(nextPage)} color="primary" sx={{ alignSelf: 'center' }} />
-          )}
+              {catalog && catalog.data.length > 0 && (
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', xl: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
+                  {catalog.data.map((course) => <CourseCard key={course.id} course={course} headingLevel="h2" />)}
+                </Box>
+              )}
+
+              {catalog && catalog.meta.last_page > 1 && (
+                <Pagination count={catalog.meta.last_page} page={page} onChange={(_, nextPage) => setPage(nextPage)} color="primary" sx={{ alignSelf: 'center' }} />
+              )}
+            </Stack>
+          </Box>
         </Stack>
       </Container>
     </Box>

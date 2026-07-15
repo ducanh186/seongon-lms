@@ -48,6 +48,8 @@ describe('CatalogPage', () => {
       </MemoryRouter>,
     );
 
+    expect(screen.getByRole('search', { name: 'Tìm khóa học' })).toBeInTheDocument();
+    expect(screen.getByRole('complementary', { name: 'Bộ lọc khóa học' })).toBeInTheDocument();
     expect(await screen.findByRole('heading', { name: 'SEO Foundation' })).toBeInTheDocument();
     expect(screen.getByText('299.000 đ')).toBeInTheDocument();
     expect(screen.getByText('12 bài học')).toBeInTheDocument();

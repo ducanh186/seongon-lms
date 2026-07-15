@@ -19,11 +19,14 @@ describe('AuthPage', () => {
     }));
 
     render(<MemoryRouter><AuthPage /></MemoryRouter>);
+    expect(screen.getByRole('complementary', { name: 'Giới thiệu nền tảng học tập' })).toBeInTheDocument();
+    expect(screen.getByRole('form', { name: 'Đăng nhập hoặc đăng ký' })).toBeInTheDocument();
     const user = userEvent.setup();
     await user.type(screen.getByLabelText(/Email/), 'student@example.test');
     await user.type(screen.getByLabelText(/Mật khẩu/), 'SecurePass123!');
     await user.click(screen.getByRole('button', { name: 'Đăng nhập' }));
 
     expect(await screen.findByText('Email không đúng định dạng.')).toBeInTheDocument();
+    expect(login).toHaveBeenCalledWith('student@example.test', 'SecurePass123!');
   });
 });
