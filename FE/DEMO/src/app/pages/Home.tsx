@@ -2,18 +2,32 @@ import { useEffect, useState } from 'react';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined';
+import FactCheckOutlinedIcon from '@mui/icons-material/FactCheckOutlined';
 import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
+import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined';
 import { Link } from 'react-router';
 import { CourseCard } from '../components/CourseCard';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
+import { HeroBanner } from '../components/HeroBanner';
+import { MetricsStrip } from '../components/MetricsStrip';
+import { SectionHeading } from '../components/SectionHeading';
 import { api, ApiError } from '../lib/api';
 import type { ApiCategory, ApiCourse } from '../lib/contracts';
+import { focusTokens, layoutTokens } from '../theme';
 
 const benefits = [
   { icon: AutoStoriesOutlinedIcon, title: 'Lộ trình rõ ràng', detail: 'Học theo thứ tự bài học và luôn biết bước tiếp theo.' },
   { icon: InsightsOutlinedIcon, title: 'Tiến độ minh bạch', detail: 'Theo dõi mức hoàn thành của từng khóa học.' },
   { icon: WorkspacePremiumOutlinedIcon, title: 'Chứng chỉ hoàn thành', detail: 'Nhận chứng chỉ khi hoàn thành bài học và vượt qua bài thi.' },
+];
+
+const capabilities = [
+  { icon: <AutoStoriesOutlinedIcon fontSize="small" />, label: 'Lộ trình bài học' },
+  { icon: <InsightsOutlinedIcon fontSize="small" />, label: 'Theo dõi tiến độ' },
+  { icon: <FactCheckOutlinedIcon fontSize="small" />, label: 'Bài kiểm tra cuối khóa' },
+  { icon: <WorkspacePremiumOutlinedIcon fontSize="small" />, label: 'Chứng chỉ hoàn thành' },
+  { icon: <RateReviewOutlinedIcon fontSize="small" />, label: 'Đánh giá khóa học' },
 ];
 
 export function Home() {
@@ -32,7 +46,7 @@ export function Home() {
       .then(([categoryResult, courseResult]) => {
         if (!active) return;
         setCategories(categoryResult.data);
-        setCourses(courseResult.data.slice(0, 6));
+        setCourses(courseResult.data.slice(0, 8));
       })
       .catch((reason: unknown) => {
         if (active) setError(reason instanceof ApiError ? reason.message : 'Không thể tải nội dung trang chủ.');
@@ -41,86 +55,96 @@ export function Home() {
     return () => { active = false; };
   }, [reloadKey]);
 
+  const discoveryCourses = courses?.slice(1) ?? null;
+
   return (
     <>
-      <Box component="section" sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#E9F7F5', py: { xs: 7, md: 11 }, borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Box aria-hidden="true" sx={{ position: 'absolute', width: 430, height: 430, borderRadius: '50%', bgcolor: 'rgba(182,43,113,.10)', right: { xs: -300, md: -90 }, top: -220 }} />
-        <Container maxWidth="lg" sx={{ position: 'relative' }}>
-          <Box sx={{ maxWidth: 780 }}>
-            <Typography variant="overline" color="secondary.dark" fontWeight={800} letterSpacing=".11em">SEONGON ACADEMY</Typography>
-            <Typography component="h1" variant="h1" sx={{ fontSize: { xs: '2.55rem', sm: '3.4rem', md: '4.35rem' }, mt: 1 }}>
-              Học marketing với một lộ trình thật sự rõ ràng.
-            </Typography>
-            <Typography sx={{ mt: 3, fontSize: { xs: '1.05rem', md: '1.2rem' }, color: 'text.secondary', maxWidth: 650, lineHeight: 1.75 }}>
-              Tìm khóa học phù hợp, học theo từng bài, kiểm tra kiến thức và theo dõi tiến độ trong cùng một không gian.
-            </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 4 }}>
-              <Button component={Link} to="/courses" size="large" variant="contained" endIcon={<ArrowForwardRoundedIcon />}>Khám phá khóa học</Button>
-              <Button component={Link} to="/login" size="large" variant="outlined">Bắt đầu học</Button>
-            </Stack>
-          </Box>
-        </Container>
-      </Box>
+      {!courses && !error && (
+        <Box component="section" aria-label="Đang tải khóa học nổi bật" sx={{ minHeight: { xs: 520, md: 460 }, bgcolor: 'secondary.dark', display: 'grid', alignItems: 'center' }}>
+          <Container maxWidth={false} sx={{ maxWidth: layoutTokens.contentMaxWidth }}>
+            <PageSkeleton rows={2} />
+          </Container>
+        </Box>
+      )}
+      {courses && <HeroBanner courses={courses} />}
+      <MetricsStrip items={capabilities} />
 
-      <Container component="section" maxWidth="lg" sx={{ py: { xs: 6, md: 9 } }}>
-        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ md: 'end' }} spacing={2}>
-          <Box>
-            <Typography variant="overline" color="primary.dark" fontWeight={800}>KHÁM PHÁ THEO CHỦ ĐỀ</Typography>
-            <Typography component="h2" variant="h3" sx={{ mt: 0.5 }}>Bắt đầu từ điều bạn muốn giỏi hơn</Typography>
-          </Box>
-          <Button component={Link} to="/courses" endIcon={<ArrowForwardRoundedIcon />}>Xem tất cả</Button>
-        </Stack>
+      <Container component="section" maxWidth={false} sx={{ maxWidth: layoutTokens.contentMaxWidth, py: layoutTokens.sectionPadding }}>
+        <SectionHeading
+          title="Khám phá theo chủ đề"
+          description="Chọn đúng lĩnh vực để bắt đầu với lộ trình phù hợp."
+          action={<Button component={Link} to="/courses" endIcon={<ArrowForwardRoundedIcon />}>Xem tất cả</Button>}
+        />
         {!categories && !error && <Box sx={{ mt: 4 }}><PageSkeleton rows={2} /></Box>}
         {error && <Box sx={{ mt: 4 }}><RequestError message={error} onRetry={() => setReloadKey((value) => value + 1)} /></Box>}
         {categories && categories.length === 0 && <Box sx={{ mt: 4 }}><EmptyState title="Chưa có danh mục khóa học." /></Box>}
         {categories && categories.length > 0 && (
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2, mt: 4 }}>
-            {categories.map((category, index) => (
+          <Box component="nav" aria-label="Danh mục khóa học" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 1.5, mt: 4 }}>
+            {categories.map((category) => (
               <Box
                 key={category.id}
                 component={Link}
                 to={`/courses?category=${category.slug}`}
-                aria-label={`Khám phá ${category.courses_count ?? 0} khóa học ${category.name}`}
-                sx={{ textDecoration: 'none', color: 'inherit', p: 3, border: '1px solid', borderColor: 'divider', borderRadius: 3, bgcolor: 'background.paper', transition: 'transform 160ms ease, border-color 160ms ease', '&:hover': { transform: 'translateY(-2px)', borderColor: index === 0 ? 'secondary.main' : 'primary.main' }, '&:focus-visible': { outline: '3px solid rgba(8,126,139,.3)', outlineOffset: 3 } }}
+                aria-label={`Khám phá khóa học ${category.name}`}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 2,
+                  minHeight: 76,
+                  p: 2,
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: '10px',
+                  bgcolor: 'background.paper',
+                  transition: 'transform 160ms ease',
+                  '&:hover': { transform: 'translateY(-2px)', borderColor: 'primary.main' },
+                  '&:focus-visible': { outline: `3px solid ${focusTokens.onLight}`, outlineOffset: 3 },
+                }}
               >
-                <Typography variant="caption" color={index === 0 ? 'secondary.dark' : 'primary.dark'} fontWeight={800}>{String(index + 1).padStart(2, '0')}</Typography>
-                <Typography component="h3" variant="h6" sx={{ mt: 1 }}>{category.name}</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{category.courses_count ?? 0} khóa học</Typography>
+                <Typography component="h3" variant="body1" fontWeight={800}>{category.name}</Typography>
+                {category.courses_count != null && <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>{category.courses_count} khóa học</Typography>}
               </Box>
             ))}
           </Box>
         )}
       </Container>
 
-      <Box component="section" sx={{ bgcolor: '#EEF5F5', py: { xs: 6, md: 9 } }}>
-        <Container maxWidth="lg">
-          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ md: 'end' }} spacing={2}>
-            <Box>
-              <Typography variant="overline" color="secondary.dark" fontWeight={800}>ĐƯỢC QUAN TÂM</Typography>
-              <Typography component="h2" variant="h3" sx={{ mt: 0.5 }}>Khóa học phổ biến</Typography>
-            </Box>
-            <Typography color="text.secondary" sx={{ maxWidth: 470 }}>Dữ liệu được lấy trực tiếp từ danh mục đang xuất bản của SEONGON Academy.</Typography>
-          </Stack>
-          {!courses && !error && <Box sx={{ mt: 4 }}><PageSkeleton rows={3} /></Box>}
-          {courses && courses.length === 0 && <Box sx={{ mt: 4 }}><EmptyState title="Chưa có khóa học đang xuất bản." /></Box>}
-          {courses && courses.length > 0 && (
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 3, mt: 4 }}>
-              {courses.map((course) => <CourseCard key={course.id} course={course} />)}
+      <Box component="section" sx={{ bgcolor: 'primary.light', py: layoutTokens.sectionPadding }}>
+        <Container maxWidth={false} sx={{ maxWidth: layoutTokens.contentMaxWidth }}>
+          <SectionHeading
+            title="Khóa học phổ biến"
+            description="Dữ liệu được lấy trực tiếp từ danh mục đang xuất bản của SEONGON Academy."
+          />
+          {!discoveryCourses && !error && <Box sx={{ mt: 4 }}><PageSkeleton rows={3} /></Box>}
+          {discoveryCourses && discoveryCourses.length === 0 && <Box sx={{ mt: 4 }}><EmptyState title="Chưa có thêm khóa học phổ biến." /></Box>}
+          {discoveryCourses && discoveryCourses.length > 0 && (
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2, mt: 4 }}>
+              {discoveryCourses.map((course) => <CourseCard key={course.id} course={course} compact />)}
             </Box>
           )}
         </Container>
       </Box>
 
-      <Container component="section" maxWidth="lg" sx={{ py: { xs: 6, md: 9 } }}>
-        <Typography component="h2" variant="h3">Một nơi cho toàn bộ quá trình học</Typography>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mt: 4 }}>
+      <Container component="section" maxWidth={false} sx={{ maxWidth: layoutTokens.contentMaxWidth, py: layoutTokens.sectionPadding }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 4fr) minmax(0, 8fr)' }, gap: { xs: 4, md: 8 }, alignItems: 'start' }}>
+          <SectionHeading
+            title="Một nơi cho toàn bộ quá trình học"
+            description="Từ bài học đầu tiên đến khi hoàn thành khóa học."
+          />
+          <Stack sx={{ borderTop: '1px solid', borderColor: 'divider' }}>
           {benefits.map(({ icon: Icon, title, detail }) => (
-            <Box key={title} sx={{ p: 3.5, border: '1px solid', borderColor: 'divider', borderRadius: 3, bgcolor: 'background.paper' }}>
-              <Box sx={{ display: 'inline-grid', placeItems: 'center', width: 52, height: 52, borderRadius: 2.5, bgcolor: 'primary.light' }}><Icon color="primary" /></Box>
-              <Typography component="h3" variant="h6" sx={{ mt: 2.5 }}>{title}</Typography>
-              <Typography color="text.secondary" sx={{ mt: 1, lineHeight: 1.7 }}>{detail}</Typography>
+            <Box key={title} sx={{ display: 'grid', gridTemplateColumns: '44px minmax(0, 1fr)', gap: 2.5, py: 3, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Box sx={{ display: 'grid', placeItems: 'center', width: 44, height: 44, borderRadius: '8px', bgcolor: 'primary.light' }}><Icon color="primary" /></Box>
+              <Box>
+                <Typography component="h3" variant="h6">{title}</Typography>
+                <Typography color="text.secondary" sx={{ mt: 0.75, lineHeight: 1.7 }}>{detail}</Typography>
+              </Box>
             </Box>
           ))}
+          </Stack>
         </Box>
       </Container>
     </>

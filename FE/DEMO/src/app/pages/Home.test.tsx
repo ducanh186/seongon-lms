@@ -42,11 +42,13 @@ describe('Home', () => {
     });
   });
 
-  it('uses real API categories and popular courses for discovery', async () => {
+  it('renders a real-course banner and dense discovery sections', async () => {
     render(<MemoryRouter><Home /></MemoryRouter>);
 
-    expect(await screen.findByRole('heading', { name: 'SEO Foundation' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Khám phá 4 khóa học SEO/i })).toHaveAttribute('href', '/courses?category=seo');
+    expect(await screen.findByRole('region', { name: 'Khóa học nổi bật' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'SEO Foundation' })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Danh mục khóa học' })).toBeInTheDocument();
+    expect(screen.queryByText(/400k|30k|99%/i)).not.toBeInTheDocument();
     expect(api.courses).toHaveBeenCalledWith({ sort: 'popular' });
   });
 });
