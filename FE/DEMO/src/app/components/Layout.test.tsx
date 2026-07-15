@@ -45,9 +45,10 @@ function renderLayout(path = '/', role: 'student' | 'admin' | null = null) {
 }
 
 describe('Layout', () => {
-  it('uses a 3:1 opaque focus outline against shared light surfaces', () => {
+  it('uses 3:1 focus outlines across shared light and dark surfaces', () => {
     const buttonStyles = theme.components?.MuiButtonBase?.styleOverrides?.root as {
       '&.Mui-focusVisible'?: { outline?: string };
+      '[data-surface="dark"] &.Mui-focusVisible'?: { outlineColor?: string };
     };
     const outline = buttonStyles['&.Mui-focusVisible']?.outline ?? '';
 
@@ -55,6 +56,13 @@ describe('Layout', () => {
     const focusColor = outline.split(' ').at(-1) ?? '';
     expect(contrastRatio(focusColor, '#FFFFFF')).toBeGreaterThanOrEqual(3);
     expect(contrastRatio(focusColor, '#F2F6F8')).toBeGreaterThanOrEqual(3);
+
+    const darkSurfaceFocusColor = buttonStyles['[data-surface="dark"] &.Mui-focusVisible']?.outlineColor ?? '';
+    expect(darkSurfaceFocusColor).toMatch(/^#[\da-f]{6}$/i);
+    expect(contrastRatio(darkSurfaceFocusColor, '#102E38')).toBeGreaterThanOrEqual(3);
+
+    renderLayout();
+    expect(screen.getByRole('contentinfo')).toHaveAttribute('data-surface', 'dark');
   });
 
   it('exposes reference-led discovery actions and role links', () => {

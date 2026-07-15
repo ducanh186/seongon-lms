@@ -8,7 +8,7 @@ export function Layout() {
     <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       <GlobalHeader />
       <Box component="main" sx={{ flexGrow: 1 }}><Outlet /></Box>
-      <Box component="footer" sx={{ borderTop: '1px solid', borderColor: 'divider', bgcolor: '#102E38', color: 'common.white', py: { xs: 4, md: 5 }, mt: 'auto' }}>
+      <Box component="footer" data-surface="dark" sx={{ borderTop: '1px solid', borderColor: 'divider', bgcolor: '#102E38', color: 'common.white', py: { xs: 4, md: 5 }, mt: 'auto' }}>
         <Container maxWidth={false} sx={{ maxWidth: layoutTokens.contentMaxWidth }}>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ md: 'center' }}>
             <Box>
