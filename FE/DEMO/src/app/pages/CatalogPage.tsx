@@ -6,21 +6,30 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
+  Modal,
   Pagination,
   Select,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import { useSearchParams } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiCategory, ApiCourse, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { CourseCard } from '../components/CourseCard';
 import { PageHeader } from '../components/PageHeader';
+import { useIsMobile } from '../components/ui/use-mobile';
+
+const SORT_OPTIONS = [
+  ['newest', 'Mới nhất'],
+  ['popular', 'Phổ biến'],
+  ['price_asc', 'Giá tăng dần'],
+  ['price_desc', 'Giá giảm dần'],
+] as const;
 
 export function CatalogPage() {
+  const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [catalog, setCatalog] = useState<Paginated<ApiCourse> | null>(null);
@@ -30,6 +39,7 @@ export function CatalogPage() {
   const [page, setPage] = useState(1);
   const [reloadKey, setReloadKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     api.categories().then(({ data }) => setCategories(data)).catch(() => setCategories([]));
@@ -49,55 +59,80 @@ export function CatalogPage() {
     };
   }, [category, page, query, reloadKey, sort]);
 
+  const syncUrl = (nextCategory = category) => {
+    setSearchParams({ ...(query && { q: query }), ...(nextCategory && { category: nextCategory }), ...(sort !== 'newest' && { sort }) });
+  };
+
   const applyQuery = () => {
     setPage(1);
-    setSearchParams({ ...(query && { q: query }), ...(category && { category }), ...(sort !== 'newest' && { sort }) });
+    syncUrl();
     setReloadKey((value) => value + 1);
   };
 
-  return (
-    <Box component="section" sx={{ py: { xs: 5, md: 8 }, minHeight: '70dvh' }}>
-      <Container maxWidth="lg">
-        <Stack spacing={{ xs: 3, md: 4 }}>
-          <PageHeader eyebrow="THƯ VIỆN KHÓA HỌC" title="Tìm đúng lộ trình cho mục tiêu của bạn" description="Tìm theo từ khóa, lọc theo chủ đề và sắp xếp các khóa học đang được xuất bản từ hệ thống." />
+  const filterPanel = (
+    <Stack
+      id="course-filters"
+      component="aside"
+      aria-label="Bộ lọc khóa học"
+      spacing={2}
+      sx={isMobile
+        ? { position: 'fixed', inset: '0 auto 0 0', width: 'min(88vw, 360px)', overflowY: 'auto', bgcolor: 'background.paper', p: 2.5 }
+        : { p: 2.5, bgcolor: 'background.paper', boxShadow: 1, borderRadius: 2.5, position: 'sticky', top: 96 }}
+    >
+      {isMobile && (
+        <Button autoFocus onClick={() => setFiltersOpen(false)}>
+          Đóng bộ lọc
+        </Button>
+      )}
+      <FormControl fullWidth>
+        <InputLabel id="course-category-label">Danh mục</InputLabel>
+        <Select
+          labelId="course-category-label"
+          label="Danh mục"
+          value={category}
+          onChange={(event) => {
+            setCategory(event.target.value);
+            setPage(1);
+            syncUrl(event.target.value);
+          }}
+        >
+          <MenuItem value="">Tất cả danh mục</MenuItem>
+          {categories.map((item) => <MenuItem key={item.id} value={item.slug}>{item.name}</MenuItem>)}
+        </Select>
+      </FormControl>
+      <FormControl fullWidth>
+        <InputLabel id="course-sort-label">Sắp xếp</InputLabel>
+        <Select labelId="course-sort-label" label="Sắp xếp" value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }}>
+          {SORT_OPTIONS.map(([value, label]) => <MenuItem key={value} value={value}>{label}</MenuItem>)}
+        </Select>
+      </FormControl>
+    </Stack>
+  );
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '260px minmax(0, 1fr)' }, gap: { xs: 2.5, md: 3 }, alignItems: 'start' }}>
-            <Stack
-              component="aside"
-              aria-label="Bộ lọc khóa học"
-              spacing={2.25}
-              sx={{ p: 2.5, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2.5, position: { md: 'sticky' }, top: 96 }}
-            >
-              <Box>
-                <Typography component="h2" variant="h6" fontWeight={800}>Bộ lọc</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: .5 }}>Thu hẹp danh sách theo nhu cầu học.</Typography>
-              </Box>
-              <FormControl fullWidth>
-                <InputLabel id="course-category-label">Danh mục</InputLabel>
-                <Select
-                  labelId="course-category-label"
-                  label="Danh mục"
-                  value={category}
-                  onChange={(event) => {
-                    setCategory(event.target.value);
-                    setPage(1);
-                    setSearchParams({ ...(query && { q: query }), ...(event.target.value && { category: event.target.value }), ...(sort !== 'newest' && { sort }) });
-                  }}
+  return (
+    <Box component="section" sx={{ py: 6 }}>
+      <Container maxWidth="lg">
+        <Stack spacing={3}>
+          <PageHeader title="Tìm đúng lộ trình cho mục tiêu của bạn" />
+
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '260px minmax(0, 1fr)' }, gap: 3, alignItems: 'start' }}>
+            {isMobile ? (
+              <>
+                <Button
+                  variant="outlined"
+                  aria-controls="course-filters"
+                  aria-expanded={filtersOpen}
+                  onClick={() => setFiltersOpen(true)}
                 >
-                  <MenuItem value="">Tất cả danh mục</MenuItem>
-                  {categories.map((item) => <MenuItem key={item.id} value={item.slug}>{item.name}</MenuItem>)}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel id="course-sort-label">Sắp xếp</InputLabel>
-                <Select labelId="course-sort-label" label="Sắp xếp" value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }}>
-                  <MenuItem value="newest">Mới nhất</MenuItem>
-                  <MenuItem value="popular">Phổ biến</MenuItem>
-                  <MenuItem value="price_asc">Giá tăng dần</MenuItem>
-                  <MenuItem value="price_desc">Giá giảm dần</MenuItem>
-                </Select>
-              </FormControl>
-            </Stack>
+                  Lọc khóa học
+                </Button>
+                <Modal open={filtersOpen} onClose={() => setFiltersOpen(false)}>
+                  {filterPanel}
+                </Modal>
+              </>
+            ) : (
+              filterPanel
+            )}
 
             <Stack spacing={3} sx={{ minWidth: 0 }}>
               <Stack
@@ -112,15 +147,15 @@ export function CatalogPage() {
                 <TextField
                   fullWidth
                   label="Tìm khóa học"
-                  placeholder="Ví dụ: SEO, Content Marketing..."
+                  placeholder="SEO, Content Marketing..."
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                 />
-                <Button type="submit" variant="contained" size="large" startIcon={<SearchRoundedIcon />} sx={{ whiteSpace: 'nowrap', minWidth: 132 }}>Tìm kiếm</Button>
+                <Button type="submit" variant="contained" size="large">Tìm kiếm</Button>
               </Stack>
 
               {catalog && (
-                <Typography variant="body2" color="text.secondary">
+                <Typography color="text.secondary">
                   {catalog.meta.total.toLocaleString('vi-VN')} khóa học phù hợp
                 </Typography>
               )}
