@@ -19,9 +19,7 @@ import {
   Typography,
 } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
-import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
 import { useParams } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiEnrollment, ApiLesson, ApiProgress, ApiQuiz } from '../lib/contracts';
@@ -40,6 +38,7 @@ export function LearnCoursePage() {
   const [activeLesson, setActiveLesson] = useState<ApiLesson | null>(null);
   const [quiz, setQuiz] = useState<ApiQuiz | null>(null);
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [quizResult, setQuizResult] = useState<Awaited<ReturnType<typeof api.submitQuiz>> | null>(null);
   const [rating, setRating] = useState<number | null>(5);
   const [comment, setComment] = useState('');
   const [notice, setNotice] = useState<string | null>(null);
@@ -87,6 +86,8 @@ export function LearnCoursePage() {
     if (!token || !progress?.can_take_exam) return;
     try {
       setQuiz((await api.quiz(token, courseId)).data);
+      setQuizResult(null);
+      setAnswers({});
       setNotice(null);
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Không thể tải bài kiểm tra.');
@@ -101,9 +102,7 @@ export function LearnCoursePage() {
         courseId,
         quiz.questions.map((question) => ({ question_id: question.id, option_id: answers[question.id] ?? null })),
       );
-      setNotice(result.passed ? `Bạn đã đạt ${result.score}%. Chứng chỉ đã được cấp.` : `Bạn đạt ${result.score}%. Hãy ôn lại và thử lần tiếp theo.`);
-      setQuiz(null);
-      setAnswers({});
+      setQuizResult(result);
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Không thể nộp bài kiểm tra.');
     }
@@ -185,7 +184,7 @@ export function LearnCoursePage() {
             <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1}>
               <Typography component="h2" variant="h5">{activeLesson?.title ?? 'Chọn một bài học'}</Typography>
               {activeLesson?.duration && (
-                <Chip size="small" icon={<ScheduleOutlinedIcon />} label={`${activeLesson.duration} phút`} variant="outlined" />
+                <Chip size="small" label={`${Math.ceil(activeLesson.duration / 60)} phút`} variant="outlined" />
               )}
             </Stack>
             {activeLesson?.video_url ? (
@@ -230,29 +229,61 @@ export function LearnCoursePage() {
               <Button variant="contained" onClick={() => void openQuiz()} sx={{ alignSelf: 'flex-start' }}>Mở bài kiểm tra</Button>
             ) : (
               <Stack spacing={3}>
-                {quiz.questions.map((question, index) => (
-                  <FormControl key={question.id} component="fieldset" fullWidth>
-                    <Typography component="legend" fontWeight={800}>{index + 1}. {question.content}</Typography>
-                    <RadioGroup
-                      value={String(answers[question.id] ?? '')}
-                      onChange={(event) => setAnswers((value) => ({ ...value, [question.id]: Number(event.target.value) }))}
-                      sx={{ mt: 1 }}
-                    >
-                      {question.options.map((option) => (
-                        <FormControlLabel
-                          key={option.id}
-                          value={String(option.id)}
-                          control={<Radio />}
-                          label={option.content}
-                          sx={{ m: 0, px: 1, borderRadius: 1.5, '&:has(.Mui-checked)': { bgcolor: 'primary.light' } }}
-                        />
-                      ))}
-                    </RadioGroup>
-                  </FormControl>
-                ))}
-                <Button variant="contained" disabled={!canSubmitQuiz} onClick={() => void submitQuiz()} sx={{ alignSelf: 'flex-start' }}>
-                  Nộp bài kiểm tra
-                </Button>
+                {quizResult && (
+                  <Alert severity={quizResult.passed ? 'success' : 'warning'}>
+                    <Typography component="h3" fontWeight={800}>Kết quả bài kiểm tra</Typography>
+                    {quizResult.passed
+                      ? `Bạn đã đạt ${quizResult.score}%. Chứng chỉ đã được cấp.`
+                      : `Bạn đạt ${quizResult.score}%. Hãy ôn lại và thử lần tiếp theo.`}
+                  </Alert>
+                )}
+                {quiz.questions.map((question, index) => {
+                  const submittedAnswer = quizResult?.attempt.answers?.find((answer) => answer.question_id === question.id);
+
+                  return (
+                    <FormControl key={question.id} component="fieldset" fullWidth disabled={Boolean(quizResult)}>
+                      <Typography component="legend" fontWeight={800}>{index + 1}. {question.content}</Typography>
+                      <RadioGroup
+                        value={String(answers[question.id] ?? '')}
+                        onChange={(event) => setAnswers((value) => ({ ...value, [question.id]: Number(event.target.value) }))}
+                        sx={{ mt: 1 }}
+                      >
+                        {question.options.map((option) => {
+                          const isSubmittedOption = submittedAnswer?.selected_option_id === option.id;
+                          const resultColor = isSubmittedOption ? (submittedAnswer.is_correct ? 'success' : 'error') : null;
+
+                          return (
+                            <FormControlLabel
+                              key={option.id}
+                              value={String(option.id)}
+                              control={<Radio />}
+                              label={resultColor ? `${option.content} · ${resultColor === 'success' ? 'Đúng' : 'Chưa đúng'}` : option.content}
+                              sx={{
+                                m: 0,
+                                px: 1,
+                                border: '1px solid',
+                                borderColor: resultColor ? `${resultColor}.main` : 'transparent',
+                                borderRadius: 1.5,
+                                bgcolor: resultColor ? `${resultColor}.light` : 'transparent',
+                                '&:has(.Mui-checked)': { bgcolor: resultColor ? `${resultColor}.light` : 'primary.light' },
+                              }}
+                            />
+                          );
+                        })}
+                      </RadioGroup>
+                    </FormControl>
+                  );
+                })}
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  <Button variant="contained" disabled={!canSubmitQuiz || Boolean(quizResult)} onClick={() => void submitQuiz()}>
+                    Nộp bài kiểm tra
+                  </Button>
+                  {quizResult && (
+                    <Button variant="outlined" onClick={() => { setQuizResult(null); setAnswers({}); }}>
+                      Làm lại bài kiểm tra
+                    </Button>
+                  )}
+                </Stack>
               </Stack>
             )}
           </Stack>
@@ -282,7 +313,7 @@ export function LearnCoursePage() {
           <Stack spacing={1.5}>
             <Typography component="h2" variant="h6">Chứng chỉ</Typography>
             <Typography variant="body2" color="text.secondary">Tải chứng chỉ PDF sau khi đạt bài kiểm tra.</Typography>
-            <Button variant="outlined" startIcon={<DownloadOutlinedIcon />} onClick={() => void downloadCertificate()}>
+            <Button variant="outlined" onClick={() => void downloadCertificate()}>
               Tải chứng chỉ
             </Button>
           </Stack>
