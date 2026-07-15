@@ -60,4 +60,5 @@ yarn-error.log*
 /.code-review-graph/
 /.claude/worktrees/
 /.worktrees/
+/.superpowers/
 /Infra/.env
