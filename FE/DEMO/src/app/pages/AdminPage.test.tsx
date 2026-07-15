@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AdminPage } from './AdminPage';
@@ -10,10 +10,11 @@ const adminCourses = vi.hoisted(() => vi.fn());
 const adminReviews = vi.hoisted(() => vi.fn());
 const adminCourse = vi.hoisted(() => vi.fn());
 const reorderLessons = vi.hoisted(() => vi.fn());
+const deleteCourse = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { adminStats, adminUsers, adminCategories, adminCourses, adminReviews, adminCourse, reorderLessons },
+  api: { adminStats, adminUsers, adminCategories, adminCourses, adminReviews, adminCourse, reorderLessons, deleteCourse },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth: () => ({ token: 'admin-token' }) }));
 
@@ -43,6 +44,7 @@ function mockAdminData() {
   adminReviews.mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } });
   adminCourse.mockResolvedValue({ data: selectedCourse });
   reorderLessons.mockResolvedValue({ data: selectedCourse.lessons });
+  deleteCourse.mockResolvedValue({});
 }
 
 describe('AdminPage', () => {
@@ -51,12 +53,50 @@ describe('AdminPage', () => {
     vi.clearAllMocks();
   });
 
+  it('exposes the five-section management navigation and updates its active state', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    const navigation = await screen.findByRole('navigation', { name: 'Quản trị' });
+    expect(within(navigation).getAllByRole('button').map((button) => button.textContent)).toEqual([
+      'Dashboard',
+      'Người dùng',
+      'Danh mục',
+      'Khóa học',
+      'Đánh giá',
+    ]);
+    expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(within(navigation).getByRole('button', { name: 'Khóa học' }));
+
+    expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('table', { name: 'Danh sách khóa học' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Danh sách khóa học, có thể cuộn ngang' })).toHaveAttribute('tabindex', '0');
+  });
+
+  it('names the selected course before running its destructive mutation', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    await user.click(screen.getByRole('button', { name: 'Xóa' }));
+
+    expect(screen.getByRole('dialog', { name: 'Xóa khóa học SEO Foundation?' })).toBeInTheDocument();
+    expect(deleteCourse).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Xác nhận xóa' }));
+
+    expect(deleteCourse).toHaveBeenCalledWith('admin-token', 10);
+  });
+
   it('loads existing quiz questions when an admin opens course content', async () => {
     mockAdminData();
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('tab', { name: 'Khóa học' }));
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
     await user.click(screen.getByRole('button', { name: 'Nội dung' }));
 
     expect(await screen.findByDisplayValue('Câu hỏi hiện có')).toBeInTheDocument();
@@ -69,7 +109,7 @@ describe('AdminPage', () => {
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('tab', { name: 'Khóa học' }));
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
     await user.click(screen.getByRole('button', { name: 'Nội dung' }));
     await user.click(await screen.findByRole('button', { name: 'Di chuyển bài học 1 xuống' }));
 
