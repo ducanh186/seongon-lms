@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MyCoursesPage } from './MyCoursesPage';
@@ -47,5 +47,24 @@ describe('MyCoursesPage', () => {
 
     expect(await screen.findByRole('region', { name: 'Tiến độ học tập' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Đang học' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('keeps mobile course filters accessible and applies the selected filter', async () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 });
+    window.dispatchEvent(new Event('resize'));
+    myCourses.mockResolvedValue({
+      data: [{ id: 3, course_id: 30, enrolled_at: '2026-01-01T00:00:00Z', expires_at: '2027-01-01T00:00:00Z', status: 'active', is_expired: false, course: { title: 'Google Ads thực chiến' }, progress: { completed: 4, total: 10, percent: 40, can_take_exam: false } }],
+      meta: { current_page: 1, last_page: 1, per_page: 12, total: 1 },
+    });
+
+    render(<MemoryRouter><MyCoursesPage /></MemoryRouter>);
+
+    const filters = await screen.findByRole('toolbar', { name: 'Lọc khóa học' });
+    fireEvent.click(screen.getByRole('button', { name: 'Đã hoàn thành' }));
+
+    expect(filters).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Đã hoàn thành' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByText('Google Ads thực chiến')).not.toBeInTheDocument();
+    expect(screen.getByText('Không có khóa học phù hợp với bộ lọc này.')).toBeVisible();
   });
 });

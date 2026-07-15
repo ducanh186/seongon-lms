@@ -77,57 +77,78 @@ export function MyCoursesPage() {
           {!loading && !error && (
             <>
               <Box
-                component="section"
-                aria-label="Tiến độ học tập"
                 sx={{
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' },
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: 2.5,
+                  position: { xs: 'sticky', sm: 'static' },
+                  top: { xs: 72, sm: 'auto' },
+                  zIndex: { xs: 10, sm: 'auto' },
+                  px: { xs: 1, sm: 0 },
+                  py: { xs: 1, sm: 0 },
                   bgcolor: 'background.paper',
-                  overflow: 'hidden',
                 }}
               >
-                {[
-                  { label: 'Tổng khóa học', value: enrollments.length, icon: <MenuBookOutlinedIcon /> },
-                  { label: 'Đang học', value: activeCount, icon: <PlayCircleOutlineIcon /> },
-                  { label: 'Đã hoàn thành', value: completedCount, icon: <CheckCircleOutlineIcon /> },
-                ].map((item, index) => (
-                  <Stack
-                    key={item.label}
-                    direction="row"
-                    spacing={1.5}
-                    alignItems="center"
+                <Stack spacing={1}>
+                  <Box
+                    component="section"
+                    aria-label="Tiến độ học tập"
                     sx={{
-                      p: 2,
-                      borderLeft: { sm: index === 0 ? 0 : '1px solid' },
-                      borderTop: { xs: index === 0 ? 0 : '1px solid', sm: 0 },
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                      border: '1px solid',
                       borderColor: 'divider',
+                      borderRadius: 2.5,
+                      bgcolor: 'background.paper',
+                      overflow: 'hidden',
                     }}
                   >
-                    <Box sx={{ color: 'primary.main', display: 'flex' }}>{item.icon}</Box>
-                    <Box>
-                      <Typography variant="h6" fontWeight={800}>{item.value}</Typography>
-                      <Typography variant="body2" color="text.secondary">{item.label}</Typography>
-                    </Box>
-                  </Stack>
-                ))}
-              </Box>
+                    {[
+                      { label: 'Tổng khóa học', value: enrollments.length, icon: <MenuBookOutlinedIcon /> },
+                      { label: 'Đang học', value: activeCount, icon: <PlayCircleOutlineIcon /> },
+                      { label: 'Đã hoàn thành', value: completedCount, icon: <CheckCircleOutlineIcon /> },
+                    ].map((item, index) => (
+                      <Stack
+                        key={item.label}
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={{ xs: 0.25, sm: 1.5 }}
+                        alignItems={{ xs: 'center', sm: 'center' }}
+                        sx={{
+                          p: { xs: 1, sm: 2 },
+                          minWidth: 0,
+                          textAlign: { xs: 'center', sm: 'left' },
+                          borderLeft: index === 0 ? 0 : '1px solid',
+                          borderColor: 'divider',
+                        }}
+                      >
+                        <Box sx={{ color: 'primary.main', display: 'flex', '& svg': { fontSize: { xs: 20, sm: 24 } } }}>{item.icon}</Box>
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography variant="h6" fontWeight={800}>{item.value}</Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>{item.label}</Typography>
+                        </Box>
+                      </Stack>
+                    ))}
+                  </Box>
 
-              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" aria-label="Lọc khóa học">
-                {filters.map((item) => (
-                  <Button
-                    key={item.value}
-                    size="small"
-                    variant={filter === item.value ? 'contained' : 'outlined'}
-                    aria-pressed={filter === item.value}
-                    onClick={() => setFilter(item.value)}
+                  <Stack
+                    role="toolbar"
+                    direction="row"
+                    spacing={1}
+                    aria-label="Lọc khóa học"
+                    sx={{ justifyContent: { xs: 'space-between', sm: 'flex-start' } }}
                   >
-                    {item.label}
-                  </Button>
-                ))}
-              </Stack>
+                    {filters.map((item) => (
+                      <Button
+                        key={item.value}
+                        size="small"
+                        variant={filter === item.value ? 'contained' : 'outlined'}
+                        aria-pressed={filter === item.value}
+                        onClick={() => setFilter(item.value)}
+                        sx={{ flex: { xs: '1 1 0', sm: '0 0 auto' }, whiteSpace: 'nowrap' }}
+                      >
+                        {item.label}
+                      </Button>
+                    ))}
+                  </Stack>
+                </Stack>
+              </Box>
 
               {enrollments.length === 0 && (
                 <Alert severity="info" action={<Button component={Link} to="/courses" color="inherit" size="small">Khám phá</Button>}>
