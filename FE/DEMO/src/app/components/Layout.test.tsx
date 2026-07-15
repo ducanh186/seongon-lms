@@ -28,6 +28,15 @@ function renderLayout(path = '/', role: 'student' | 'admin' | null = null) {
 }
 
 describe('Layout', () => {
+  it('exposes reference-led discovery actions and role links', () => {
+    renderLayout('/courses', 'admin');
+
+    expect(screen.getByRole('link', { name: 'Trang chủ' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Khóa học' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: 'Quản trị' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Tìm kiếm khóa học' })).toBeInTheDocument();
+  });
+
   it('exposes the mobile navigation state accessibly', async () => {
     renderLayout();
     const user = userEvent.setup();
@@ -44,5 +53,23 @@ describe('Layout', () => {
 
     expect(screen.getAllByRole('link', { name: 'Khóa học' })[0]).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: 'Quản trị' })).toBeInTheDocument();
+  });
+
+  it('does not expose admin navigation to students', () => {
+    renderLayout('/courses', 'student');
+
+    expect(screen.queryByRole('link', { name: 'Quản trị' })).not.toBeInTheDocument();
+  });
+
+  it('preserves the authenticated account menu', async () => {
+    renderLayout('/courses', 'admin');
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: /SEONGON Admin/ }));
+
+    expect(screen.getByRole('menuitem', { name: 'Hồ sơ' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Khóa học của tôi' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Quản trị' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Đăng xuất' })).toBeInTheDocument();
   });
 });

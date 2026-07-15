@@ -7,8 +7,9 @@ describe('AsyncState', () => {
     const onRetry = vi.fn();
     render(<><PageSkeleton /><EmptyState title="Chưa có khóa học" /><RequestError message="Không thể tải dữ liệu" onRetry={onRetry} /></>);
 
-    expect(screen.getByLabelText('Đang tải nội dung')).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Đang tải nội dung' })).toBeInTheDocument();
     expect(screen.getByText('Chưa có khóa học')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Không thể tải dữ liệu');
     screen.getByRole('button', { name: 'Thử lại' }).click();
     expect(onRetry).toHaveBeenCalledOnce();
   });
