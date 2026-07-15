@@ -18,6 +18,7 @@
 - Use only real API data for counts, reviews, ratings, and marketing claims.
 - Do not add blog, cart, jobs, internships, combos, recruiter flows, endpoints, or database fields.
 - Preserve unrelated changes in `README.md`, `SPEC/*`, and `data/*`.
+- Execute every PowerShell or shell command through RTK, for example `rtk npm.cmd test -- --reporter=dot` and `rtk proxy git status --short`.
 - Keep JavaScript bundle growth below 5 percent.
 - Use only opacity and transform for motion and honor `prefers-reduced-motion`.
 - Meet WCAG AA contrast, keyboard navigation, and visible focus requirements.
