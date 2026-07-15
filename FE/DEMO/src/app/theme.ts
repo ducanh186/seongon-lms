@@ -1,6 +1,7 @@
 import { alpha, createTheme } from '@mui/material/styles';
 
 const teal = '#087E8B';
+const focusTeal = '#075E68';
 const navy = '#102A43';
 
 export const layoutTokens = {
@@ -46,7 +47,7 @@ export const theme = createTheme({
         body: { minWidth: 320, backgroundColor: '#F2F6F8', color: navy },
         '::selection': { background: alpha(teal, 0.2) },
         'a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible': {
-          outline: `3px solid ${alpha(teal, 0.36)}`,
+          outline: `3px solid ${focusTeal}`,
           outlineOffset: 3,
         },
         '@media (prefers-reduced-motion: reduce)': {
@@ -56,7 +57,7 @@ export const theme = createTheme({
     },
     MuiButtonBase: {
       styleOverrides: {
-        root: { '&.Mui-focusVisible': { outline: `3px solid ${alpha(teal, 0.32)}`, outlineOffset: 3 } },
+        root: { '&.Mui-focusVisible': { outline: `3px solid ${focusTeal}`, outlineOffset: 3 } },
       },
     },
     MuiButton: {
