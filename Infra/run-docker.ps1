@@ -11,6 +11,96 @@ $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $composeFile = Join-Path $PSScriptRoot 'docker-compose.yml'
 $envFile = Join-Path $PSScriptRoot '.env'
 $envExampleFile = Join-Path $PSScriptRoot '.env.example'
+$script:DockerCommand = $null
+
+function Get-DockerCommand {
+    $command = Get-Command docker -ErrorAction SilentlyContinue
+    if ($null -ne $command) {
+        return $command.Source
+    }
+
+    $candidates = @(
+        (Join-Path $env:LOCALAPPDATA 'Programs\DockerDesktop\resources\bin\docker.exe'),
+        (Join-Path $env:LOCALAPPDATA 'Programs\Docker\Docker\resources\bin\docker.exe'),
+        (Join-Path $env:ProgramFiles 'Docker\Docker\resources\bin\docker.exe')
+    )
+
+    return $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+}
+
+function Get-DockerDesktopExecutable {
+    $candidates = @(
+        (Join-Path $env:LOCALAPPDATA 'Programs\DockerDesktop\Docker Desktop.exe'),
+        (Join-Path $env:LOCALAPPDATA 'Programs\Docker\Docker\Docker Desktop.exe'),
+        (Join-Path $env:ProgramFiles 'Docker\Docker\Docker Desktop.exe')
+    )
+
+    return $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+}
+
+function Install-DockerDesktop {
+    $winget = Get-Command winget -ErrorAction SilentlyContinue
+    if ($null -eq $winget) {
+        throw 'Docker Desktop is not installed and Windows Package Manager (winget) was not found. Install App Installer from https://aka.ms/getwinget, restart PowerShell, and run this script again.'
+    }
+
+    Write-Host 'Docker Desktop is not installed. Installing Docker Desktop with winget...'
+    & $winget.Source install --id Docker.DockerDesktop --exact --source winget --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Docker Desktop installation failed. Review the winget output, then run this script again.'
+    }
+}
+
+function Test-DockerDaemon {
+    if ($null -eq $script:DockerCommand) {
+        return $false
+    }
+
+    & $script:DockerCommand info --format '{{.ServerVersion}}' 2>$null | Out-Null
+    return $LASTEXITCODE -eq 0
+}
+
+function Wait-DockerDaemon {
+    param(
+        [int]$TimeoutSeconds = 300
+    )
+
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
+    do {
+        $script:DockerCommand = Get-DockerCommand
+        if (Test-DockerDaemon) {
+            return $true
+        }
+
+        Start-Sleep -Seconds 5
+    } while ([DateTime]::UtcNow -lt $deadline)
+
+    return $false
+}
+
+function Ensure-DockerReady {
+    $script:DockerCommand = Get-DockerCommand
+    if ($null -eq $script:DockerCommand) {
+        Install-DockerDesktop
+        $script:DockerCommand = Get-DockerCommand
+    }
+
+    if (Test-DockerDaemon) {
+        return
+    }
+
+    $dockerDesktop = Get-DockerDesktopExecutable
+    if ($null -eq $dockerDesktop) {
+        throw 'Docker Desktop was installed but its executable was not found. Restart Windows, then run this script again.'
+    }
+
+    Write-Host 'Starting Docker Desktop and waiting for the Docker daemon...'
+    Start-Process -FilePath $dockerDesktop -WindowStyle Hidden
+
+    if (-not (Wait-DockerDaemon)) {
+        throw "Docker did not become ready within 300 seconds. Restart Windows, run 'wsl --update', confirm WSL 2 and hardware virtualization are enabled, start Docker Desktop, and run this script again."
+    }
+}
 
 function Invoke-Compose {
     param(
@@ -18,7 +108,7 @@ function Invoke-Compose {
         [string[]]$ComposeArguments
     )
 
-    & docker compose --env-file $envFile -f $composeFile @ComposeArguments
+    & $script:DockerCommand compose --env-file $envFile -f $composeFile @ComposeArguments
     if ($LASTEXITCODE -ne 0) {
         throw "docker compose failed: $($ComposeArguments -join ' ')"
     }
@@ -41,14 +131,7 @@ function Get-EnvironmentValue {
     return $match.Matches[0].Groups[1].Value.Trim()
 }
 
-if ($null -eq (Get-Command docker -ErrorAction SilentlyContinue)) {
-    throw 'Docker CLI was not found. Install and start Docker Desktop first.'
-}
-
-& docker info --format '{{.ServerVersion}}' | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    throw 'Docker Desktop is not running or the Docker daemon is unavailable.'
-}
+Ensure-DockerReady
 
 if (-not (Test-Path -LiteralPath $envFile)) {
     Copy-Item -LiteralPath $envExampleFile -Destination $envFile

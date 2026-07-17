@@ -61,6 +61,36 @@ class ReplaceDemoCatalogCommandTest extends TestCase
         $this->assertLessThanOrEqual(8, $counts->max());
     }
 
+    public function test_student_demo_courses_use_distinct_relevant_youtube_lessons(): void
+    {
+        $this->artisan('app:replace-demo-catalog', ['--force' => true])->assertSuccessful();
+
+        $expectedVideos = [
+            'seo-ai-max-01' => ['KjK5-L-wDVg', 'vxoMlEMtwuw', 'TPtCjy4n4cU', '_s2h7X-c2jE'],
+            'seo-ai-max-14' => ['EqMjWU7vF2o', '_oU8lclN114', 'n-kxOhnSH-Q', 'HPL0O7Oe3j0'],
+            'seo-ai-max-27' => ['RFlpwKQ0bEs', 'aLWQqlpwHK8', 'wTwnFcWUM3k', 'G_9-AkZch4k'],
+            'content-seo-09' => ['uG1TG6z8Mz4', '40U1WlmnDFU', '5LF6SwB5jZ0', 'jJPS4M72FLg'],
+        ];
+
+        foreach ($expectedVideos as $courseSlug => $videoIds) {
+            $actualUrls = Course::query()
+                ->where('slug', $courseSlug)
+                ->firstOrFail()
+                ->lessons()
+                ->orderBy('position')
+                ->pluck('video_url')
+                ->all();
+
+            $expectedUrls = array_map(
+                fn (string $videoId): string => "https://www.youtube.com/embed/{$videoId}",
+                $videoIds,
+            );
+
+            $this->assertSame($expectedUrls, $actualUrls, $courseSlug);
+            $this->assertCount(4, array_unique($actualUrls), $courseSlug);
+        }
+    }
+
     public function test_replacement_is_idempotent_for_demo_users_and_catalog(): void
     {
         User::factory()->count(2)->create();
