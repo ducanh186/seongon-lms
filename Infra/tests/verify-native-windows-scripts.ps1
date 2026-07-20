@@ -29,6 +29,7 @@ $requiredRunnerPatterns = @(
 )
 
 $requiredRemovalPatterns = @(
+    'SupportsShouldProcess = $true',
     'DestroyAllData',
     'DELETE DOCKER AND WSL DATA',
     'native-verified.json',
@@ -37,7 +38,10 @@ $requiredRemovalPatterns = @(
     'MicrosoftCorporationII.WindowsSubsystemForLinux',
     'Microsoft-Windows-Subsystem-Linux',
     'VirtualMachinePlatform',
-    'Safe-RemoveDirectory'
+    'Safe-RemoveDirectory',
+    '$PSCmdlet.ShouldProcess',
+    '[IO.Path]::GetFullPath',
+    '-cne'
 )
 
 function Get-ParsedScript {
@@ -134,6 +138,10 @@ Assert-RequiredPatterns -RelativePath 'Infra\run-native-windows.ps1' `
 Assert-RequiredPatterns -RelativePath 'Infra\remove-docker-wsl-windows.ps1' `
     -Content $parsedScripts['Infra\remove-docker-wsl-windows.ps1'].Content `
     -Patterns $requiredRemovalPatterns
+
+if ($parsedScripts['Infra\remove-docker-wsl-windows.ps1'].Content -match 'Invoke-Expression') {
+    throw 'The Docker Desktop uninstall path must not use Invoke-Expression.'
+}
 
 foreach ($relativePath in $expectedScripts) {
     Assert-RecursiveDeletionIsSafe -Ast $parsedScripts[$relativePath].Ast -RelativePath $relativePath
