@@ -54,6 +54,21 @@
 | `-PreflightOnly` | PASS and read-only |
 | `-WhatIf` | PASS; printed `WhatIf mode: preflight only` and read-only preflight output |
 | Full static suite | Expected RED only at missing Task 3 `Infra\\run-native-windows.ps1` |
+
+## Final WhatIf harness hardening
+
+- Replaced PATH-based Composer/npm shims with a child PowerShell proxy harness. The proxies live in the same runspace as `setup-native-windows.ps1`, so a future `Refresh-ProcessPath` cannot remove them.
+- The harness allows only read-only preflight signatures and records then fails on every relevant mutation boundary: `winget.exe`, `php.exe`/`php`, `node.exe`, `composer.bat`/`composer`, `npm.cmd`, `mysql.exe`, `cmd.exe`, `Start-Process`, and `Invoke-WebRequest`.
+- The test still requires a zero child exit code, the explicit proxy-harness/WhatIf preflight messages, no sentinel file, and unchanged repository snapshots.
+
+### Final harness verification
+
+| Check | Result |
+|---|---|
+| Behavioral setup suite with runspace mutation proxies | PASS |
+| Proxy process exit code | `0` |
+| Mutator sentinel | Not created |
+| Repository snapshots | Unchanged |
 | Git status before/after preflight and WhatIf | Identical: only Task 2 source/test changes |
 
 ## Re-review follow-up

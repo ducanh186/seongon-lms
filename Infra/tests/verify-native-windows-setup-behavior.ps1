@@ -82,22 +82,105 @@ $snapshotPaths = @(
 $beforeSnapshot = Get-PathSnapshot -Paths $snapshotPaths
 New-Item -ItemType Directory -Path $sentinelDirectory | Out-Null
 try {
-    $guardScript = "@echo off`r`necho guard-version`r`nif /I `"%1`"==`"install`" echo mutation>%SEONGON_LMS_MUTATION_SENTINEL%`r`nif /I `"%1`"==`"ci`" echo mutation>%SEONGON_LMS_MUTATION_SENTINEL%`r`nexit /b 0`r`n"
-    Set-Content -LiteralPath (Join-Path $sentinelDirectory 'composer.bat') -Value $guardScript -Encoding ASCII
-    Set-Content -LiteralPath (Join-Path $sentinelDirectory 'npm.cmd') -Value $guardScript -Encoding ASCII
+    $harnessPath = Join-Path $sentinelDirectory 'whatif-proxy-harness.ps1'
+    $harness = @'
+param([Parameter(Mandatory)][string]$SetupScript)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+function Add-MutationAttempt {
+    param([Parameter(Mandatory)][string]$Boundary)
+
+    Add-Content -LiteralPath $env:SEONGON_LMS_MUTATION_SENTINEL -Value $Boundary -Encoding ASCII
+    throw "Mutation boundary reached under WhatIf proxy harness: $Boundary"
+}
+
+function Test-ReadOnlyArgument {
+    param([object[]]$Arguments, [string[]]$AllowedFirstArguments)
+
+    return $Arguments.Count -gt 0 -and $AllowedFirstArguments -contains [string]$Arguments[0]
+}
+
+function global:winget.exe {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    if (Test-ReadOnlyArgument -Arguments $Arguments -AllowedFirstArguments @('list')) { return }
+    Add-MutationAttempt -Boundary 'winget.exe'
+}
+
+function global:php.exe {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    if (Test-ReadOnlyArgument -Arguments $Arguments -AllowedFirstArguments @('--version')) { 'PHP 8.3.26'; return }
+    if (Test-ReadOnlyArgument -Arguments $Arguments -AllowedFirstArguments @('-m')) { 'bcmath'; return }
+    if (Test-ReadOnlyArgument -Arguments $Arguments -AllowedFirstArguments @('--ini')) { 'Loaded Configuration File: (none)'; return }
+    Add-MutationAttempt -Boundary 'php.exe'
+}
+
+function global:php {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    Add-MutationAttempt -Boundary 'php'
+}
+
+function global:node.exe {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    if (Test-ReadOnlyArgument -Arguments $Arguments -AllowedFirstArguments @('--version')) { 'v22.22.2'; return }
+    Add-MutationAttempt -Boundary 'node.exe'
+}
+
+function global:composer.bat {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    if (Test-ReadOnlyArgument -Arguments $Arguments -AllowedFirstArguments @('--version')) { 'Composer version guard'; return }
+    Add-MutationAttempt -Boundary 'composer.bat'
+}
+
+function global:composer {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    Add-MutationAttempt -Boundary 'composer'
+}
+
+function global:npm.cmd {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    if (Test-ReadOnlyArgument -Arguments $Arguments -AllowedFirstArguments @('--version')) { '11.12.1'; return }
+    Add-MutationAttempt -Boundary 'npm.cmd'
+}
+
+function global:mysql.exe {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    if (Test-ReadOnlyArgument -Arguments $Arguments -AllowedFirstArguments @('--version')) { 'mysql  Ver 8.0.46'; return }
+    Add-MutationAttempt -Boundary 'mysql.exe'
+}
+
+function global:cmd.exe {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    Add-MutationAttempt -Boundary 'cmd.exe'
+}
+
+function global:Start-Process {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    Add-MutationAttempt -Boundary 'Start-Process'
+}
+
+function global:Invoke-WebRequest {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+    Add-MutationAttempt -Boundary 'Invoke-WebRequest'
+}
+
+Write-Output 'WhatIf proxy harness active'
+. $SetupScript -WhatIf
+exit 0
+'@
+    Set-Content -LiteralPath $harnessPath -Value $harness -Encoding UTF8
     $pwshPath = (Get-Command pwsh.exe -ErrorAction Stop).Source
-    $previousPath = $env:Path
-    $env:Path = $sentinelDirectory + ';' + $env:Path
     $env:SEONGON_LMS_MUTATION_SENTINEL = $mutationSentinel
     try {
-        $whatIfOutput = & $pwshPath -NoProfile -ExecutionPolicy Bypass -File $setupScript -WhatIf *>&1 | Out-String
+        $whatIfOutput = & $pwshPath -NoProfile -ExecutionPolicy Bypass -File $harnessPath $setupScript *>&1 | Out-String
         $whatIfExitCode = $LASTEXITCODE
     }
     finally {
-        $env:Path = $previousPath
         Remove-Item Env:SEONGON_LMS_MUTATION_SENTINEL -ErrorAction SilentlyContinue
     }
     Assert-True ($whatIfExitCode -eq 0) '-WhatIf child process must exit with code 0.'
+    Assert-True ($whatIfOutput -match 'WhatIf proxy harness active') '-WhatIf must execute inside the mutation-proxy harness.'
     Assert-True ($whatIfOutput -match 'WhatIf mode: preflight only') '-WhatIf must route to the read-only preflight path.'
     Assert-False (Test-Path -LiteralPath $mutationSentinel) '-WhatIf must not invoke guarded external mutators.'
     Assert-True ((Get-PathSnapshot -Paths $snapshotPaths) -eq $beforeSnapshot) '-WhatIf must not change relevant repository files.'
