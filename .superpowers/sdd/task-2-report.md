@@ -35,3 +35,23 @@
 - This task intentionally did not execute the install/configuration branch, prompt for MySQL credentials, create a database, or run Laravel/npm commands.
 - MySQL client was not found during preflight. A real setup run will stop at the documented official MySQL 8.0 installer gate until MySQL 8.0 is installed.
 - The full static verifier remains RED until Task 3 adds `Infra/run-native-windows.ps1` and Task 4 adds `Infra/remove-docker-wsl-windows.ps1`.
+
+## Reviewer-fix follow-up
+
+- Added post-refresh executable gates for the actual `php.exe` (`PHP 8.3.x`) and `node.exe` (`v22.x`) selected from `PATH`; package presence alone is no longer sufficient.
+- Split MySQL client and server checks. The client banner rejects MariaDB and non-8.0 versions; after the root credential is read, the script queries `SELECT VERSION()` over `--host=127.0.0.1 --port=3306 --protocol=tcp` and requires authenticated server 8.0 before importing SQL. The import is pinned to the same TCP endpoint.
+- Added quoted MySQL option-file value serialization. It escapes backslashes and double quotes, preserves spaces/hashes/semicolons inside quotes, and rejects line breaks. No secret is logged or moved to a command line.
+- Routed `-WhatIf` to the read-only preflight branch before any installer/configuration/database command. Port probing now uses .NET listeners rather than PowerShell module auto-import.
+- Replaced permissive signature cleanup with exact 96-hex-character SHA-384 validation. `-ResumeAfterMySql` now explicitly announces its recheck semantics.
+- Added `Infra/tests/verify-native-windows-setup-behavior.ps1`: it exercises PHP/Node rejection, MySQL/MariaDB rejection, password serialization, localhost TCP argument construction, malformed SHA rejection, exit-code propagation, and an isolated child-process `-WhatIf` run.
+
+### Reviewer-fix verification
+
+| Check | Result |
+|---|---|
+| Behavioral setup safety suite | PASS |
+| PowerShell AST parser | PASS |
+| `-PreflightOnly` | PASS and read-only |
+| `-WhatIf` | PASS; printed `WhatIf mode: preflight only` and read-only preflight output |
+| Full static suite | Expected RED only at missing Task 3 `Infra\\run-native-windows.ps1` |
+| Git status before/after preflight and WhatIf | Identical: only Task 2 source/test changes |

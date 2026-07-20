@@ -40,8 +40,8 @@ function Test-IsAdministrator {
 function Get-PortState {
     param([Parameter(Mandatory)][int]$Port)
 
-    $connection = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue
-    if ($null -ne $connection) {
+    $listeners = [Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties().GetActiveTcpListeners()
+    if ($listeners | Where-Object { $_.Port -eq $Port }) {
         return 'in use'
     }
 
@@ -69,7 +69,8 @@ function Invoke-Preflight {
     Write-Check -Name 'npm' -Value $(if ($npmPath) { (& $npmPath --version) } else { 'not found' })
 
     $mysqlPath = Get-CommandPath -Name 'mysql.exe'
-    Write-Check -Name 'MySQL client/server' -Value $(if ($mysqlPath) { (& $mysqlPath --version) } else { 'not found' })
+    Write-Check -Name 'MySQL client' -Value $(if ($mysqlPath) { (& $mysqlPath --version) } else { 'not found' })
+    Write-Check -Name 'MySQL server' -Value 'not authenticated during preflight'
 
     foreach ($port in @(3306, 8000, 5173)) {
         Write-Check -Name "Port $port" -Value (Get-PortState -Port $port)
@@ -111,6 +112,48 @@ function Get-PhpExecutable {
     }
 
     return $phpPath
+}
+
+function Test-Php83Runtime {
+    param([Parameter(Mandatory)][string]$VersionText)
+
+    return $VersionText -match '^\s*PHP\s+8\.3\.[0-9]+\b'
+}
+
+function Test-Node22Runtime {
+    param([Parameter(Mandatory)][string]$VersionText)
+
+    return $VersionText -match '^v22\.[0-9]+\.[0-9]+\b'
+}
+
+function Assert-ExternalCommandSucceeded {
+    param(
+        [Parameter(Mandatory)][int]$ExitCode,
+        [Parameter(Mandatory)][string]$Operation
+    )
+
+    if ($ExitCode -ne 0) {
+        throw "$Operation failed with exit code $ExitCode."
+    }
+}
+
+function Assert-PostInstallRuntimeVersions {
+    $phpPath = Get-PhpExecutable
+    $phpVersion = (& $phpPath --version | Select-Object -First 1)
+    Assert-ExternalCommandSucceeded -ExitCode $LASTEXITCODE -Operation 'PHP version check'
+    if (-not (Test-Php83Runtime -VersionText $phpVersion)) {
+        throw "The php.exe selected from PATH is not PHP 8.3: $phpVersion"
+    }
+
+    $nodePath = Get-CommandPath -Name 'node.exe'
+    if (-not $nodePath) {
+        throw 'node.exe was not found after Node.js installation.'
+    }
+    $nodeVersion = (& $nodePath --version | Select-Object -First 1)
+    Assert-ExternalCommandSucceeded -ExitCode $LASTEXITCODE -Operation 'Node.js version check'
+    if (-not (Test-Node22Runtime -VersionText $nodeVersion)) {
+        throw "The node.exe selected from PATH is not Node.js 22: $nodeVersion"
+    }
 }
 
 function Enable-PhpExtension {
@@ -163,10 +206,28 @@ function Configure-Php {
     }
 }
 
-function ConvertTo-NormalizedHex {
+function ConvertTo-NormalizedSha384 {
     param([Parameter(Mandatory)][string]$Value)
 
-    return ($Value -replace '[^0-9a-fA-F]', '').ToLowerInvariant()
+    $normalizedValue = $Value.Trim()
+    if ($normalizedValue -notmatch '^[0-9a-fA-F]{96}$') {
+        throw 'Composer SHA-384 signature must contain exactly 96 hexadecimal characters.'
+    }
+    return $normalizedValue.ToLowerInvariant()
+}
+
+function ConvertTo-MySqlOptionFileValue {
+    param([Parameter(Mandatory)][string]$Value)
+
+    if ($Value.Contains("`r") -or $Value.Contains("`n")) {
+        throw 'MySQL option-file values cannot contain line breaks.'
+    }
+    $escapedValue = $Value.Replace('\', '\\').Replace('"', '\"')
+    return '"' + $escapedValue + '"'
+}
+
+function New-MySqlTcpArguments {
+    return @('--host=127.0.0.1', '--port=3306', '--protocol=tcp')
 }
 
 function Safe-RemoveDirectory {
@@ -192,8 +253,8 @@ function Install-Composer {
         Invoke-WebRequest -UseBasicParsing -Uri 'https://composer.github.io/installer.sig' -OutFile $signaturePath
         Invoke-WebRequest -UseBasicParsing -Uri 'https://getcomposer.org/installer' -OutFile $installerPath
 
-        $expectedSha384 = ConvertTo-NormalizedHex -Value (Get-Content -LiteralPath $signaturePath -Raw)
-        $actualSha384 = ConvertTo-NormalizedHex -Value (Get-FileHash -Algorithm SHA384 -LiteralPath $installerPath).Hash
+        $expectedSha384 = ConvertTo-NormalizedSha384 -Value (Get-Content -LiteralPath $signaturePath -Raw)
+        $actualSha384 = ConvertTo-NormalizedSha384 -Value (Get-FileHash -Algorithm SHA384 -LiteralPath $installerPath).Hash
         if ($expectedSha384 -ne $actualSha384) {
             throw 'Composer installer SHA-384 signature verification failed.'
         }
@@ -215,14 +276,26 @@ function Install-Composer {
     }
 }
 
-function Test-MySql80 {
+function Test-MySql80Version {
+    param([Parameter(Mandatory)][string]$VersionText)
+
+    if ($VersionText -match '(?i)mariadb') {
+        return $false
+    }
+    return $VersionText -match '(?<![0-9])8\.0\.[0-9]+'
+}
+
+function Test-MySql80Client {
     $mysqlPath = Get-CommandPath -Name 'mysql.exe'
     if (-not $mysqlPath) {
         return $false
     }
 
     $version = (& $mysqlPath --version) -join ' '
-    return $version -match '(?<![0-9])8\.0\.[0-9]+'
+    if ($LASTEXITCODE -ne 0) {
+        return $false
+    }
+    return Test-MySql80Version -VersionText $version
 }
 
 function Stop-ForMySqlInstallation {
@@ -290,7 +363,14 @@ function Initialize-MySqlDatabase {
         $sqlPath = Join-Path $tempDirectory 'initialize.sql'
         Assert-ChildPath -Directory $tempDirectory -Path $optionPath
         Assert-ChildPath -Directory $tempDirectory -Path $sqlPath
-        Set-Content -LiteralPath $optionPath -Value ("[client]`nuser=root`npassword=$plainRootPassword") -Encoding ASCII
+        $optionFileContent = "[client]`nuser=`"root`"`npassword=$(ConvertTo-MySqlOptionFileValue -Value $plainRootPassword)"
+        Set-Content -LiteralPath $optionPath -Value $optionFileContent -Encoding UTF8
+        $tcpArguments = New-MySqlTcpArguments
+        $serverVersion = (& $mysqlPath "--defaults-extra-file=$optionPath" @tcpArguments --batch --skip-column-names --execute='SELECT VERSION()') -join ' '
+        Assert-ExternalCommandSucceeded -ExitCode $LASTEXITCODE -Operation 'MySQL server version check'
+        if (-not (Test-MySql80Version -VersionText $serverVersion)) {
+            throw "The authenticated MySQL server at 127.0.0.1:3306 is not MySQL 8.0: $serverVersion"
+        }
         $sql = @"
 CREATE DATABASE IF NOT EXISTS `seongon_lms` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'seongon'@'localhost' IDENTIFIED BY '$applicationPassword';
@@ -299,11 +379,9 @@ GRANT ALL PRIVILEGES ON `seongon_lms`.* TO 'seongon'@'localhost';
 FLUSH PRIVILEGES;
 "@
         Set-Content -LiteralPath $sqlPath -Value $sql -Encoding ASCII
-        $importCommand = ('"{0}" --defaults-extra-file="{1}" < "{2}"' -f $mysqlPath, $optionPath, $sqlPath)
+        $importCommand = ('"{0}" --defaults-extra-file="{1}" --host=127.0.0.1 --port=3306 --protocol=tcp < "{2}"' -f $mysqlPath, $optionPath, $sqlPath)
         & cmd.exe /d /c $importCommand
-        if ($LASTEXITCODE -ne 0) {
-            throw 'MySQL database initialization failed.'
-        }
+        Assert-ExternalCommandSucceeded -ExitCode $LASTEXITCODE -Operation 'MySQL database initialization'
         return $applicationPassword
     }
     finally {
@@ -374,24 +452,31 @@ function Configure-LaravelAndDependencies {
     if ($LASTEXITCODE -ne 0) { throw 'npm ci failed.' }
 }
 
-if ($PreflightOnly) {
+if ($PreflightOnly -or $WhatIfPreference) {
+    if ($WhatIfPreference -and -not $PreflightOnly) {
+        Write-Host 'WhatIf mode: preflight only; no install or configuration actions will run.'
+    }
     Invoke-Preflight
-    return
 }
+else {
+    Ensure-WingetPackage -Id 'PHP.PHP.8.3'
+    Ensure-WingetPackage -Id 'OpenJS.NodeJS.22'
+    Refresh-ProcessPath
+    Assert-PostInstallRuntimeVersions
+    Configure-Php
 
-Ensure-WingetPackage -Id 'PHP.PHP.8.3'
-Ensure-WingetPackage -Id 'OpenJS.NodeJS.22'
-Refresh-ProcessPath
-Configure-Php
+    if (-not (Get-CommandPath -Name 'composer.bat')) {
+        Install-Composer
+    }
 
-if (-not (Get-CommandPath -Name 'composer.bat')) {
-    Install-Composer
+    if ($ResumeAfterMySql) {
+        Write-Host 'ResumeAfterMySql: verifying the manually installed MySQL 8.0 client before continuing.'
+    }
+    if (-not (Test-MySql80Client)) {
+        Stop-ForMySqlInstallation
+    }
+
+    $applicationPassword = Initialize-MySqlDatabase
+    Configure-LaravelAndDependencies -ApplicationPassword $applicationPassword
+    Write-Host 'Native Windows setup completed.'
 }
-
-if (-not (Test-MySql80)) {
-    Stop-ForMySqlInstallation
-}
-
-$applicationPassword = Initialize-MySqlDatabase
-Configure-LaravelAndDependencies -ApplicationPassword $applicationPassword
-Write-Host 'Native Windows setup completed.'
