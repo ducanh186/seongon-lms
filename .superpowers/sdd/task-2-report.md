@@ -55,3 +55,19 @@
 | `-WhatIf` | PASS; printed `WhatIf mode: preflight only` and read-only preflight output |
 | Full static suite | Expected RED only at missing Task 3 `Infra\\run-native-windows.ps1` |
 | Git status before/after preflight and WhatIf | Identical: only Task 2 source/test changes |
+
+## Re-review follow-up
+
+- Preflight now reports the local MySQL **server binary** version without authentication: it resolves `mysqld.exe` first, then the `MySQL80` `Win32_Service` executable path, and invokes `--version`. Authenticated `SELECT VERSION()` remains the stronger setup-time server gate.
+- The mutating branch is now behind one explicit `$PSCmdlet.ShouldProcess(...)` gate, so `-Confirm` is honored. `-WhatIf` remains an earlier preflight-only branch.
+- The MySQL 8.0 parser now recognizes only an anchored MySQL client banner (`mysql Ver 8.0.x`) or a standalone server `8.0.x` token, and rejects MariaDB plus unrelated compatibility substrings.
+- The behavioral `-WhatIf` child-process test now requires exit code 0, snapshots relevant repository files before/after, and places guarded Composer/npm shims on the child PATH. They create a sentinel if an install/CI mutation command is reached; the test requires no sentinel.
+
+### Re-review verification
+
+| Check | Result |
+|---|---|
+| Updated behavioral setup safety suite | PASS |
+| PowerShell AST parser | PASS |
+| Direct `-PreflightOnly` | PASS; reports `MySQL server binary: not found` on this host without prompting for a secret |
+| Full static suite | Expected RED only at missing Task 3 `Infra\\run-native-windows.ps1` |

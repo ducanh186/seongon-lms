@@ -31,6 +31,53 @@ function Get-CommandPath {
     return $command.Source
 }
 
+function Get-ExecutablePathFromServicePath {
+    param([Parameter(Mandatory)][string]$PathName)
+
+    if ($PathName -match '^\s*"([^"]+\.exe)"') {
+        return $matches[1]
+    }
+    if ($PathName -match '^\s*([^\s]+\.exe)\b') {
+        return $matches[1]
+    }
+    return $null
+}
+
+function Get-MySqlServerExecutable {
+    $directPath = Get-CommandPath -Name 'mysqld.exe'
+    if ($directPath) {
+        return $directPath
+    }
+
+    try {
+        $service = Get-CimInstance -ClassName Win32_Service -Filter "Name='MySQL80'" -ErrorAction Stop
+        if ($service -and $service.PathName) {
+            $servicePath = Get-ExecutablePathFromServicePath -PathName $service.PathName
+            if ($servicePath -and (Test-Path -LiteralPath $servicePath -PathType Leaf)) {
+                return $servicePath
+            }
+        }
+    }
+    catch {
+        return $null
+    }
+
+    return $null
+}
+
+function Get-MySqlServerBinaryVersion {
+    $serverPath = Get-MySqlServerExecutable
+    if (-not $serverPath) {
+        return 'not found'
+    }
+
+    $version = (& $serverPath --version | Select-Object -First 1)
+    if ($LASTEXITCODE -ne 0) {
+        return 'not found'
+    }
+    return $version
+}
+
 function Test-IsAdministrator {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($identity)
@@ -70,7 +117,7 @@ function Invoke-Preflight {
 
     $mysqlPath = Get-CommandPath -Name 'mysql.exe'
     Write-Check -Name 'MySQL client' -Value $(if ($mysqlPath) { (& $mysqlPath --version) } else { 'not found' })
-    Write-Check -Name 'MySQL server' -Value 'not authenticated during preflight'
+    Write-Check -Name 'MySQL server binary' -Value (Get-MySqlServerBinaryVersion)
 
     foreach ($port in @(3306, 8000, 5173)) {
         Write-Check -Name "Port $port" -Value (Get-PortState -Port $port)
@@ -279,10 +326,14 @@ function Install-Composer {
 function Test-MySql80Version {
     param([Parameter(Mandatory)][string]$VersionText)
 
-    if ($VersionText -match '(?i)mariadb') {
+    $normalizedVersion = $VersionText.Trim()
+    if ($normalizedVersion -match '(?i)mariadb') {
         return $false
     }
-    return $VersionText -match '(?<![0-9])8\.0\.[0-9]+'
+    if ($normalizedVersion -match '(?i)^mysql(?:\.exe)?\s+Ver\s+8\.0\.[0-9]+\b') {
+        return $true
+    }
+    return $normalizedVersion -match '^8\.0\.[0-9]+(?:[-+][A-Za-z0-9._-]+)?$'
 }
 
 function Test-MySql80Client {
@@ -459,24 +510,29 @@ if ($PreflightOnly -or $WhatIfPreference) {
     Invoke-Preflight
 }
 else {
-    Ensure-WingetPackage -Id 'PHP.PHP.8.3'
-    Ensure-WingetPackage -Id 'OpenJS.NodeJS.22'
-    Refresh-ProcessPath
-    Assert-PostInstallRuntimeVersions
-    Configure-Php
+    if ($PSCmdlet.ShouldProcess($projectRoot, 'Install and configure the native Windows LMS runtime')) {
+        Ensure-WingetPackage -Id 'PHP.PHP.8.3'
+        Ensure-WingetPackage -Id 'OpenJS.NodeJS.22'
+        Refresh-ProcessPath
+        Assert-PostInstallRuntimeVersions
+        Configure-Php
 
-    if (-not (Get-CommandPath -Name 'composer.bat')) {
-        Install-Composer
-    }
+        if (-not (Get-CommandPath -Name 'composer.bat')) {
+            Install-Composer
+        }
 
-    if ($ResumeAfterMySql) {
-        Write-Host 'ResumeAfterMySql: verifying the manually installed MySQL 8.0 client before continuing.'
-    }
-    if (-not (Test-MySql80Client)) {
-        Stop-ForMySqlInstallation
-    }
+        if ($ResumeAfterMySql) {
+            Write-Host 'ResumeAfterMySql: verifying the manually installed MySQL 8.0 client before continuing.'
+        }
+        if (-not (Test-MySql80Client)) {
+            Stop-ForMySqlInstallation
+        }
 
-    $applicationPassword = Initialize-MySqlDatabase
-    Configure-LaravelAndDependencies -ApplicationPassword $applicationPassword
-    Write-Host 'Native Windows setup completed.'
+        $applicationPassword = Initialize-MySqlDatabase
+        Configure-LaravelAndDependencies -ApplicationPassword $applicationPassword
+        Write-Host 'Native Windows setup completed.'
+    }
+    else {
+        Write-Host 'Setup cancelled; no install or configuration actions ran.'
+    }
 }
