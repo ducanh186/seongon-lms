@@ -119,6 +119,14 @@ try {
     Assert-Throws -Operation { Get-ListenerProcessId -Port 8000 } -ExpectedText 'Unable to query port 8000'
     Remove-Item Function:Get-NetTCPConnection
 
+    function Get-NetTCPConnection {
+        [CmdletBinding()]
+        param([string]$State)
+        return @()
+    }
+    Assert-True -Condition ($null -eq (Get-ListenerProcessId -Port 65432)) -Message 'A successful listener query with no matching port must report the port as free.'
+    Remove-Item Function:Get-NetTCPConnection
+
     $rootProcessId = 41001
     $childProcessId = 41002
     $foreignChildProcessId = 41003
@@ -142,7 +150,14 @@ try {
     Remove-Item Function:Stop-Process
 
     [ordered]@{ projectRoot = $projectRoot; verifiedAtUtc = [DateTime]::UtcNow.ToString('o') } | ConvertTo-Json | Set-Content -LiteralPath $verificationMarkerPath -Encoding UTF8
-    Assert-True -Condition (-not (Test-VerificationMarker)) -Message 'A marker without owned processes and reachable endpoints must be rejected.'
+    $originalWarningPreference = $WarningPreference
+    try {
+        $WarningPreference = 'SilentlyContinue'
+        Assert-True -Condition (-not (Test-VerificationMarker)) -Message 'A marker without owned processes and reachable endpoints must be rejected.'
+    }
+    finally {
+        $WarningPreference = $originalWarningPreference
+    }
     Assert-True -Condition (-not (Test-Path -LiteralPath $verificationMarkerPath)) -Message 'A stale marker must be removed.'
 
     Write-VerificationMarker -MySqlEvidence ([pscustomobject]@{ ServerVersion = '8.0.99'; BinaryVersion = 'mysqld  Ver 8.0.99' })
@@ -153,9 +168,44 @@ try {
     Assert-True -Condition (@(Get-ChildItem -LiteralPath $testStateDirectory -Filter '*.tmp' -File).Count -eq 0) -Message 'Atomic marker writes must not leave a temporary file.'
     Assert-True -Condition (@(Get-ChildItem -LiteralPath $testStateDirectory -Filter '*.bak' -File).Count -eq 0) -Message 'Atomic marker writes must not leave a backup file.'
 
-    function Test-HttpSuccess { param([string]$Url) return $false }
+    function Test-HttpSuccess { param([string]$Url, [int]$TimeoutSeconds = 5) return $false }
     Assert-Throws -Operation { Wait-ForRuntimeReady -TimeoutSeconds 0 } -ExpectedText 'within 0 seconds'
     Remove-Item Function:Test-HttpSuccess
+
+    function Test-HttpSuccess {
+        param([string]$Url, [int]$TimeoutSeconds = 5)
+        $script:readinessProbeCount++
+        Start-Sleep -Milliseconds ([Math]::Min(1200, $TimeoutSeconds * 1000))
+        return $false
+    }
+    $script:readinessProbeCount = 0
+    $readinessStopwatch = [Diagnostics.Stopwatch]::StartNew()
+    Assert-Throws -Operation { Wait-ForRuntimeReady -TimeoutSeconds 2 } -ExpectedText 'within 2 seconds'
+    $readinessStopwatch.Stop()
+    Assert-True -Condition ($script:readinessProbeCount -eq 1) -Message 'Shared readiness deadline must stop before a second probe after the first probe consumes the remaining budget.'
+    Assert-True -Condition ($readinessStopwatch.Elapsed.TotalSeconds -lt 1.5) -Message 'Shared readiness deadline must not allow sequential probes to consume two timeout budgets.'
+    Remove-Item Function:Test-HttpSuccess
+
+    $rollbackProcessId = 42001
+    function Get-ListenerProcessId { param([int]$Port) return $null }
+    function Get-Command { param([string]$Name) return [pscustomobject]@{ Source = 'C:\\test\\php.exe' } }
+    function Start-Process { return [pscustomobject]@{ Id = $rollbackProcessId } }
+    function Save-PidMetadata { throw 'simulated PID metadata write failure' }
+    function Get-CimInstance {
+        param([string]$ClassName, [string]$Filter)
+        return [pscustomobject]@{ ProcessId = $rollbackProcessId; ParentProcessId = 1; CommandLine = ('php.exe ' + $projectRoot + '\\BE\\artisan serve') }
+    }
+    $script:rollbackStoppedProcessIds = @()
+    function Stop-Process { param([int]$Id) $script:rollbackStoppedProcessIds += $Id }
+    Assert-Throws -Operation { Start-RoleProcess -Role 'backend' } -ExpectedText 'simulated PID metadata write failure'
+    Assert-True -Condition (($script:rollbackStoppedProcessIds -join ',') -eq "$rollbackProcessId") -Message 'A process created before PID metadata persistence fails must be stopped immediately.'
+    Assert-True -Condition (-not (Test-Path -LiteralPath $roleConfiguration.backend.PidPath)) -Message 'A failed PID metadata write must not leave partial metadata.'
+    Remove-Item Function:Get-ListenerProcessId
+    Remove-Item Function:Get-Command
+    Remove-Item Function:Start-Process
+    Remove-Item Function:Save-PidMetadata
+    Remove-Item Function:Get-CimInstance
+    Remove-Item Function:Stop-Process
 }
 finally {
     Remove-Item -LiteralPath $testStateDirectory -Recurse -Force -ErrorAction SilentlyContinue

@@ -205,7 +205,8 @@ function Get-ListenerProcessId {
     param([Parameter(Mandatory)][int]$Port)
 
     try {
-        $listener = Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction Stop | Select-Object -First 1
+        $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop)
+        $listener = $listeners | Where-Object { [int]$_.LocalPort -eq $Port } | Select-Object -First 1
     }
     catch {
         throw "Unable to query port $Port ownership: $($_.Exception.Message)"
@@ -245,6 +246,26 @@ function Ensure-MySql80Running {
     }
 }
 
+function Stop-NewOwnedProcess {
+    param(
+        [Parameter(Mandatory)][string]$Role,
+        [Parameter(Mandatory)][int]$ProcessId
+    )
+
+    try {
+        $process = Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $ProcessId" -ErrorAction Stop
+        if ($null -ne $process -and (Test-RoleCommandLine -Role $Role -CommandLine ([string]$process.CommandLine))) {
+            $rootProcess = [pscustomobject]@{ Pid = $ProcessId; Process = $process }
+            foreach ($entry in (Get-OwnedProcessTree -Role $Role -RootProcess $rootProcess)) {
+                Stop-Process -Id ([int]$entry.Process.ProcessId) -Force -ErrorAction Stop
+            }
+        }
+    }
+    finally {
+        Remove-PidMetadata -Role $Role
+    }
+}
+
 function Start-RoleProcess {
     param([Parameter(Mandatory)][string]$Role)
 
@@ -270,15 +291,24 @@ function Start-RoleProcess {
             -RedirectStandardOutput $configuration.StdoutPath -RedirectStandardError $configuration.StderrPath
     }
 
-    Save-PidMetadata -Role $Role -ProcessId $process.Id
+    try {
+        Save-PidMetadata -Role $Role -ProcessId $process.Id
+    }
+    catch {
+        Stop-NewOwnedProcess -Role $Role -ProcessId $process.Id
+        throw
+    }
     return [pscustomobject]@{ Role = $Role; Created = $true; Pid = $process.Id }
 }
 
 function Test-HttpSuccess {
-    param([Parameter(Mandatory)][string]$Url)
+    param(
+        [Parameter(Mandatory)][string]$Url,
+        [ValidateRange(1, 5)][int]$TimeoutSeconds = 5
+    )
 
     try {
-        $response = Invoke-WebRequest -UseBasicParsing -Uri $Url -TimeoutSec 5 -ErrorAction Stop
+        $response = Invoke-WebRequest -UseBasicParsing -Uri $Url -TimeoutSec $TimeoutSeconds -ErrorAction Stop
         return $response.StatusCode -ge 200 -and $response.StatusCode -lt 400
     }
     catch {
@@ -291,15 +321,25 @@ function Wait-ForRuntimeReady {
 
     $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
     do {
-        $backendReady = Test-HttpSuccess -Url "$backendUrl/up"
-        $frontendReady = Test-HttpSuccess -Url "$frontendUrl/"
+        $backendRemainingSeconds = [Math]::Floor(($deadline - [DateTime]::UtcNow).TotalSeconds)
+        if ($backendRemainingSeconds -lt 1) {
+            break
+        }
+        $backendReady = Test-HttpSuccess -Url "$backendUrl/up" -TimeoutSeconds ([Math]::Min(5, [int]$backendRemainingSeconds))
+
+        $frontendRemainingSeconds = [Math]::Floor(($deadline - [DateTime]::UtcNow).TotalSeconds)
+        if ($frontendRemainingSeconds -lt 1) {
+            break
+        }
+        $frontendReady = Test-HttpSuccess -Url "$frontendUrl/" -TimeoutSeconds ([Math]::Min(5, [int]$frontendRemainingSeconds))
         if ($backendReady -and $frontendReady) {
             return
         }
-        if ([DateTime]::UtcNow -ge $deadline) {
+        $remainingMilliseconds = [Math]::Floor(($deadline - [DateTime]::UtcNow).TotalMilliseconds)
+        if ($remainingMilliseconds -lt 1) {
             break
         }
-        Start-Sleep -Seconds 1
+        Start-Sleep -Milliseconds ([Math]::Min(1000, [int]$remainingMilliseconds))
     } while ($true)
 
     throw "Timed out waiting for backend and frontend within $TimeoutSeconds seconds."
