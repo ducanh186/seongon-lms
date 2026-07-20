@@ -28,7 +28,7 @@
 
 ## Commit
 
-Pending final commit hash.
+`99d7f40` (`feat(infra): add native Windows setup script`; amended below to include this report hash).
 
 ## Concerns / follow-up
 
