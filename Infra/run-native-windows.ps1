@@ -71,18 +71,26 @@ function Get-PidMetadata {
     }
 }
 
+function Test-ProjectRootCommandLine {
+    param([Parameter(Mandatory)][string]$CommandLine)
+
+    $normalizedRoot = [IO.Path]::GetFullPath($projectRoot).TrimEnd('\\')
+    $escapedRoot = [regex]::Escape($normalizedRoot)
+    return $CommandLine -match ('(?i)' + $escapedRoot + '(?=$|[\\/\s"''])')
+}
+
 function Test-RoleCommandLine {
     param(
         [Parameter(Mandatory)][string]$Role,
         [Parameter(Mandatory)][string]$CommandLine
     )
 
-    if ($CommandLine.IndexOf($projectRoot, [StringComparison]::OrdinalIgnoreCase) -lt 0) {
+    if (-not (Test-ProjectRootCommandLine -CommandLine $CommandLine)) {
         return $false
     }
 
     if ($Role -eq 'backend') {
-        return $CommandLine -match '(?i)\bartisan\s+serve\b'
+        return $CommandLine -match '(?i)\bartisan["'']?\s+serve\b'
     }
 
     return $CommandLine.IndexOf($frontendRoot, [StringComparison]::OrdinalIgnoreCase) -ge 0 -and
@@ -134,6 +142,65 @@ function Save-PidMetadata {
     } | ConvertTo-Json | Set-Content -LiteralPath $roleConfiguration[$Role].PidPath -Encoding UTF8
 }
 
+function Test-OwnedDescendantCommandLine {
+    param(
+        [Parameter(Mandatory)][string]$Role,
+        [Parameter(Mandatory)][string]$CommandLine
+    )
+
+    if (-not (Test-ProjectRootCommandLine -CommandLine $CommandLine)) {
+        return $false
+    }
+    if ($Role -eq 'backend') {
+        return $CommandLine -match '(?i)\bphp(?:\.exe)?\b' -and
+            $CommandLine -match '(?i)(?:\s-S\s|\bserver\.php\b|\bartisan\b)'
+    }
+    return $CommandLine.IndexOf($frontendRoot, [StringComparison]::OrdinalIgnoreCase) -ge 0 -and
+        $CommandLine -match '(?i)\b(?:node(?:\.exe)?|vite)\b' -and
+        $CommandLine -match '(?i)\bvite\b'
+}
+
+function Get-OwnedProcessTree {
+    param(
+        [Parameter(Mandatory)][string]$Role,
+        [Parameter(Mandatory)]$RootProcess
+    )
+
+    try {
+        $allProcesses = @(Get-CimInstance -ClassName Win32_Process -ErrorAction Stop)
+    }
+    catch {
+        throw "Unable to query $Role process tree ownership: $($_.Exception.Message)"
+    }
+
+    $rootProcessId = [int]$RootProcess.Pid
+    $tree = @([pscustomobject]@{ Process = $RootProcess.Process; Depth = 0 })
+    $knownProcessIds = @($rootProcessId)
+    $frontierProcessIds = @($rootProcessId)
+    $depth = 0
+    while ($frontierProcessIds.Count -gt 0) {
+        $children = @($allProcesses | Where-Object { $frontierProcessIds -contains [int]$_.ParentProcessId })
+        $frontierProcessIds = @()
+        if ($children.Count -eq 0) {
+            continue
+        }
+        $depth++
+        foreach ($child in $children) {
+            $childId = [int]$child.ProcessId
+            if ($knownProcessIds -contains $childId) {
+                continue
+            }
+            $knownProcessIds += $childId
+            $frontierProcessIds += $childId
+            if (Test-OwnedDescendantCommandLine -Role $Role -CommandLine ([string]$child.CommandLine)) {
+                $tree += [pscustomobject]@{ Process = $child; Depth = $depth }
+            }
+        }
+    }
+
+    return @($tree | Sort-Object -Property Depth -Descending)
+}
+
 function Get-ListenerProcessId {
     param([Parameter(Mandatory)][int]$Port)
 
@@ -141,7 +208,7 @@ function Get-ListenerProcessId {
         $listener = Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction Stop | Select-Object -First 1
     }
     catch {
-        return $null
+        throw "Unable to query port $Port ownership: $($_.Exception.Message)"
     }
 
     if ($null -eq $listener) {
@@ -160,8 +227,11 @@ function Assert-PortAvailableOrOwned {
     }
 
     $ownedProcess = Get-OwnedProcess -Role $Role
-    if ($null -ne $ownedProcess -and $ownedProcess.Pid -eq $listenerPid) {
-        return
+    if ($null -ne $ownedProcess) {
+        $ownedTree = Get-OwnedProcessTree -Role $Role -RootProcess $ownedProcess
+        if ($ownedTree | Where-Object { [int]$_.Process.ProcessId -eq $listenerPid }) {
+            return
+        }
     }
 
     throw "Port $($configuration.Port) is in use by a process not owned by this repository."
@@ -216,18 +286,23 @@ function Test-HttpSuccess {
     }
 }
 
-function Wait-ForHttpSuccess {
-    param([Parameter(Mandatory)][string]$Url)
+function Wait-ForRuntimeReady {
+    param([ValidateRange(0, 60)][int]$TimeoutSeconds = 60)
 
-    $deadline = [DateTime]::UtcNow.AddSeconds(60)
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
     do {
-        if (Test-HttpSuccess -Url $Url) {
+        $backendReady = Test-HttpSuccess -Url "$backendUrl/up"
+        $frontendReady = Test-HttpSuccess -Url "$frontendUrl/"
+        if ($backendReady -and $frontendReady) {
             return
         }
+        if ([DateTime]::UtcNow -ge $deadline) {
+            break
+        }
         Start-Sleep -Seconds 1
-    } while ([DateTime]::UtcNow -lt $deadline)
+    } while ($true)
 
-    throw "Timed out waiting for $Url after 60 seconds."
+    throw "Timed out waiting for backend and frontend within $TimeoutSeconds seconds."
 }
 
 function Get-ServiceExecutablePath {
@@ -300,14 +375,61 @@ function Get-MySql80Evidence {
 function Write-VerificationMarker {
     param([Parameter(Mandatory)]$MySqlEvidence)
 
-    [ordered]@{
+    Ensure-StateDirectory
+    $temporaryMarkerPath = Join-Path $stateDirectory ('native-verified.' + [guid]::NewGuid().ToString('N') + '.tmp')
+    $backupMarkerPath = Join-Path $stateDirectory ('native-verified.' + [guid]::NewGuid().ToString('N') + '.bak')
+    $marker = [ordered]@{
         projectRoot = $projectRoot
         verifiedAtUtc = [DateTime]::UtcNow.ToString('o')
         backendUrl = $backendUrl
         frontendUrl = $frontendUrl
         mysqlVersion = $MySqlEvidence.ServerVersion
         mysqlBinaryVersion = $MySqlEvidence.BinaryVersion
-    } | ConvertTo-Json | Set-Content -LiteralPath $verificationMarkerPath -Encoding UTF8
+    } | ConvertTo-Json
+    try {
+        Set-Content -LiteralPath $temporaryMarkerPath -Value $marker -Encoding UTF8 -NoNewline
+        if (Test-Path -LiteralPath $verificationMarkerPath -PathType Leaf) {
+            [IO.File]::Replace($temporaryMarkerPath, $verificationMarkerPath, $backupMarkerPath)
+        }
+        else {
+            [IO.File]::Move($temporaryMarkerPath, $verificationMarkerPath)
+        }
+    }
+    finally {
+        if (Test-Path -LiteralPath $temporaryMarkerPath -PathType Leaf) {
+            Remove-Item -LiteralPath $temporaryMarkerPath -Force
+        }
+        if (Test-Path -LiteralPath $backupMarkerPath -PathType Leaf) {
+            Remove-Item -LiteralPath $backupMarkerPath -Force
+        }
+    }
+}
+
+function Test-VerificationMarker {
+    if (-not (Test-Path -LiteralPath $verificationMarkerPath -PathType Leaf)) {
+        return $false
+    }
+
+    try {
+        $marker = Get-Content -LiteralPath $verificationMarkerPath -Raw | ConvertFrom-Json
+        $markerRoot = [IO.Path]::GetFullPath([string]$marker.projectRoot).TrimEnd('\\')
+        $currentRoot = [IO.Path]::GetFullPath($projectRoot).TrimEnd('\\')
+        if (-not $marker.projectRoot -or -not $markerRoot.Equals($currentRoot, [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'projectRoot does not match this repository.'
+        }
+        if ($null -eq (Get-OwnedProcess -Role 'backend') -or $null -eq (Get-OwnedProcess -Role 'frontend')) {
+            throw 'one or more recorded runtime processes are not owned.'
+        }
+        if (-not (Test-HttpSuccess -Url "$backendUrl/up") -or -not (Test-HttpSuccess -Url "$frontendUrl/")) {
+            throw 'one or more runtime endpoints are unreachable.'
+        }
+        return $true
+    }
+    catch {
+        Write-Warning "Removing stale verification marker: $($_.Exception.Message)"
+        Remove-Item -LiteralPath $verificationMarkerPath -Force -ErrorAction SilentlyContinue
+        return $false
+    }
 }
 
 function Stop-RoleProcess {
@@ -315,7 +437,10 @@ function Stop-RoleProcess {
 
     $ownedProcess = Get-OwnedProcess -Role $Role
     if ($null -ne $ownedProcess) {
-        Stop-Process -Id $ownedProcess.Pid -Force -ErrorAction Stop
+        $ownedTree = Get-OwnedProcessTree -Role $Role -RootProcess $ownedProcess
+        foreach ($entry in $ownedTree) {
+            Stop-Process -Id ([int]$entry.Process.ProcessId) -Force -ErrorAction Stop
+        }
     }
     Remove-PidMetadata -Role $Role
 }
@@ -330,8 +455,7 @@ function Invoke-Start {
                 $createdRoles += $role
             }
         }
-        Wait-ForHttpSuccess -Url "$backendUrl/up"
-        Wait-ForHttpSuccess -Url "$frontendUrl/"
+        Wait-ForRuntimeReady
         $mySqlEvidence = Get-MySql80Evidence
         Write-VerificationMarker -MySqlEvidence $mySqlEvidence
         Write-Host "Native runtime verified: $backendUrl and $frontendUrl"
@@ -370,8 +494,12 @@ function Invoke-Status {
         $reachability = if (Test-HttpSuccess -Url $url) { 'reachable' } else { 'unreachable' }
         Write-Host "$($roleConfiguration[$role].DisplayName): running ($reachability)"
     }
-    if (Test-Path -LiteralPath $verificationMarkerPath) {
+    $hadMarker = Test-Path -LiteralPath $verificationMarkerPath -PathType Leaf
+    if (Test-VerificationMarker) {
         Write-Host "Verification marker: $verificationMarkerPath"
+    }
+    elseif ($hadMarker) {
+        Write-Host 'Verification marker: stale and removed.'
     }
 }
 
@@ -391,10 +519,12 @@ function Invoke-Logs {
     }
 }
 
-switch ($Action) {
-    'start' { Invoke-Start }
-    'stop' { Invoke-Stop }
-    'restart' { Invoke-Stop; Invoke-Start }
-    'status' { Invoke-Status }
-    'logs' { Invoke-Logs }
+if ($env:NATIVE_RUNTIME_LIBRARY_MODE -ne '1') {
+    switch ($Action) {
+        'start' { Invoke-Start }
+        'stop' { Invoke-Stop }
+        'restart' { Invoke-Stop; Invoke-Start }
+        'status' { Invoke-Status }
+        'logs' { Invoke-Logs }
+    }
 }
