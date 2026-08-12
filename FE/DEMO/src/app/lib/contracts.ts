@@ -12,6 +12,7 @@ export interface ApiUser {
   avatar: string | null;
   status: 'active' | 'locked';
   created_at: string;
+  enrollments_count?: number;
 }
 
 export interface ApiCategory {
@@ -46,12 +47,28 @@ export interface ApiCourse {
   level: CourseLevel | null;
   status: CourseStatus;
   lessons_count?: number;
+  questions_count?: number;
+  enrollments_count?: number;
   reviews_count?: number;
   rating?: number | null;
   category?: ApiCategory | null;
   lessons?: ApiLesson[];
   has_quiz?: boolean;
   created_at: string;
+}
+
+export interface ApiNewsPost {
+  id: number;
+  title: string;
+  slug: string;
+  category: string;
+  excerpt: string;
+  content: string;
+  thumbnail: string | null;
+  status: 'draft' | 'published';
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ApiReview {
@@ -80,6 +97,17 @@ export interface ApiEnrollment {
   is_expired: boolean;
   course?: ApiCourse;
   progress?: ApiProgress;
+  certificate: ApiCertificate | null;
+}
+
+export interface ApiEnrollmentSummary {
+  total: number;
+  active: number;
+  completed: number;
+}
+
+export interface ApiMyCoursesResponse extends Paginated<ApiEnrollment> {
+  summary?: ApiEnrollmentSummary;
 }
 
 export interface ApiOrder {
@@ -167,4 +195,8 @@ export interface Paginated<T> {
     per_page: number;
     total: number;
   };
+}
+
+export interface ApiNewsList extends Paginated<ApiNewsPost> {
+  categories: string[];
 }

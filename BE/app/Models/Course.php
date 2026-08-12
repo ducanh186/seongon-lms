@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Course extends Model
@@ -51,6 +52,16 @@ class Course extends Model
     public function quiz(): HasOne
     {
         return $this->hasOne(Quiz::class);
+    }
+
+    public function questions(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Question::class,
+            Quiz::class,
+            'course_id',
+            'quiz_id',
+        );
     }
 
     public function orders(): HasMany

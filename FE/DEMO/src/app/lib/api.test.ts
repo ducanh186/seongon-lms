@@ -26,6 +26,36 @@ describe('apiRequest', () => {
     expect((request.headers as Headers).get('Authorization')).toBe('Bearer sanctum-token');
   });
 
+  it('uses the native Laravel API origin on a fresh checkout without a local env override', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const configuredOrigin = import.meta.env.VITE_API_BASE_URL;
+
+    try {
+      delete import.meta.env.VITE_API_BASE_URL;
+      vi.resetModules();
+      const { api: freshCheckoutApi } = await import('./api');
+
+      await freshCheckoutApi.categories();
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://127.0.0.1:8000/api/v1/categories',
+        expect.any(Object),
+      );
+    } finally {
+      if (configuredOrigin === undefined) {
+        delete import.meta.env.VITE_API_BASE_URL;
+      } else {
+        import.meta.env.VITE_API_BASE_URL = configuredOrigin;
+      }
+    }
+  });
+
   it('maps a Laravel validation response into an ApiError', async () => {
     vi.stubGlobal(
       'fetch',
@@ -44,6 +74,35 @@ describe('apiRequest', () => {
       name: 'ApiError',
       status: 422,
       fields: { email: ['The email field is required.'] },
+    });
+  });
+
+  it('downloads a certificate Blob with the supplied bearer token', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response('pdf-bytes', {
+        status: 200,
+        headers: { 'Content-Type': 'application/pdf' },
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const certificate = await api.downloadCertificate('student-token', 42);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://127.0.0.1:8000/api/v1/my/courses/42/certificate',
+      { headers: { Authorization: 'Bearer student-token' } },
+    );
+    expect(certificate.type).toBe('application/pdf');
+    expect(await certificate.text()).toBe('pdf-bytes');
+  });
+
+  it('maps a rejected certificate download into an ApiError', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 404 })));
+
+    await expect(api.downloadCertificate('student-token', 42)).rejects.toMatchObject<Partial<ApiError>>({
+      name: 'ApiError',
+      message: 'Không thể tải chứng chỉ.',
+      status: 404,
     });
   });
 

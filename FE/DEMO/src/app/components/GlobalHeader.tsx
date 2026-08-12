@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   AppBar,
   Avatar,
+  Badge,
   Box,
   Button,
   Container,
@@ -15,23 +16,39 @@ import {
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import { styled } from '@mui/material/styles';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../cart/CartContext';
 import { layoutTokens } from '../theme';
+import { NotificationMenu } from './NotificationMenu';
 import logoSeongon from 'figma:asset/dd45f331e8a4458443255a6f01a8333b19d6c86a.png';
+
+const BrandLogo = styled('img')(({ theme }) => ({
+  display: 'block',
+  width: 144,
+  height: 'auto',
+  [theme.breakpoints.up('md')]: { width: 180 },
+}));
+
+const publicLinks = [
+  { label: 'Trang chủ', to: '/' },
+  { label: 'Khóa học', to: '/courses' },
+  { label: 'Tin tức', to: '/news' },
+];
 
 export function GlobalHeader() {
   const { user, logout } = useAuth();
+  const { count } = useCart();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
-  const links = [
-    { label: 'Trang chủ', to: '/' },
-    { label: 'Khóa học', to: '/courses' },
-    ...(user ? [{ label: 'Khóa học của tôi', to: '/my-courses' }] : []),
-    ...(user?.role === 'admin' ? [{ label: 'Quản trị', to: '/admin' }] : []),
-  ];
+  const links = user?.role === 'admin'
+    ? [...publicLinks, { label: 'Quản trị', to: '/admin' }]
+    : publicLinks;
+  const isStudent = user?.role === 'student';
 
   const isActive = (to: string) => to === '/' ? pathname === '/' : pathname.startsWith(to);
 
@@ -75,14 +92,21 @@ export function GlobalHeader() {
       }}
     >
       <Container maxWidth={false} sx={{ maxWidth: layoutTokens.contentMaxWidth }}>
-        <Toolbar disableGutters sx={{ minHeight: layoutTokens.headerHeight, gap: { xs: 1, md: 2 } }}>
+        <Toolbar
+          disableGutters
+          sx={{
+            minHeight: layoutTokens.headerHeight,
+            gap: { xs: 0.5, md: 2 },
+            '& > .MuiIconButton-root': { p: { xs: 0.5, sm: 1 } },
+          }}
+        >
           <Box
             component={Link}
             to="/"
             aria-label="SEONGON Academy - Trang chủ"
-            sx={{ display: 'inline-flex', alignItems: 'center', mr: { md: 1 } }}
+            sx={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0, mr: { md: 1 } }}
           >
-            <Box component="img" src={logoSeongon} alt="" sx={{ width: { xs: 128, md: 148 }, height: 'auto' }} />
+            <BrandLogo src={logoSeongon} alt="" width={180} />
           </Box>
           <Stack
             component="nav"
@@ -99,6 +123,10 @@ export function GlobalHeader() {
           </IconButton>
           {user ? (
             <>
+              {isStudent && <NotificationMenu />}
+              {isStudent && <IconButton aria-label="Giỏ hàng" onClick={() => navigate('/cart')} color="primary">
+                <Badge badgeContent={count} color="primary"><ShoppingCartOutlinedIcon /></Badge>
+              </IconButton>}
               <Button
                 onClick={(event) => setMenuAnchor(event.currentTarget)}
                 startIcon={
@@ -109,14 +137,14 @@ export function GlobalHeader() {
                 color="primary"
                 aria-haspopup="menu"
                 aria-expanded={Boolean(menuAnchor)}
-                sx={{ display: { xs: 'none', sm: 'inline-flex' }, whiteSpace: 'nowrap' }}
+                aria-label={`Tài khoản ${user.name}`}
+                sx={{ display: 'inline-flex', minWidth: { xs: 40, sm: 'auto' }, whiteSpace: 'nowrap' }}
               >
-                {user.name}
+                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{user.name}</Box>
               </Button>
               <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
                 <MenuItem component={Link} to="/profile" onClick={() => setMenuAnchor(null)}>Hồ sơ</MenuItem>
-                <MenuItem component={Link} to="/my-courses" onClick={() => setMenuAnchor(null)}>Khóa học của tôi</MenuItem>
-                {user.role === 'admin' && <MenuItem component={Link} to="/admin" onClick={() => setMenuAnchor(null)}>Quản trị</MenuItem>}
+                {isStudent && <MenuItem component={Link} to="/my-courses" onClick={() => setMenuAnchor(null)}>Khóa học của tôi</MenuItem>}
                 <Divider />
                 <MenuItem onClick={() => void handleLogout()}>Đăng xuất</MenuItem>
               </Menu>
@@ -147,6 +175,7 @@ export function GlobalHeader() {
             {links.map((link) => navLink(link, true))}
             {!user && <Button component={Link} to="/login" onClick={closeMobile} variant="contained" sx={{ mt: 1 }}>Đăng nhập</Button>}
             {user && <Button component={Link} to="/profile" onClick={closeMobile} variant="outlined" sx={{ mt: 1 }}>Hồ sơ cá nhân</Button>}
+            {isStudent && <Button component={Link} to="/cart" onClick={closeMobile} variant="outlined" aria-label="Giỏ hàng" startIcon={<Badge badgeContent={count} color="primary"><ShoppingCartOutlinedIcon /></Badge>}>Giỏ hàng</Button>}
             {user && <Button onClick={() => { closeMobile(); void handleLogout(); }}>Đăng xuất</Button>}
           </Stack>
         )}

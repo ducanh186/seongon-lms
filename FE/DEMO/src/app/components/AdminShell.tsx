@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 
-export type AdminSection = 'overview' | 'users' | 'categories' | 'courses' | 'reviews';
+export type AdminSection = 'overview' | 'users' | 'categories' | 'courses' | 'reviews' | 'news';
 
 interface AdminShellProps {
   active: AdminSection;
@@ -15,6 +15,7 @@ const adminSections: ReadonlyArray<readonly [AdminSection, string]> = [
   ['categories', 'Danh mục'],
   ['courses', 'Khóa học'],
   ['reviews', 'Đánh giá'],
+  ['news', 'Quản lý tin tức'],
 ];
 
 export function AdminShell({ active, onChange, children }: AdminShellProps) {

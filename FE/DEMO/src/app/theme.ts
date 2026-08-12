@@ -10,7 +10,7 @@ export const focusTokens = {
 
 export const layoutTokens = {
   contentMaxWidth: 1280,
-  headerHeight: 72,
+  headerHeight: 80,
   sectionPadding: { xs: 6, md: 8 },
 } as const;
 

@@ -4,11 +4,13 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiCourse, ApiOrder } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../cart/CartContext';
 import { PageSkeleton } from '../components/AsyncState';
 
 export function CheckoutPage() {
   const { slug = '' } = useParams();
   const { token } = useAuth();
+  const { remove } = useCart();
   const navigate = useNavigate();
   const [course, setCourse] = useState<ApiCourse | null>(null);
   const [order, setOrder] = useState<ApiOrder | null>(null);
@@ -36,6 +38,7 @@ export function CheckoutPage() {
     setSubmitting(true); setError(null);
     try {
       await api.payOrder(token, order.id, method);
+      remove(course.id);
       navigate('/my-courses', { state: { notice: 'Thanh toán thành công. Bạn đã có thể bắt đầu học.' } });
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Thanh toán chưa hoàn tất. Bạn có thể thử lại.');

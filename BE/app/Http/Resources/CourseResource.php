@@ -22,6 +22,8 @@ class CourseResource extends JsonResource
             'level' => $this->level,
             'status' => $this->status,
             'lessons_count' => $this->whenCounted('lessons'),
+            'questions_count' => $this->whenCounted('questions'),
+            'enrollments_count' => $this->whenCounted('enrollments'),
             'reviews_count' => $this->whenCounted('reviews'),
             'rating' => $this->when(
                 $this->reviews_avg_rating !== null,

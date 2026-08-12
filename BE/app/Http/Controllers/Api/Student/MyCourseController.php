@@ -17,8 +17,23 @@ class MyCourseController extends Controller
 
     public function index(Request $request, ProgressService $progress)
     {
-        $enrollments = Enrollment::where('user_id', $request->user()->id)
-            ->with('course.category')
+        $userId = $request->user()->id;
+        $summaryEnrollments = Enrollment::where('user_id', $userId)
+            ->withCount([
+                'lessonProgress as completed_lessons_count' => fn ($query) => $query->where('is_completed', true),
+            ])
+            ->get(['id', 'course_id']);
+        $lessonCounts = Course::whereIn('id', $summaryEnrollments->pluck('course_id')->unique())
+            ->withCount('lessons')
+            ->pluck('lessons_count', 'id');
+        $completedCount = $summaryEnrollments->filter(function (Enrollment $enrollment) use ($lessonCounts) {
+            $totalLessons = $lessonCounts->get($enrollment->course_id, 0);
+
+            return $totalLessons > 0 && $enrollment->completed_lessons_count >= $totalLessons;
+        })->count();
+
+        $enrollments = Enrollment::where('user_id', $userId)
+            ->with(['course.category', 'certificate'])
             ->latest()
             ->paginate(12);
 
@@ -28,7 +43,13 @@ class MyCourseController extends Controller
             return $enrollment;
         });
 
-        return EnrollmentResource::collection($enrollments);
+        return EnrollmentResource::collection($enrollments)->additional([
+            'summary' => [
+                'total' => $summaryEnrollments->count(),
+                'active' => $summaryEnrollments->count() - $completedCount,
+                'completed' => $completedCount,
+            ],
+        ]);
     }
 
     public function lessons(Request $request, Course $course)

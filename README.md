@@ -104,12 +104,12 @@ Tất cả tài khoản dưới đây dùng mật khẩu `password`.
 
 ## 5. Bộ dữ liệu demo có gì?
 
-Sau khi tạo dữ liệu, hệ thống có:
-Ba nhóm khóa học:
+Sau khi tạo dữ liệu, hệ thống có 101 khóa học thuộc bốn nhóm:
 
 1. **SEO AI Max — 34 khóa:** Khóa học tối ưu hóa công cụ tìm kiếm (SEO) ứng dụng các công cụ AI để tăng tốc độ và hiệu suất làm việc.
 2. **Google Ads — 33 khóa:** Khóa học thực chiến về thiết lập, tối ưu và quản lý chiến dịch quảng cáo trên nền tảng Google.
 3. **Content SEO — 33 khóa:** Khóa học định hướng và kỹ năng viết nội dung chuẩn SEO, tối ưu trải nghiệm người dùng và thuật toán tìm kiếm.
+4. **Completed Demo Course — 1 khóa:** Khóa học mẫu đã hoàn thành 100% cho `student@seongon.vn`, kèm bài quiz đạt 100 điểm và chứng chỉ tải được.
 
 
 ## 6. Xử lý lỗi thường gặp

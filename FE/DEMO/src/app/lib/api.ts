@@ -6,7 +6,10 @@ import type {
   ApiCertificate,
   ApiCourse,
   ApiEnrollment,
+  ApiMyCoursesResponse,
   ApiLesson,
+  ApiNewsList,
+  ApiNewsPost,
   ApiOrder,
   ApiProgress,
   ApiQuiz,
@@ -16,7 +19,7 @@ import type {
   Paginated,
 } from './contracts';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1').replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '');
 
 export class ApiError extends Error {
   constructor(
@@ -95,6 +98,9 @@ export const api = {
   courses: (filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiCourse>>(`/courses${queryString(filters)}`),
   course: (slug: string) => apiRequest<{ data: ApiCourse }>(`/courses/${slug}`),
+  news: (filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<ApiNewsList>(`/news${queryString(filters)}`),
+  newsPost: (slug: string) => apiRequest<{ data: ApiNewsPost }>(`/news/${slug}`),
   reviews: (slug: string, page?: number) => apiRequest<Paginated<ApiReview>>(`/courses/${slug}/reviews${queryString({ page })}`),
 
   createOrder: (token: string, courseId: number) =>
@@ -105,7 +111,7 @@ export const api = {
       token,
       body: { payment_method: paymentMethod, outcome },
     }),
-  myCourses: (token: string, page?: number) => apiRequest<Paginated<ApiEnrollment>>(`/my/courses${queryString({ page })}`, { token }),
+  myCourses: (token: string, page = 1) => apiRequest<ApiMyCoursesResponse>(`/my/courses${queryString({ page })}`, { token }),
   lessons: (token: string, courseId: number) => apiRequest<{ data: ApiLesson[] }>(`/my/courses/${courseId}/lessons`, { token }),
   progress: (token: string, courseId: number) => apiRequest<ApiProgress>(`/my/courses/${courseId}/progress`, { token }),
   completeLesson: (token: string, lessonId: number) => apiRequest<ApiProgress>(`/my/lessons/${lessonId}/complete`, { method: 'POST', token }),
@@ -140,6 +146,15 @@ export const api = {
     completion_rate: number;
     revenue: number;
   }>('/admin/dashboard/stats', { token }),
+  adminNews: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiNewsPost>>(`/admin/news${queryString(filters)}`, { token }),
+  saveNews: (token: string, body: Record<string, unknown>, newsId?: number) =>
+    apiRequest<{ data: ApiNewsPost }>(newsId ? `/admin/news/${newsId}` : '/admin/news', {
+      method: newsId ? 'PUT' : 'POST',
+      token,
+      body,
+    }),
+  deleteNews: (token: string, newsId: number) => apiRequest<void>(`/admin/news/${newsId}`, { method: 'DELETE', token }),
   adminUsers: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiUser>>(`/admin/users${queryString(filters)}`, { token }),
   updateUserStatus: (token: string, userId: number, status: 'active' | 'locked') =>

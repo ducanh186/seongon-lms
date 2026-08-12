@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController
 use App\Http\Controllers\Api\Admin\CourseController as AdminCourseController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\LessonController as AdminLessonController;
+use App\Http\Controllers\Api\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Api\Admin\QuestionController as AdminQuestionController;
 use App\Http\Controllers\Api\Admin\QuizController as AdminQuizController;
 use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\Student\CertificateController;
 use App\Http\Controllers\Api\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Api\Student\MyCourseController;
@@ -28,6 +30,8 @@ Route::prefix('v1')->group(function () {
     Route::get('courses', [CourseController::class, 'index']);
     Route::get('courses/{slug}', [CourseController::class, 'show']);
     Route::get('courses/{slug}/reviews', [CourseController::class, 'reviews']);
+    Route::get('news', [NewsController::class, 'index']);
+    Route::get('news/{slug}', [NewsController::class, 'show']);
 
     // ---------- Authenticated ----------
     Route::middleware('auth:sanctum')->group(function () {
@@ -37,23 +41,27 @@ Route::prefix('v1')->group(function () {
         Route::put('auth/password', [AuthController::class, 'updatePassword']);
 
         // ----- Student -----
-        Route::post('orders', [OrderController::class, 'store']);
-        Route::post('orders/{order}/pay', [OrderController::class, 'pay']);
+        Route::middleware('role:student')->group(function () {
+            Route::post('orders', [OrderController::class, 'store']);
+            Route::post('orders/{order}/pay', [OrderController::class, 'pay']);
 
-        Route::get('my/courses', [MyCourseController::class, 'index']);
-        Route::get('my/courses/{course}/lessons', [MyCourseController::class, 'lessons']);
-        Route::get('my/courses/{course}/progress', [MyCourseController::class, 'progress']);
-        Route::post('my/lessons/{lesson}/complete', [StudentLessonController::class, 'complete']);
+            Route::get('my/courses', [MyCourseController::class, 'index']);
+            Route::get('my/courses/{course}/lessons', [MyCourseController::class, 'lessons']);
+            Route::get('my/courses/{course}/progress', [MyCourseController::class, 'progress']);
+            Route::post('my/lessons/{lesson}/complete', [StudentLessonController::class, 'complete']);
 
-        Route::get('my/courses/{course}/quiz', [StudentQuizController::class, 'show']);
-        Route::post('my/courses/{course}/quiz/attempts', [StudentQuizController::class, 'submit']);
-        Route::get('my/quiz-attempts/{attempt}', [StudentQuizController::class, 'showAttempt']);
+            Route::get('my/courses/{course}/quiz', [StudentQuizController::class, 'show']);
+            Route::post('my/courses/{course}/quiz/attempts', [StudentQuizController::class, 'submit']);
+            Route::get('my/quiz-attempts/{attempt}', [StudentQuizController::class, 'showAttempt']);
 
-        Route::post('my/courses/{course}/reviews', [StudentReviewController::class, 'store']);
-        Route::get('my/courses/{course}/certificate', [CertificateController::class, 'download']);
+            Route::post('my/courses/{course}/reviews', [StudentReviewController::class, 'store']);
+            Route::get('my/courses/{course}/certificate', [CertificateController::class, 'download']);
+        });
 
         // ----- Admin -----
         Route::prefix('admin')->middleware('role:admin')->group(function () {
+            Route::apiResource('news', AdminNewsController::class);
+
             Route::get('users', [AdminUserController::class, 'index']);
             Route::patch('users/{user}/status', [AdminUserController::class, 'updateStatus']);
 

@@ -13,9 +13,20 @@ interface AdminDataTableProps<T> {
   columns: AdminColumn<T>[];
   rows: T[];
   getRowKey: (row: T) => string | number;
+  minWidth?: number;
+  stickyFirstColumn?: boolean;
+  stickyLastColumn?: boolean;
 }
 
-export function AdminDataTable<T>({ label, columns, rows, getRowKey }: AdminDataTableProps<T>) {
+export function AdminDataTable<T>({
+  label,
+  columns,
+  rows,
+  getRowKey,
+  minWidth = 680,
+  stickyFirstColumn = true,
+  stickyLastColumn = false,
+}: AdminDataTableProps<T>) {
   return (
     <TableContainer
       component={Box}
@@ -38,15 +49,27 @@ export function AdminDataTable<T>({ label, columns, rows, getRowKey }: AdminData
         size="small"
         aria-label={label}
         sx={{
-          minWidth: 680,
+          minWidth,
           '& th': { whiteSpace: 'nowrap', fontWeight: 800, bgcolor: 'grey.50' },
-          '& th:first-of-type, & td:first-of-type': {
-            position: 'sticky',
-            left: 0,
-            zIndex: 1,
-            bgcolor: 'background.paper',
-          },
-          '& th:first-of-type': { zIndex: 2, bgcolor: 'grey.50' },
+          ...(stickyFirstColumn && {
+            '& th:first-of-type, & td:first-of-type': {
+              position: 'sticky',
+              left: 0,
+              zIndex: 1,
+              bgcolor: 'background.paper',
+            },
+            '& th:first-of-type': { zIndex: 2, bgcolor: 'grey.50' },
+          }),
+          ...(stickyLastColumn && {
+            '& th:last-of-type, & td:last-of-type': {
+              position: 'sticky',
+              right: 0,
+              zIndex: 1,
+              bgcolor: 'background.paper',
+              boxShadow: '-1px 0 0 rgba(15, 58, 68, 0.12)',
+            },
+            '& th:last-of-type': { zIndex: 2, bgcolor: 'grey.50' },
+          }),
         }}
       >
         <TableHead>

@@ -13,7 +13,7 @@ class CourseController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Course::with('category')->withCount('lessons')->withCount('enrollments');
+        $query = Course::with('category')->withCount(['lessons', 'questions', 'enrollments']);
 
         if ($status = $request->query('status')) {
             $query->where('status', $status);

@@ -1,16 +1,54 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CoursePage } from './CoursePage';
 
 const course = vi.hoisted(() => vi.fn());
 const reviews = vi.hoisted(() => vi.fn());
+const useAuth = vi.hoisted(() => vi.fn());
+const useCart = vi.hoisted(() => vi.fn());
+const add = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', () => ({ api: { course, reviews } }));
-vi.mock('../contexts/AuthContext', () => ({ useAuth: () => ({ user: null }) }));
+vi.mock('../contexts/AuthContext', () => ({ useAuth }));
+vi.mock('../cart/CartContext', () => ({ useCart }));
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
 
 describe('CoursePage', () => {
+  it('lets students add the loaded course to their cart while retaining direct checkout', async () => {
+    useAuth.mockReturnValue({ user: { id: 1, role: 'student' } });
+    useCart.mockReturnValue({ add, contains: () => false });
+    course.mockResolvedValue({
+      data: {
+        id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: null, thumbnail: null,
+        price: '299000.00', instructor_name: null, instructor_bio: null, level: 'beginner', status: 'published', created_at: '2026-07-10T00:00:00Z',
+      },
+    });
+    reviews.mockResolvedValue({ data: [] });
+
+    const { default: userEvent } = await import('@testing-library/user-event');
+    render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /></Routes></MemoryRouter>);
+
+    const addToCart = await screen.findByRole('button', { name: 'Thêm vào giỏ hàng' });
+    await userEvent.setup().click(addToCart);
+
+    expect(add).toHaveBeenCalledWith({
+      courseId: 10,
+      slug: 'seo-foundation',
+      title: 'SEO Foundation',
+      price: '299000.00',
+      thumbnail: null,
+    });
+    expect(screen.getByRole('link', { name: 'Đăng ký khóa học' })).toHaveAttribute('href', '/checkout/seo-foundation');
+  });
+
   it('renders course information with an accessible enrollment summary', async () => {
+    useAuth.mockReturnValue({ user: null });
+    useCart.mockReturnValue({ add, contains: () => false });
     course.mockResolvedValue({
       data: {
         id: 10,
@@ -46,7 +84,27 @@ describe('CoursePage', () => {
     expect(reviews).toHaveBeenCalledWith('seo-foundation');
   });
 
+  it('keeps public course browsing available to admins without learner purchase controls', async () => {
+    useAuth.mockReturnValue({ user: { id: 2, role: 'admin' } });
+    useCart.mockReturnValue({ add, contains: () => false });
+    course.mockResolvedValue({
+      data: {
+        id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: null, thumbnail: null,
+        price: '299000.00', instructor_name: null, instructor_bio: null, level: 'beginner', status: 'published', created_at: '2026-07-10T00:00:00Z',
+      },
+    });
+    reviews.mockResolvedValue({ data: [] });
+
+    render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /></Routes></MemoryRouter>);
+
+    expect(await screen.findByRole('heading', { name: 'SEO Foundation' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Đăng ký khóa học' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Thêm vào giỏ hàng' })).not.toBeInTheDocument();
+  });
+
   it('renders the shared skeleton while course detail is pending', () => {
+    useAuth.mockReturnValue({ user: null });
+    useCart.mockReturnValue({ add, contains: () => false });
     course.mockImplementation(() => new Promise(() => {}));
     reviews.mockImplementation(() => new Promise(() => {}));
 

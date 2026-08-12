@@ -17,6 +17,7 @@ class EnrollmentResource extends JsonResource
             'status' => $this->status,
             'is_expired' => $this->expires_at->isPast(),
             'course' => new CourseResource($this->whenLoaded('course')),
+            'certificate' => new CertificateResource($this->whenLoaded('certificate')),
             // progress được controller gán khi cần.
             'progress' => $this->when(isset($this->progress), fn () => $this->progress),
         ];

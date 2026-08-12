@@ -9,12 +9,14 @@ const course = vi.hoisted(() => vi.fn());
 const createOrder = vi.hoisted(() => vi.fn());
 const payOrder = vi.hoisted(() => vi.fn());
 const navigate = vi.hoisted(() => vi.fn());
+const useCart = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
   api: { course, createOrder, payOrder },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth: () => ({ token: 'student-token' }) }));
+vi.mock('../cart/CartContext', () => ({ useCart }));
 vi.mock('react-router', async (importOriginal) => ({
   ...(await importOriginal<typeof import('react-router')>()),
   useNavigate: () => navigate,
@@ -30,6 +32,24 @@ describe('CheckoutPage', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+  });
+
+  it('removes the paid course from the cart before navigating to My Courses', async () => {
+    const remove = vi.fn();
+    useCart.mockReturnValue({ remove });
+    course.mockResolvedValue({ data: courseData });
+    createOrder.mockResolvedValue({ data: { id: 44, user_id: 1, course_id: 10, amount: '299000', status: 'pending', payment_method: null, transaction_ref: null, paid_at: null, created_at: '2026-07-10T00:00:00Z' } });
+    payOrder.mockResolvedValue({ data: { ...courseData } });
+
+    render(<MemoryRouter><CheckoutPage /></MemoryRouter>);
+    const user = userEvent.setup();
+    await screen.findByRole('complementary', { name: 'Tóm tắt đơn đăng ký' });
+    await user.click(screen.getByRole('button', { name: 'Tạo đơn đăng ký' }));
+    await user.click(await screen.findByRole('button', { name: 'Xác nhận thanh toán' }));
+
+    expect(remove).toHaveBeenCalledWith(10);
+    expect(navigate).toHaveBeenCalledWith('/my-courses', expect.objectContaining({ state: expect.objectContaining({ notice: expect.any(String) }) }));
+    expect(remove.mock.invocationCallOrder[0]).toBeLessThan(navigate.mock.invocationCallOrder[0]);
   });
 
   it('keeps a rejected payment recoverable instead of navigating to My Courses', async () => {

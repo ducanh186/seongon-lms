@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::where('role', 'student');
+        $query = User::where('role', 'student')->withCount('enrollments');
 
         if ($q = $request->query('q')) {
             $query->where(function ($w) use ($q) {

@@ -16,7 +16,7 @@ export function RequireAuth({ role }: { role?: UserRole }) {
   }
 
   if (role && user.role !== role) {
-    return <Navigate to="/my-courses" replace />;
+    return <Navigate to={user.role === 'admin' ? '/admin' : '/my-courses'} replace />;
   }
 
   return <Outlet />;

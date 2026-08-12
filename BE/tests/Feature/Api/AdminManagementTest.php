@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\QuestionOption;
@@ -16,6 +17,38 @@ use Tests\TestCase;
 class AdminManagementTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_admin_course_list_includes_lesson_question_and_enrollment_counts(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        Lesson::factory()->count(2)->create(['course_id' => $course->id]);
+        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
+        Question::factory()->count(3)->create(['quiz_id' => $quiz->id]);
+        Enrollment::factory()->count(4)->create(['course_id' => $course->id]);
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/v1/admin/courses')
+            ->assertOk()
+            ->assertJsonPath('data.0.lessons_count', 2)
+            ->assertJsonPath('data.0.questions_count', 3)
+            ->assertJsonPath('data.0.enrollments_count', 4);
+    }
+
+    public function test_admin_user_list_includes_each_students_enrollment_count(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create();
+        $firstCourse = Course::factory()->create();
+        $secondCourse = Course::factory()->create();
+        Enrollment::factory()->create(['user_id' => $student->id, 'course_id' => $firstCourse->id]);
+        Enrollment::factory()->create(['user_id' => $student->id, 'course_id' => $secondCourse->id]);
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/v1/admin/users')
+            ->assertOk()
+            ->assertJsonPath('data.0.enrollments_count', 2);
+    }
 
     public function test_admin_course_detail_includes_editable_quiz_data_without_changing_public_course_data(): void
     {

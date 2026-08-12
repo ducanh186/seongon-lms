@@ -8,6 +8,7 @@ import {
   Chip,
   Container,
   LinearProgress,
+  Pagination,
   Stack,
   Typography,
 } from '@mui/material';
@@ -17,7 +18,7 @@ import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { Link, useLocation } from 'react-router';
 import { api, ApiError } from '../lib/api';
-import type { ApiEnrollment } from '../lib/contracts';
+import type { ApiEnrollment, ApiEnrollmentSummary, Paginated } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
 import { PageSkeleton } from '../components/AsyncState';
 import { PageHeader } from '../components/PageHeader';
@@ -25,9 +26,9 @@ import { PageHeader } from '../components/PageHeader';
 type EnrollmentFilter = 'all' | 'active' | 'completed';
 
 const filters: Array<{ value: EnrollmentFilter; label: string }> = [
+  { value: 'all', label: 'Tất cả' },
   { value: 'active', label: 'Đang học' },
   { value: 'completed', label: 'Đã hoàn thành' },
-  { value: 'all', label: 'Tất cả' },
 ];
 
 function isCompleted(enrollment: ApiEnrollment) {
@@ -38,20 +39,37 @@ export function MyCoursesPage() {
   const { token } = useAuth();
   const location = useLocation();
   const [enrollments, setEnrollments] = useState<ApiEnrollment[]>([]);
-  const [filter, setFilter] = useState<EnrollmentFilter>('active');
+  const [summary, setSummary] = useState<ApiEnrollmentSummary | null>(null);
+  const [pagination, setPagination] = useState<Paginated<ApiEnrollment>['meta'] | null>(null);
+  const [page, setPage] = useState(1);
+  const [filter, setFilter] = useState<EnrollmentFilter>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
-    api.myCourses(token)
-      .then(({ data }) => setEnrollments(data))
-      .catch((reason) => setError(reason instanceof ApiError ? reason.message : 'Không thể tải khóa học của bạn.'))
-      .finally(() => setLoading(false));
-  }, [token]);
+    let active = true;
+    setLoading(true);
+    setError(null);
+    api.myCourses(token, page)
+      .then((response) => {
+        if (!active) return;
+        setEnrollments(response.data);
+        setSummary(response.summary ?? null);
+        setPagination(response.meta);
+      })
+      .catch((reason) => active && setError(reason instanceof ApiError ? reason.message : 'Không thể tải khóa học của bạn.'))
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [page, token]);
 
   const completedCount = useMemo(() => enrollments.filter(isCompleted).length, [enrollments]);
   const activeCount = enrollments.length - completedCount;
+  const displayedSummary = summary ?? {
+    total: pagination?.total ?? enrollments.length,
+    active: activeCount,
+    completed: completedCount,
+  };
   const visibleEnrollments = useMemo(() => enrollments.filter((enrollment) => {
     if (filter === 'completed') return isCompleted(enrollment);
     if (filter === 'active') return !isCompleted(enrollment);
@@ -59,6 +77,22 @@ export function MyCoursesPage() {
   }), [enrollments, filter]);
 
   const notice = (location.state as { notice?: string } | null)?.notice;
+
+  const downloadCertificate = async (enrollment: ApiEnrollment) => {
+    if (!token) return;
+
+    try {
+      const blob = await api.downloadCertificate(token, enrollment.course_id);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `certificate-${enrollment.certificate?.certificate_code ?? enrollment.course_id}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (reason) {
+      setError(reason instanceof ApiError ? reason.message : 'Không thể tải chứng chỉ.');
+    }
+  };
 
   return (
     <Box sx={{ py: { xs: 4, md: 6 }, minHeight: '70dvh' }}>
@@ -68,7 +102,7 @@ export function MyCoursesPage() {
             eyebrow="KHÔNG GIAN HỌC TẬP"
             title="Khóa học của tôi"
             description="Tiếp tục bài học, theo dõi tiến độ và hoàn thành lộ trình của bạn."
-            action={<Button component={Link} to="/courses" variant="outlined">Khám phá thêm</Button>}
+            action={<Button component={Link} to="/courses" variant="contained">Khám phá thêm</Button>}
           />
           {notice && <Alert severity="success">{notice}</Alert>}
           {error && <Alert severity="error">{error}</Alert>}
@@ -76,40 +110,33 @@ export function MyCoursesPage() {
 
           {!loading && !error && (
             <>
-              <Box
+              <Card
+                variant="outlined"
                 sx={{
-                  position: { xs: 'sticky', sm: 'static' },
-                  top: { xs: 72, sm: 'auto' },
-                  zIndex: { xs: 10, sm: 'auto' },
-                  px: { xs: 1, sm: 0 },
-                  py: { xs: 1, sm: 0 },
+                  borderRadius: 2.5,
                   bgcolor: 'background.paper',
                 }}
               >
-                <Stack spacing={1}>
+                <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+                <Stack spacing={1.5}>
                   <Box
                     component="section"
                     aria-label="Tiến độ học tập"
                     sx={{
                       display: 'grid',
                       gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 2.5,
-                      bgcolor: 'background.paper',
                       overflow: 'hidden',
                     }}
                   >
                     {[
-                      { label: 'Tổng khóa học', value: enrollments.length, icon: <MenuBookOutlinedIcon /> },
-                      { label: 'Đang học', value: activeCount, icon: <PlayCircleOutlineIcon /> },
-                      { label: 'Đã hoàn thành', value: completedCount, icon: <CheckCircleOutlineIcon /> },
+                      { label: 'Tổng khóa học', value: displayedSummary.total, icon: <MenuBookOutlinedIcon /> },
+                      { label: 'Đang học', value: displayedSummary.active, icon: <PlayCircleOutlineIcon /> },
+                      { label: 'Đã hoàn thành', value: displayedSummary.completed, icon: <CheckCircleOutlineIcon /> },
                     ].map((item, index) => (
                       <Stack
                         key={item.label}
-                        direction={{ xs: 'column', sm: 'row' }}
-                        spacing={{ xs: 0.25, sm: 1.5 }}
-                        alignItems={{ xs: 'center', sm: 'center' }}
+                        spacing={0.25}
+                        alignItems={{ xs: 'center', sm: 'flex-start' }}
                         sx={{
                           p: { xs: 1, sm: 2 },
                           minWidth: 0,
@@ -119,10 +146,8 @@ export function MyCoursesPage() {
                         }}
                       >
                         <Box sx={{ color: 'primary.main', display: 'flex', '& svg': { fontSize: { xs: 20, sm: 24 } } }}>{item.icon}</Box>
-                        <Box sx={{ minWidth: 0 }}>
-                          <Typography variant="h6" fontWeight={800}>{item.value}</Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>{item.label}</Typography>
-                        </Box>
+                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>{item.label}</Typography>
+                        <Typography variant="h6" fontWeight={800}>{item.value}</Typography>
                       </Stack>
                     ))}
                   </Box>
@@ -132,7 +157,7 @@ export function MyCoursesPage() {
                     direction="row"
                     spacing={1}
                     aria-label="Lọc khóa học"
-                    sx={{ justifyContent: { xs: 'space-between', sm: 'flex-start' } }}
+                    sx={{ justifyContent: { xs: 'space-between', sm: 'flex-start' }, borderTop: '1px solid', borderColor: 'divider', pt: 1.5 }}
                   >
                     {filters.map((item) => (
                       <Button
@@ -148,7 +173,8 @@ export function MyCoursesPage() {
                     ))}
                   </Stack>
                 </Stack>
-              </Box>
+                </CardContent>
+              </Card>
 
               {enrollments.length === 0 && (
                 <Alert severity="info" action={<Button component={Link} to="/courses" color="inherit" size="small">Khám phá</Button>}>
@@ -190,9 +216,16 @@ export function MyCoursesPage() {
                           {enrollment.is_expired ? (
                             <Alert severity="warning" sx={{ py: 0 }}>Khóa học đã hết hạn truy cập.</Alert>
                           ) : (
-                            <Button component={Link} to={`/learn/${enrollment.course_id}`} variant="contained" endIcon={<ArrowForwardIcon />} sx={{ alignSelf: 'flex-start' }}>
-                              {isCompleted(enrollment) ? 'Xem lại khóa học' : 'Tiếp tục học'}
-                            </Button>
+                            <Stack direction="row" spacing={1} flexWrap="wrap">
+                              <Button component={Link} to={`/learn/${enrollment.course_id}`} variant="contained" endIcon={<ArrowForwardIcon />} sx={{ alignSelf: 'flex-start' }}>
+                                {isCompleted(enrollment) ? 'Xem lại khóa học' : 'Tiếp tục học'}
+                              </Button>
+                              {isCompleted(enrollment) && enrollment.certificate && (
+                                <Button variant="outlined" onClick={() => void downloadCertificate(enrollment)}>
+                                  Tải chứng chỉ
+                                </Button>
+                              )}
+                            </Stack>
                           )}
                         </Stack>
                       </CardContent>
@@ -200,6 +233,17 @@ export function MyCoursesPage() {
                   );
                 })}
               </Box>
+              {(pagination?.last_page ?? 1) > 1 && (
+                <Stack alignItems="center">
+                  <Pagination
+                    count={pagination?.last_page}
+                    page={page}
+                    onChange={(_event, nextPage) => setPage(nextPage)}
+                    aria-label="Phân trang khóa học"
+                    getItemAriaLabel={(type, itemPage) => type === 'page' ? `Trang ${itemPage}` : type === 'previous' ? 'Trang trước' : type === 'next' ? 'Trang sau' : 'Trang đầu hoặc cuối'}
+                  />
+                </Stack>
+              )}
             </>
           )}
         </Stack>

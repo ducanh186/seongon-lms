@@ -17,6 +17,7 @@ import { Link, useParams } from 'react-router';
 import { api, ApiError } from '../lib/api';
 import type { ApiCourse, ApiReview } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../cart/CartContext';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 
 const FALLBACK_COURSE_IMAGE = 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&w=1200&q=80';
@@ -24,6 +25,7 @@ const FALLBACK_COURSE_IMAGE = 'https://images.unsplash.com/photo-1501504905252-4
 export function CoursePage() {
   const { slug = '' } = useParams();
   const { user } = useAuth();
+  const { add, contains } = useCart();
   const [course, setCourse] = useState<ApiCourse | null>(null);
   const [reviews, setReviews] = useState<ApiReview[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +47,8 @@ export function CoursePage() {
   if (!course) return <Container sx={{ py: 6 }}><PageSkeleton rows={4} /></Container>;
 
   const checkoutPath = user ? `/checkout/${course.slug}` : '/login';
+  const isStudent = user?.role === 'student';
+  const isInCart = contains(course.id);
 
   return (
     <Box sx={{ py: { xs: 4, md: 7 } }}>
@@ -100,9 +104,16 @@ export function CoursePage() {
               <Typography component="h2" variant="h6" fontWeight={800}>Thông tin đăng ký</Typography>
               <Typography variant="h4" fontWeight={800} color="primary.dark" sx={{ mt: 1.5 }}>{Number(course.price) === 0 ? 'Miễn phí' : `${Number(course.price).toLocaleString('vi-VN')} đ`}</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{course.lessons_count ?? course.lessons?.length ?? 0} bài học</Typography>
-              <Button component={Link} to={checkoutPath} state={{ course }} variant="contained" fullWidth sx={{ mt: 3 }}>
+              {(!user || isStudent) && <Button component={Link} to={checkoutPath} state={{ course }} variant="contained" fullWidth sx={{ mt: 3 }}>
                 {user ? 'Đăng ký khóa học' : 'Đăng nhập để đăng ký'}
-              </Button>
+              </Button>}
+              {isStudent && <Button variant="outlined" fullWidth sx={{ mt: 1.5 }} disabled={isInCart} onClick={() => add({
+                courseId: course.id,
+                slug: course.slug,
+                title: course.title,
+                price: String(course.price),
+                thumbnail: course.thumbnail,
+              })}>{isInCart ? 'Đã có trong giỏ hàng' : 'Thêm vào giỏ hàng'}</Button>}
               <Stack spacing={1.25} sx={{ mt: 3 }}>
                 {['Theo dõi tiến độ học', 'Bài kiểm tra cuối khóa', 'Chứng chỉ khi đạt điều kiện'].map((text) => <Stack key={text} direction="row" spacing={1} alignItems="center"><CheckRoundedIcon color="primary" fontSize="small" /><Typography variant="body2">{text}</Typography></Stack>)}
               </Stack>

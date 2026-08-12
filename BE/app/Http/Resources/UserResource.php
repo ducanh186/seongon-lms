@@ -18,6 +18,7 @@ class UserResource extends JsonResource
             'avatar' => $this->avatar,
             'status' => $this->status,
             'created_at' => $this->created_at,
+            'enrollments_count' => $this->whenCounted('enrollments'),
         ];
     }
 }
