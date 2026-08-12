@@ -1,0 +1,10 @@
+{
+  "projectRoot": "D:/CODE/seongon-lms",
+  "batchFiles": [
+    {"path":"FE/DEMO/src/styles/fonts.css","language":"css","sizeLines":0,"fileCategory":"markup"},
+    {"path":"FE/DEMO/src/styles/index.css","language":"css","sizeLines":3,"fileCategory":"markup"},
+    {"path":"FE/DEMO/src/styles/tailwind.css","language":"css","sizeLines":4,"fileCategory":"markup"},
+    {"path":"FE/DEMO/src/styles/theme.css","language":"css","sizeLines":184,"fileCategory":"markup"}
+  ],
+  "batchImportData": {"FE/DEMO/src/styles/fonts.css":[],"FE/DEMO/src/styles/index.css":[],"FE/DEMO/src/styles/tailwind.css":[],"FE/DEMO/src/styles/theme.css":[]}
+}

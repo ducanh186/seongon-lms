@@ -1,0 +1,189 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [
+    "Infra/run-docker.ps1"
+  ],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 3,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 0,
+      "failed": 0,
+      "skipped": 3
+    }
+  },
+  "results": [
+    {
+      "path": "Infra/.env.example",
+      "language": "config",
+      "fileCategory": "config",
+      "totalLines": 8,
+      "nonEmptyLines": 8,
+      "definitions": [
+        {
+          "name": "APP_KEY",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 1,
+          "endLine": 1
+        },
+        {
+          "name": "APP_URL",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 2,
+          "endLine": 2
+        },
+        {
+          "name": "HTTP_PORT",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 3,
+          "endLine": 3
+        },
+        {
+          "name": "MYSQL_DATABASE",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 4,
+          "endLine": 4
+        },
+        {
+          "name": "MYSQL_USER",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 5,
+          "endLine": 5
+        },
+        {
+          "name": "MYSQL_PASSWORD",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 6,
+          "endLine": 6
+        },
+        {
+          "name": "MYSQL_ROOT_PASSWORD",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 7,
+          "endLine": 7
+        },
+        {
+          "name": "PHPMYADMIN_PORT",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 8,
+          "endLine": 8
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 8
+      }
+    },
+    {
+      "path": "Infra/README.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 125,
+      "nonEmptyLines": 85,
+      "sections": [
+        {
+          "heading": "SEONGON LMS Production Docker",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Yêu cầu",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Chạy nhanh bằng PowerShell script",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "1. Chuẩn bị configuration",
+          "level": 2,
+          "line": 39
+        },
+        {
+          "heading": "2. Validate và build",
+          "level": 2,
+          "line": 57
+        },
+        {
+          "heading": "3. Khởi động production stack",
+          "level": 2,
+          "line": 71
+        },
+        {
+          "heading": "4. Health và logs",
+          "level": 2,
+          "line": 87
+        },
+        {
+          "heading": "5. phpMyAdmin tùy chọn",
+          "level": 2,
+          "line": 101
+        },
+        {
+          "heading": "6. Dừng và restart",
+          "level": 2,
+          "line": 111
+        },
+        {
+          "heading": "7. Production hardening tiếp theo",
+          "level": 2,
+          "line": 123
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": "Infra/docker-compose.yml",
+      "language": "yaml",
+      "fileCategory": "infra",
+      "totalLines": 93,
+      "nonEmptyLines": 88,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "services",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "volumes",
+          "level": 1,
+          "line": 91
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    }
+  ]
+}

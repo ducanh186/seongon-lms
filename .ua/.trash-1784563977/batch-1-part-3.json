@@ -1,0 +1,2265 @@
+{
+  "nodes": [
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/checkbox.tsx",
+      "type": "file",
+      "name": "checkbox.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/checkbox.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/checkbox.tsx:Checkbox",
+      "type": "function",
+      "name": "Checkbox",
+      "filePath": "FE/DEMO/src/app/components/ui/checkbox.tsx",
+      "lineRange": [
+        9,
+        30
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "type": "file",
+      "name": "command.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/command.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/command.tsx:Command",
+      "type": "function",
+      "name": "Command",
+      "filePath": "FE/DEMO/src/app/components/ui/command.tsx",
+      "lineRange": [
+        16,
+        30
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandDialog",
+      "type": "function",
+      "name": "CommandDialog",
+      "filePath": "FE/DEMO/src/app/components/ui/command.tsx",
+      "lineRange": [
+        32,
+        54
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandInput",
+      "type": "function",
+      "name": "CommandInput",
+      "filePath": "FE/DEMO/src/app/components/ui/command.tsx",
+      "lineRange": [
+        56,
+        76
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandList",
+      "type": "function",
+      "name": "CommandList",
+      "filePath": "FE/DEMO/src/app/components/ui/command.tsx",
+      "lineRange": [
+        78,
+        92
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandEmpty",
+      "type": "function",
+      "name": "CommandEmpty",
+      "filePath": "FE/DEMO/src/app/components/ui/command.tsx",
+      "lineRange": [
+        94,
+        104
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandGroup",
+      "type": "function",
+      "name": "CommandGroup",
+      "filePath": "FE/DEMO/src/app/components/ui/command.tsx",
+      "lineRange": [
+        106,
+        120
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandSeparator",
+      "type": "function",
+      "name": "CommandSeparator",
+      "filePath": "FE/DEMO/src/app/components/ui/command.tsx",
+      "lineRange": [
+        122,
+        133
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandItem",
+      "type": "function",
+      "name": "CommandItem",
+      "filePath": "FE/DEMO/src/app/components/ui/command.tsx",
+      "lineRange": [
+        135,
+        149
+      ],
+      "summary": "Render item component có styling và behavior phù hợp trong UI collection tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandShortcut",
+      "type": "function",
+      "name": "CommandShortcut",
+      "filePath": "FE/DEMO/src/app/components/ui/command.tsx",
+      "lineRange": [
+        151,
+        165
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "type": "file",
+      "name": "context-menu.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenu",
+      "type": "function",
+      "name": "ContextMenu",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        9,
+        13
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuTrigger",
+      "type": "function",
+      "name": "ContextMenuTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        15,
+        21
+      ],
+      "summary": "Render trigger component để khởi tạo interaction của UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuGroup",
+      "type": "function",
+      "name": "ContextMenuGroup",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        23,
+        29
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuPortal",
+      "type": "function",
+      "name": "ContextMenuPortal",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        31,
+        37
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSub",
+      "type": "function",
+      "name": "ContextMenuSub",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        39,
+        43
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuRadioGroup",
+      "type": "function",
+      "name": "ContextMenuRadioGroup",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        45,
+        54
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSubTrigger",
+      "type": "function",
+      "name": "ContextMenuSubTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        56,
+        78
+      ],
+      "summary": "Render trigger component để khởi tạo interaction của UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSubContent",
+      "type": "function",
+      "name": "ContextMenuSubContent",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        80,
+        94
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuContent",
+      "type": "function",
+      "name": "ContextMenuContent",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        96,
+        112
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuItem",
+      "type": "function",
+      "name": "ContextMenuItem",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        114,
+        135
+      ],
+      "summary": "Render item component có styling và behavior phù hợp trong UI collection tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuCheckboxItem",
+      "type": "function",
+      "name": "ContextMenuCheckboxItem",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        137,
+        161
+      ],
+      "summary": "Render item component có styling và behavior phù hợp trong UI collection tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuRadioItem",
+      "type": "function",
+      "name": "ContextMenuRadioItem",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        163,
+        185
+      ],
+      "summary": "Render item component có styling và behavior phù hợp trong UI collection tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuLabel",
+      "type": "function",
+      "name": "ContextMenuLabel",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        187,
+        205
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSeparator",
+      "type": "function",
+      "name": "ContextMenuSeparator",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        207,
+        218
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuShortcut",
+      "type": "function",
+      "name": "ContextMenuShortcut",
+      "filePath": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        220,
+        234
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "type": "file",
+      "name": "dialog.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dialog.tsx:Dialog",
+      "type": "function",
+      "name": "Dialog",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        9,
+        13
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogTrigger",
+      "type": "function",
+      "name": "DialogTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        15,
+        19
+      ],
+      "summary": "Render trigger component để khởi tạo interaction của UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogPortal",
+      "type": "function",
+      "name": "DialogPortal",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        21,
+        25
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogClose",
+      "type": "function",
+      "name": "DialogClose",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        27,
+        31
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogOverlay",
+      "type": "function",
+      "name": "DialogOverlay",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        33,
+        47
+      ],
+      "summary": "Render overlay layer và áp dụng styling cho UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogContent",
+      "type": "function",
+      "name": "DialogContent",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        49,
+        73
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogHeader",
+      "type": "function",
+      "name": "DialogHeader",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        75,
+        83
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogFooter",
+      "type": "function",
+      "name": "DialogFooter",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        85,
+        96
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogTitle",
+      "type": "function",
+      "name": "DialogTitle",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        98,
+        109
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogDescription",
+      "type": "function",
+      "name": "DialogDescription",
+      "filePath": "FE/DEMO/src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        111,
+        122
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "type": "file",
+      "name": "drawer.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/drawer.tsx:Drawer",
+      "type": "function",
+      "name": "Drawer",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        8,
+        12
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerTrigger",
+      "type": "function",
+      "name": "DrawerTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        14,
+        18
+      ],
+      "summary": "Render trigger component để khởi tạo interaction của UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerPortal",
+      "type": "function",
+      "name": "DrawerPortal",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        20,
+        24
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerClose",
+      "type": "function",
+      "name": "DrawerClose",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        26,
+        30
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerOverlay",
+      "type": "function",
+      "name": "DrawerOverlay",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        32,
+        46
+      ],
+      "summary": "Render overlay layer và áp dụng styling cho UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerContent",
+      "type": "function",
+      "name": "DrawerContent",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        48,
+        73
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerHeader",
+      "type": "function",
+      "name": "DrawerHeader",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        75,
+        83
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerFooter",
+      "type": "function",
+      "name": "DrawerFooter",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        85,
+        93
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerTitle",
+      "type": "function",
+      "name": "DrawerTitle",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        95,
+        106
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerDescription",
+      "type": "function",
+      "name": "DrawerDescription",
+      "filePath": "FE/DEMO/src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        108,
+        119
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "type": "file",
+      "name": "dropdown-menu.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenu",
+      "type": "function",
+      "name": "DropdownMenu",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        9,
+        13
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuPortal",
+      "type": "function",
+      "name": "DropdownMenuPortal",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        15,
+        21
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuTrigger",
+      "type": "function",
+      "name": "DropdownMenuTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        23,
+        32
+      ],
+      "summary": "Render trigger component để khởi tạo interaction của UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuContent",
+      "type": "function",
+      "name": "DropdownMenuContent",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        34,
+        52
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuGroup",
+      "type": "function",
+      "name": "DropdownMenuGroup",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        54,
+        60
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuItem",
+      "type": "function",
+      "name": "DropdownMenuItem",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        62,
+        83
+      ],
+      "summary": "Render item component có styling và behavior phù hợp trong UI collection tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuCheckboxItem",
+      "type": "function",
+      "name": "DropdownMenuCheckboxItem",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        85,
+        109
+      ],
+      "summary": "Render item component có styling và behavior phù hợp trong UI collection tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuRadioGroup",
+      "type": "function",
+      "name": "DropdownMenuRadioGroup",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        111,
+        120
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuRadioItem",
+      "type": "function",
+      "name": "DropdownMenuRadioItem",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        122,
+        144
+      ],
+      "summary": "Render item component có styling và behavior phù hợp trong UI collection tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuLabel",
+      "type": "function",
+      "name": "DropdownMenuLabel",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        146,
+        164
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSeparator",
+      "type": "function",
+      "name": "DropdownMenuSeparator",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        166,
+        177
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuShortcut",
+      "type": "function",
+      "name": "DropdownMenuShortcut",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        179,
+        193
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSub",
+      "type": "function",
+      "name": "DropdownMenuSub",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        195,
+        199
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubTrigger",
+      "type": "function",
+      "name": "DropdownMenuSubTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        201,
+        223
+      ],
+      "summary": "Render trigger component để khởi tạo interaction của UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubContent",
+      "type": "function",
+      "name": "DropdownMenuSubContent",
+      "filePath": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        225,
+        239
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/checkbox.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/checkbox.tsx:Checkbox",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/checkbox.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/checkbox.tsx:Checkbox",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/checkbox.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/checkbox.tsx:Checkbox",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:Command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:Command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandDialog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandDialog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandInput",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandInput",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandList",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandList",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandEmpty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandEmpty",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandSeparator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandSeparator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandShortcut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandShortcut",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/command.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/command.tsx:Command",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandInput",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandList",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandGroup",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandSeparator",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandItem",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/command.tsx:CommandShortcut",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenu",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenu",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuPortal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuPortal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSub",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSub",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuRadioGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuRadioGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSubTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSubTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSubContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSubContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuCheckboxItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuCheckboxItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuRadioItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuRadioItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuLabel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuLabel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSeparator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSeparator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuShortcut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuShortcut",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/context-menu.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSubTrigger",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSubContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuItem",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuCheckboxItem",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuRadioItem",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuLabel",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuSeparator",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/context-menu.tsx:ContextMenuShortcut",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:Dialog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:Dialog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogPortal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogPortal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogClose",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogClose",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogOverlay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogOverlay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogHeader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogHeader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogFooter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogFooter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogTitle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogDescription",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogDescription",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dialog.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogOverlay",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogHeader",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogFooter",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogTitle",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dialog.tsx:DialogDescription",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:Drawer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:Drawer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerPortal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerPortal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerClose",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerClose",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerOverlay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerOverlay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerHeader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerHeader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerFooter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerFooter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerTitle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerDescription",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerDescription",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/drawer.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerOverlay",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerHeader",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerFooter",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerTitle",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/drawer.tsx:DrawerDescription",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenu",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenu",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuPortal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuPortal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuCheckboxItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuCheckboxItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuRadioGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuRadioGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuRadioItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuRadioItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuLabel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuLabel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSeparator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSeparator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuShortcut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuShortcut",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSub",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSub",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuItem",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuCheckboxItem",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuRadioItem",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuLabel",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSeparator",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuShortcut",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubTrigger",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

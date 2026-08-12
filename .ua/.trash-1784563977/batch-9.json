@@ -1,0 +1,232 @@
+{
+  "nodes": [
+    {
+      "id": "file:FE/DEMO/src/app/data/mockData.ts",
+      "type": "file",
+      "name": "mockData.ts",
+      "filePath": "FE/DEMO/src/app/data/mockData.ts",
+      "summary": "Cung cấp các dataset mock cho course, combo, internship, job và user để các trang demo frontend hiển thị dữ liệu mà không gọi backend.",
+      "tags": ["mock-data", "frontend", "demo", "data-source"],
+      "complexity": "complex",
+      "languageNotes": "TypeScript export nhiều constant dataset dùng chung thay vì một API client runtime."
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/AdminDashboard.tsx",
+      "type": "file",
+      "name": "AdminDashboard.tsx",
+      "filePath": "FE/DEMO/src/app/pages/AdminDashboard.tsx",
+      "summary": "Triển khai dashboard quản trị với tab điều hướng, thống kê và các danh sách course, student, combo từ mock data.",
+      "tags": ["react", "admin-dashboard", "page", "mock-data"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/AdminDashboard.tsx:AdminDashboard",
+      "type": "function",
+      "name": "AdminDashboard",
+      "filePath": "FE/DEMO/src/app/pages/AdminDashboard.tsx",
+      "lineRange": [5, 274],
+      "summary": "Render dashboard admin và quản lý state cho tab đang chọn cùng modal thêm course.",
+      "tags": ["react-component", "admin-dashboard", "state-management"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/Combos.tsx",
+      "type": "file",
+      "name": "Combos.tsx",
+      "filePath": "FE/DEMO/src/app/pages/Combos.tsx",
+      "summary": "Hiển thị các combo course, tính giá gốc và discount từ course thuộc mỗi combo.",
+      "tags": ["react", "course-combo", "page", "pricing"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/Combos.tsx:Combos",
+      "type": "function",
+      "name": "Combos",
+      "filePath": "FE/DEMO/src/app/pages/Combos.tsx",
+      "lineRange": [5, 189],
+      "summary": "Render từng combo cùng các course liên quan, giá trước giảm và mức tiết kiệm.",
+      "tags": ["react-component", "course-combo", "pricing"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/CourseDetail.tsx",
+      "type": "file",
+      "name": "CourseDetail.tsx",
+      "filePath": "FE/DEMO/src/app/pages/CourseDetail.tsx",
+      "summary": "Cung cấp trang chi tiết course, enrollment flow và payment modal dựa trên route parameter, authentication state và mock data.",
+      "tags": ["react", "course-detail", "enrollment", "payment"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/CourseDetail.tsx:CourseDetail",
+      "type": "function",
+      "name": "CourseDetail",
+      "filePath": "FE/DEMO/src/app/pages/CourseDetail.tsx",
+      "lineRange": [7, 314],
+      "summary": "Đọc course ID từ route, hiển thị nội dung và reviews, rồi điều phối enrollment/payment theo trạng thái đăng nhập.",
+      "tags": ["react-component", "course-detail", "enrollment", "routing"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/Courses.tsx",
+      "type": "file",
+      "name": "Courses.tsx",
+      "filePath": "FE/DEMO/src/app/pages/Courses.tsx",
+      "summary": "Xây dựng catalog course có search và bộ filter theo category, price range, rating bằng dữ liệu mock.",
+      "tags": ["react", "course-catalog", "filtering", "search"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/Courses.tsx:Courses",
+      "type": "function",
+      "name": "Courses",
+      "filePath": "FE/DEMO/src/app/pages/Courses.tsx",
+      "lineRange": [6, 275],
+      "summary": "Quản lý filter state, lọc course theo nhiều điều kiện và render giao diện catalog có thể reset filter.",
+      "tags": ["react-component", "filtering", "search", "state-management"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/InternshipDetail.tsx",
+      "type": "file",
+      "name": "InternshipDetail.tsx",
+      "filePath": "FE/DEMO/src/app/pages/InternshipDetail.tsx",
+      "summary": "Cung cấp trang chi tiết internship với access check, countdown timer, xác nhận bắt đầu và submission cho từng task.",
+      "tags": ["react", "internship", "timer", "submission"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/InternshipDetail.tsx:InternshipDetail",
+      "type": "function",
+      "name": "InternshipDetail",
+      "filePath": "FE/DEMO/src/app/pages/InternshipDetail.tsx",
+      "lineRange": [7, 324],
+      "summary": "Điều phối trải nghiệm làm internship: tải item theo route, duy trì timer và kiểm tra task submissions trước khi hoàn thành.",
+      "tags": ["react-component", "internship", "timer", "form-handling"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/Internships.tsx",
+      "type": "file",
+      "name": "Internships.tsx",
+      "filePath": "FE/DEMO/src/app/pages/Internships.tsx",
+      "summary": "Liệt kê internship và xác định eligibility từ các combo/course đã hoàn thành của current user.",
+      "tags": ["react", "internship", "eligibility", "page"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/Internships.tsx:Internships",
+      "type": "function",
+      "name": "Internships",
+      "filePath": "FE/DEMO/src/app/pages/Internships.tsx",
+      "lineRange": [6, 227],
+      "summary": "Kết hợp auth state với mock combo/course data để render danh sách internship và điều kiện tham gia.",
+      "tags": ["react-component", "internship", "eligibility", "authentication"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/Jobs.tsx",
+      "type": "file",
+      "name": "Jobs.tsx",
+      "filePath": "FE/DEMO/src/app/pages/Jobs.tsx",
+      "summary": "Hiển thị job listing và quản lý application form, gồm chọn job, nhập dữ liệu và đính kèm file.",
+      "tags": ["react", "job-listing", "application-form", "page"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/Jobs.tsx:Jobs",
+      "type": "function",
+      "name": "Jobs",
+      "filePath": "FE/DEMO/src/app/pages/Jobs.tsx",
+      "lineRange": [7, 103],
+      "summary": "Render job cards và điều phối state của application form cho job người dùng chọn.",
+      "tags": ["react-component", "job-listing", "form-handling", "state-management"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/LearningStats.tsx",
+      "type": "file",
+      "name": "LearningStats.tsx",
+      "filePath": "FE/DEMO/src/app/pages/LearningStats.tsx",
+      "summary": "Tổng hợp progress, course đang học và course đã hoàn thành thành trang learning statistics từ mock data.",
+      "tags": ["react", "learning-analytics", "progress", "page"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/LearningStats.tsx:LearningStats",
+      "type": "function",
+      "name": "LearningStats",
+      "filePath": "FE/DEMO/src/app/pages/LearningStats.tsx",
+      "lineRange": [5, 226],
+      "summary": "Tính các chỉ số học tập từ collection course và render progress, recent access cùng completion history.",
+      "tags": ["react-component", "learning-analytics", "progress", "data-aggregation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/StudentDashboard.tsx",
+      "type": "file",
+      "name": "StudentDashboard.tsx",
+      "filePath": "FE/DEMO/src/app/pages/StudentDashboard.tsx",
+      "summary": "Triển khai dashboard student có course progress, exam flow, rating flow và lịch sử internship/certificate.",
+      "tags": ["react", "student-dashboard", "exam", "learning-progress"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/StudentDashboard.tsx:StudentDashboard",
+      "type": "function",
+      "name": "StudentDashboard",
+      "filePath": "FE/DEMO/src/app/pages/StudentDashboard.tsx",
+      "lineRange": [7, 532],
+      "summary": "Lấy authenticated user, tổng hợp learning status và điều phối tab, exam modal, score cùng rating state.",
+      "tags": ["react-component", "student-dashboard", "exam", "authentication"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/types.ts",
+      "type": "file",
+      "name": "types.ts",
+      "filePath": "FE/DEMO/src/app/types.ts",
+      "summary": "Tập trung các TypeScript type definition cho dữ liệu domain được mock data và các page frontend sử dụng.",
+      "tags": ["typescript", "type-definition", "frontend", "domain-model"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    { "source": "file:FE/DEMO/src/app/data/mockData.ts", "target": "file:FE/DEMO/src/app/types.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/AdminDashboard.tsx", "target": "file:FE/DEMO/src/app/data/mockData.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/Combos.tsx", "target": "file:FE/DEMO/src/app/data/mockData.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/CourseDetail.tsx", "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/CourseDetail.tsx", "target": "file:FE/DEMO/src/app/data/mockData.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/Courses.tsx", "target": "file:FE/DEMO/src/app/data/mockData.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/InternshipDetail.tsx", "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/InternshipDetail.tsx", "target": "file:FE/DEMO/src/app/data/mockData.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/Internships.tsx", "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/Internships.tsx", "target": "file:FE/DEMO/src/app/data/mockData.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/Jobs.tsx", "target": "file:FE/DEMO/src/app/data/mockData.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/LearningStats.tsx", "target": "file:FE/DEMO/src/app/data/mockData.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/StudentDashboard.tsx", "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/StudentDashboard.tsx", "target": "file:FE/DEMO/src/app/data/mockData.ts", "type": "imports", "direction": "forward", "weight": 0.7 },
+    { "source": "file:FE/DEMO/src/app/pages/AdminDashboard.tsx", "target": "function:FE/DEMO/src/app/pages/AdminDashboard.tsx:AdminDashboard", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:FE/DEMO/src/app/pages/AdminDashboard.tsx", "target": "function:FE/DEMO/src/app/pages/AdminDashboard.tsx:AdminDashboard", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:FE/DEMO/src/app/pages/Combos.tsx", "target": "function:FE/DEMO/src/app/pages/Combos.tsx:Combos", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:FE/DEMO/src/app/pages/Combos.tsx", "target": "function:FE/DEMO/src/app/pages/Combos.tsx:Combos", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:FE/DEMO/src/app/pages/CourseDetail.tsx", "target": "function:FE/DEMO/src/app/pages/CourseDetail.tsx:CourseDetail", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:FE/DEMO/src/app/pages/CourseDetail.tsx", "target": "function:FE/DEMO/src/app/pages/CourseDetail.tsx:CourseDetail", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:FE/DEMO/src/app/pages/Courses.tsx", "target": "function:FE/DEMO/src/app/pages/Courses.tsx:Courses", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:FE/DEMO/src/app/pages/Courses.tsx", "target": "function:FE/DEMO/src/app/pages/Courses.tsx:Courses", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:FE/DEMO/src/app/pages/InternshipDetail.tsx", "target": "function:FE/DEMO/src/app/pages/InternshipDetail.tsx:InternshipDetail", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:FE/DEMO/src/app/pages/InternshipDetail.tsx", "target": "function:FE/DEMO/src/app/pages/InternshipDetail.tsx:InternshipDetail", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:FE/DEMO/src/app/pages/Internships.tsx", "target": "function:FE/DEMO/src/app/pages/Internships.tsx:Internships", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:FE/DEMO/src/app/pages/Internships.tsx", "target": "function:FE/DEMO/src/app/pages/Internships.tsx:Internships", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:FE/DEMO/src/app/pages/Jobs.tsx", "target": "function:FE/DEMO/src/app/pages/Jobs.tsx:Jobs", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:FE/DEMO/src/app/pages/Jobs.tsx", "target": "function:FE/DEMO/src/app/pages/Jobs.tsx:Jobs", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:FE/DEMO/src/app/pages/LearningStats.tsx", "target": "function:FE/DEMO/src/app/pages/LearningStats.tsx:LearningStats", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:FE/DEMO/src/app/pages/LearningStats.tsx", "target": "function:FE/DEMO/src/app/pages/LearningStats.tsx:LearningStats", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "file:FE/DEMO/src/app/pages/StudentDashboard.tsx", "target": "function:FE/DEMO/src/app/pages/StudentDashboard.tsx:StudentDashboard", "type": "contains", "direction": "forward", "weight": 1.0 },
+    { "source": "file:FE/DEMO/src/app/pages/StudentDashboard.tsx", "target": "function:FE/DEMO/src/app/pages/StudentDashboard.tsx:StudentDashboard", "type": "exports", "direction": "forward", "weight": 0.8 },
+    { "source": "function:FE/DEMO/src/app/pages/CourseDetail.tsx:CourseDetail", "target": "function:FE/DEMO/src/app/contexts/AuthContext.tsx:useAuth", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:FE/DEMO/src/app/pages/InternshipDetail.tsx:InternshipDetail", "target": "function:FE/DEMO/src/app/contexts/AuthContext.tsx:useAuth", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:FE/DEMO/src/app/pages/Internships.tsx:Internships", "target": "function:FE/DEMO/src/app/contexts/AuthContext.tsx:useAuth", "type": "calls", "direction": "forward", "weight": 0.8 },
+    { "source": "function:FE/DEMO/src/app/pages/StudentDashboard.tsx:StudentDashboard", "target": "function:FE/DEMO/src/app/contexts/AuthContext.tsx:useAuth", "type": "calls", "direction": "forward", "weight": 0.8 }
+  ]
+}

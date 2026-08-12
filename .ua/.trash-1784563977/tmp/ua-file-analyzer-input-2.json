@@ -1,0 +1,223 @@
+{
+    "projectRoot":  "D:\\CODE\\seongon-lms",
+    "batchFiles":  [
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/menubar.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  276,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  168,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/pagination.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  127,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/popover.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  48,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/progress.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  31,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/radio-group.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  45,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/resizable.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  56,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/scroll-area.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  58,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/select.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  189,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/separator.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  28,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/sheet.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  139,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/sidebar.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  726,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/skeleton.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  13,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/slider.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  63,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/switch.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  31,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/table.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  116,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/tabs.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  66,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/textarea.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  18,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/toggle-group.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  73,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/toggle.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  47,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/tooltip.tsx",
+                           "language":  "typescript",
+                           "sizeLines":  61,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/use-mobile.ts",
+                           "language":  "typescript",
+                           "sizeLines":  21,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "FE/DEMO/src/app/components/ui/utils.ts",
+                           "language":  "typescript",
+                           "sizeLines":  6,
+                           "fileCategory":  "code"
+                       }
+                   ],
+    "batchImportData":  {
+                            "FE/DEMO/src/app/components/ui/menubar.tsx":  [
+                                                                              "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                          ],
+                            "FE/DEMO/src/app/components/ui/navigation-menu.tsx":  [
+                                                                                      "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                                  ],
+                            "FE/DEMO/src/app/components/ui/pagination.tsx":  [
+                                                                                 "FE/DEMO/src/app/components/ui/button.tsx",
+                                                                                 "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                             ],
+                            "FE/DEMO/src/app/components/ui/popover.tsx":  [
+                                                                              "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                          ],
+                            "FE/DEMO/src/app/components/ui/progress.tsx":  [
+                                                                               "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                           ],
+                            "FE/DEMO/src/app/components/ui/radio-group.tsx":  [
+                                                                                  "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                              ],
+                            "FE/DEMO/src/app/components/ui/resizable.tsx":  [
+                                                                                "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                            ],
+                            "FE/DEMO/src/app/components/ui/scroll-area.tsx":  [
+                                                                                  "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                              ],
+                            "FE/DEMO/src/app/components/ui/select.tsx":  [
+                                                                             "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                         ],
+                            "FE/DEMO/src/app/components/ui/separator.tsx":  [
+                                                                                "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                            ],
+                            "FE/DEMO/src/app/components/ui/sheet.tsx":  [
+                                                                            "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                        ],
+                            "FE/DEMO/src/app/components/ui/sidebar.tsx":  [
+                                                                              "FE/DEMO/src/app/components/ui/button.tsx",
+                                                                              "FE/DEMO/src/app/components/ui/input.tsx",
+                                                                              "FE/DEMO/src/app/components/ui/separator.tsx",
+                                                                              "FE/DEMO/src/app/components/ui/sheet.tsx",
+                                                                              "FE/DEMO/src/app/components/ui/skeleton.tsx",
+                                                                              "FE/DEMO/src/app/components/ui/tooltip.tsx",
+                                                                              "FE/DEMO/src/app/components/ui/use-mobile.ts",
+                                                                              "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                          ],
+                            "FE/DEMO/src/app/components/ui/skeleton.tsx":  [
+                                                                               "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                           ],
+                            "FE/DEMO/src/app/components/ui/slider.tsx":  [
+                                                                             "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                         ],
+                            "FE/DEMO/src/app/components/ui/switch.tsx":  [
+                                                                             "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                         ],
+                            "FE/DEMO/src/app/components/ui/table.tsx":  [
+                                                                            "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                        ],
+                            "FE/DEMO/src/app/components/ui/tabs.tsx":  [
+                                                                           "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                       ],
+                            "FE/DEMO/src/app/components/ui/textarea.tsx":  [
+                                                                               "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                           ],
+                            "FE/DEMO/src/app/components/ui/toggle-group.tsx":  [
+                                                                                   "FE/DEMO/src/app/components/ui/toggle.tsx",
+                                                                                   "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                               ],
+                            "FE/DEMO/src/app/components/ui/toggle.tsx":  [
+                                                                             "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                         ],
+                            "FE/DEMO/src/app/components/ui/tooltip.tsx":  [
+                                                                              "FE/DEMO/src/app/components/ui/utils.ts"
+                                                                          ],
+                            "FE/DEMO/src/app/components/ui/use-mobile.ts":  [
+
+                                                                            ],
+                            "FE/DEMO/src/app/components/ui/utils.ts":  [
+
+                                                                       ]
+                        }
+}

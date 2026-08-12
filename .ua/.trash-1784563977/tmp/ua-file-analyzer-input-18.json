@@ -1,0 +1,33 @@
+{
+  "projectRoot": "D:/CODE/seongon-lms",
+  "batchFiles": [
+    {"path":".dockerignore","language":"unknown","sizeLines":22,"fileCategory":"infra"},
+    {"path":".gitattributes","language":"unknown","sizeLines":1,"fileCategory":"code"},
+    {"path":".ua/.understandignore","language":"unknown","sizeLines":100,"fileCategory":"code"},
+    {"path":".ua/config.json","language":"json","sizeLines":4,"fileCategory":"config"},
+    {"path":"BE/.gitattributes","language":"unknown","sizeLines":11,"fileCategory":"code"},
+    {"path":"BE/.npmrc","language":"unknown","sizeLines":2,"fileCategory":"code"},
+    {"path":"BE/app/Http/Middleware/EnsureRole.php","language":"php","sizeLines":25,"fileCategory":"code"},
+    {"path":"BE/app/Models/QuizAttemptAnswer.php","language":"php","sizeLines":36,"fileCategory":"code"},
+    {"path":"BE/app/Services/Payment/PaymentResult.php","language":"php","sizeLines":12,"fileCategory":"code"},
+    {"path":"BE/artisan","language":"unknown","sizeLines":18,"fileCategory":"code"},
+    {"path":"BE/bootstrap/app.php","language":"php","sizeLines":24,"fileCategory":"code"},
+    {"path":"BE/config/app.php","language":"php","sizeLines":126,"fileCategory":"code"},
+    {"path":"BE/config/cache.php","language":"php","sizeLines":136,"fileCategory":"code"},
+    {"path":"BE/config/cors.php","language":"php","sizeLines":12,"fileCategory":"code"},
+    {"path":"BE/config/database.php","language":"php","sizeLines":184,"fileCategory":"code"},
+    {"path":"BE/config/filesystems.php","language":"php","sizeLines":80,"fileCategory":"code"},
+    {"path":"BE/config/logging.php","language":"php","sizeLines":132,"fileCategory":"code"},
+    {"path":"BE/config/mail.php","language":"php","sizeLines":118,"fileCategory":"code"},
+    {"path":"BE/config/queue.php","language":"php","sizeLines":129,"fileCategory":"code"},
+    {"path":"BE/config/sanctum.php","language":"php","sizeLines":87,"fileCategory":"code"},
+    {"path":"BE/config/services.php","language":"php","sizeLines":38,"fileCategory":"code"},
+    {"path":"BE/config/session.php","language":"php","sizeLines":233,"fileCategory":"code"},
+    {"path":"BE/database/factories/CategoryFactory.php","language":"php","sizeLines":20,"fileCategory":"code"},
+    {"path":"BE/database/migrations/0001_01_01_000000_create_users_table.php","language":"php","sizeLines":53,"fileCategory":"code"},
+    {"path":"BE/database/migrations/0001_01_01_000001_create_cache_table.php","language":"php","sizeLines":35,"fileCategory":"code"}
+  ],
+  "batchImportData": {
+    ".dockerignore":[], ".gitattributes":[], ".ua/.understandignore":[], ".ua/config.json":[], "BE/.gitattributes":[], "BE/.npmrc":[], "BE/app/Http/Middleware/EnsureRole.php":[], "BE/app/Models/QuizAttemptAnswer.php":[], "BE/app/Services/Payment/PaymentResult.php":[], "BE/artisan":[], "BE/bootstrap/app.php":[], "BE/config/app.php":[], "BE/config/cache.php":[], "BE/config/cors.php":[], "BE/config/database.php":[], "BE/config/filesystems.php":[], "BE/config/logging.php":[], "BE/config/mail.php":[], "BE/config/queue.php":[], "BE/config/sanctum.php":[], "BE/config/services.php":[], "BE/config/session.php":[], "BE/database/factories/CategoryFactory.php":[], "BE/database/migrations/0001_01_01_000000_create_users_table.php":[], "BE/database/migrations/0001_01_01_000001_create_cache_table.php":[]
+  }
+}

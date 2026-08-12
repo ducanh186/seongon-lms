@@ -1,0 +1,32 @@
+{
+  "projectRoot": "D:/CODE/seongon-lms",
+  "batchFiles": [
+    {"path":"BE/app/Http/Controllers/Api/Admin/DashboardController.php","language":"php","sizeLines":31,"fileCategory":"code"},
+    {"path":"BE/app/Http/Controllers/Api/Student/OrderController.php","language":"php","sizeLines":92,"fileCategory":"code"},
+    {"path":"BE/app/Http/Resources/EnrollmentResource.php","language":"php","sizeLines":24,"fileCategory":"code"},
+    {"path":"BE/app/Http/Resources/OrderResource.php","language":"php","sizeLines":25,"fileCategory":"code"},
+    {"path":"BE/app/Models/Certificate.php","language":"php","sizeLines":26,"fileCategory":"code"},
+    {"path":"BE/app/Models/Enrollment.php","language":"php","sizeLines":59,"fileCategory":"code"},
+    {"path":"BE/app/Models/Order.php","language":"php","sizeLines":46,"fileCategory":"code"},
+    {"path":"BE/app/Providers/AppServiceProvider.php","language":"php","sizeLines":27,"fileCategory":"code"},
+    {"path":"BE/app/Services/CertificateService.php","language":"php","sizeLines":29,"fileCategory":"code"},
+    {"path":"BE/app/Services/EnrollmentService.php","language":"php","sizeLines":28,"fileCategory":"code"},
+    {"path":"BE/app/Services/Payment/MockGateway.php","language":"php","sizeLines":30,"fileCategory":"code"},
+    {"path":"BE/app/Services/Payment/PaymentGateway.php","language":"php","sizeLines":15,"fileCategory":"code"},
+    {"path":"BE/bootstrap/providers.php","language":"php","sizeLines":7,"fileCategory":"code"},
+    {"path":"BE/tests/Feature/PurchaseTest.php","language":"php","sizeLines":55,"fileCategory":"code"},
+    {"path":"BE/tests/Feature/QuizTest.php","language":"php","sizeLines":61,"fileCategory":"code"}
+  ],
+  "batchImportData": {
+    "BE/app/Http/Controllers/Api/Admin/DashboardController.php":["BE/app/Http/Controllers/Controller.php","BE/app/Models/Certificate.php","BE/app/Models/Course.php","BE/app/Models/Enrollment.php","BE/app/Models/Order.php","BE/app/Models/User.php"],
+    "BE/app/Http/Controllers/Api/Student/OrderController.php":["BE/app/Http/Controllers/Controller.php","BE/app/Http/Resources/EnrollmentResource.php","BE/app/Http/Resources/OrderResource.php","BE/app/Models/Course.php","BE/app/Models/Enrollment.php","BE/app/Models/Order.php","BE/app/Services/EnrollmentService.php","BE/app/Services/Payment/PaymentGateway.php"],
+    "BE/app/Http/Resources/EnrollmentResource.php":[],"BE/app/Http/Resources/OrderResource.php":[],"BE/app/Models/Certificate.php":[],"BE/app/Models/Enrollment.php":[],"BE/app/Models/Order.php":[],
+    "BE/app/Providers/AppServiceProvider.php":["BE/app/Services/Payment/MockGateway.php","BE/app/Services/Payment/PaymentGateway.php"],
+    "BE/app/Services/CertificateService.php":["BE/app/Models/Certificate.php","BE/app/Models/Enrollment.php"],
+    "BE/app/Services/EnrollmentService.php":["BE/app/Models/Enrollment.php","BE/app/Models/Order.php"],
+    "BE/app/Services/Payment/MockGateway.php":["BE/app/Models/Order.php"],"BE/app/Services/Payment/PaymentGateway.php":["BE/app/Models/Order.php"],
+    "BE/bootstrap/providers.php":["BE/app/Providers/AppServiceProvider.php"],
+    "BE/tests/Feature/PurchaseTest.php":["BE/app/Models/Course.php","BE/app/Models/Enrollment.php","BE/app/Models/Order.php","BE/app/Models/User.php"],
+    "BE/tests/Feature/QuizTest.php":["BE/app/Models/Certificate.php","BE/app/Models/Enrollment.php","BE/app/Models/User.php"]
+  }
+}

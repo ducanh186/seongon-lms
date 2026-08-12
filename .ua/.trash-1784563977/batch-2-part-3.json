@@ -1,0 +1,594 @@
+{
+  "nodes": [
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/tabs.tsx",
+      "type": "file",
+      "name": "tabs.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/tabs.tsx",
+      "summary": "Cung cấp các React UI component tabs.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/tabs.tsx:Tabs",
+      "type": "function",
+      "name": "Tabs",
+      "filePath": "FE/DEMO/src/app/components/ui/tabs.tsx",
+      "lineRange": [
+        8,
+        19
+      ],
+      "summary": "Cung cấp React UI component Tabs với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/tabs.tsx:TabsList",
+      "type": "function",
+      "name": "TabsList",
+      "filePath": "FE/DEMO/src/app/components/ui/tabs.tsx",
+      "lineRange": [
+        21,
+        35
+      ],
+      "summary": "Cung cấp React UI component TabsList với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/tabs.tsx:TabsTrigger",
+      "type": "function",
+      "name": "TabsTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/tabs.tsx",
+      "lineRange": [
+        37,
+        51
+      ],
+      "summary": "Cung cấp React UI component TabsTrigger với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/tabs.tsx:TabsContent",
+      "type": "function",
+      "name": "TabsContent",
+      "filePath": "FE/DEMO/src/app/components/ui/tabs.tsx",
+      "lineRange": [
+        53,
+        64
+      ],
+      "summary": "Cung cấp React UI component TabsContent với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/textarea.tsx",
+      "type": "file",
+      "name": "textarea.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/textarea.tsx",
+      "summary": "Cung cấp các React UI component textarea.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/textarea.tsx:Textarea",
+      "type": "function",
+      "name": "Textarea",
+      "filePath": "FE/DEMO/src/app/components/ui/textarea.tsx",
+      "lineRange": [
+        5,
+        16
+      ],
+      "summary": "Cung cấp React UI component Textarea với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/toggle-group.tsx",
+      "type": "file",
+      "name": "toggle-group.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/toggle-group.tsx",
+      "summary": "Cung cấp các React UI component toggle-group.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/toggle-group.tsx:ToggleGroup",
+      "type": "function",
+      "name": "ToggleGroup",
+      "filePath": "FE/DEMO/src/app/components/ui/toggle-group.tsx",
+      "lineRange": [
+        17,
+        41
+      ],
+      "summary": "Cung cấp React UI component ToggleGroup với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/toggle-group.tsx:ToggleGroupItem",
+      "type": "function",
+      "name": "ToggleGroupItem",
+      "filePath": "FE/DEMO/src/app/components/ui/toggle-group.tsx",
+      "lineRange": [
+        43,
+        71
+      ],
+      "summary": "Cung cấp React UI component ToggleGroupItem với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/toggle.tsx",
+      "type": "file",
+      "name": "toggle.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/toggle.tsx",
+      "summary": "Cung cấp các React UI component toggle.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/toggle.tsx:Toggle",
+      "type": "function",
+      "name": "Toggle",
+      "filePath": "FE/DEMO/src/app/components/ui/toggle.tsx",
+      "lineRange": [
+        31,
+        45
+      ],
+      "summary": "Cung cấp React UI component Toggle với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "type": "file",
+      "name": "tooltip.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "summary": "Cung cấp các React UI component tooltip.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:TooltipProvider",
+      "type": "function",
+      "name": "TooltipProvider",
+      "filePath": "FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "lineRange": [
+        8,
+        19
+      ],
+      "summary": "Cung cấp React UI component TooltipProvider với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:Tooltip",
+      "type": "function",
+      "name": "Tooltip",
+      "filePath": "FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "lineRange": [
+        21,
+        29
+      ],
+      "summary": "Cung cấp React UI component Tooltip với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:TooltipTrigger",
+      "type": "function",
+      "name": "TooltipTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "lineRange": [
+        31,
+        35
+      ],
+      "summary": "Cung cấp React UI component TooltipTrigger với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:TooltipContent",
+      "type": "function",
+      "name": "TooltipContent",
+      "filePath": "FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "lineRange": [
+        37,
+        59
+      ],
+      "summary": "Cung cấp React UI component TooltipContent với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/use-mobile.ts",
+      "type": "file",
+      "name": "use-mobile.ts",
+      "filePath": "FE/DEMO/src/app/components/ui/use-mobile.ts",
+      "summary": "Cung cấp React hook useIsMobile để theo dõi media query màn hình nhỏ trong giao diện.",
+      "tags": [
+        "react-hook",
+        "responsive",
+        "browser-api",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/use-mobile.ts:useIsMobile",
+      "type": "function",
+      "name": "useIsMobile",
+      "filePath": "FE/DEMO/src/app/components/ui/use-mobile.ts",
+      "lineRange": [
+        5,
+        21
+      ],
+      "summary": "Theo dõi media query để trả về trạng thái màn hình mobile hiện tại.",
+      "tags": [
+        "react-hook",
+        "responsive",
+        "state",
+        "browser-api"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "file",
+      "name": "utils.ts",
+      "filePath": "FE/DEMO/src/app/components/ui/utils.ts",
+      "summary": "Cung cấp hàm tiện ích cn để gộp điều kiện CSS class và giải quyết xung đột Tailwind.",
+      "tags": [
+        "utility",
+        "styling",
+        "tailwind",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "function",
+      "name": "cn",
+      "filePath": "FE/DEMO/src/app/components/ui/utils.ts",
+      "lineRange": [
+        4,
+        6
+      ],
+      "summary": "Gộp các giá trị class có điều kiện và chuẩn hóa xung đột Tailwind CSS.",
+      "tags": [
+        "utility",
+        "classnames",
+        "tailwind",
+        "styling"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tabs.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tabs.tsx:Tabs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tabs.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tabs.tsx:Tabs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tabs.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tabs.tsx:TabsList",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tabs.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tabs.tsx:TabsList",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tabs.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tabs.tsx:TabsTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tabs.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tabs.tsx:TabsTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tabs.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tabs.tsx:TabsContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tabs.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tabs.tsx:TabsContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/textarea.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/textarea.tsx:Textarea",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/textarea.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/textarea.tsx:Textarea",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/toggle-group.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/toggle-group.tsx:ToggleGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/toggle-group.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/toggle-group.tsx:ToggleGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/toggle-group.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/toggle-group.tsx:ToggleGroupItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/toggle-group.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/toggle-group.tsx:ToggleGroupItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/toggle.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/toggle.tsx:Toggle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/toggle.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/toggle.tsx:Toggle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:TooltipProvider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:TooltipProvider",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:Tooltip",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:Tooltip",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:TooltipTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:TooltipTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:TooltipContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/tooltip.tsx:TooltipContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/use-mobile.ts",
+      "target": "function:FE/DEMO/src/app/components/ui/use-mobile.ts:useIsMobile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/use-mobile.ts",
+      "target": "function:FE/DEMO/src/app/components/ui/use-mobile.ts:useIsMobile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tabs.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/textarea.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/toggle-group.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/toggle.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/toggle-group.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/toggle.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/tooltip.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

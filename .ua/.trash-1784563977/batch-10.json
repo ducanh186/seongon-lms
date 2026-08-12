@@ -1,0 +1,46 @@
+{
+  "nodes": [
+    {
+      "id": "service:Infra/docker/nginx/Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "filePath": "Infra/docker/nginx/Dockerfile",
+      "summary": "Dockerfile multi-stage build cho frontend: build ứng dụng Vite bằng Node rồi phục vụ static assets bằng Nginx với health check.",
+      "tags": ["containerization", "frontend-build", "nginx", "deployment"],
+      "complexity": "simple",
+      "languageNotes": "Multi-stage Docker build tách build-time dependencies khỏi Nginx runtime image."
+    },
+    {
+      "id": "service:Infra/docker/nginx/Dockerfile:frontend-build",
+      "type": "service",
+      "name": "frontend-build",
+      "summary": "Build stage dùng node:22-alpine để cài dependencies, nhận VITE_API_BASE_URL và tạo thư mục dist của frontend.",
+      "tags": ["docker-stage", "frontend-build", "vite", "nodejs"],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:Infra/docker/nginx/Dockerfile:runtime",
+      "type": "service",
+      "name": "runtime",
+      "summary": "Runtime stage dùng nginx:1.28-alpine, nạp cấu hình reverse proxy, phục vụ dist qua port 80 và kiểm tra /healthz.",
+      "tags": ["docker-stage", "nginx", "runtime", "health-check"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "service:Infra/docker/nginx/Dockerfile",
+      "target": "service:Infra/docker/nginx/Dockerfile:frontend-build",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "service:Infra/docker/nginx/Dockerfile",
+      "target": "service:Infra/docker/nginx/Dockerfile:runtime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    }
+  ]
+}

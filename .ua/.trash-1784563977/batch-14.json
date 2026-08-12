@@ -1,0 +1,13 @@
+{
+  "nodes": [
+    {"id":"file:FE/DEMO/src/styles/fonts.css","type":"file","name":"fonts.css","filePath":"FE/DEMO/src/styles/fonts.css","summary":"Là stylesheet placeholder cho font definitions của frontend demo; hiện chưa chứa rule nào.","tags":["css","fonts","stylesheet"],"complexity":"simple"},
+    {"id":"file:FE/DEMO/src/styles/index.css","type":"file","name":"index.css","filePath":"FE/DEMO/src/styles/index.css","summary":"Tổng hợp font, Tailwind và theme stylesheet thành một CSS entry point cho ứng dụng.","tags":["css","entry-point","styles","frontend"],"complexity":"simple"},
+    {"id":"file:FE/DEMO/src/styles/tailwind.css","type":"file","name":"tailwind.css","filePath":"FE/DEMO/src/styles/tailwind.css","summary":"Nạp Tailwind CSS, quét source JavaScript/TypeScript và thêm animation utility từ tw-animate-css.","tags":["css","tailwind","build-system","animation"],"complexity":"simple"},
+    {"id":"file:FE/DEMO/src/styles/theme.css","type":"file","name":"theme.css","filePath":"FE/DEMO/src/styles/theme.css","summary":"Xác định design token sáng/tối, Tailwind semantic token và base typography cho giao diện LMS.","tags":["css","design-tokens","theme","tailwind"],"complexity":"moderate","languageNotes":"Dùng CSS custom properties, @custom-variant và @theme inline để thống nhất dark mode với Tailwind utility."}
+  ],
+  "edges": [
+    {"source":"file:FE/DEMO/src/styles/index.css","target":"file:FE/DEMO/src/styles/fonts.css","type":"depends_on","direction":"forward","weight":0.6},
+    {"source":"file:FE/DEMO/src/styles/index.css","target":"file:FE/DEMO/src/styles/tailwind.css","type":"depends_on","direction":"forward","weight":0.6},
+    {"source":"file:FE/DEMO/src/styles/index.css","target":"file:FE/DEMO/src/styles/theme.css","type":"depends_on","direction":"forward","weight":0.6}
+  ]
+}

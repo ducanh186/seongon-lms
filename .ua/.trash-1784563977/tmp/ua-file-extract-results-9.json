@@ -1,0 +1,1346 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 11,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 11,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 11,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "FE/DEMO/src/app/data/mockData.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 392,
+      "nonEmptyLines": 387,
+      "exports": [
+        {
+          "name": "mockCourses",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "mockCombos",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "mockInternships",
+          "line": 255,
+          "isDefault": false
+        },
+        {
+          "name": "mockJobs",
+          "line": 320,
+          "isDefault": false
+        },
+        {
+          "name": "mockUsers",
+          "line": 373,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/AdminDashboard.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 274,
+      "nonEmptyLines": 263,
+      "functions": [
+        {
+          "name": "AdminDashboard",
+          "startLine": 5,
+          "endLine": 274,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminDashboard",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "AdminDashboard",
+          "callee": "useState",
+          "lineNumber": 6
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "useState",
+          "lineNumber": 7
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "setActiveTab",
+          "lineNumber": 56
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "setActiveTab",
+          "lineNumber": 64
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "setActiveTab",
+          "lineNumber": 72
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "setActiveTab",
+          "lineNumber": 80
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "mockCourses.slice(0, 5).map",
+          "lineNumber": 97
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "mockCourses.slice",
+          "lineNumber": 97
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "setShowAddCourse",
+          "lineNumber": 141
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "setShowAddCourse",
+          "lineNumber": 161
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "mockCourses.map",
+          "lineNumber": 167
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "course.price.toLocaleString",
+          "lineNumber": 178
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "['Nguyễn Văn A', 'Trần Thị B', 'Lê Minh C'].map",
+          "lineNumber": 212
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "mockCombos.map",
+          "lineNumber": 235
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "mockCourses.filter",
+          "lineNumber": 236
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "combo.courses.includes",
+          "lineNumber": 236
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "combo.price.toLocaleString",
+          "lineNumber": 245
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "combo.discount.toLocaleString",
+          "lineNumber": 246
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "comboCourses.map",
+          "lineNumber": 252
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/Combos.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 189,
+      "nonEmptyLines": 179,
+      "functions": [
+        {
+          "name": "Combos",
+          "startLine": 5,
+          "endLine": 189,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Combos",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Combos",
+          "callee": "mockCombos.map",
+          "lineNumber": 59
+        },
+        {
+          "caller": "Combos",
+          "callee": "mockCourses.filter",
+          "lineNumber": 60
+        },
+        {
+          "caller": "Combos",
+          "callee": "combo.courses.includes",
+          "lineNumber": 60
+        },
+        {
+          "caller": "Combos",
+          "callee": "comboCourses.reduce",
+          "lineNumber": 61
+        },
+        {
+          "caller": "Combos",
+          "callee": "originalPrice.toLocaleString",
+          "lineNumber": 83
+        },
+        {
+          "caller": "Combos",
+          "callee": "combo.price.toLocaleString",
+          "lineNumber": 86
+        },
+        {
+          "caller": "Combos",
+          "callee": "combo.discount.toLocaleString",
+          "lineNumber": 91
+        },
+        {
+          "caller": "Combos",
+          "callee": "comboCourses.map",
+          "lineNumber": 104
+        },
+        {
+          "caller": "Combos",
+          "callee": "course.price.toLocaleString",
+          "lineNumber": 116
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/CourseDetail.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 314,
+      "nonEmptyLines": 297,
+      "functions": [
+        {
+          "name": "CourseDetail",
+          "startLine": 7,
+          "endLine": 314,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CourseDetail",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "CourseDetail",
+          "callee": "useParams",
+          "lineNumber": 8
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "useNavigate",
+          "lineNumber": 9
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "useAuth",
+          "lineNumber": 10
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "useState",
+          "lineNumber": 11
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "useState",
+          "lineNumber": 12
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "useState",
+          "lineNumber": 13
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "mockCourses.find",
+          "lineNumber": 15
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "navigate",
+          "lineNumber": 21
+        },
+        {
+          "caller": "handleEnroll",
+          "callee": "navigate",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handleEnroll",
+          "callee": "setShowPayment",
+          "lineNumber": 33
+        },
+        {
+          "caller": "handlePayment",
+          "callee": "alert",
+          "lineNumber": 37
+        },
+        {
+          "caller": "handlePayment",
+          "callee": "setShowPayment",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handlePayment",
+          "callee": "navigate",
+          "lineNumber": 39
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "course.lessons.map",
+          "lineNumber": 110
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "setExpandedLesson",
+          "lineNumber": 116
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "course.reviews.map",
+          "lineNumber": 167
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "[...Array(5)].map",
+          "lineNumber": 180
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "Array",
+          "lineNumber": 180
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "new Date(review.createdAt).toLocaleDateString",
+          "lineNumber": 193
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "course.price.toLocaleString",
+          "lineNumber": 211
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "setPaymentMethod",
+          "lineNumber": 228
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "setPaymentMethod",
+          "lineNumber": 237
+        },
+        {
+          "caller": "CourseDetail",
+          "callee": "setShowPayment",
+          "lineNumber": 287
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/Courses.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 275,
+      "nonEmptyLines": 261,
+      "functions": [
+        {
+          "name": "Courses",
+          "startLine": 6,
+          "endLine": 275,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Courses",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Courses",
+          "callee": "useState",
+          "lineNumber": 7
+        },
+        {
+          "caller": "Courses",
+          "callee": "useState",
+          "lineNumber": 8
+        },
+        {
+          "caller": "Courses",
+          "callee": "useState",
+          "lineNumber": 9
+        },
+        {
+          "caller": "Courses",
+          "callee": "useState",
+          "lineNumber": 10
+        },
+        {
+          "caller": "Courses",
+          "callee": "useState",
+          "lineNumber": 11
+        },
+        {
+          "caller": "Courses",
+          "callee": "mockCourses.filter",
+          "lineNumber": 15
+        },
+        {
+          "caller": "Courses",
+          "callee": "course.title.toLowerCase().includes",
+          "lineNumber": 16
+        },
+        {
+          "caller": "Courses",
+          "callee": "course.title.toLowerCase",
+          "lineNumber": 16
+        },
+        {
+          "caller": "Courses",
+          "callee": "searchTerm.toLowerCase",
+          "lineNumber": 16
+        },
+        {
+          "caller": "Courses",
+          "callee": "course.description.toLowerCase().includes",
+          "lineNumber": 17
+        },
+        {
+          "caller": "Courses",
+          "callee": "course.description.toLowerCase",
+          "lineNumber": 17
+        },
+        {
+          "caller": "Courses",
+          "callee": "searchTerm.toLowerCase",
+          "lineNumber": 17
+        },
+        {
+          "caller": "resetFilters",
+          "callee": "setSelectedCategory",
+          "lineNumber": 25
+        },
+        {
+          "caller": "resetFilters",
+          "callee": "setPriceRange",
+          "lineNumber": 26
+        },
+        {
+          "caller": "resetFilters",
+          "callee": "setMinRating",
+          "lineNumber": 27
+        },
+        {
+          "caller": "Courses",
+          "callee": "setShowFilters",
+          "lineNumber": 154
+        },
+        {
+          "caller": "Courses",
+          "callee": "categories.map",
+          "lineNumber": 165
+        },
+        {
+          "caller": "Courses",
+          "callee": "setSelectedCategory",
+          "lineNumber": 168
+        },
+        {
+          "caller": "Courses",
+          "callee": "setPriceRange",
+          "lineNumber": 190
+        },
+        {
+          "caller": "Courses",
+          "callee": "Number",
+          "lineNumber": 190
+        },
+        {
+          "caller": "Courses",
+          "callee": "setPriceRange",
+          "lineNumber": 200
+        },
+        {
+          "caller": "Courses",
+          "callee": "Number",
+          "lineNumber": 200
+        },
+        {
+          "caller": "Courses",
+          "callee": "setPriceRange",
+          "lineNumber": 207
+        },
+        {
+          "caller": "Courses",
+          "callee": "setPriceRange",
+          "lineNumber": 213
+        },
+        {
+          "caller": "Courses",
+          "callee": "setPriceRange",
+          "lineNumber": 219
+        },
+        {
+          "caller": "Courses",
+          "callee": "[5, 4.5, 4, 3.5, 0].map",
+          "lineNumber": 232
+        },
+        {
+          "caller": "Courses",
+          "callee": "setMinRating",
+          "lineNumber": 235
+        },
+        {
+          "caller": "Courses",
+          "callee": "[...Array(Math.floor(rating))].map",
+          "lineNumber": 247
+        },
+        {
+          "caller": "Courses",
+          "callee": "Array",
+          "lineNumber": 247
+        },
+        {
+          "caller": "Courses",
+          "callee": "Math.floor",
+          "lineNumber": 247
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/InternshipDetail.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 324,
+      "nonEmptyLines": 301,
+      "functions": [
+        {
+          "name": "InternshipDetail",
+          "startLine": 7,
+          "endLine": 324,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "InternshipDetail",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "InternshipDetail",
+          "callee": "useParams",
+          "lineNumber": 8
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "useNavigate",
+          "lineNumber": 9
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "useAuth",
+          "lineNumber": 10
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "mockInternships.find",
+          "lineNumber": 12
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "useState",
+          "lineNumber": 14
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "useState",
+          "lineNumber": 15
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "useState",
+          "lineNumber": 16
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "useState",
+          "lineNumber": 17
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "useEffect",
+          "lineNumber": 19
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "setInterval",
+          "lineNumber": 22
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "setTimeRemaining",
+          "lineNumber": 23
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "clearInterval",
+          "lineNumber": 25
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "alert",
+          "lineNumber": 26
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "clearInterval",
+          "lineNumber": 33
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "navigate",
+          "lineNumber": 41
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "navigate",
+          "lineNumber": 59
+        },
+        {
+          "caller": "formatTime",
+          "callee": "Math.floor",
+          "lineNumber": 69
+        },
+        {
+          "caller": "formatTime",
+          "callee": "Math.floor",
+          "lineNumber": 70
+        },
+        {
+          "caller": "formatTime",
+          "callee": "hours.toString().padStart",
+          "lineNumber": 72
+        },
+        {
+          "caller": "formatTime",
+          "callee": "hours.toString",
+          "lineNumber": 72
+        },
+        {
+          "caller": "formatTime",
+          "callee": "minutes.toString().padStart",
+          "lineNumber": 72
+        },
+        {
+          "caller": "formatTime",
+          "callee": "minutes.toString",
+          "lineNumber": 72
+        },
+        {
+          "caller": "formatTime",
+          "callee": "secs.toString().padStart",
+          "lineNumber": 72
+        },
+        {
+          "caller": "formatTime",
+          "callee": "secs.toString",
+          "lineNumber": 72
+        },
+        {
+          "caller": "handleStart",
+          "callee": "setHasStarted",
+          "lineNumber": 76
+        },
+        {
+          "caller": "handleStart",
+          "callee": "setShowConfirmStart",
+          "lineNumber": 77
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "internship.tasks.every",
+          "lineNumber": 81
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "submissions[task.id]?.trim",
+          "lineNumber": 81
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "alert",
+          "lineNumber": 84
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "window.confirm",
+          "lineNumber": 88
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "alert",
+          "lineNumber": 89
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "navigate",
+          "lineNumber": 90
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "Object.keys(submissions).filter",
+          "lineNumber": 94
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "Object.keys",
+          "lineNumber": 94
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "submissions[key]?.trim",
+          "lineNumber": 94
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "formatTime",
+          "lineNumber": 120
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "formatTime",
+          "lineNumber": 120
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "Math.round",
+          "lineNumber": 128
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "internship.tasks.map",
+          "lineNumber": 181
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "setShowConfirmStart",
+          "lineNumber": 194
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "setShowConfirmStart",
+          "lineNumber": 208
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "internship.tasks.map",
+          "lineNumber": 235
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "submissions[task.id]?.trim",
+          "lineNumber": 236
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "setSubmissions",
+          "lineNumber": 281
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "Object.keys(submissions).filter",
+          "lineNumber": 299
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "Object.keys",
+          "lineNumber": 299
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "submissions[key]?.trim",
+          "lineNumber": 299
+        },
+        {
+          "caller": "InternshipDetail",
+          "callee": "formatTime",
+          "lineNumber": 302
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/Internships.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 227,
+      "nonEmptyLines": 216,
+      "functions": [
+        {
+          "name": "Internships",
+          "startLine": 6,
+          "endLine": 227,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Internships",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Internships",
+          "callee": "useAuth",
+          "lineNumber": 7
+        },
+        {
+          "caller": "Internships",
+          "callee": "mockInternships.map",
+          "lineNumber": 75
+        },
+        {
+          "caller": "Internships",
+          "callee": "mockCombos.find",
+          "lineNumber": 76
+        },
+        {
+          "caller": "Internships",
+          "callee": "mockCourses.filter",
+          "lineNumber": 77
+        },
+        {
+          "caller": "Internships",
+          "callee": "combo.courses.includes",
+          "lineNumber": 77
+        },
+        {
+          "caller": "Internships",
+          "callee": "completedCombos.includes",
+          "lineNumber": 78
+        },
+        {
+          "caller": "Internships",
+          "callee": "comboCourses.map",
+          "lineNumber": 136
+        },
+        {
+          "caller": "Internships",
+          "callee": "internship.tasks.slice(0, 3).map",
+          "lineNumber": 150
+        },
+        {
+          "caller": "Internships",
+          "callee": "internship.tasks.slice",
+          "lineNumber": 150
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/Jobs.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 217,
+      "nonEmptyLines": 201,
+      "functions": [
+        {
+          "name": "Jobs",
+          "startLine": 7,
+          "endLine": 103,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Jobs",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Jobs",
+          "callee": "useState",
+          "lineNumber": 8
+        },
+        {
+          "caller": "Jobs",
+          "callee": "useState",
+          "lineNumber": 9
+        },
+        {
+          "caller": "Jobs",
+          "callee": "useState",
+          "lineNumber": 10
+        },
+        {
+          "caller": "Jobs",
+          "callee": "useNavigate",
+          "lineNumber": 18
+        },
+        {
+          "caller": "handleApply",
+          "callee": "setSelectedJob",
+          "lineNumber": 21
+        },
+        {
+          "caller": "handleApply",
+          "callee": "setShowApplicationForm",
+          "lineNumber": 22
+        },
+        {
+          "caller": "handleSubmitApplication",
+          "callee": "e.preventDefault",
+          "lineNumber": 26
+        },
+        {
+          "caller": "handleSubmitApplication",
+          "callee": "alert",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handleSubmitApplication",
+          "callee": "setShowApplicationForm",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handleSubmitApplication",
+          "callee": "setApplicationData",
+          "lineNumber": 29
+        },
+        {
+          "caller": "handleFileChange",
+          "callee": "setApplicationData",
+          "lineNumber": 34
+        },
+        {
+          "caller": "Jobs",
+          "callee": "job.requirements.slice(0, 3).map",
+          "lineNumber": 84
+        },
+        {
+          "caller": "Jobs",
+          "callee": "job.requirements.slice",
+          "lineNumber": 84
+        },
+        {
+          "caller": "Jobs",
+          "callee": "handleApply",
+          "lineNumber": 97
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/LearningStats.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 226,
+      "nonEmptyLines": 218,
+      "functions": [
+        {
+          "name": "LearningStats",
+          "startLine": 5,
+          "endLine": 226,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "LearningStats",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "LearningStats",
+          "callee": "enrolledCourses.filter",
+          "lineNumber": 31
+        },
+        {
+          "caller": "LearningStats",
+          "callee": "enrolledCourses.filter",
+          "lineNumber": 32
+        },
+        {
+          "caller": "LearningStats",
+          "callee": "completedCourses.filter",
+          "lineNumber": 49
+        },
+        {
+          "caller": "LearningStats",
+          "callee": "Math.round",
+          "lineNumber": 56
+        },
+        {
+          "caller": "LearningStats",
+          "callee": "completedCourses.reduce",
+          "lineNumber": 56
+        },
+        {
+          "caller": "LearningStats",
+          "callee": "stats.map",
+          "lineNumber": 72
+        },
+        {
+          "caller": "LearningStats",
+          "callee": "inProgressCourses.map",
+          "lineNumber": 93
+        },
+        {
+          "caller": "LearningStats",
+          "callee": "new Date(course.lastAccessed).toLocaleDateString",
+          "lineNumber": 128
+        },
+        {
+          "caller": "LearningStats",
+          "callee": "completedCourses.map",
+          "lineNumber": 153
+        },
+        {
+          "caller": "LearningStats",
+          "callee": "new Date(course.lastAccessed).toLocaleDateString",
+          "lineNumber": 187
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/StudentDashboard.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 532,
+      "nonEmptyLines": 504,
+      "functions": [
+        {
+          "name": "StudentDashboard",
+          "startLine": 7,
+          "endLine": 532,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "StudentDashboard",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "StudentDashboard",
+          "callee": "useAuth",
+          "lineNumber": 8
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "useState",
+          "lineNumber": 9
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "useState",
+          "lineNumber": 10
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "useState",
+          "lineNumber": 11
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "useState",
+          "lineNumber": 12
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "enrolledCoursesData.filter",
+          "lineNumber": 60
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "enrolledCoursesData.filter",
+          "lineNumber": 61
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "Math.round",
+          "lineNumber": 62
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "enrolledCoursesData.reduce",
+          "lineNumber": 62
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "completedCourses.filter",
+          "lineNumber": 63
+        },
+        {
+          "caller": "handleTakeExam",
+          "callee": "setSelectedCourse",
+          "lineNumber": 66
+        },
+        {
+          "caller": "handleTakeExam",
+          "callee": "setShowExam",
+          "lineNumber": 67
+        },
+        {
+          "caller": "handleSubmitExam",
+          "callee": "Math.floor",
+          "lineNumber": 71
+        },
+        {
+          "caller": "handleSubmitExam",
+          "callee": "Math.random",
+          "lineNumber": 71
+        },
+        {
+          "caller": "handleSubmitExam",
+          "callee": "setExamScore",
+          "lineNumber": 72
+        },
+        {
+          "caller": "handleRateCourse",
+          "callee": "alert",
+          "lineNumber": 76
+        },
+        {
+          "caller": "handleRateCourse",
+          "callee": "setShowExam",
+          "lineNumber": 77
+        },
+        {
+          "caller": "handleRateCourse",
+          "callee": "setExamScore",
+          "lineNumber": 78
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "setActiveTab",
+          "lineNumber": 125
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "setActiveTab",
+          "lineNumber": 133
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "setActiveTab",
+          "lineNumber": 141
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "setActiveTab",
+          "lineNumber": 149
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "enrolledCoursesData.map",
+          "lineNumber": 162
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "handleTakeExam",
+          "lineNumber": 197
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "enrolledCoursesData.map",
+          "lineNumber": 223
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "Math.round",
+          "lineNumber": 328
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "[1, 2, 3, 4, 5].map",
+          "lineNumber": 350
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "['A', 'B', 'C', 'D'].map",
+          "lineNumber": 354
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "setShowExam",
+          "lineNumber": 373
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "[1, 2, 3, 4, 5].map",
+          "lineNumber": 400
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "setExamScore",
+          "lineNumber": 420
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "setShowExam",
+          "lineNumber": 421
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "completedInternships.map",
+          "lineNumber": 436
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "new Date(internship.completedDate).toLocaleDateString",
+          "lineNumber": 452
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "completedCourses\n              .filter(c => c.examScore && c.examScore >= 75)\n              .map",
+          "lineNumber": 493
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "completedCourses\n              .filter",
+          "lineNumber": 493
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "new Date(course.lastAccessed).toLocaleDateString",
+          "lineNumber": 503
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "completedInternships.map",
+          "lineNumber": 511
+        },
+        {
+          "caller": "StudentDashboard",
+          "callee": "new Date(internship.completedDate).toLocaleDateString",
+          "lineNumber": 519
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "FE/DEMO/src/app/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 117,
+      "nonEmptyLines": 106,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

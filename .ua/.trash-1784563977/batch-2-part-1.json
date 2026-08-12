@@ -1,0 +1,1557 @@
+{
+  "nodes": [
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "type": "file",
+      "name": "menubar.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "summary": "Cung cấp các React UI component menubar.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:Menubar",
+      "type": "function",
+      "name": "Menubar",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        9,
+        23
+      ],
+      "summary": "Cung cấp React UI component Menubar với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarMenu",
+      "type": "function",
+      "name": "MenubarMenu",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        25,
+        29
+      ],
+      "summary": "Cung cấp React UI component MenubarMenu với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarGroup",
+      "type": "function",
+      "name": "MenubarGroup",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        31,
+        35
+      ],
+      "summary": "Cung cấp React UI component MenubarGroup với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarPortal",
+      "type": "function",
+      "name": "MenubarPortal",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        37,
+        41
+      ],
+      "summary": "Cung cấp React UI component MenubarPortal với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarRadioGroup",
+      "type": "function",
+      "name": "MenubarRadioGroup",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        43,
+        49
+      ],
+      "summary": "Cung cấp React UI component MenubarRadioGroup với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarTrigger",
+      "type": "function",
+      "name": "MenubarTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        51,
+        65
+      ],
+      "summary": "Cung cấp React UI component MenubarTrigger với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarContent",
+      "type": "function",
+      "name": "MenubarContent",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        67,
+        89
+      ],
+      "summary": "Cung cấp React UI component MenubarContent với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarItem",
+      "type": "function",
+      "name": "MenubarItem",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        91,
+        112
+      ],
+      "summary": "Cung cấp React UI component MenubarItem với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarCheckboxItem",
+      "type": "function",
+      "name": "MenubarCheckboxItem",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        114,
+        138
+      ],
+      "summary": "Cung cấp React UI component MenubarCheckboxItem với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarRadioItem",
+      "type": "function",
+      "name": "MenubarRadioItem",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        140,
+        162
+      ],
+      "summary": "Cung cấp React UI component MenubarRadioItem với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarLabel",
+      "type": "function",
+      "name": "MenubarLabel",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        164,
+        182
+      ],
+      "summary": "Cung cấp React UI component MenubarLabel với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSeparator",
+      "type": "function",
+      "name": "MenubarSeparator",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        184,
+        195
+      ],
+      "summary": "Cung cấp React UI component MenubarSeparator với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarShortcut",
+      "type": "function",
+      "name": "MenubarShortcut",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        197,
+        211
+      ],
+      "summary": "Cung cấp React UI component MenubarShortcut với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSub",
+      "type": "function",
+      "name": "MenubarSub",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        213,
+        217
+      ],
+      "summary": "Cung cấp React UI component MenubarSub với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSubTrigger",
+      "type": "function",
+      "name": "MenubarSubTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        219,
+        241
+      ],
+      "summary": "Cung cấp React UI component MenubarSubTrigger với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSubContent",
+      "type": "function",
+      "name": "MenubarSubContent",
+      "filePath": "FE/DEMO/src/app/components/ui/menubar.tsx",
+      "lineRange": [
+        243,
+        257
+      ],
+      "summary": "Cung cấp React UI component MenubarSubContent với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "type": "file",
+      "name": "navigation-menu.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "summary": "Cung cấp các React UI component navigation-menu.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenu",
+      "type": "function",
+      "name": "NavigationMenu",
+      "filePath": "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "lineRange": [
+        8,
+        30
+      ],
+      "summary": "Cung cấp React UI component NavigationMenu với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuList",
+      "type": "function",
+      "name": "NavigationMenuList",
+      "filePath": "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "lineRange": [
+        32,
+        46
+      ],
+      "summary": "Cung cấp React UI component NavigationMenuList với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuItem",
+      "type": "function",
+      "name": "NavigationMenuItem",
+      "filePath": "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "lineRange": [
+        48,
+        59
+      ],
+      "summary": "Cung cấp React UI component NavigationMenuItem với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuTrigger",
+      "type": "function",
+      "name": "NavigationMenuTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "lineRange": [
+        65,
+        83
+      ],
+      "summary": "Cung cấp React UI component NavigationMenuTrigger với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuContent",
+      "type": "function",
+      "name": "NavigationMenuContent",
+      "filePath": "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "lineRange": [
+        85,
+        100
+      ],
+      "summary": "Cung cấp React UI component NavigationMenuContent với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuViewport",
+      "type": "function",
+      "name": "NavigationMenuViewport",
+      "filePath": "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "lineRange": [
+        102,
+        122
+      ],
+      "summary": "Cung cấp React UI component NavigationMenuViewport với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuLink",
+      "type": "function",
+      "name": "NavigationMenuLink",
+      "filePath": "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "lineRange": [
+        124,
+        138
+      ],
+      "summary": "Cung cấp React UI component NavigationMenuLink với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuIndicator",
+      "type": "function",
+      "name": "NavigationMenuIndicator",
+      "filePath": "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "lineRange": [
+        140,
+        156
+      ],
+      "summary": "Cung cấp React UI component NavigationMenuIndicator với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "type": "file",
+      "name": "pagination.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/pagination.tsx",
+      "summary": "Cung cấp các React UI component pagination.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/pagination.tsx:Pagination",
+      "type": "function",
+      "name": "Pagination",
+      "filePath": "FE/DEMO/src/app/components/ui/pagination.tsx",
+      "lineRange": [
+        11,
+        21
+      ],
+      "summary": "Cung cấp React UI component Pagination với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationContent",
+      "type": "function",
+      "name": "PaginationContent",
+      "filePath": "FE/DEMO/src/app/components/ui/pagination.tsx",
+      "lineRange": [
+        23,
+        34
+      ],
+      "summary": "Cung cấp React UI component PaginationContent với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationItem",
+      "type": "function",
+      "name": "PaginationItem",
+      "filePath": "FE/DEMO/src/app/components/ui/pagination.tsx",
+      "lineRange": [
+        36,
+        38
+      ],
+      "summary": "Cung cấp React UI component PaginationItem với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationLink",
+      "type": "function",
+      "name": "PaginationLink",
+      "filePath": "FE/DEMO/src/app/components/ui/pagination.tsx",
+      "lineRange": [
+        45,
+        66
+      ],
+      "summary": "Cung cấp React UI component PaginationLink với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationPrevious",
+      "type": "function",
+      "name": "PaginationPrevious",
+      "filePath": "FE/DEMO/src/app/components/ui/pagination.tsx",
+      "lineRange": [
+        68,
+        83
+      ],
+      "summary": "Cung cấp React UI component PaginationPrevious với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationNext",
+      "type": "function",
+      "name": "PaginationNext",
+      "filePath": "FE/DEMO/src/app/components/ui/pagination.tsx",
+      "lineRange": [
+        85,
+        100
+      ],
+      "summary": "Cung cấp React UI component PaginationNext với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationEllipsis",
+      "type": "function",
+      "name": "PaginationEllipsis",
+      "filePath": "FE/DEMO/src/app/components/ui/pagination.tsx",
+      "lineRange": [
+        102,
+        117
+      ],
+      "summary": "Cung cấp React UI component PaginationEllipsis với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/popover.tsx",
+      "type": "file",
+      "name": "popover.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/popover.tsx",
+      "summary": "Cung cấp các React UI component popover.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/popover.tsx:Popover",
+      "type": "function",
+      "name": "Popover",
+      "filePath": "FE/DEMO/src/app/components/ui/popover.tsx",
+      "lineRange": [
+        8,
+        12
+      ],
+      "summary": "Cung cấp React UI component Popover với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/popover.tsx:PopoverTrigger",
+      "type": "function",
+      "name": "PopoverTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/popover.tsx",
+      "lineRange": [
+        14,
+        18
+      ],
+      "summary": "Cung cấp React UI component PopoverTrigger với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/popover.tsx:PopoverContent",
+      "type": "function",
+      "name": "PopoverContent",
+      "filePath": "FE/DEMO/src/app/components/ui/popover.tsx",
+      "lineRange": [
+        20,
+        40
+      ],
+      "summary": "Cung cấp React UI component PopoverContent với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/popover.tsx:PopoverAnchor",
+      "type": "function",
+      "name": "PopoverAnchor",
+      "filePath": "FE/DEMO/src/app/components/ui/popover.tsx",
+      "lineRange": [
+        42,
+        46
+      ],
+      "summary": "Cung cấp React UI component PopoverAnchor với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/progress.tsx",
+      "type": "file",
+      "name": "progress.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/progress.tsx",
+      "summary": "Cung cấp các React UI component progress.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/progress.tsx:Progress",
+      "type": "function",
+      "name": "Progress",
+      "filePath": "FE/DEMO/src/app/components/ui/progress.tsx",
+      "lineRange": [
+        8,
+        29
+      ],
+      "summary": "Cung cấp React UI component Progress với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/radio-group.tsx",
+      "type": "file",
+      "name": "radio-group.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/radio-group.tsx",
+      "summary": "Cung cấp các React UI component radio-group.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/radio-group.tsx:RadioGroup",
+      "type": "function",
+      "name": "RadioGroup",
+      "filePath": "FE/DEMO/src/app/components/ui/radio-group.tsx",
+      "lineRange": [
+        9,
+        20
+      ],
+      "summary": "Cung cấp React UI component RadioGroup với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/radio-group.tsx:RadioGroupItem",
+      "type": "function",
+      "name": "RadioGroupItem",
+      "filePath": "FE/DEMO/src/app/components/ui/radio-group.tsx",
+      "lineRange": [
+        22,
+        43
+      ],
+      "summary": "Cung cấp React UI component RadioGroupItem với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/resizable.tsx",
+      "type": "file",
+      "name": "resizable.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/resizable.tsx",
+      "summary": "Cung cấp các React UI component resizable.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/resizable.tsx:ResizablePanelGroup",
+      "type": "function",
+      "name": "ResizablePanelGroup",
+      "filePath": "FE/DEMO/src/app/components/ui/resizable.tsx",
+      "lineRange": [
+        9,
+        23
+      ],
+      "summary": "Cung cấp React UI component ResizablePanelGroup với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/resizable.tsx:ResizablePanel",
+      "type": "function",
+      "name": "ResizablePanel",
+      "filePath": "FE/DEMO/src/app/components/ui/resizable.tsx",
+      "lineRange": [
+        25,
+        29
+      ],
+      "summary": "Cung cấp React UI component ResizablePanel với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/resizable.tsx:ResizableHandle",
+      "type": "function",
+      "name": "ResizableHandle",
+      "filePath": "FE/DEMO/src/app/components/ui/resizable.tsx",
+      "lineRange": [
+        31,
+        54
+      ],
+      "summary": "Cung cấp React UI component ResizableHandle với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/scroll-area.tsx",
+      "type": "file",
+      "name": "scroll-area.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/scroll-area.tsx",
+      "summary": "Cung cấp các React UI component scroll-area.tsx để bọc primitive, áp dụng styling nhất quán và tái sử dụng trong frontend.",
+      "tags": [
+        "ui-component",
+        "react",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/scroll-area.tsx:ScrollArea",
+      "type": "function",
+      "name": "ScrollArea",
+      "filePath": "FE/DEMO/src/app/components/ui/scroll-area.tsx",
+      "lineRange": [
+        8,
+        29
+      ],
+      "summary": "Cung cấp React UI component ScrollArea với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/scroll-area.tsx:ScrollBar",
+      "type": "function",
+      "name": "ScrollBar",
+      "filePath": "FE/DEMO/src/app/components/ui/scroll-area.tsx",
+      "lineRange": [
+        31,
+        56
+      ],
+      "summary": "Cung cấp React UI component ScrollBar với props đã được chuyển tiếp và styling đồng nhất.",
+      "tags": [
+        "ui-component",
+        "react",
+        "presentation",
+        "typescript"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:Menubar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:Menubar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarMenu",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarMenu",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarPortal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarPortal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarRadioGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarRadioGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarCheckboxItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarCheckboxItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarRadioItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarRadioItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarLabel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarLabel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSeparator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSeparator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarShortcut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarShortcut",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSub",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSub",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSubTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSubTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSubContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/menubar.tsx:MenubarSubContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenu",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenu",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuList",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuList",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuViewport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuViewport",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuLink",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuLink",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuIndicator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/navigation-menu.tsx:NavigationMenuIndicator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:Pagination",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:Pagination",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationLink",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationLink",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationPrevious",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationPrevious",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationNext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationNext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationEllipsis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/pagination.tsx:PaginationEllipsis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/popover.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/popover.tsx:Popover",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/popover.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/popover.tsx:Popover",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/popover.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/popover.tsx:PopoverTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/popover.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/popover.tsx:PopoverTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/popover.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/popover.tsx:PopoverContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/popover.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/popover.tsx:PopoverContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/popover.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/popover.tsx:PopoverAnchor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/popover.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/popover.tsx:PopoverAnchor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/progress.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/progress.tsx:Progress",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/progress.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/progress.tsx:Progress",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/radio-group.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/radio-group.tsx:RadioGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/radio-group.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/radio-group.tsx:RadioGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/radio-group.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/radio-group.tsx:RadioGroupItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/radio-group.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/radio-group.tsx:RadioGroupItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/resizable.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/resizable.tsx:ResizablePanelGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/resizable.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/resizable.tsx:ResizablePanelGroup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/resizable.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/resizable.tsx:ResizablePanel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/resizable.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/resizable.tsx:ResizablePanel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/resizable.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/resizable.tsx:ResizableHandle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/resizable.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/resizable.tsx:ResizableHandle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/scroll-area.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/scroll-area.tsx:ScrollArea",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/scroll-area.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/scroll-area.tsx:ScrollArea",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/scroll-area.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/scroll-area.tsx:ScrollBar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/scroll-area.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/scroll-area.tsx:ScrollBar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/menubar.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/button.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/pagination.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/popover.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/progress.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/radio-group.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/resizable.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/scroll-area.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "projectRoot": "D:/CODE/seongon-lms",
+  "batchFiles": [
+    {"path":"BE/.env.example","language":"config","sizeLines":65,"fileCategory":"config"},
+    {"path":"BE/README.md","language":"markdown","sizeLines":58,"fileCategory":"docs"},
+    {"path":"BE/composer.json","language":"json","sizeLines":90,"fileCategory":"config"},
+    {"path":"BE/package.json","language":"json","sizeLines":16,"fileCategory":"config"},
+    {"path":"BE/phpunit.xml","language":"xml","sizeLines":36,"fileCategory":"config"}
+  ],
+  "batchImportData": {
+    "BE/.env.example": [],
+    "BE/README.md": [],
+    "BE/composer.json": [],
+    "BE/package.json": [],
+    "BE/phpunit.xml": []
+  }
+}

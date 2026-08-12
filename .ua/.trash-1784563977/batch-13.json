@@ -1,0 +1,14 @@
+{
+  "nodes": [
+    {"id":"document:FE/DEMO/ATTRIBUTIONS.md","type":"document","name":"ATTRIBUTIONS.md","filePath":"FE/DEMO/ATTRIBUTIONS.md","summary":"Ghi nhận nguồn tài nguyên được dùng trong frontend demo.","tags":["documentation","attribution","frontend"],"complexity":"simple"},
+    {"id":"document:FE/DEMO/README.md","type":"document","name":"README.md","filePath":"FE/DEMO/README.md","summary":"Cung cấp hướng dẫn ngắn để cài dependency và chạy frontend demo bằng Vite.","tags":["documentation","frontend","development"],"complexity":"simple"},
+    {"id":"file:FE/DEMO/default_shadcn_theme.css","type":"file","name":"default_shadcn_theme.css","filePath":"FE/DEMO/default_shadcn_theme.css","summary":"Định nghĩa bộ CSS custom properties mặc định của shadcn, gồm màu sáng/tối, chart và sidebar token.","tags":["css","design-tokens","theme","shadcn"],"complexity":"moderate","languageNotes":"Dùng CSS custom properties và @theme inline để ánh xạ semantic token sang Tailwind utility."},
+    {"id":"file:FE/DEMO/index.html","type":"file","name":"index.html","filePath":"FE/DEMO/index.html","summary":"Cung cấp HTML shell, metadata và root element để Vite tải React entry module.","tags":["html","entry-point","vite","frontend"],"complexity":"simple"},
+    {"id":"config:FE/DEMO/package.json","type":"config","name":"package.json","filePath":"FE/DEMO/package.json","summary":"Khai báo package, Vite scripts và dependency cho ứng dụng React frontend demo.","tags":["configuration","frontend","vite","build-system"],"complexity":"moderate","languageNotes":"Kết hợp React 18, Vite và Tailwind CSS 4 trong package manifest."},
+    {"id":"config:FE/DEMO/pnpm-workspace.yaml","type":"config","name":"pnpm-workspace.yaml","filePath":"FE/DEMO/pnpm-workspace.yaml","summary":"Khai báo workspace package cho pnpm trong thư mục frontend demo.","tags":["configuration","pnpm","workspace"],"complexity":"simple"}
+  ],
+  "edges": [
+    {"source":"file:FE/DEMO/index.html","target":"file:FE/DEMO/src/main.tsx","type":"depends_on","direction":"forward","weight":0.6},
+    {"source":"config:FE/DEMO/package.json","target":"file:FE/DEMO/src/main.tsx","type":"configures","direction":"forward","weight":0.6}
+  ]
+}

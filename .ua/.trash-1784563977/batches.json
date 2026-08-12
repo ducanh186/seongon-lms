@@ -1,0 +1,6234 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 309,
+  "totalBatches": 21,
+  "exportsByPath": {
+    ".gitattributes": [],
+    ".ua/.understandignore": [],
+    "BE/.gitattributes": [],
+    "BE/.npmrc": [],
+    "BE/app/Console/Commands/ReplaceDemoCatalog.php": [
+      "ReplaceDemoCatalog"
+    ],
+    "BE/app/Console/Commands/SeedDemoOnce.php": [
+      "SeedDemoOnce"
+    ],
+    "BE/app/Http/Controllers/Api/Admin/CategoryController.php": [
+      "CategoryController"
+    ],
+    "BE/app/Http/Controllers/Api/Admin/CourseController.php": [
+      "CourseController"
+    ],
+    "BE/app/Http/Controllers/Api/Admin/DashboardController.php": [
+      "DashboardController"
+    ],
+    "BE/app/Http/Controllers/Api/Admin/LessonController.php": [
+      "LessonController"
+    ],
+    "BE/app/Http/Controllers/Api/Admin/QuestionController.php": [
+      "QuestionController"
+    ],
+    "BE/app/Http/Controllers/Api/Admin/QuizController.php": [
+      "QuizController"
+    ],
+    "BE/app/Http/Controllers/Api/Admin/ReviewController.php": [
+      "ReviewController"
+    ],
+    "BE/app/Http/Controllers/Api/Admin/UserController.php": [
+      "UserController"
+    ],
+    "BE/app/Http/Controllers/Api/AuthController.php": [
+      "AuthController"
+    ],
+    "BE/app/Http/Controllers/Api/CategoryController.php": [
+      "CategoryController"
+    ],
+    "BE/app/Http/Controllers/Api/CourseController.php": [
+      "CourseController"
+    ],
+    "BE/app/Http/Controllers/Api/Student/CertificateController.php": [
+      "CertificateController"
+    ],
+    "BE/app/Http/Controllers/Api/Student/LessonController.php": [
+      "LessonController"
+    ],
+    "BE/app/Http/Controllers/Api/Student/MyCourseController.php": [
+      "MyCourseController"
+    ],
+    "BE/app/Http/Controllers/Api/Student/OrderController.php": [
+      "OrderController"
+    ],
+    "BE/app/Http/Controllers/Api/Student/QuizController.php": [
+      "QuizController"
+    ],
+    "BE/app/Http/Controllers/Api/Student/ReviewController.php": [
+      "ReviewController"
+    ],
+    "BE/app/Http/Controllers/Controller.php": [
+      "Controller"
+    ],
+    "BE/app/Http/Middleware/EnsureRole.php": [
+      "EnsureRole"
+    ],
+    "BE/app/Http/Resources/AdminCourseResource.php": [
+      "AdminCourseResource"
+    ],
+    "BE/app/Http/Resources/CategoryResource.php": [
+      "CategoryResource"
+    ],
+    "BE/app/Http/Resources/CertificateResource.php": [
+      "CertificateResource"
+    ],
+    "BE/app/Http/Resources/CourseResource.php": [
+      "CourseResource"
+    ],
+    "BE/app/Http/Resources/EnrollmentResource.php": [
+      "EnrollmentResource"
+    ],
+    "BE/app/Http/Resources/LessonResource.php": [
+      "LessonResource"
+    ],
+    "BE/app/Http/Resources/OrderResource.php": [
+      "OrderResource"
+    ],
+    "BE/app/Http/Resources/QuizAttemptResource.php": [
+      "QuizAttemptResource"
+    ],
+    "BE/app/Http/Resources/QuizResource.php": [
+      "QuizResource"
+    ],
+    "BE/app/Http/Resources/ReviewResource.php": [
+      "ReviewResource"
+    ],
+    "BE/app/Http/Resources/UserResource.php": [
+      "UserResource"
+    ],
+    "BE/app/Models/Category.php": [
+      "Category"
+    ],
+    "BE/app/Models/Certificate.php": [
+      "Certificate"
+    ],
+    "BE/app/Models/Course.php": [
+      "Course"
+    ],
+    "BE/app/Models/Enrollment.php": [
+      "Enrollment"
+    ],
+    "BE/app/Models/Lesson.php": [
+      "Lesson"
+    ],
+    "BE/app/Models/LessonProgress.php": [
+      "LessonProgress"
+    ],
+    "BE/app/Models/Order.php": [
+      "Order"
+    ],
+    "BE/app/Models/Question.php": [
+      "Question"
+    ],
+    "BE/app/Models/QuestionOption.php": [
+      "QuestionOption"
+    ],
+    "BE/app/Models/Quiz.php": [
+      "Quiz"
+    ],
+    "BE/app/Models/QuizAttempt.php": [
+      "QuizAttempt"
+    ],
+    "BE/app/Models/QuizAttemptAnswer.php": [
+      "QuizAttemptAnswer"
+    ],
+    "BE/app/Models/Review.php": [
+      "Review"
+    ],
+    "BE/app/Models/User.php": [
+      "User"
+    ],
+    "BE/app/Providers/AppServiceProvider.php": [
+      "AppServiceProvider"
+    ],
+    "BE/app/Services/CertificateService.php": [
+      "CertificateService"
+    ],
+    "BE/app/Services/EnrollmentService.php": [
+      "EnrollmentService"
+    ],
+    "BE/app/Services/Payment/MockGateway.php": [
+      "MockGateway"
+    ],
+    "BE/app/Services/Payment/PaymentGateway.php": [
+      "PaymentGateway"
+    ],
+    "BE/app/Services/Payment/PaymentResult.php": [
+      "PaymentResult"
+    ],
+    "BE/app/Services/ProgressService.php": [
+      "ProgressService"
+    ],
+    "BE/app/Services/QuizGradingService.php": [
+      "QuizGradingService"
+    ],
+    "BE/app/Support/InteractsWithEnrollment.php": [],
+    "BE/artisan": [],
+    "BE/bootstrap/app.php": [],
+    "BE/bootstrap/providers.php": [],
+    "BE/config/app.php": [],
+    "BE/config/auth.php": [],
+    "BE/config/cache.php": [],
+    "BE/config/cors.php": [],
+    "BE/config/database.php": [],
+    "BE/config/filesystems.php": [],
+    "BE/config/logging.php": [],
+    "BE/config/mail.php": [],
+    "BE/config/queue.php": [],
+    "BE/config/sanctum.php": [],
+    "BE/config/services.php": [],
+    "BE/config/session.php": [],
+    "BE/database/factories/CategoryFactory.php": [
+      "CategoryFactory"
+    ],
+    "BE/database/factories/CourseFactory.php": [
+      "CourseFactory"
+    ],
+    "BE/database/factories/EnrollmentFactory.php": [
+      "EnrollmentFactory"
+    ],
+    "BE/database/factories/LessonFactory.php": [
+      "LessonFactory"
+    ],
+    "BE/database/factories/OrderFactory.php": [
+      "OrderFactory"
+    ],
+    "BE/database/factories/QuestionFactory.php": [
+      "QuestionFactory"
+    ],
+    "BE/database/factories/QuestionOptionFactory.php": [
+      "QuestionOptionFactory"
+    ],
+    "BE/database/factories/QuizFactory.php": [
+      "QuizFactory"
+    ],
+    "BE/database/factories/ReviewFactory.php": [
+      "ReviewFactory"
+    ],
+    "BE/database/factories/UserFactory.php": [
+      "UserFactory"
+    ],
+    "BE/database/migrations/0001_01_01_000000_create_users_table.php": [],
+    "BE/database/migrations/0001_01_01_000001_create_cache_table.php": [],
+    "BE/database/migrations/0001_01_01_000002_create_jobs_table.php": [],
+    "BE/database/migrations/2026_07_10_163036_create_personal_access_tokens_table.php": [],
+    "BE/database/migrations/2026_07_10_170001_create_categories_table.php": [],
+    "BE/database/migrations/2026_07_10_170002_create_courses_table.php": [],
+    "BE/database/migrations/2026_07_10_170003_create_lessons_table.php": [],
+    "BE/database/migrations/2026_07_10_170004_create_orders_table.php": [],
+    "BE/database/migrations/2026_07_10_170005_create_enrollments_table.php": [],
+    "BE/database/migrations/2026_07_10_170006_create_lesson_progress_table.php": [],
+    "BE/database/migrations/2026_07_10_170007_create_quizzes_table.php": [],
+    "BE/database/migrations/2026_07_10_170008_create_questions_table.php": [],
+    "BE/database/migrations/2026_07_10_170009_create_question_options_table.php": [],
+    "BE/database/migrations/2026_07_10_170010_create_quiz_attempts_table.php": [],
+    "BE/database/migrations/2026_07_10_170011_create_quiz_attempt_answers_table.php": [],
+    "BE/database/migrations/2026_07_10_170012_create_reviews_table.php": [],
+    "BE/database/migrations/2026_07_10_170013_create_certificates_table.php": [],
+    "BE/database/migrations/2026_07_17_000001_sync_demo_course_video_urls.php": [],
+    "BE/database/seeders/DatabaseSeeder.php": [
+      "DatabaseSeeder"
+    ],
+    "BE/database/seeders/GeneratedDemoCatalogSeeder.php": [
+      "GeneratedDemoCatalogSeeder"
+    ],
+    "BE/public/.htaccess": [],
+    "BE/public/index.php": [],
+    "BE/resources/js/app.js": [],
+    "BE/resources/views/certificates/default.blade.php": [],
+    "BE/resources/views/welcome.blade.php": [],
+    "BE/routes/api.php": [],
+    "BE/routes/console.php": [],
+    "BE/routes/web.php": [],
+    "BE/tests/Feature/AdminTest.php": [],
+    "BE/tests/Feature/Api/AdminManagementTest.php": [
+      "AdminManagementTest"
+    ],
+    "BE/tests/Feature/Api/AuthAndCatalogTest.php": [
+      "AuthAndCatalogTest"
+    ],
+    "BE/tests/Feature/Api/StudentLearningFlowTest.php": [
+      "StudentLearningFlowTest"
+    ],
+    "BE/tests/Feature/AuthTest.php": [],
+    "BE/tests/Feature/CatalogTest.php": [],
+    "BE/tests/Feature/Console/ReplaceDemoCatalogCommandTest.php": [
+      "ReplaceDemoCatalogCommandTest"
+    ],
+    "BE/tests/Feature/Console/SeedDemoOnceCommandTest.php": [
+      "SeedDemoOnceCommandTest"
+    ],
+    "BE/tests/Feature/CorsTest.php": [],
+    "BE/tests/Feature/ExampleTest.php": [
+      "ExampleTest"
+    ],
+    "BE/tests/Feature/LearningTest.php": [],
+    "BE/tests/Feature/PurchaseTest.php": [],
+    "BE/tests/Feature/QuizTest.php": [
+      "completeAll"
+    ],
+    "BE/tests/Pest.php": [
+      "makeCourseWithContent",
+      "quizAnswers"
+    ],
+    "BE/tests/TestCase.php": [
+      "TestCase"
+    ],
+    "BE/tests/Unit/ExampleTest.php": [
+      "ExampleTest"
+    ],
+    "BE/vite.config.js": [],
+    "FE/DEMO/postcss.config.mjs": [],
+    "FE/DEMO/src/app/App.tsx": [
+      "App"
+    ],
+    "FE/DEMO/src/app/components/AdminDataTable.tsx": [
+      "AdminDataTable"
+    ],
+    "FE/DEMO/src/app/components/AdminShell.tsx": [
+      "AdminShell"
+    ],
+    "FE/DEMO/src/app/components/AsyncState.test.tsx": [],
+    "FE/DEMO/src/app/components/AsyncState.tsx": [
+      "PageSkeleton",
+      "EmptyState",
+      "RequestError"
+    ],
+    "FE/DEMO/src/app/components/CourseCard.tsx": [
+      "CourseCard"
+    ],
+    "FE/DEMO/src/app/components/GlobalHeader.tsx": [
+      "GlobalHeader"
+    ],
+    "FE/DEMO/src/app/components/HeroBanner.tsx": [
+      "HeroBanner"
+    ],
+    "FE/DEMO/src/app/components/Layout.test.tsx": [],
+    "FE/DEMO/src/app/components/Layout.tsx": [
+      "Layout"
+    ],
+    "FE/DEMO/src/app/components/MetricsStrip.tsx": [
+      "MetricsStrip"
+    ],
+    "FE/DEMO/src/app/components/MotivationalBanner.tsx": [
+      "MotivationalBanner"
+    ],
+    "FE/DEMO/src/app/components/PageHeader.tsx": [
+      "PageHeader"
+    ],
+    "FE/DEMO/src/app/components/RequireAuth.tsx": [
+      "RequireAuth"
+    ],
+    "FE/DEMO/src/app/components/SectionHeading.tsx": [
+      "SectionHeading"
+    ],
+    "FE/DEMO/src/app/components/StatusChip.tsx": [
+      "StatusChip"
+    ],
+    "FE/DEMO/src/app/components/StudentWorkspaceShell.tsx": [
+      "StudentWorkspaceShell"
+    ],
+    "FE/DEMO/src/app/components/figma/ImageWithFallback.tsx": [
+      "ImageWithFallback"
+    ],
+    "FE/DEMO/src/app/components/ui/accordion.tsx": [
+      "Accordion",
+      "AccordionItem",
+      "AccordionTrigger",
+      "AccordionContent"
+    ],
+    "FE/DEMO/src/app/components/ui/alert-dialog.tsx": [
+      "AlertDialog",
+      "AlertDialogPortal",
+      "AlertDialogOverlay",
+      "AlertDialogTrigger",
+      "AlertDialogContent",
+      "AlertDialogHeader",
+      "AlertDialogFooter",
+      "AlertDialogTitle",
+      "AlertDialogDescription",
+      "AlertDialogAction",
+      "AlertDialogCancel"
+    ],
+    "FE/DEMO/src/app/components/ui/alert.tsx": [
+      "Alert",
+      "AlertTitle",
+      "AlertDescription"
+    ],
+    "FE/DEMO/src/app/components/ui/aspect-ratio.tsx": [
+      "AspectRatio"
+    ],
+    "FE/DEMO/src/app/components/ui/avatar.tsx": [
+      "Avatar",
+      "AvatarImage",
+      "AvatarFallback"
+    ],
+    "FE/DEMO/src/app/components/ui/badge.tsx": [
+      "Badge",
+      "badgeVariants"
+    ],
+    "FE/DEMO/src/app/components/ui/breadcrumb.tsx": [
+      "Breadcrumb",
+      "BreadcrumbList",
+      "BreadcrumbItem",
+      "BreadcrumbLink",
+      "BreadcrumbPage",
+      "BreadcrumbSeparator",
+      "BreadcrumbEllipsis"
+    ],
+    "FE/DEMO/src/app/components/ui/button.tsx": [
+      "Button",
+      "buttonVariants"
+    ],
+    "FE/DEMO/src/app/components/ui/calendar.tsx": [
+      "Calendar"
+    ],
+    "FE/DEMO/src/app/components/ui/card.tsx": [
+      "Card",
+      "CardHeader",
+      "CardFooter",
+      "CardTitle",
+      "CardAction",
+      "CardDescription",
+      "CardContent"
+    ],
+    "FE/DEMO/src/app/components/ui/carousel.tsx": [
+      "CarouselApi",
+      "Carousel",
+      "CarouselContent",
+      "CarouselItem",
+      "CarouselPrevious",
+      "CarouselNext"
+    ],
+    "FE/DEMO/src/app/components/ui/chart.tsx": [
+      "ChartContainer",
+      "ChartTooltip",
+      "ChartTooltipContent",
+      "ChartLegend",
+      "ChartLegendContent",
+      "ChartStyle"
+    ],
+    "FE/DEMO/src/app/components/ui/checkbox.tsx": [
+      "Checkbox"
+    ],
+    "FE/DEMO/src/app/components/ui/collapsible.tsx": [
+      "Collapsible",
+      "CollapsibleTrigger",
+      "CollapsibleContent"
+    ],
+    "FE/DEMO/src/app/components/ui/command.tsx": [
+      "Command",
+      "CommandDialog",
+      "CommandInput",
+      "CommandList",
+      "CommandEmpty",
+      "CommandGroup",
+      "CommandItem",
+      "CommandShortcut",
+      "CommandSeparator"
+    ],
+    "FE/DEMO/src/app/components/ui/context-menu.tsx": [
+      "ContextMenu",
+      "ContextMenuTrigger",
+      "ContextMenuContent",
+      "ContextMenuItem",
+      "ContextMenuCheckboxItem",
+      "ContextMenuRadioItem",
+      "ContextMenuLabel",
+      "ContextMenuSeparator",
+      "ContextMenuShortcut",
+      "ContextMenuGroup",
+      "ContextMenuPortal",
+      "ContextMenuSub",
+      "ContextMenuSubContent",
+      "ContextMenuSubTrigger",
+      "ContextMenuRadioGroup"
+    ],
+    "FE/DEMO/src/app/components/ui/dialog.tsx": [
+      "Dialog",
+      "DialogClose",
+      "DialogContent",
+      "DialogDescription",
+      "DialogFooter",
+      "DialogHeader",
+      "DialogOverlay",
+      "DialogPortal",
+      "DialogTitle",
+      "DialogTrigger"
+    ],
+    "FE/DEMO/src/app/components/ui/drawer.tsx": [
+      "Drawer",
+      "DrawerPortal",
+      "DrawerOverlay",
+      "DrawerTrigger",
+      "DrawerClose",
+      "DrawerContent",
+      "DrawerHeader",
+      "DrawerFooter",
+      "DrawerTitle",
+      "DrawerDescription"
+    ],
+    "FE/DEMO/src/app/components/ui/dropdown-menu.tsx": [
+      "DropdownMenu",
+      "DropdownMenuPortal",
+      "DropdownMenuTrigger",
+      "DropdownMenuContent",
+      "DropdownMenuGroup",
+      "DropdownMenuLabel",
+      "DropdownMenuItem",
+      "DropdownMenuCheckboxItem",
+      "DropdownMenuRadioGroup",
+      "DropdownMenuRadioItem",
+      "DropdownMenuSeparator",
+      "DropdownMenuShortcut",
+      "DropdownMenuSub",
+      "DropdownMenuSubTrigger",
+      "DropdownMenuSubContent"
+    ],
+    "FE/DEMO/src/app/components/ui/form.tsx": [
+      "useFormField",
+      "Form",
+      "FormItem",
+      "FormLabel",
+      "FormControl",
+      "FormDescription",
+      "FormMessage",
+      "FormField"
+    ],
+    "FE/DEMO/src/app/components/ui/hover-card.tsx": [
+      "HoverCard",
+      "HoverCardTrigger",
+      "HoverCardContent"
+    ],
+    "FE/DEMO/src/app/components/ui/input-otp.tsx": [
+      "InputOTP",
+      "InputOTPGroup",
+      "InputOTPSlot",
+      "InputOTPSeparator"
+    ],
+    "FE/DEMO/src/app/components/ui/input.tsx": [
+      "Input"
+    ],
+    "FE/DEMO/src/app/components/ui/label.tsx": [
+      "Label"
+    ],
+    "FE/DEMO/src/app/components/ui/menubar.tsx": [
+      "Menubar",
+      "MenubarPortal",
+      "MenubarMenu",
+      "MenubarTrigger",
+      "MenubarContent",
+      "MenubarGroup",
+      "MenubarSeparator",
+      "MenubarLabel",
+      "MenubarItem",
+      "MenubarShortcut",
+      "MenubarCheckboxItem",
+      "MenubarRadioGroup",
+      "MenubarRadioItem",
+      "MenubarSub",
+      "MenubarSubTrigger",
+      "MenubarSubContent"
+    ],
+    "FE/DEMO/src/app/components/ui/navigation-menu.tsx": [
+      "NavigationMenu",
+      "NavigationMenuList",
+      "NavigationMenuItem",
+      "NavigationMenuContent",
+      "NavigationMenuTrigger",
+      "NavigationMenuLink",
+      "NavigationMenuIndicator",
+      "NavigationMenuViewport",
+      "navigationMenuTriggerStyle"
+    ],
+    "FE/DEMO/src/app/components/ui/pagination.tsx": [
+      "Pagination",
+      "PaginationContent",
+      "PaginationLink",
+      "PaginationItem",
+      "PaginationPrevious",
+      "PaginationNext",
+      "PaginationEllipsis"
+    ],
+    "FE/DEMO/src/app/components/ui/popover.tsx": [
+      "Popover",
+      "PopoverTrigger",
+      "PopoverContent",
+      "PopoverAnchor"
+    ],
+    "FE/DEMO/src/app/components/ui/progress.tsx": [
+      "Progress"
+    ],
+    "FE/DEMO/src/app/components/ui/radio-group.tsx": [
+      "RadioGroup",
+      "RadioGroupItem"
+    ],
+    "FE/DEMO/src/app/components/ui/resizable.tsx": [
+      "ResizablePanelGroup",
+      "ResizablePanel",
+      "ResizableHandle"
+    ],
+    "FE/DEMO/src/app/components/ui/scroll-area.tsx": [
+      "ScrollArea",
+      "ScrollBar"
+    ],
+    "FE/DEMO/src/app/components/ui/select.tsx": [
+      "Select",
+      "SelectContent",
+      "SelectGroup",
+      "SelectItem",
+      "SelectLabel",
+      "SelectScrollDownButton",
+      "SelectScrollUpButton",
+      "SelectSeparator",
+      "SelectTrigger",
+      "SelectValue"
+    ],
+    "FE/DEMO/src/app/components/ui/separator.tsx": [
+      "Separator"
+    ],
+    "FE/DEMO/src/app/components/ui/sheet.tsx": [
+      "Sheet",
+      "SheetTrigger",
+      "SheetClose",
+      "SheetContent",
+      "SheetHeader",
+      "SheetFooter",
+      "SheetTitle",
+      "SheetDescription"
+    ],
+    "FE/DEMO/src/app/components/ui/sidebar.tsx": [
+      "Sidebar",
+      "SidebarContent",
+      "SidebarFooter",
+      "SidebarGroup",
+      "SidebarGroupAction",
+      "SidebarGroupContent",
+      "SidebarGroupLabel",
+      "SidebarHeader",
+      "SidebarInput",
+      "SidebarInset",
+      "SidebarMenu",
+      "SidebarMenuAction",
+      "SidebarMenuBadge",
+      "SidebarMenuButton",
+      "SidebarMenuItem",
+      "SidebarMenuSkeleton",
+      "SidebarMenuSub",
+      "SidebarMenuSubButton",
+      "SidebarMenuSubItem",
+      "SidebarProvider",
+      "SidebarRail",
+      "SidebarSeparator",
+      "SidebarTrigger",
+      "useSidebar"
+    ],
+    "FE/DEMO/src/app/components/ui/skeleton.tsx": [
+      "Skeleton"
+    ],
+    "FE/DEMO/src/app/components/ui/slider.tsx": [
+      "Slider"
+    ],
+    "FE/DEMO/src/app/components/ui/sonner.tsx": [
+      "Toaster"
+    ],
+    "FE/DEMO/src/app/components/ui/switch.tsx": [
+      "Switch"
+    ],
+    "FE/DEMO/src/app/components/ui/table.tsx": [
+      "Table",
+      "TableHeader",
+      "TableBody",
+      "TableFooter",
+      "TableHead",
+      "TableRow",
+      "TableCell",
+      "TableCaption"
+    ],
+    "FE/DEMO/src/app/components/ui/tabs.tsx": [
+      "Tabs",
+      "TabsList",
+      "TabsTrigger",
+      "TabsContent"
+    ],
+    "FE/DEMO/src/app/components/ui/textarea.tsx": [
+      "Textarea"
+    ],
+    "FE/DEMO/src/app/components/ui/toggle-group.tsx": [
+      "ToggleGroup",
+      "ToggleGroupItem"
+    ],
+    "FE/DEMO/src/app/components/ui/toggle.tsx": [
+      "Toggle",
+      "toggleVariants"
+    ],
+    "FE/DEMO/src/app/components/ui/tooltip.tsx": [
+      "Tooltip",
+      "TooltipTrigger",
+      "TooltipContent",
+      "TooltipProvider"
+    ],
+    "FE/DEMO/src/app/components/ui/use-mobile.ts": [
+      "useIsMobile"
+    ],
+    "FE/DEMO/src/app/components/ui/utils.ts": [
+      "cn"
+    ],
+    "FE/DEMO/src/app/contexts/AuthContext.test.tsx": [],
+    "FE/DEMO/src/app/contexts/AuthContext.tsx": [
+      "AuthProvider",
+      "useAuth"
+    ],
+    "FE/DEMO/src/app/data/mockData.ts": [
+      "mockCourses",
+      "mockCombos",
+      "mockInternships",
+      "mockJobs",
+      "mockUsers"
+    ],
+    "FE/DEMO/src/app/lib/api.test.ts": [],
+    "FE/DEMO/src/app/lib/api.ts": [
+      "ApiError",
+      "apiRequest",
+      "api"
+    ],
+    "FE/DEMO/src/app/lib/contracts.ts": [],
+    "FE/DEMO/src/app/pages/AdminDashboard.tsx": [
+      "AdminDashboard"
+    ],
+    "FE/DEMO/src/app/pages/AdminPage.test.tsx": [],
+    "FE/DEMO/src/app/pages/AdminPage.tsx": [
+      "AdminPage"
+    ],
+    "FE/DEMO/src/app/pages/AuthPage.test.tsx": [],
+    "FE/DEMO/src/app/pages/AuthPage.tsx": [
+      "AuthPage"
+    ],
+    "FE/DEMO/src/app/pages/CatalogPage.test.tsx": [],
+    "FE/DEMO/src/app/pages/CatalogPage.tsx": [
+      "CatalogPage"
+    ],
+    "FE/DEMO/src/app/pages/CheckoutPage.test.tsx": [],
+    "FE/DEMO/src/app/pages/CheckoutPage.tsx": [
+      "CheckoutPage"
+    ],
+    "FE/DEMO/src/app/pages/Combos.tsx": [
+      "Combos"
+    ],
+    "FE/DEMO/src/app/pages/CourseDetail.tsx": [
+      "CourseDetail"
+    ],
+    "FE/DEMO/src/app/pages/CoursePage.test.tsx": [],
+    "FE/DEMO/src/app/pages/CoursePage.tsx": [
+      "CoursePage"
+    ],
+    "FE/DEMO/src/app/pages/Courses.tsx": [
+      "Courses"
+    ],
+    "FE/DEMO/src/app/pages/Home.test.tsx": [],
+    "FE/DEMO/src/app/pages/Home.tsx": [
+      "Home"
+    ],
+    "FE/DEMO/src/app/pages/InternshipDetail.tsx": [
+      "InternshipDetail"
+    ],
+    "FE/DEMO/src/app/pages/Internships.tsx": [
+      "Internships"
+    ],
+    "FE/DEMO/src/app/pages/Jobs.tsx": [
+      "Jobs"
+    ],
+    "FE/DEMO/src/app/pages/LearnCoursePage.test.tsx": [],
+    "FE/DEMO/src/app/pages/LearnCoursePage.tsx": [
+      "LearnCoursePage"
+    ],
+    "FE/DEMO/src/app/pages/LearningStats.tsx": [
+      "LearningStats"
+    ],
+    "FE/DEMO/src/app/pages/Login.tsx": [
+      "Login"
+    ],
+    "FE/DEMO/src/app/pages/MyCoursesPage.test.tsx": [],
+    "FE/DEMO/src/app/pages/MyCoursesPage.tsx": [
+      "MyCoursesPage"
+    ],
+    "FE/DEMO/src/app/pages/ProfilePage.test.tsx": [],
+    "FE/DEMO/src/app/pages/ProfilePage.tsx": [
+      "ProfilePage"
+    ],
+    "FE/DEMO/src/app/pages/RecruiterDashboard.tsx": [
+      "RecruiterDashboard"
+    ],
+    "FE/DEMO/src/app/pages/StudentDashboard.tsx": [
+      "StudentDashboard"
+    ],
+    "FE/DEMO/src/app/pages/UserProfile.tsx": [
+      "UserProfile"
+    ],
+    "FE/DEMO/src/app/routes.tsx": [
+      "router"
+    ],
+    "FE/DEMO/src/app/theme.ts": [
+      "focusTokens",
+      "layoutTokens",
+      "theme"
+    ],
+    "FE/DEMO/src/app/types.ts": [],
+    "FE/DEMO/src/main.tsx": [],
+    "FE/DEMO/src/test/setup.ts": [],
+    "FE/DEMO/vite.config.ts": [],
+    "Infra/docker/nginx/default.conf": [],
+    "SPEC/draft (1).docx": [],
+    "data/state_store.db/mem%3Ahealth.bin": [],
+    "data/state_store.db/mem%3Ametrics.bin": [],
+    "data/state_store.db/mem%3Aobs%3A019f4ce4-4158-7cc1-8109-6cc14059a652.bin": [],
+    "data/state_store.db/mem%3Aobs%3A019f4ce9-2781-7f81-a569-b870327000e9.bin": [],
+    "data/state_store.db/mem%3Aobs%3A019f55d4-428d-7ca3-947c-00c50a03e4a0.bin": [],
+    "data/state_store.db/mem%3Aobs%3A019f55d7-f973-7901-aadf-9cedc6ef94ff.bin": [],
+    "data/state_store.db/mem%3Aobs%3A019f5be0-64ac-7720-8abf-255750ca60ff.bin": [],
+    "data/state_store.db/mem%3Aobs%3A019f64a6-682f-7462-b578-fe11153e9b9f.bin": [],
+    "data/state_store.db/mem%3Aobs%3A019f7fd4-c6da-7652-aab9-15d05b73de68.bin": [],
+    "data/state_store.db/mem%3Aobs%3A76f875a5-c4b6-4a0d-8f18-686dd0dfdc46.bin": [],
+    "data/state_store.db/mem%3Aobs%3Af6391857-cae2-462f-9b72-4aef8b29d817.bin": [],
+    "data/state_store.db/mem%3Asessions.bin": [],
+    "data/stream_store/stream%3Amem-live%3A019f4ce4-4158-7cc1-8109-6cc14059a652.bin": [],
+    "data/stream_store/stream%3Amem-live%3A019f4ce9-2781-7f81-a569-b870327000e9.bin": [],
+    "data/stream_store/stream%3Amem-live%3A019f55d4-428d-7ca3-947c-00c50a03e4a0.bin": [],
+    "data/stream_store/stream%3Amem-live%3A019f55d7-f973-7901-aadf-9cedc6ef94ff.bin": [],
+    "data/stream_store/stream%3Amem-live%3A019f5be0-64ac-7720-8abf-255750ca60ff.bin": [],
+    "data/stream_store/stream%3Amem-live%3A019f64a6-682f-7462-b578-fe11153e9b9f.bin": [],
+    "data/stream_store/stream%3Amem-live%3A019f7fd4-c6da-7652-aab9-15d05b73de68.bin": [],
+    "data/stream_store/stream%3Amem-live%3A76f875a5-c4b6-4a0d-8f18-686dd0dfdc46.bin": [],
+    "data/stream_store/stream%3Amem-live%3Af6391857-cae2-462f-9b72-4aef8b29d817.bin": [],
+    "docs/superpowers/specs/.gitkeep": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+          "language": "typescript",
+          "sizeLines": 91,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/accordion.tsx",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+          "language": "typescript",
+          "sizeLines": 157,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/alert.tsx",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/avatar.tsx",
+          "language": "typescript",
+          "sizeLines": 53,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/badge.tsx",
+          "language": "typescript",
+          "sizeLines": 46,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+          "language": "typescript",
+          "sizeLines": 109,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/button.tsx",
+          "language": "typescript",
+          "sizeLines": 58,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/calendar.tsx",
+          "language": "typescript",
+          "sizeLines": 75,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/card.tsx",
+          "language": "typescript",
+          "sizeLines": 92,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/carousel.tsx",
+          "language": "typescript",
+          "sizeLines": 241,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/chart.tsx",
+          "language": "typescript",
+          "sizeLines": 353,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/checkbox.tsx",
+          "language": "typescript",
+          "sizeLines": 32,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/command.tsx",
+          "language": "typescript",
+          "sizeLines": 177,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+          "language": "typescript",
+          "sizeLines": 252,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/dialog.tsx",
+          "language": "typescript",
+          "sizeLines": 135,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/drawer.tsx",
+          "language": "typescript",
+          "sizeLines": 132,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+          "language": "typescript",
+          "sizeLines": 257,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/form.tsx",
+          "language": "typescript",
+          "sizeLines": 168,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/hover-card.tsx",
+          "language": "typescript",
+          "sizeLines": 44,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/input-otp.tsx",
+          "language": "typescript",
+          "sizeLines": 77,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/input.tsx",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/label.tsx",
+          "language": "typescript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "FE/DEMO/src/app/components/StudentWorkspaceShell.tsx": [
+          "FE/DEMO/src/app/components/ui/use-mobile.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/accordion.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/alert-dialog.tsx": [
+          "FE/DEMO/src/app/components/ui/button.tsx",
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/alert.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/avatar.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/badge.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/breadcrumb.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/button.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/calendar.tsx": [
+          "FE/DEMO/src/app/components/ui/button.tsx",
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/card.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/carousel.tsx": [
+          "FE/DEMO/src/app/components/ui/button.tsx",
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/chart.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/checkbox.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/command.tsx": [
+          "FE/DEMO/src/app/components/ui/dialog.tsx",
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/context-menu.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/dialog.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/drawer.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/dropdown-menu.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/form.tsx": [
+          "FE/DEMO/src/app/components/ui/label.tsx",
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/hover-card.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/input-otp.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/input.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/label.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ]
+      },
+      "neighborMap": {
+        "FE/DEMO/src/app/components/StudentWorkspaceShell.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/use-mobile.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "useIsMobile"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "LearnCoursePage"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/accordion.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/alert-dialog.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/alert.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/avatar.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/badge.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/breadcrumb.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/button.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/pagination.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Pagination",
+              "PaginationContent",
+              "PaginationLink",
+              "PaginationItem",
+              "PaginationPrevious",
+              "PaginationNext",
+              "PaginationEllipsis"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/sidebar.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Sidebar",
+              "SidebarContent",
+              "SidebarFooter",
+              "SidebarGroup",
+              "SidebarGroupAction",
+              "SidebarGroupContent",
+              "SidebarGroupLabel",
+              "SidebarHeader",
+              "SidebarInput",
+              "SidebarInset",
+              "SidebarMenu",
+              "SidebarMenuAction",
+              "SidebarMenuBadge",
+              "SidebarMenuButton",
+              "SidebarMenuItem",
+              "SidebarMenuSkeleton",
+              "SidebarMenuSub",
+              "SidebarMenuSubButton",
+              "SidebarMenuSubItem",
+              "SidebarProvider",
+              "SidebarRail",
+              "SidebarSeparator",
+              "SidebarTrigger",
+              "useSidebar"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/calendar.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/card.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/carousel.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/chart.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/checkbox.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/command.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/context-menu.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/dialog.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/drawer.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/dropdown-menu.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/form.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/hover-card.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/input-otp.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/input.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/sidebar.tsx",
+            "batchIndex": 2,
+            "symbols": [
+              "Sidebar",
+              "SidebarContent",
+              "SidebarFooter",
+              "SidebarGroup",
+              "SidebarGroupAction",
+              "SidebarGroupContent",
+              "SidebarGroupLabel",
+              "SidebarHeader",
+              "SidebarInput",
+              "SidebarInset",
+              "SidebarMenu",
+              "SidebarMenuAction",
+              "SidebarMenuBadge",
+              "SidebarMenuButton",
+              "SidebarMenuItem",
+              "SidebarMenuSkeleton",
+              "SidebarMenuSub",
+              "SidebarMenuSubButton",
+              "SidebarMenuSubItem",
+              "SidebarProvider",
+              "SidebarRail",
+              "SidebarSeparator",
+              "SidebarTrigger",
+              "useSidebar"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/label.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/utils.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "cn"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": "FE/DEMO/src/app/components/ui/menubar.tsx",
+          "language": "typescript",
+          "sizeLines": 276,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/navigation-menu.tsx",
+          "language": "typescript",
+          "sizeLines": 168,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/pagination.tsx",
+          "language": "typescript",
+          "sizeLines": 127,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/popover.tsx",
+          "language": "typescript",
+          "sizeLines": 48,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/progress.tsx",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/radio-group.tsx",
+          "language": "typescript",
+          "sizeLines": 45,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/resizable.tsx",
+          "language": "typescript",
+          "sizeLines": 56,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/scroll-area.tsx",
+          "language": "typescript",
+          "sizeLines": 58,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/select.tsx",
+          "language": "typescript",
+          "sizeLines": 189,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/separator.tsx",
+          "language": "typescript",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/sheet.tsx",
+          "language": "typescript",
+          "sizeLines": 139,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/sidebar.tsx",
+          "language": "typescript",
+          "sizeLines": 726,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/skeleton.tsx",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/slider.tsx",
+          "language": "typescript",
+          "sizeLines": 63,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/switch.tsx",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/table.tsx",
+          "language": "typescript",
+          "sizeLines": 116,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/tabs.tsx",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/textarea.tsx",
+          "language": "typescript",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/toggle-group.tsx",
+          "language": "typescript",
+          "sizeLines": 73,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/toggle.tsx",
+          "language": "typescript",
+          "sizeLines": 47,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/tooltip.tsx",
+          "language": "typescript",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/use-mobile.ts",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/utils.ts",
+          "language": "typescript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "FE/DEMO/src/app/components/ui/menubar.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/navigation-menu.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/pagination.tsx": [
+          "FE/DEMO/src/app/components/ui/button.tsx",
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/popover.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/progress.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/radio-group.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/resizable.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/scroll-area.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/select.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/separator.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/sheet.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/sidebar.tsx": [
+          "FE/DEMO/src/app/components/ui/button.tsx",
+          "FE/DEMO/src/app/components/ui/input.tsx",
+          "FE/DEMO/src/app/components/ui/separator.tsx",
+          "FE/DEMO/src/app/components/ui/sheet.tsx",
+          "FE/DEMO/src/app/components/ui/skeleton.tsx",
+          "FE/DEMO/src/app/components/ui/tooltip.tsx",
+          "FE/DEMO/src/app/components/ui/use-mobile.ts",
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/skeleton.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/slider.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/switch.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/table.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/tabs.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/textarea.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/toggle-group.tsx": [
+          "FE/DEMO/src/app/components/ui/toggle.tsx",
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/toggle.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/tooltip.tsx": [
+          "FE/DEMO/src/app/components/ui/utils.ts"
+        ],
+        "FE/DEMO/src/app/components/ui/use-mobile.ts": [],
+        "FE/DEMO/src/app/components/ui/utils.ts": []
+      },
+      "neighborMap": {
+        "FE/DEMO/src/app/components/ui/pagination.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/button.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Button",
+              "buttonVariants"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/sidebar.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/button.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Button",
+              "buttonVariants"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/input.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Input"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/use-mobile.ts": [
+          {
+            "path": "FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "StudentWorkspaceShell"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CatalogPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CatalogPage"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/ui/utils.ts": [
+          {
+            "path": "FE/DEMO/src/app/components/ui/accordion.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Accordion",
+              "AccordionItem",
+              "AccordionTrigger",
+              "AccordionContent"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "AlertDialog",
+              "AlertDialogPortal",
+              "AlertDialogOverlay",
+              "AlertDialogTrigger",
+              "AlertDialogContent",
+              "AlertDialogHeader",
+              "AlertDialogFooter",
+              "AlertDialogTitle",
+              "AlertDialogDescription",
+              "AlertDialogAction",
+              "AlertDialogCancel"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/alert.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Alert",
+              "AlertTitle",
+              "AlertDescription"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/avatar.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Avatar",
+              "AvatarImage",
+              "AvatarFallback"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/badge.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Badge",
+              "badgeVariants"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Breadcrumb",
+              "BreadcrumbList",
+              "BreadcrumbItem",
+              "BreadcrumbLink",
+              "BreadcrumbPage",
+              "BreadcrumbSeparator",
+              "BreadcrumbEllipsis"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/button.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Button",
+              "buttonVariants"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/calendar.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Calendar"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/card.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Card",
+              "CardHeader",
+              "CardFooter",
+              "CardTitle",
+              "CardAction",
+              "CardDescription",
+              "CardContent"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/carousel.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "CarouselApi",
+              "Carousel",
+              "CarouselContent",
+              "CarouselItem",
+              "CarouselPrevious",
+              "CarouselNext"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/chart.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "ChartContainer",
+              "ChartTooltip",
+              "ChartTooltipContent",
+              "ChartLegend",
+              "ChartLegendContent",
+              "ChartStyle"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/checkbox.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Checkbox"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/command.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Command",
+              "CommandDialog",
+              "CommandInput",
+              "CommandList",
+              "CommandEmpty",
+              "CommandGroup",
+              "CommandItem",
+              "CommandShortcut",
+              "CommandSeparator"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/context-menu.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "ContextMenu",
+              "ContextMenuTrigger",
+              "ContextMenuContent",
+              "ContextMenuItem",
+              "ContextMenuCheckboxItem",
+              "ContextMenuRadioItem",
+              "ContextMenuLabel",
+              "ContextMenuSeparator",
+              "ContextMenuShortcut",
+              "ContextMenuGroup",
+              "ContextMenuPortal",
+              "ContextMenuSub",
+              "ContextMenuSubContent",
+              "ContextMenuSubTrigger",
+              "ContextMenuRadioGroup"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/dialog.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Dialog",
+              "DialogClose",
+              "DialogContent",
+              "DialogDescription",
+              "DialogFooter",
+              "DialogHeader",
+              "DialogOverlay",
+              "DialogPortal",
+              "DialogTitle",
+              "DialogTrigger"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/drawer.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Drawer",
+              "DrawerPortal",
+              "DrawerOverlay",
+              "DrawerTrigger",
+              "DrawerClose",
+              "DrawerContent",
+              "DrawerHeader",
+              "DrawerFooter",
+              "DrawerTitle",
+              "DrawerDescription"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/dropdown-menu.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "DropdownMenu",
+              "DropdownMenuPortal",
+              "DropdownMenuTrigger",
+              "DropdownMenuContent",
+              "DropdownMenuGroup",
+              "DropdownMenuLabel",
+              "DropdownMenuItem",
+              "DropdownMenuCheckboxItem",
+              "DropdownMenuRadioGroup",
+              "DropdownMenuRadioItem",
+              "DropdownMenuSeparator",
+              "DropdownMenuShortcut",
+              "DropdownMenuSub",
+              "DropdownMenuSubTrigger",
+              "DropdownMenuSubContent"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/form.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "useFormField",
+              "Form",
+              "FormItem",
+              "FormLabel",
+              "FormControl",
+              "FormDescription",
+              "FormMessage",
+              "FormField"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/hover-card.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "HoverCard",
+              "HoverCardTrigger",
+              "HoverCardContent"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/input-otp.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "InputOTP",
+              "InputOTPGroup",
+              "InputOTPSlot",
+              "InputOTPSeparator"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/input.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Input"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/label.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "Label"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "BE/app/Console/Commands/SeedDemoOnce.php",
+          "language": "php",
+          "sizeLines": 35,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Admin/CategoryController.php",
+          "language": "php",
+          "sizeLines": 64,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Admin/CourseController.php",
+          "language": "php",
+          "sizeLines": 103,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Admin/LessonController.php",
+          "language": "php",
+          "sizeLines": 65,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Admin/QuestionController.php",
+          "language": "php",
+          "sizeLines": 59,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Admin/QuizController.php",
+          "language": "php",
+          "sizeLines": 26,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Admin/ReviewController.php",
+          "language": "php",
+          "sizeLines": 40,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Admin/UserController.php",
+          "language": "php",
+          "sizeLines": 40,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/AuthController.php",
+          "language": "php",
+          "sizeLines": 115,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/CategoryController.php",
+          "language": "php",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/CourseController.php",
+          "language": "php",
+          "sizeLines": 78,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Student/CertificateController.php",
+          "language": "php",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Student/LessonController.php",
+          "language": "php",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Student/MyCourseController.php",
+          "language": "php",
+          "sizeLines": 58,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Student/ReviewController.php",
+          "language": "php",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Controller.php",
+          "language": "php",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/AdminCourseResource.php",
+          "language": "php",
+          "sizeLines": 37,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/CategoryResource.php",
+          "language": "php",
+          "sizeLines": 20,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/CourseResource.php",
+          "language": "php",
+          "sizeLines": 36,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/LessonResource.php",
+          "language": "php",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/ReviewResource.php",
+          "language": "php",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/UserResource.php",
+          "language": "php",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "BE/app/Console/Commands/SeedDemoOnce.php": [
+          "BE/app/Models/User.php"
+        ],
+        "BE/app/Http/Controllers/Api/Admin/CategoryController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/CategoryResource.php",
+          "BE/app/Models/Category.php"
+        ],
+        "BE/app/Http/Controllers/Api/Admin/CourseController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/AdminCourseResource.php",
+          "BE/app/Http/Resources/CourseResource.php",
+          "BE/app/Models/Course.php"
+        ],
+        "BE/app/Http/Controllers/Api/Admin/LessonController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/LessonResource.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Lesson.php"
+        ],
+        "BE/app/Http/Controllers/Api/Admin/QuestionController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Models/Question.php",
+          "BE/app/Models/Quiz.php"
+        ],
+        "BE/app/Http/Controllers/Api/Admin/QuizController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Models/Course.php"
+        ],
+        "BE/app/Http/Controllers/Api/Admin/ReviewController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/ReviewResource.php",
+          "BE/app/Models/Review.php"
+        ],
+        "BE/app/Http/Controllers/Api/Admin/UserController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/UserResource.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/app/Http/Controllers/Api/AuthController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/UserResource.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/app/Http/Controllers/Api/CategoryController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/CategoryResource.php",
+          "BE/app/Models/Category.php"
+        ],
+        "BE/app/Http/Controllers/Api/CourseController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/CourseResource.php",
+          "BE/app/Http/Resources/ReviewResource.php",
+          "BE/app/Models/Course.php"
+        ],
+        "BE/app/Http/Controllers/Api/Student/CertificateController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Enrollment.php"
+        ],
+        "BE/app/Http/Controllers/Api/Student/LessonController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Models/Lesson.php",
+          "BE/app/Services/ProgressService.php",
+          "BE/app/Support/InteractsWithEnrollment.php"
+        ],
+        "BE/app/Http/Controllers/Api/Student/MyCourseController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/EnrollmentResource.php",
+          "BE/app/Http/Resources/LessonResource.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Services/ProgressService.php",
+          "BE/app/Support/InteractsWithEnrollment.php"
+        ],
+        "BE/app/Http/Controllers/Api/Student/ReviewController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/ReviewResource.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/Review.php"
+        ],
+        "BE/app/Http/Controllers/Controller.php": [],
+        "BE/app/Http/Resources/AdminCourseResource.php": [],
+        "BE/app/Http/Resources/CategoryResource.php": [],
+        "BE/app/Http/Resources/CourseResource.php": [],
+        "BE/app/Http/Resources/LessonResource.php": [],
+        "BE/app/Http/Resources/ReviewResource.php": [],
+        "BE/app/Http/Resources/UserResource.php": []
+      },
+      "neighborMap": {
+        "BE/app/Console/Commands/SeedDemoOnce.php": [
+          {
+            "path": "BE/app/Models/User.php",
+            "batchIndex": 4,
+            "symbols": [
+              "User"
+            ]
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Admin/CategoryController.php": [
+          {
+            "path": "BE/app/Models/Category.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Category"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Admin/CourseController.php": [
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Admin/LessonController.php": [
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Lesson.php",
+            "batchIndex": 7,
+            "symbols": [
+              "Lesson"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Admin/QuestionController.php": [
+          {
+            "path": "BE/app/Models/Question.php",
+            "batchIndex": 7,
+            "symbols": [
+              "Question"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Quiz.php",
+            "batchIndex": 7,
+            "symbols": [
+              "Quiz"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Admin/QuizController.php": [
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Admin/ReviewController.php": [
+          {
+            "path": "BE/app/Models/Review.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Review"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Admin/UserController.php": [
+          {
+            "path": "BE/app/Models/User.php",
+            "batchIndex": 4,
+            "symbols": [
+              "User"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/AuthController.php": [
+          {
+            "path": "BE/app/Models/User.php",
+            "batchIndex": 4,
+            "symbols": [
+              "User"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/CategoryController.php": [
+          {
+            "path": "BE/app/Models/Category.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Category"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/CourseController.php": [
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Student/CertificateController.php": [
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Enrollment.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Enrollment"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Student/LessonController.php": [
+          {
+            "path": "BE/app/Models/Lesson.php",
+            "batchIndex": 7,
+            "symbols": [
+              "Lesson"
+            ]
+          },
+          {
+            "path": "BE/app/Services/ProgressService.php",
+            "batchIndex": 7,
+            "symbols": [
+              "ProgressService"
+            ]
+          },
+          {
+            "path": "BE/app/Support/InteractsWithEnrollment.php",
+            "batchIndex": 4,
+            "symbols": []
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Student/MyCourseController.php": [
+          {
+            "path": "BE/app/Http/Resources/EnrollmentResource.php",
+            "batchIndex": 8,
+            "symbols": [
+              "EnrollmentResource"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Enrollment.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Enrollment"
+            ]
+          },
+          {
+            "path": "BE/app/Services/ProgressService.php",
+            "batchIndex": 7,
+            "symbols": [
+              "ProgressService"
+            ]
+          },
+          {
+            "path": "BE/app/Support/InteractsWithEnrollment.php",
+            "batchIndex": 4,
+            "symbols": []
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Student/ReviewController.php": [
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Enrollment.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Enrollment"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Review.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Review"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Controller.php": [
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/DashboardController.php",
+            "batchIndex": 8,
+            "symbols": [
+              "DashboardController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/OrderController.php",
+            "batchIndex": 8,
+            "symbols": [
+              "OrderController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/QuizController.php",
+            "batchIndex": 7,
+            "symbols": [
+              "QuizController"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": "BE/app/Models/Category.php",
+          "language": "php",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/Course.php",
+          "language": "php",
+          "sizeLines": 70,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/Review.php",
+          "language": "php",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/User.php",
+          "language": "php",
+          "sizeLines": 51,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Support/InteractsWithEnrollment.php",
+          "language": "php",
+          "sizeLines": 32,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/auth.php",
+          "language": "php",
+          "sizeLines": 117,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/factories/CourseFactory.php",
+          "language": "php",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/factories/EnrollmentFactory.php",
+          "language": "php",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/factories/LessonFactory.php",
+          "language": "php",
+          "sizeLines": 22,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/factories/OrderFactory.php",
+          "language": "php",
+          "sizeLines": 34,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/factories/QuizFactory.php",
+          "language": "php",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/factories/ReviewFactory.php",
+          "language": "php",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/factories/UserFactory.php",
+          "language": "php",
+          "sizeLines": 57,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/seeders/DatabaseSeeder.php",
+          "language": "php",
+          "sizeLines": 34,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/routes/api.php",
+          "language": "php",
+          "sizeLines": 89,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/AdminTest.php",
+          "language": "php",
+          "sizeLines": 44,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/Api/AuthAndCatalogTest.php",
+          "language": "php",
+          "sizeLines": 93,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/AuthTest.php",
+          "language": "php",
+          "sizeLines": 46,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/CatalogTest.php",
+          "language": "php",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/Console/ReplaceDemoCatalogCommandTest.php",
+          "language": "php",
+          "sizeLines": 104,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/Console/SeedDemoOnceCommandTest.php",
+          "language": "php",
+          "sizeLines": 36,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/LearningTest.php",
+          "language": "php",
+          "sizeLines": 43,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "BE/app/Models/Category.php": [],
+        "BE/app/Models/Course.php": [],
+        "BE/app/Models/Review.php": [],
+        "BE/app/Models/User.php": [
+          "BE/database/factories/UserFactory.php"
+        ],
+        "BE/app/Support/InteractsWithEnrollment.php": [
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/config/auth.php": [
+          "BE/app/Models/User.php"
+        ],
+        "BE/database/factories/CourseFactory.php": [
+          "BE/app/Models/Category.php"
+        ],
+        "BE/database/factories/EnrollmentFactory.php": [
+          "BE/app/Models/Course.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/database/factories/LessonFactory.php": [
+          "BE/app/Models/Course.php"
+        ],
+        "BE/database/factories/OrderFactory.php": [
+          "BE/app/Models/Course.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/database/factories/QuizFactory.php": [
+          "BE/app/Models/Course.php"
+        ],
+        "BE/database/factories/ReviewFactory.php": [
+          "BE/app/Models/Course.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/database/factories/UserFactory.php": [
+          "BE/app/Models/User.php"
+        ],
+        "BE/database/seeders/DatabaseSeeder.php": [
+          "BE/app/Models/User.php"
+        ],
+        "BE/routes/api.php": [
+          "BE/app/Http/Controllers/Api/Admin/CategoryController.php",
+          "BE/app/Http/Controllers/Api/Admin/CourseController.php",
+          "BE/app/Http/Controllers/Api/Admin/DashboardController.php",
+          "BE/app/Http/Controllers/Api/Admin/LessonController.php",
+          "BE/app/Http/Controllers/Api/Admin/QuestionController.php",
+          "BE/app/Http/Controllers/Api/Admin/QuizController.php",
+          "BE/app/Http/Controllers/Api/Admin/ReviewController.php",
+          "BE/app/Http/Controllers/Api/Admin/UserController.php",
+          "BE/app/Http/Controllers/Api/AuthController.php",
+          "BE/app/Http/Controllers/Api/CategoryController.php",
+          "BE/app/Http/Controllers/Api/CourseController.php",
+          "BE/app/Http/Controllers/Api/Student/CertificateController.php",
+          "BE/app/Http/Controllers/Api/Student/LessonController.php",
+          "BE/app/Http/Controllers/Api/Student/MyCourseController.php",
+          "BE/app/Http/Controllers/Api/Student/OrderController.php",
+          "BE/app/Http/Controllers/Api/Student/QuizController.php",
+          "BE/app/Http/Controllers/Api/Student/ReviewController.php"
+        ],
+        "BE/tests/Feature/AdminTest.php": [
+          "BE/app/Models/Course.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/tests/Feature/Api/AuthAndCatalogTest.php": [
+          "BE/app/Models/Category.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/tests/Feature/AuthTest.php": [
+          "BE/app/Models/User.php"
+        ],
+        "BE/tests/Feature/CatalogTest.php": [
+          "BE/app/Models/Category.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Review.php"
+        ],
+        "BE/tests/Feature/Console/ReplaceDemoCatalogCommandTest.php": [
+          "BE/app/Models/Category.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/tests/Feature/Console/SeedDemoOnceCommandTest.php": [
+          "BE/app/Models/User.php"
+        ],
+        "BE/tests/Feature/LearningTest.php": [
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/User.php"
+        ]
+      },
+      "neighborMap": {
+        "BE/app/Models/Category.php": [
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/CategoryController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CategoryController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/CategoryController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CategoryController"
+            ]
+          },
+          {
+            "path": "BE/database/seeders/GeneratedDemoCatalogSeeder.php",
+            "batchIndex": 7,
+            "symbols": [
+              "GeneratedDemoCatalogSeeder"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/Api/AdminManagementTest.php",
+            "batchIndex": 7,
+            "symbols": [
+              "AdminManagementTest"
+            ]
+          }
+        ],
+        "BE/app/Models/Course.php": [
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/CourseController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CourseController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/DashboardController.php",
+            "batchIndex": 8,
+            "symbols": [
+              "DashboardController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/LessonController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "LessonController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/QuizController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "QuizController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/CourseController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CourseController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/CertificateController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CertificateController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/MyCourseController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "MyCourseController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/OrderController.php",
+            "batchIndex": 8,
+            "symbols": [
+              "OrderController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/QuizController.php",
+            "batchIndex": 7,
+            "symbols": [
+              "QuizController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/ReviewController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "ReviewController"
+            ]
+          },
+          {
+            "path": "BE/database/seeders/GeneratedDemoCatalogSeeder.php",
+            "batchIndex": 7,
+            "symbols": [
+              "GeneratedDemoCatalogSeeder"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/Api/AdminManagementTest.php",
+            "batchIndex": 7,
+            "symbols": [
+              "AdminManagementTest"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/Api/StudentLearningFlowTest.php",
+            "batchIndex": 7,
+            "symbols": [
+              "StudentLearningFlowTest"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/PurchaseTest.php",
+            "batchIndex": 8,
+            "symbols": []
+          },
+          {
+            "path": "BE/tests/Pest.php",
+            "batchIndex": 7,
+            "symbols": [
+              "makeCourseWithContent",
+              "quizAnswers"
+            ]
+          }
+        ],
+        "BE/app/Models/Review.php": [
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/ReviewController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "ReviewController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/ReviewController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "ReviewController"
+            ]
+          },
+          {
+            "path": "BE/database/seeders/GeneratedDemoCatalogSeeder.php",
+            "batchIndex": 7,
+            "symbols": [
+              "GeneratedDemoCatalogSeeder"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/Api/AdminManagementTest.php",
+            "batchIndex": 7,
+            "symbols": [
+              "AdminManagementTest"
+            ]
+          }
+        ],
+        "BE/app/Models/User.php": [
+          {
+            "path": "BE/app/Console/Commands/SeedDemoOnce.php",
+            "batchIndex": 3,
+            "symbols": [
+              "SeedDemoOnce"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/DashboardController.php",
+            "batchIndex": 8,
+            "symbols": [
+              "DashboardController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/UserController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "UserController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/AuthController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "AuthController"
+            ]
+          },
+          {
+            "path": "BE/database/seeders/GeneratedDemoCatalogSeeder.php",
+            "batchIndex": 7,
+            "symbols": [
+              "GeneratedDemoCatalogSeeder"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/Api/AdminManagementTest.php",
+            "batchIndex": 7,
+            "symbols": [
+              "AdminManagementTest"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/Api/StudentLearningFlowTest.php",
+            "batchIndex": 7,
+            "symbols": [
+              "StudentLearningFlowTest"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/PurchaseTest.php",
+            "batchIndex": 8,
+            "symbols": []
+          },
+          {
+            "path": "BE/tests/Feature/QuizTest.php",
+            "batchIndex": 8,
+            "symbols": [
+              "completeAll"
+            ]
+          }
+        ],
+        "BE/app/Support/InteractsWithEnrollment.php": [
+          {
+            "path": "BE/app/Models/Enrollment.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Enrollment"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/LessonController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "LessonController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/MyCourseController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "MyCourseController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/QuizController.php",
+            "batchIndex": 7,
+            "symbols": [
+              "QuizController"
+            ]
+          }
+        ],
+        "BE/routes/api.php": [
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/CategoryController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CategoryController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/CourseController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CourseController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/DashboardController.php",
+            "batchIndex": 8,
+            "symbols": [
+              "DashboardController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/LessonController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "LessonController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/QuestionController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "QuestionController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/QuizController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "QuizController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/ReviewController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "ReviewController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/UserController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "UserController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/AuthController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "AuthController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/CategoryController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CategoryController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/CourseController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CourseController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/CertificateController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CertificateController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/LessonController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "LessonController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/MyCourseController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "MyCourseController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/OrderController.php",
+            "batchIndex": 8,
+            "symbols": [
+              "OrderController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/QuizController.php",
+            "batchIndex": 7,
+            "symbols": [
+              "QuizController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/ReviewController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "ReviewController"
+            ]
+          }
+        ],
+        "BE/tests/Feature/Console/ReplaceDemoCatalogCommandTest.php": [
+          {
+            "path": "BE/app/Models/Enrollment.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Enrollment"
+            ]
+          }
+        ],
+        "BE/tests/Feature/LearningTest.php": [
+          {
+            "path": "BE/app/Models/Enrollment.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Enrollment"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": "FE/DEMO/src/app/App.tsx",
+          "language": "typescript",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/AdminDataTable.tsx",
+          "language": "typescript",
+          "sizeLines": 75,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/AdminShell.tsx",
+          "language": "typescript",
+          "sizeLines": 80,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/AsyncState.test.tsx",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/AsyncState.tsx",
+          "language": "typescript",
+          "sizeLines": 22,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/CourseCard.tsx",
+          "language": "typescript",
+          "sizeLines": 54,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/GlobalHeader.tsx",
+          "language": "typescript",
+          "sizeLines": 156,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/HeroBanner.tsx",
+          "language": "typescript",
+          "sizeLines": 62,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/Layout.test.tsx",
+          "language": "typescript",
+          "sizeLines": 131,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/Layout.tsx",
+          "language": "typescript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/MetricsStrip.tsx",
+          "language": "typescript",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/PageHeader.tsx",
+          "language": "typescript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/RequireAuth.tsx",
+          "language": "typescript",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/SectionHeading.tsx",
+          "language": "typescript",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/StatusChip.tsx",
+          "language": "typescript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/contexts/AuthContext.test.tsx",
+          "language": "typescript",
+          "sizeLines": 83,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "language": "typescript",
+          "sizeLines": 120,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/lib/api.test.ts",
+          "language": "typescript",
+          "sizeLines": 67,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/lib/api.ts",
+          "language": "typescript",
+          "sizeLines": 190,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/lib/contracts.ts",
+          "language": "typescript",
+          "sizeLines": 170,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/AdminPage.test.tsx",
+          "language": "typescript",
+          "sizeLines": 118,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/AdminPage.tsx",
+          "language": "typescript",
+          "sizeLines": 489,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "FE/DEMO/src/app/App.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/routes.tsx",
+          "FE/DEMO/src/app/theme.ts"
+        ],
+        "FE/DEMO/src/app/components/AdminDataTable.tsx": [],
+        "FE/DEMO/src/app/components/AdminShell.tsx": [],
+        "FE/DEMO/src/app/components/AsyncState.test.tsx": [
+          "FE/DEMO/src/app/components/AsyncState.tsx"
+        ],
+        "FE/DEMO/src/app/components/AsyncState.tsx": [],
+        "FE/DEMO/src/app/components/CourseCard.tsx": [
+          "FE/DEMO/src/app/lib/contracts.ts"
+        ],
+        "FE/DEMO/src/app/components/GlobalHeader.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/theme.ts"
+        ],
+        "FE/DEMO/src/app/components/HeroBanner.tsx": [
+          "FE/DEMO/src/app/lib/contracts.ts",
+          "FE/DEMO/src/app/theme.ts"
+        ],
+        "FE/DEMO/src/app/components/Layout.test.tsx": [
+          "FE/DEMO/src/app/components/Layout.tsx",
+          "FE/DEMO/src/app/theme.ts"
+        ],
+        "FE/DEMO/src/app/components/Layout.tsx": [
+          "FE/DEMO/src/app/components/GlobalHeader.tsx",
+          "FE/DEMO/src/app/theme.ts"
+        ],
+        "FE/DEMO/src/app/components/MetricsStrip.tsx": [
+          "FE/DEMO/src/app/theme.ts"
+        ],
+        "FE/DEMO/src/app/components/PageHeader.tsx": [],
+        "FE/DEMO/src/app/components/RequireAuth.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/lib/contracts.ts"
+        ],
+        "FE/DEMO/src/app/components/SectionHeading.tsx": [],
+        "FE/DEMO/src/app/components/StatusChip.tsx": [],
+        "FE/DEMO/src/app/contexts/AuthContext.test.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/lib/api.ts"
+        ],
+        "FE/DEMO/src/app/contexts/AuthContext.tsx": [
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/lib/contracts.ts"
+        ],
+        "FE/DEMO/src/app/lib/api.test.ts": [
+          "FE/DEMO/src/app/lib/api.ts"
+        ],
+        "FE/DEMO/src/app/lib/api.ts": [
+          "FE/DEMO/src/app/lib/contracts.ts"
+        ],
+        "FE/DEMO/src/app/lib/contracts.ts": [],
+        "FE/DEMO/src/app/pages/AdminPage.test.tsx": [
+          "FE/DEMO/src/app/pages/AdminPage.tsx"
+        ],
+        "FE/DEMO/src/app/pages/AdminPage.tsx": [
+          "FE/DEMO/src/app/components/AdminDataTable.tsx",
+          "FE/DEMO/src/app/components/AdminShell.tsx",
+          "FE/DEMO/src/app/components/AsyncState.tsx",
+          "FE/DEMO/src/app/components/PageHeader.tsx",
+          "FE/DEMO/src/app/components/StatusChip.tsx",
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/lib/contracts.ts"
+        ]
+      },
+      "neighborMap": {
+        "FE/DEMO/src/app/App.tsx": [
+          {
+            "path": "FE/DEMO/src/app/routes.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "router"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/theme.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "focusTokens",
+              "layoutTokens",
+              "theme"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/main.tsx",
+            "batchIndex": 6,
+            "symbols": []
+          }
+        ],
+        "FE/DEMO/src/app/components/AsyncState.tsx": [
+          {
+            "path": "FE/DEMO/src/app/pages/CatalogPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CatalogPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CheckoutPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CheckoutPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CoursePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CoursePage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/Home.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "Home"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "LearnCoursePage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "MyCoursesPage"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/CourseCard.tsx": [
+          {
+            "path": "FE/DEMO/src/app/pages/CatalogPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CatalogPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/Home.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "Home"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/GlobalHeader.tsx": [
+          {
+            "path": "FE/DEMO/src/app/theme.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "focusTokens",
+              "layoutTokens",
+              "theme"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/HeroBanner.tsx": [
+          {
+            "path": "FE/DEMO/src/app/theme.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "focusTokens",
+              "layoutTokens",
+              "theme"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/Home.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "Home"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/Layout.test.tsx": [
+          {
+            "path": "FE/DEMO/src/app/theme.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "focusTokens",
+              "layoutTokens",
+              "theme"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/Layout.tsx": [
+          {
+            "path": "FE/DEMO/src/app/theme.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "focusTokens",
+              "layoutTokens",
+              "theme"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/routes.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "router"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/MetricsStrip.tsx": [
+          {
+            "path": "FE/DEMO/src/app/theme.ts",
+            "batchIndex": 6,
+            "symbols": [
+              "focusTokens",
+              "layoutTokens",
+              "theme"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/Home.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "Home"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/PageHeader.tsx": [
+          {
+            "path": "FE/DEMO/src/app/pages/CatalogPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CatalogPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "LearnCoursePage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "MyCoursesPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/ProfilePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "ProfilePage"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/RequireAuth.tsx": [
+          {
+            "path": "FE/DEMO/src/app/routes.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "router"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/components/SectionHeading.tsx": [
+          {
+            "path": "FE/DEMO/src/app/pages/Home.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "Home"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/contexts/AuthContext.tsx": [
+          {
+            "path": "FE/DEMO/src/app/pages/AuthPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "AuthPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CheckoutPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CheckoutPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CourseDetail.tsx",
+            "batchIndex": 9,
+            "symbols": [
+              "CourseDetail"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CoursePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CoursePage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/InternshipDetail.tsx",
+            "batchIndex": 9,
+            "symbols": [
+              "InternshipDetail"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/Internships.tsx",
+            "batchIndex": 9,
+            "symbols": [
+              "Internships"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "LearnCoursePage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/Login.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "Login"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "MyCoursesPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/ProfilePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "ProfilePage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/StudentDashboard.tsx",
+            "batchIndex": 9,
+            "symbols": [
+              "StudentDashboard"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/UserProfile.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "UserProfile"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/lib/api.ts": [
+          {
+            "path": "FE/DEMO/src/app/pages/AuthPage.test.tsx",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/AuthPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "AuthPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CatalogPage.test.tsx",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CatalogPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CatalogPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CheckoutPage.test.tsx",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CheckoutPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CheckoutPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CoursePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CoursePage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/Home.test.tsx",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/Home.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "Home"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "LearnCoursePage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "MyCoursesPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/ProfilePage.test.tsx",
+            "batchIndex": 6,
+            "symbols": []
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/ProfilePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "ProfilePage"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/lib/contracts.ts": [
+          {
+            "path": "FE/DEMO/src/app/pages/CatalogPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CatalogPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CheckoutPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CheckoutPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/CoursePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "CoursePage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/Home.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "Home"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "LearnCoursePage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "MyCoursesPage"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/AdminPage.tsx": [
+          {
+            "path": "FE/DEMO/src/app/routes.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "router"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": "FE/DEMO/src/app/pages/AuthPage.test.tsx",
+          "language": "typescript",
+          "sizeLines": 32,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/AuthPage.tsx",
+          "language": "typescript",
+          "sizeLines": 69,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/CatalogPage.test.tsx",
+          "language": "typescript",
+          "sizeLines": 136,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/CatalogPage.tsx",
+          "language": "typescript",
+          "sizeLines": 186,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/CheckoutPage.test.tsx",
+          "language": "typescript",
+          "sizeLines": 59,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/CheckoutPage.tsx",
+          "language": "typescript",
+          "sizeLines": 96,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/CoursePage.test.tsx",
+          "language": "typescript",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/CoursePage.tsx",
+          "language": "typescript",
+          "sizeLines": 115,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/Home.test.tsx",
+          "language": "typescript",
+          "sizeLines": 54,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/Home.tsx",
+          "language": "typescript",
+          "sizeLines": 152,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/LearnCoursePage.test.tsx",
+          "language": "typescript",
+          "sizeLines": 148,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+          "language": "typescript",
+          "sizeLines": 352,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/Login.tsx",
+          "language": "typescript",
+          "sizeLines": 154,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/MyCoursesPage.test.tsx",
+          "language": "typescript",
+          "sizeLines": 70,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+          "language": "typescript",
+          "sizeLines": 209,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/ProfilePage.test.tsx",
+          "language": "typescript",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/ProfilePage.tsx",
+          "language": "typescript",
+          "sizeLines": 185,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/UserProfile.tsx",
+          "language": "typescript",
+          "sizeLines": 212,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/routes.tsx",
+          "language": "typescript",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/theme.ts",
+          "language": "typescript",
+          "sizeLines": 81,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/main.tsx",
+          "language": "typescript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "FE/DEMO/src/app/pages/AuthPage.test.tsx": [
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/pages/AuthPage.tsx"
+        ],
+        "FE/DEMO/src/app/pages/AuthPage.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/lib/api.ts"
+        ],
+        "FE/DEMO/src/app/pages/CatalogPage.test.tsx": [
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/pages/CatalogPage.tsx"
+        ],
+        "FE/DEMO/src/app/pages/CatalogPage.tsx": [
+          "FE/DEMO/src/app/components/AsyncState.tsx",
+          "FE/DEMO/src/app/components/CourseCard.tsx",
+          "FE/DEMO/src/app/components/PageHeader.tsx",
+          "FE/DEMO/src/app/components/ui/use-mobile.ts",
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/lib/contracts.ts"
+        ],
+        "FE/DEMO/src/app/pages/CheckoutPage.test.tsx": [
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/pages/CheckoutPage.tsx"
+        ],
+        "FE/DEMO/src/app/pages/CheckoutPage.tsx": [
+          "FE/DEMO/src/app/components/AsyncState.tsx",
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/lib/contracts.ts"
+        ],
+        "FE/DEMO/src/app/pages/CoursePage.test.tsx": [
+          "FE/DEMO/src/app/pages/CoursePage.tsx"
+        ],
+        "FE/DEMO/src/app/pages/CoursePage.tsx": [
+          "FE/DEMO/src/app/components/AsyncState.tsx",
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/lib/contracts.ts"
+        ],
+        "FE/DEMO/src/app/pages/Home.test.tsx": [
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/pages/Home.tsx"
+        ],
+        "FE/DEMO/src/app/pages/Home.tsx": [
+          "FE/DEMO/src/app/components/AsyncState.tsx",
+          "FE/DEMO/src/app/components/CourseCard.tsx",
+          "FE/DEMO/src/app/components/HeroBanner.tsx",
+          "FE/DEMO/src/app/components/MetricsStrip.tsx",
+          "FE/DEMO/src/app/components/SectionHeading.tsx",
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/lib/contracts.ts",
+          "FE/DEMO/src/app/theme.ts"
+        ],
+        "FE/DEMO/src/app/pages/LearnCoursePage.test.tsx": [
+          "FE/DEMO/src/app/pages/LearnCoursePage.tsx"
+        ],
+        "FE/DEMO/src/app/pages/LearnCoursePage.tsx": [
+          "FE/DEMO/src/app/components/AsyncState.tsx",
+          "FE/DEMO/src/app/components/PageHeader.tsx",
+          "FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/lib/contracts.ts"
+        ],
+        "FE/DEMO/src/app/pages/Login.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx"
+        ],
+        "FE/DEMO/src/app/pages/MyCoursesPage.test.tsx": [
+          "FE/DEMO/src/app/pages/MyCoursesPage.tsx"
+        ],
+        "FE/DEMO/src/app/pages/MyCoursesPage.tsx": [
+          "FE/DEMO/src/app/components/AsyncState.tsx",
+          "FE/DEMO/src/app/components/PageHeader.tsx",
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/lib/contracts.ts"
+        ],
+        "FE/DEMO/src/app/pages/ProfilePage.test.tsx": [
+          "FE/DEMO/src/app/lib/api.ts",
+          "FE/DEMO/src/app/pages/ProfilePage.tsx"
+        ],
+        "FE/DEMO/src/app/pages/ProfilePage.tsx": [
+          "FE/DEMO/src/app/components/PageHeader.tsx",
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/lib/api.ts"
+        ],
+        "FE/DEMO/src/app/pages/UserProfile.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx"
+        ],
+        "FE/DEMO/src/app/routes.tsx": [
+          "FE/DEMO/src/app/components/Layout.tsx",
+          "FE/DEMO/src/app/components/RequireAuth.tsx",
+          "FE/DEMO/src/app/pages/AdminPage.tsx",
+          "FE/DEMO/src/app/pages/AuthPage.tsx",
+          "FE/DEMO/src/app/pages/CatalogPage.tsx",
+          "FE/DEMO/src/app/pages/CheckoutPage.tsx",
+          "FE/DEMO/src/app/pages/CoursePage.tsx",
+          "FE/DEMO/src/app/pages/Home.tsx",
+          "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+          "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+          "FE/DEMO/src/app/pages/ProfilePage.tsx"
+        ],
+        "FE/DEMO/src/app/theme.ts": [],
+        "FE/DEMO/src/main.tsx": [
+          "FE/DEMO/src/app/App.tsx",
+          "FE/DEMO/src/styles/index.css"
+        ]
+      },
+      "neighborMap": {
+        "FE/DEMO/src/app/pages/AuthPage.test.tsx": [
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/AuthPage.tsx": [
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/CatalogPage.test.tsx": [
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/CatalogPage.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/AsyncState.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "PageSkeleton",
+              "EmptyState",
+              "RequestError"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/CourseCard.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "CourseCard"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/PageHeader.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "PageHeader"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/ui/use-mobile.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "useIsMobile"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/contracts.ts",
+            "batchIndex": 5,
+            "symbols": []
+          }
+        ],
+        "FE/DEMO/src/app/pages/CheckoutPage.test.tsx": [
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/CheckoutPage.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/AsyncState.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "PageSkeleton",
+              "EmptyState",
+              "RequestError"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/contracts.ts",
+            "batchIndex": 5,
+            "symbols": []
+          }
+        ],
+        "FE/DEMO/src/app/pages/CoursePage.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/AsyncState.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "PageSkeleton",
+              "EmptyState",
+              "RequestError"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/contracts.ts",
+            "batchIndex": 5,
+            "symbols": []
+          }
+        ],
+        "FE/DEMO/src/app/pages/Home.test.tsx": [
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/Home.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/AsyncState.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "PageSkeleton",
+              "EmptyState",
+              "RequestError"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/CourseCard.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "CourseCard"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/HeroBanner.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "HeroBanner"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/MetricsStrip.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "MetricsStrip"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/SectionHeading.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "SectionHeading"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/contracts.ts",
+            "batchIndex": 5,
+            "symbols": []
+          }
+        ],
+        "FE/DEMO/src/app/pages/LearnCoursePage.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/AsyncState.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "PageSkeleton",
+              "EmptyState",
+              "RequestError"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/PageHeader.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "PageHeader"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "StudentWorkspaceShell"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/contracts.ts",
+            "batchIndex": 5,
+            "symbols": []
+          }
+        ],
+        "FE/DEMO/src/app/pages/Login.tsx": [
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/MyCoursesPage.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/AsyncState.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "PageSkeleton",
+              "EmptyState",
+              "RequestError"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/PageHeader.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "PageHeader"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/contracts.ts",
+            "batchIndex": 5,
+            "symbols": []
+          }
+        ],
+        "FE/DEMO/src/app/pages/ProfilePage.test.tsx": [
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/ProfilePage.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/PageHeader.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "PageHeader"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/lib/api.ts",
+            "batchIndex": 5,
+            "symbols": [
+              "ApiError",
+              "apiRequest",
+              "api"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/UserProfile.tsx": [
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/routes.tsx": [
+          {
+            "path": "FE/DEMO/src/app/components/Layout.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "Layout"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/RequireAuth.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "RequireAuth"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/pages/AdminPage.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AdminPage"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/App.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "App"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/theme.ts": [
+          {
+            "path": "FE/DEMO/src/app/App.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "App"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/GlobalHeader.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "GlobalHeader"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/HeroBanner.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "HeroBanner"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/Layout.test.tsx",
+            "batchIndex": 5,
+            "symbols": []
+          },
+          {
+            "path": "FE/DEMO/src/app/components/Layout.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "Layout"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/app/components/MetricsStrip.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "MetricsStrip"
+            ]
+          }
+        ],
+        "FE/DEMO/src/main.tsx": [
+          {
+            "path": "FE/DEMO/src/app/App.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "App"
+            ]
+          },
+          {
+            "path": "FE/DEMO/src/styles/index.css",
+            "batchIndex": 14,
+            "symbols": []
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": "BE/app/Console/Commands/ReplaceDemoCatalog.php",
+          "language": "php",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Student/QuizController.php",
+          "language": "php",
+          "sizeLines": 74,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/CertificateResource.php",
+          "language": "php",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/QuizAttemptResource.php",
+          "language": "php",
+          "sizeLines": 29,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/QuizResource.php",
+          "language": "php",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/Lesson.php",
+          "language": "php",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/LessonProgress.php",
+          "language": "php",
+          "sizeLines": 34,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/Question.php",
+          "language": "php",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/QuestionOption.php",
+          "language": "php",
+          "sizeLines": 26,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/Quiz.php",
+          "language": "php",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/QuizAttempt.php",
+          "language": "php",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Services/ProgressService.php",
+          "language": "php",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Services/QuizGradingService.php",
+          "language": "php",
+          "sizeLines": 80,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/factories/QuestionFactory.php",
+          "language": "php",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/factories/QuestionOptionFactory.php",
+          "language": "php",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_17_000001_sync_demo_course_video_urls.php",
+          "language": "php",
+          "sizeLines": 37,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/seeders/GeneratedDemoCatalogSeeder.php",
+          "language": "php",
+          "sizeLines": 286,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/Api/AdminManagementTest.php",
+          "language": "php",
+          "sizeLines": 195,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/Api/StudentLearningFlowTest.php",
+          "language": "php",
+          "sizeLines": 111,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Pest.php",
+          "language": "php",
+          "sizeLines": 54,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "BE/app/Console/Commands/ReplaceDemoCatalog.php": [
+          "BE/database/seeders/GeneratedDemoCatalogSeeder.php"
+        ],
+        "BE/app/Http/Controllers/Api/Student/QuizController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/CertificateResource.php",
+          "BE/app/Http/Resources/QuizAttemptResource.php",
+          "BE/app/Http/Resources/QuizResource.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/QuizAttempt.php",
+          "BE/app/Services/ProgressService.php",
+          "BE/app/Services/QuizGradingService.php",
+          "BE/app/Support/InteractsWithEnrollment.php"
+        ],
+        "BE/app/Http/Resources/CertificateResource.php": [],
+        "BE/app/Http/Resources/QuizAttemptResource.php": [],
+        "BE/app/Http/Resources/QuizResource.php": [],
+        "BE/app/Models/Lesson.php": [],
+        "BE/app/Models/LessonProgress.php": [],
+        "BE/app/Models/Question.php": [],
+        "BE/app/Models/QuestionOption.php": [],
+        "BE/app/Models/Quiz.php": [],
+        "BE/app/Models/QuizAttempt.php": [],
+        "BE/app/Services/ProgressService.php": [
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/Lesson.php",
+          "BE/app/Models/LessonProgress.php"
+        ],
+        "BE/app/Services/QuizGradingService.php": [
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/Quiz.php",
+          "BE/app/Models/QuizAttempt.php"
+        ],
+        "BE/database/factories/QuestionFactory.php": [
+          "BE/app/Models/Quiz.php"
+        ],
+        "BE/database/factories/QuestionOptionFactory.php": [
+          "BE/app/Models/Question.php"
+        ],
+        "BE/database/migrations/2026_07_17_000001_sync_demo_course_video_urls.php": [
+          "BE/database/seeders/GeneratedDemoCatalogSeeder.php"
+        ],
+        "BE/database/seeders/GeneratedDemoCatalogSeeder.php": [
+          "BE/app/Models/Category.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/Lesson.php",
+          "BE/app/Models/LessonProgress.php",
+          "BE/app/Models/Order.php",
+          "BE/app/Models/Question.php",
+          "BE/app/Models/QuestionOption.php",
+          "BE/app/Models/Quiz.php",
+          "BE/app/Models/Review.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/tests/Feature/Api/AdminManagementTest.php": [
+          "BE/app/Models/Category.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Lesson.php",
+          "BE/app/Models/Question.php",
+          "BE/app/Models/QuestionOption.php",
+          "BE/app/Models/Quiz.php",
+          "BE/app/Models/Review.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/tests/Feature/Api/StudentLearningFlowTest.php": [
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/Lesson.php",
+          "BE/app/Models/Question.php",
+          "BE/app/Models/QuestionOption.php",
+          "BE/app/Models/Quiz.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/tests/Pest.php": [
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Lesson.php",
+          "BE/app/Models/Question.php",
+          "BE/app/Models/QuestionOption.php",
+          "BE/app/Models/Quiz.php"
+        ]
+      },
+      "neighborMap": {
+        "BE/app/Http/Controllers/Api/Student/QuizController.php": [
+          {
+            "path": "BE/app/Http/Controllers/Controller.php",
+            "batchIndex": 3,
+            "symbols": [
+              "Controller"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/app/Support/InteractsWithEnrollment.php",
+            "batchIndex": 4,
+            "symbols": []
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Models/Lesson.php": [
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/LessonController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "LessonController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/LessonController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "LessonController"
+            ]
+          }
+        ],
+        "BE/app/Models/Question.php": [
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/QuestionController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "QuestionController"
+            ]
+          }
+        ],
+        "BE/app/Models/Quiz.php": [
+          {
+            "path": "BE/app/Http/Controllers/Api/Admin/QuestionController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "QuestionController"
+            ]
+          }
+        ],
+        "BE/app/Services/ProgressService.php": [
+          {
+            "path": "BE/app/Models/Enrollment.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Enrollment"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/LessonController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "LessonController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/MyCourseController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "MyCourseController"
+            ]
+          }
+        ],
+        "BE/app/Services/QuizGradingService.php": [
+          {
+            "path": "BE/app/Models/Enrollment.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Enrollment"
+            ]
+          }
+        ],
+        "BE/database/seeders/GeneratedDemoCatalogSeeder.php": [
+          {
+            "path": "BE/app/Models/Category.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Category"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Enrollment.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Enrollment"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Order.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Order"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Review.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Review"
+            ]
+          },
+          {
+            "path": "BE/app/Models/User.php",
+            "batchIndex": 4,
+            "symbols": [
+              "User"
+            ]
+          }
+        ],
+        "BE/tests/Feature/Api/AdminManagementTest.php": [
+          {
+            "path": "BE/app/Models/Category.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Category"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Review.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Review"
+            ]
+          },
+          {
+            "path": "BE/app/Models/User.php",
+            "batchIndex": 4,
+            "symbols": [
+              "User"
+            ]
+          }
+        ],
+        "BE/tests/Feature/Api/StudentLearningFlowTest.php": [
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Enrollment.php",
+            "batchIndex": 8,
+            "symbols": [
+              "Enrollment"
+            ]
+          },
+          {
+            "path": "BE/app/Models/User.php",
+            "batchIndex": 4,
+            "symbols": [
+              "User"
+            ]
+          }
+        ],
+        "BE/tests/Pest.php": [
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 8,
+      "files": [
+        {
+          "path": "BE/app/Http/Controllers/Api/Admin/DashboardController.php",
+          "language": "php",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Controllers/Api/Student/OrderController.php",
+          "language": "php",
+          "sizeLines": 92,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/EnrollmentResource.php",
+          "language": "php",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Resources/OrderResource.php",
+          "language": "php",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/Certificate.php",
+          "language": "php",
+          "sizeLines": 26,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/Enrollment.php",
+          "language": "php",
+          "sizeLines": 59,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/Order.php",
+          "language": "php",
+          "sizeLines": 46,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Providers/AppServiceProvider.php",
+          "language": "php",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Services/CertificateService.php",
+          "language": "php",
+          "sizeLines": 29,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Services/EnrollmentService.php",
+          "language": "php",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Services/Payment/MockGateway.php",
+          "language": "php",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Services/Payment/PaymentGateway.php",
+          "language": "php",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/bootstrap/providers.php",
+          "language": "php",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/PurchaseTest.php",
+          "language": "php",
+          "sizeLines": 55,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/QuizTest.php",
+          "language": "php",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "BE/app/Http/Controllers/Api/Admin/DashboardController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Models/Certificate.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/Order.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/app/Http/Controllers/Api/Student/OrderController.php": [
+          "BE/app/Http/Controllers/Controller.php",
+          "BE/app/Http/Resources/EnrollmentResource.php",
+          "BE/app/Http/Resources/OrderResource.php",
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/Order.php",
+          "BE/app/Services/EnrollmentService.php",
+          "BE/app/Services/Payment/PaymentGateway.php"
+        ],
+        "BE/app/Http/Resources/EnrollmentResource.php": [],
+        "BE/app/Http/Resources/OrderResource.php": [],
+        "BE/app/Models/Certificate.php": [],
+        "BE/app/Models/Enrollment.php": [],
+        "BE/app/Models/Order.php": [],
+        "BE/app/Providers/AppServiceProvider.php": [
+          "BE/app/Services/Payment/MockGateway.php",
+          "BE/app/Services/Payment/PaymentGateway.php"
+        ],
+        "BE/app/Services/CertificateService.php": [
+          "BE/app/Models/Certificate.php",
+          "BE/app/Models/Enrollment.php"
+        ],
+        "BE/app/Services/EnrollmentService.php": [
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/Order.php"
+        ],
+        "BE/app/Services/Payment/MockGateway.php": [
+          "BE/app/Models/Order.php"
+        ],
+        "BE/app/Services/Payment/PaymentGateway.php": [
+          "BE/app/Models/Order.php"
+        ],
+        "BE/bootstrap/providers.php": [
+          "BE/app/Providers/AppServiceProvider.php"
+        ],
+        "BE/tests/Feature/PurchaseTest.php": [
+          "BE/app/Models/Course.php",
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/Order.php",
+          "BE/app/Models/User.php"
+        ],
+        "BE/tests/Feature/QuizTest.php": [
+          "BE/app/Models/Certificate.php",
+          "BE/app/Models/Enrollment.php",
+          "BE/app/Models/User.php"
+        ]
+      },
+      "neighborMap": {
+        "BE/app/Http/Controllers/Api/Admin/DashboardController.php": [
+          {
+            "path": "BE/app/Http/Controllers/Controller.php",
+            "batchIndex": 3,
+            "symbols": [
+              "Controller"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/app/Models/User.php",
+            "batchIndex": 4,
+            "symbols": [
+              "User"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Controllers/Api/Student/OrderController.php": [
+          {
+            "path": "BE/app/Http/Controllers/Controller.php",
+            "batchIndex": 3,
+            "symbols": [
+              "Controller"
+            ]
+          },
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/routes/api.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Http/Resources/EnrollmentResource.php": [
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/MyCourseController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "MyCourseController"
+            ]
+          }
+        ],
+        "BE/app/Models/Enrollment.php": [
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/CertificateController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "CertificateController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/MyCourseController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "MyCourseController"
+            ]
+          },
+          {
+            "path": "BE/app/Http/Controllers/Api/Student/ReviewController.php",
+            "batchIndex": 3,
+            "symbols": [
+              "ReviewController"
+            ]
+          },
+          {
+            "path": "BE/app/Services/ProgressService.php",
+            "batchIndex": 7,
+            "symbols": [
+              "ProgressService"
+            ]
+          },
+          {
+            "path": "BE/app/Services/QuizGradingService.php",
+            "batchIndex": 7,
+            "symbols": [
+              "QuizGradingService"
+            ]
+          },
+          {
+            "path": "BE/app/Support/InteractsWithEnrollment.php",
+            "batchIndex": 4,
+            "symbols": []
+          },
+          {
+            "path": "BE/database/seeders/GeneratedDemoCatalogSeeder.php",
+            "batchIndex": 7,
+            "symbols": [
+              "GeneratedDemoCatalogSeeder"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/Api/StudentLearningFlowTest.php",
+            "batchIndex": 7,
+            "symbols": [
+              "StudentLearningFlowTest"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/Console/ReplaceDemoCatalogCommandTest.php",
+            "batchIndex": 4,
+            "symbols": [
+              "ReplaceDemoCatalogCommandTest"
+            ]
+          },
+          {
+            "path": "BE/tests/Feature/LearningTest.php",
+            "batchIndex": 4,
+            "symbols": []
+          }
+        ],
+        "BE/app/Models/Order.php": [
+          {
+            "path": "BE/database/seeders/GeneratedDemoCatalogSeeder.php",
+            "batchIndex": 7,
+            "symbols": [
+              "GeneratedDemoCatalogSeeder"
+            ]
+          }
+        ],
+        "BE/tests/Feature/PurchaseTest.php": [
+          {
+            "path": "BE/app/Models/Course.php",
+            "batchIndex": 4,
+            "symbols": [
+              "Course"
+            ]
+          },
+          {
+            "path": "BE/app/Models/User.php",
+            "batchIndex": 4,
+            "symbols": [
+              "User"
+            ]
+          }
+        ],
+        "BE/tests/Feature/QuizTest.php": [
+          {
+            "path": "BE/app/Models/User.php",
+            "batchIndex": 4,
+            "symbols": [
+              "User"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 9,
+      "files": [
+        {
+          "path": "FE/DEMO/src/app/data/mockData.ts",
+          "language": "typescript",
+          "sizeLines": 391,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/AdminDashboard.tsx",
+          "language": "typescript",
+          "sizeLines": 274,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/Combos.tsx",
+          "language": "typescript",
+          "sizeLines": 188,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/CourseDetail.tsx",
+          "language": "typescript",
+          "sizeLines": 313,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/Courses.tsx",
+          "language": "typescript",
+          "sizeLines": 274,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/InternshipDetail.tsx",
+          "language": "typescript",
+          "sizeLines": 324,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/Internships.tsx",
+          "language": "typescript",
+          "sizeLines": 226,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/Jobs.tsx",
+          "language": "typescript",
+          "sizeLines": 216,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/LearningStats.tsx",
+          "language": "typescript",
+          "sizeLines": 226,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/StudentDashboard.tsx",
+          "language": "typescript",
+          "sizeLines": 531,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/types.ts",
+          "language": "typescript",
+          "sizeLines": 116,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "FE/DEMO/src/app/data/mockData.ts": [
+          "FE/DEMO/src/app/types.ts"
+        ],
+        "FE/DEMO/src/app/pages/AdminDashboard.tsx": [
+          "FE/DEMO/src/app/data/mockData.ts"
+        ],
+        "FE/DEMO/src/app/pages/Combos.tsx": [
+          "FE/DEMO/src/app/data/mockData.ts"
+        ],
+        "FE/DEMO/src/app/pages/CourseDetail.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/data/mockData.ts"
+        ],
+        "FE/DEMO/src/app/pages/Courses.tsx": [
+          "FE/DEMO/src/app/data/mockData.ts"
+        ],
+        "FE/DEMO/src/app/pages/InternshipDetail.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/data/mockData.ts"
+        ],
+        "FE/DEMO/src/app/pages/Internships.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/data/mockData.ts"
+        ],
+        "FE/DEMO/src/app/pages/Jobs.tsx": [
+          "FE/DEMO/src/app/data/mockData.ts"
+        ],
+        "FE/DEMO/src/app/pages/LearningStats.tsx": [
+          "FE/DEMO/src/app/data/mockData.ts"
+        ],
+        "FE/DEMO/src/app/pages/StudentDashboard.tsx": [
+          "FE/DEMO/src/app/contexts/AuthContext.tsx",
+          "FE/DEMO/src/app/data/mockData.ts"
+        ],
+        "FE/DEMO/src/app/types.ts": []
+      },
+      "neighborMap": {
+        "FE/DEMO/src/app/pages/CourseDetail.tsx": [
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/InternshipDetail.tsx": [
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/Internships.tsx": [
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          }
+        ],
+        "FE/DEMO/src/app/pages/StudentDashboard.tsx": [
+          {
+            "path": "FE/DEMO/src/app/contexts/AuthContext.tsx",
+            "batchIndex": 5,
+            "symbols": [
+              "AuthProvider",
+              "useAuth"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 10,
+      "files": [
+        {
+          "path": "Infra/docker/nginx/Dockerfile",
+          "language": "dockerfile",
+          "sizeLines": 23,
+          "fileCategory": "infra"
+        }
+      ],
+      "batchImportData": {
+        "Infra/docker/nginx/Dockerfile": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 11,
+      "files": [
+        {
+          "path": "Infra/docker/php/Dockerfile",
+          "language": "dockerfile",
+          "sizeLines": 64,
+          "fileCategory": "infra"
+        }
+      ],
+      "batchImportData": {
+        "Infra/docker/php/Dockerfile": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 12,
+      "files": [
+        {
+          "path": "BE/.env.example",
+          "language": "config",
+          "sizeLines": 65,
+          "fileCategory": "config"
+        },
+        {
+          "path": "BE/README.md",
+          "language": "markdown",
+          "sizeLines": 58,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "BE/composer.json",
+          "language": "json",
+          "sizeLines": 90,
+          "fileCategory": "config"
+        },
+        {
+          "path": "BE/package.json",
+          "language": "json",
+          "sizeLines": 16,
+          "fileCategory": "config"
+        },
+        {
+          "path": "BE/phpunit.xml",
+          "language": "xml",
+          "sizeLines": 36,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        "BE/.env.example": [],
+        "BE/README.md": [],
+        "BE/composer.json": [],
+        "BE/package.json": [],
+        "BE/phpunit.xml": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 13,
+      "files": [
+        {
+          "path": "FE/DEMO/ATTRIBUTIONS.md",
+          "language": "markdown",
+          "sizeLines": 3,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "FE/DEMO/README.md",
+          "language": "markdown",
+          "sizeLines": 10,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "FE/DEMO/default_shadcn_theme.css",
+          "language": "css",
+          "sizeLines": 120,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "FE/DEMO/index.html",
+          "language": "html",
+          "sizeLines": 21,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "FE/DEMO/package.json",
+          "language": "json",
+          "sizeLines": 97,
+          "fileCategory": "config"
+        },
+        {
+          "path": "FE/DEMO/pnpm-workspace.yaml",
+          "language": "yaml",
+          "sizeLines": 1,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        "FE/DEMO/ATTRIBUTIONS.md": [],
+        "FE/DEMO/README.md": [],
+        "FE/DEMO/default_shadcn_theme.css": [],
+        "FE/DEMO/index.html": [],
+        "FE/DEMO/package.json": [],
+        "FE/DEMO/pnpm-workspace.yaml": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 14,
+      "files": [
+        {
+          "path": "FE/DEMO/src/styles/fonts.css",
+          "language": "css",
+          "sizeLines": 0,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "FE/DEMO/src/styles/index.css",
+          "language": "css",
+          "sizeLines": 3,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "FE/DEMO/src/styles/tailwind.css",
+          "language": "css",
+          "sizeLines": 4,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "FE/DEMO/src/styles/theme.css",
+          "language": "css",
+          "sizeLines": 184,
+          "fileCategory": "markup"
+        }
+      ],
+      "batchImportData": {
+        "FE/DEMO/src/styles/fonts.css": [],
+        "FE/DEMO/src/styles/index.css": [],
+        "FE/DEMO/src/styles/tailwind.css": [],
+        "FE/DEMO/src/styles/theme.css": []
+      },
+      "neighborMap": {
+        "FE/DEMO/src/styles/index.css": [
+          {
+            "path": "FE/DEMO/src/main.tsx",
+            "batchIndex": 6,
+            "symbols": []
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 15,
+      "files": [
+        {
+          "path": "Infra/.env.example",
+          "language": "config",
+          "sizeLines": 8,
+          "fileCategory": "config"
+        },
+        {
+          "path": "Infra/README.md",
+          "language": "markdown",
+          "sizeLines": 125,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "Infra/docker-compose.yml",
+          "language": "yaml",
+          "sizeLines": 93,
+          "fileCategory": "infra"
+        },
+        {
+          "path": "Infra/run-docker.ps1",
+          "language": "powershell",
+          "sizeLines": 198,
+          "fileCategory": "script"
+        }
+      ],
+      "batchImportData": {
+        "Infra/.env.example": [],
+        "Infra/README.md": [],
+        "Infra/docker-compose.yml": [],
+        "Infra/run-docker.ps1": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 16,
+      "files": [
+        {
+          "path": "docs/superpowers/plans/2026-07-10-seongon-lms-full-stack-ui.md",
+          "language": "markdown",
+          "sizeLines": 128,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/plans/2026-07-11-seongon-lms-full-ui-integration.md",
+          "language": "markdown",
+          "sizeLines": 602,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/plans/2026-07-12-production-docker.md",
+          "language": "markdown",
+          "sizeLines": 841,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/plans/2026-07-14-generated-demo-catalog-implementation.md",
+          "language": "markdown",
+          "sizeLines": 538,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/plans/2026-07-15-reference-led-system-wide-redesign.md",
+          "language": "markdown",
+          "sizeLines": 535,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/plans/2026-07-20-native-windows-runtime-and-docker-wsl-removal.md",
+          "language": "markdown",
+          "sizeLines": 497,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        "docs/superpowers/plans/2026-07-10-seongon-lms-full-stack-ui.md": [],
+        "docs/superpowers/plans/2026-07-11-seongon-lms-full-ui-integration.md": [],
+        "docs/superpowers/plans/2026-07-12-production-docker.md": [],
+        "docs/superpowers/plans/2026-07-14-generated-demo-catalog-implementation.md": [],
+        "docs/superpowers/plans/2026-07-15-reference-led-system-wide-redesign.md": [],
+        "docs/superpowers/plans/2026-07-20-native-windows-runtime-and-docker-wsl-removal.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 17,
+      "files": [
+        {
+          "path": "docs/superpowers/specs/2026-07-10-seongon-lms-backend-design.md",
+          "language": "markdown",
+          "sizeLines": 454,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/specs/2026-07-11-seongon-lms-full-ui-integration-design.md",
+          "language": "markdown",
+          "sizeLines": 147,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/specs/2026-07-12-production-docker-design.md",
+          "language": "markdown",
+          "sizeLines": 213,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/specs/2026-07-14-demo-catalog-data-design.md",
+          "language": "markdown",
+          "sizeLines": 87,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/specs/2026-07-15-reference-led-system-wide-redesign-design.md",
+          "language": "markdown",
+          "sizeLines": 66,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/specs/2026-07-20-native-windows-runtime-and-docker-wsl-removal-design.md",
+          "language": "markdown",
+          "sizeLines": 185,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        "docs/superpowers/specs/2026-07-10-seongon-lms-backend-design.md": [],
+        "docs/superpowers/specs/2026-07-11-seongon-lms-full-ui-integration-design.md": [],
+        "docs/superpowers/specs/2026-07-12-production-docker-design.md": [],
+        "docs/superpowers/specs/2026-07-14-demo-catalog-data-design.md": [],
+        "docs/superpowers/specs/2026-07-15-reference-led-system-wide-redesign-design.md": [],
+        "docs/superpowers/specs/2026-07-20-native-windows-runtime-and-docker-wsl-removal-design.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 18,
+      "files": [
+        {
+          "path": ".dockerignore",
+          "language": "unknown",
+          "sizeLines": 22,
+          "fileCategory": "infra"
+        },
+        {
+          "path": ".gitattributes",
+          "language": "unknown",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".ua/.understandignore",
+          "language": "unknown",
+          "sizeLines": 100,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".ua/config.json",
+          "language": "json",
+          "sizeLines": 4,
+          "fileCategory": "config"
+        },
+        {
+          "path": "BE/.gitattributes",
+          "language": "unknown",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/.npmrc",
+          "language": "unknown",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Http/Middleware/EnsureRole.php",
+          "language": "php",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Models/QuizAttemptAnswer.php",
+          "language": "php",
+          "sizeLines": 36,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/app/Services/Payment/PaymentResult.php",
+          "language": "php",
+          "sizeLines": 12,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/artisan",
+          "language": "unknown",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/bootstrap/app.php",
+          "language": "php",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/app.php",
+          "language": "php",
+          "sizeLines": 126,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/cache.php",
+          "language": "php",
+          "sizeLines": 136,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/cors.php",
+          "language": "php",
+          "sizeLines": 12,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/database.php",
+          "language": "php",
+          "sizeLines": 184,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/filesystems.php",
+          "language": "php",
+          "sizeLines": 80,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/logging.php",
+          "language": "php",
+          "sizeLines": 132,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/mail.php",
+          "language": "php",
+          "sizeLines": 118,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/queue.php",
+          "language": "php",
+          "sizeLines": 129,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/sanctum.php",
+          "language": "php",
+          "sizeLines": 87,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/services.php",
+          "language": "php",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/config/session.php",
+          "language": "php",
+          "sizeLines": 233,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/factories/CategoryFactory.php",
+          "language": "php",
+          "sizeLines": 20,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/0001_01_01_000000_create_users_table.php",
+          "language": "php",
+          "sizeLines": 53,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/0001_01_01_000001_create_cache_table.php",
+          "language": "php",
+          "sizeLines": 35,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".dockerignore": [],
+        ".gitattributes": [],
+        ".ua/.understandignore": [],
+        ".ua/config.json": [],
+        "BE/.gitattributes": [],
+        "BE/.npmrc": [],
+        "BE/app/Http/Middleware/EnsureRole.php": [],
+        "BE/app/Models/QuizAttemptAnswer.php": [],
+        "BE/app/Services/Payment/PaymentResult.php": [],
+        "BE/artisan": [],
+        "BE/bootstrap/app.php": [],
+        "BE/config/app.php": [],
+        "BE/config/cache.php": [],
+        "BE/config/cors.php": [],
+        "BE/config/database.php": [],
+        "BE/config/filesystems.php": [],
+        "BE/config/logging.php": [],
+        "BE/config/mail.php": [],
+        "BE/config/queue.php": [],
+        "BE/config/sanctum.php": [],
+        "BE/config/services.php": [],
+        "BE/config/session.php": [],
+        "BE/database/factories/CategoryFactory.php": [],
+        "BE/database/migrations/0001_01_01_000000_create_users_table.php": [],
+        "BE/database/migrations/0001_01_01_000001_create_cache_table.php": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 19,
+      "files": [
+        {
+          "path": "BE/database/migrations/0001_01_01_000002_create_jobs_table.php",
+          "language": "php",
+          "sizeLines": 59,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_163036_create_personal_access_tokens_table.php",
+          "language": "php",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170001_create_categories_table.php",
+          "language": "php",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170002_create_courses_table.php",
+          "language": "php",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170003_create_lessons_table.php",
+          "language": "php",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170004_create_orders_table.php",
+          "language": "php",
+          "sizeLines": 29,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170005_create_enrollments_table.php",
+          "language": "php",
+          "sizeLines": 29,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170006_create_lesson_progress_table.php",
+          "language": "php",
+          "sizeLines": 26,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170007_create_quizzes_table.php",
+          "language": "php",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170008_create_questions_table.php",
+          "language": "php",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170009_create_question_options_table.php",
+          "language": "php",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170010_create_quiz_attempts_table.php",
+          "language": "php",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170011_create_quiz_attempt_answers_table.php",
+          "language": "php",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170012_create_reviews_table.php",
+          "language": "php",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/database/migrations/2026_07_10_170013_create_certificates_table.php",
+          "language": "php",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/public/.htaccess",
+          "language": "unknown",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/public/index.php",
+          "language": "php",
+          "sizeLines": 20,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/public/robots.txt",
+          "language": "txt",
+          "sizeLines": 2,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "BE/resources/css/app.css",
+          "language": "css",
+          "sizeLines": 9,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "BE/resources/js/app.js",
+          "language": "javascript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/resources/views/certificates/default.blade.php",
+          "language": "php",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/resources/views/welcome.blade.php",
+          "language": "php",
+          "sizeLines": 223,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/routes/console.php",
+          "language": "php",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/routes/web.php",
+          "language": "php",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Feature/CorsTest.php",
+          "language": "php",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "BE/database/migrations/0001_01_01_000002_create_jobs_table.php": [],
+        "BE/database/migrations/2026_07_10_163036_create_personal_access_tokens_table.php": [],
+        "BE/database/migrations/2026_07_10_170001_create_categories_table.php": [],
+        "BE/database/migrations/2026_07_10_170002_create_courses_table.php": [],
+        "BE/database/migrations/2026_07_10_170003_create_lessons_table.php": [],
+        "BE/database/migrations/2026_07_10_170004_create_orders_table.php": [],
+        "BE/database/migrations/2026_07_10_170005_create_enrollments_table.php": [],
+        "BE/database/migrations/2026_07_10_170006_create_lesson_progress_table.php": [],
+        "BE/database/migrations/2026_07_10_170007_create_quizzes_table.php": [],
+        "BE/database/migrations/2026_07_10_170008_create_questions_table.php": [],
+        "BE/database/migrations/2026_07_10_170009_create_question_options_table.php": [],
+        "BE/database/migrations/2026_07_10_170010_create_quiz_attempts_table.php": [],
+        "BE/database/migrations/2026_07_10_170011_create_quiz_attempt_answers_table.php": [],
+        "BE/database/migrations/2026_07_10_170012_create_reviews_table.php": [],
+        "BE/database/migrations/2026_07_10_170013_create_certificates_table.php": [],
+        "BE/public/.htaccess": [],
+        "BE/public/index.php": [],
+        "BE/public/robots.txt": [],
+        "BE/resources/css/app.css": [],
+        "BE/resources/js/app.js": [],
+        "BE/resources/views/certificates/default.blade.php": [],
+        "BE/resources/views/welcome.blade.php": [],
+        "BE/routes/console.php": [],
+        "BE/routes/web.php": [],
+        "BE/tests/Feature/CorsTest.php": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 20,
+      "files": [
+        {
+          "path": "BE/tests/Feature/ExampleTest.php",
+          "language": "php",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/TestCase.php",
+          "language": "php",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/tests/Unit/ExampleTest.php",
+          "language": "php",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "BE/vite.config.js",
+          "language": "javascript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/guidelines/Guidelines.md",
+          "language": "markdown",
+          "sizeLines": 0,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "FE/DEMO/postcss.config.mjs",
+          "language": "javascript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/MotivationalBanner.tsx",
+          "language": "typescript",
+          "sizeLines": 81,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/figma/ImageWithFallback.tsx",
+          "language": "typescript",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/aspect-ratio.tsx",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/collapsible.tsx",
+          "language": "typescript",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/components/ui/sonner.tsx",
+          "language": "typescript",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/app/pages/RecruiterDashboard.tsx",
+          "language": "typescript",
+          "sizeLines": 279,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/src/imports/pasted_text/online-course-app.md",
+          "language": "markdown",
+          "sizeLines": 67,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "FE/DEMO/src/test/setup.ts",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "FE/DEMO/vite.config.ts",
+          "language": "typescript",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": "Infra/docker/nginx/default.conf",
+          "language": "conf",
+          "sizeLines": 32,
+          "fileCategory": "code"
+        },
+        {
+          "path": "Infra/docker/php/entrypoint.sh",
+          "language": "shell",
+          "sizeLines": 8,
+          "fileCategory": "script"
+        },
+        {
+          "path": "Infra/docker/php/opcache.ini",
+          "language": "config",
+          "sizeLines": 9,
+          "fileCategory": "config"
+        },
+        {
+          "path": "Infra/tests/verify-production-compose.ps1",
+          "language": "powershell",
+          "sizeLines": 76,
+          "fileCategory": "script"
+        },
+        {
+          "path": "Infra/tests/verify-run-docker-bootstrap.ps1",
+          "language": "powershell",
+          "sizeLines": 33,
+          "fileCategory": "script"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 146,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "SPEC/Draft.md",
+          "language": "markdown",
+          "sizeLines": 591,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "SPEC/draft (1).docx",
+          "language": "docx",
+          "sizeLines": 16364,
+          "fileCategory": "code"
+        },
+        {
+          "path": "SPEC/seongon_learning_prototype_v3.html",
+          "language": "html",
+          "sizeLines": 3269,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "data/state_store.db/mem%3Ahealth.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "BE/tests/Feature/ExampleTest.php": [],
+        "BE/tests/TestCase.php": [],
+        "BE/tests/Unit/ExampleTest.php": [],
+        "BE/vite.config.js": [],
+        "FE/DEMO/guidelines/Guidelines.md": [],
+        "FE/DEMO/postcss.config.mjs": [],
+        "FE/DEMO/src/app/components/MotivationalBanner.tsx": [],
+        "FE/DEMO/src/app/components/figma/ImageWithFallback.tsx": [],
+        "FE/DEMO/src/app/components/ui/aspect-ratio.tsx": [],
+        "FE/DEMO/src/app/components/ui/collapsible.tsx": [],
+        "FE/DEMO/src/app/components/ui/sonner.tsx": [],
+        "FE/DEMO/src/app/pages/RecruiterDashboard.tsx": [],
+        "FE/DEMO/src/imports/pasted_text/online-course-app.md": [],
+        "FE/DEMO/src/test/setup.ts": [],
+        "FE/DEMO/vite.config.ts": [],
+        "Infra/docker/nginx/default.conf": [],
+        "Infra/docker/php/entrypoint.sh": [],
+        "Infra/docker/php/opcache.ini": [],
+        "Infra/tests/verify-production-compose.ps1": [],
+        "Infra/tests/verify-run-docker-bootstrap.ps1": [],
+        "README.md": [],
+        "SPEC/Draft.md": [],
+        "SPEC/draft (1).docx": [],
+        "SPEC/seongon_learning_prototype_v3.html": [],
+        "data/state_store.db/mem%3Ahealth.bin": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 21,
+      "files": [
+        {
+          "path": "data/state_store.db/mem%3Ametrics.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/state_store.db/mem%3Aobs%3A019f4ce4-4158-7cc1-8109-6cc14059a652.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/state_store.db/mem%3Aobs%3A019f4ce9-2781-7f81-a569-b870327000e9.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/state_store.db/mem%3Aobs%3A019f55d4-428d-7ca3-947c-00c50a03e4a0.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/state_store.db/mem%3Aobs%3A019f55d7-f973-7901-aadf-9cedc6ef94ff.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/state_store.db/mem%3Aobs%3A019f5be0-64ac-7720-8abf-255750ca60ff.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/state_store.db/mem%3Aobs%3A019f64a6-682f-7462-b578-fe11153e9b9f.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/state_store.db/mem%3Aobs%3A019f7fd4-c6da-7652-aab9-15d05b73de68.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/state_store.db/mem%3Aobs%3A76f875a5-c4b6-4a0d-8f18-686dd0dfdc46.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/state_store.db/mem%3Aobs%3Af6391857-cae2-462f-9b72-4aef8b29d817.bin",
+          "language": "bin",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/state_store.db/mem%3Asessions.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/stream_store/stream%3Amem-live%3A019f4ce4-4158-7cc1-8109-6cc14059a652.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/stream_store/stream%3Amem-live%3A019f4ce9-2781-7f81-a569-b870327000e9.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/stream_store/stream%3Amem-live%3A019f55d4-428d-7ca3-947c-00c50a03e4a0.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/stream_store/stream%3Amem-live%3A019f55d7-f973-7901-aadf-9cedc6ef94ff.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/stream_store/stream%3Amem-live%3A019f5be0-64ac-7720-8abf-255750ca60ff.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/stream_store/stream%3Amem-live%3A019f64a6-682f-7462-b578-fe11153e9b9f.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/stream_store/stream%3Amem-live%3A019f7fd4-c6da-7652-aab9-15d05b73de68.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/stream_store/stream%3Amem-live%3A76f875a5-c4b6-4a0d-8f18-686dd0dfdc46.bin",
+          "language": "bin",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "data/stream_store/stream%3Amem-live%3Af6391857-cae2-462f-9b72-4aef8b29d817.bin",
+          "language": "bin",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "docs/handoff/2026-07-11-full-ui-integration-handoff.md",
+          "language": "markdown",
+          "sizeLines": 156,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/superpowers/specs/.gitkeep",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "data/state_store.db/mem%3Ametrics.bin": [],
+        "data/state_store.db/mem%3Aobs%3A019f4ce4-4158-7cc1-8109-6cc14059a652.bin": [],
+        "data/state_store.db/mem%3Aobs%3A019f4ce9-2781-7f81-a569-b870327000e9.bin": [],
+        "data/state_store.db/mem%3Aobs%3A019f55d4-428d-7ca3-947c-00c50a03e4a0.bin": [],
+        "data/state_store.db/mem%3Aobs%3A019f55d7-f973-7901-aadf-9cedc6ef94ff.bin": [],
+        "data/state_store.db/mem%3Aobs%3A019f5be0-64ac-7720-8abf-255750ca60ff.bin": [],
+        "data/state_store.db/mem%3Aobs%3A019f64a6-682f-7462-b578-fe11153e9b9f.bin": [],
+        "data/state_store.db/mem%3Aobs%3A019f7fd4-c6da-7652-aab9-15d05b73de68.bin": [],
+        "data/state_store.db/mem%3Aobs%3A76f875a5-c4b6-4a0d-8f18-686dd0dfdc46.bin": [],
+        "data/state_store.db/mem%3Aobs%3Af6391857-cae2-462f-9b72-4aef8b29d817.bin": [],
+        "data/state_store.db/mem%3Asessions.bin": [],
+        "data/stream_store/stream%3Amem-live%3A019f4ce4-4158-7cc1-8109-6cc14059a652.bin": [],
+        "data/stream_store/stream%3Amem-live%3A019f4ce9-2781-7f81-a569-b870327000e9.bin": [],
+        "data/stream_store/stream%3Amem-live%3A019f55d4-428d-7ca3-947c-00c50a03e4a0.bin": [],
+        "data/stream_store/stream%3Amem-live%3A019f55d7-f973-7901-aadf-9cedc6ef94ff.bin": [],
+        "data/stream_store/stream%3Amem-live%3A019f5be0-64ac-7720-8abf-255750ca60ff.bin": [],
+        "data/stream_store/stream%3Amem-live%3A019f64a6-682f-7462-b578-fe11153e9b9f.bin": [],
+        "data/stream_store/stream%3Amem-live%3A019f7fd4-c6da-7652-aab9-15d05b73de68.bin": [],
+        "data/stream_store/stream%3Amem-live%3A76f875a5-c4b6-4a0d-8f18-686dd0dfdc46.bin": [],
+        "data/stream_store/stream%3Amem-live%3Af6391857-cae2-462f-9b72-4aef8b29d817.bin": [],
+        "docs/handoff/2026-07-11-full-ui-integration-handoff.md": [],
+        "docs/superpowers/specs/.gitkeep": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

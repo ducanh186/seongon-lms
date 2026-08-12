@@ -1,0 +1,240 @@
+{
+  "projectRoot": "D:\\CODE\\seongon-lms",
+  "batchFiles": [
+    {
+      "path": "FE/DEMO/src/app/pages/AuthPage.test.tsx",
+      "language": "typescript",
+      "sizeLines": 32,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/AuthPage.tsx",
+      "language": "typescript",
+      "sizeLines": 69,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/CatalogPage.test.tsx",
+      "language": "typescript",
+      "sizeLines": 136,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "language": "typescript",
+      "sizeLines": 186,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/CheckoutPage.test.tsx",
+      "language": "typescript",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "language": "typescript",
+      "sizeLines": 96,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/CoursePage.test.tsx",
+      "language": "typescript",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/CoursePage.tsx",
+      "language": "typescript",
+      "sizeLines": 115,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/Home.test.tsx",
+      "language": "typescript",
+      "sizeLines": 54,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/Home.tsx",
+      "language": "typescript",
+      "sizeLines": 152,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/LearnCoursePage.test.tsx",
+      "language": "typescript",
+      "sizeLines": 148,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "language": "typescript",
+      "sizeLines": 352,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/Login.tsx",
+      "language": "typescript",
+      "sizeLines": 154,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/MyCoursesPage.test.tsx",
+      "language": "typescript",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "language": "typescript",
+      "sizeLines": 209,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/ProfilePage.test.tsx",
+      "language": "typescript",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "language": "typescript",
+      "sizeLines": 185,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/pages/UserProfile.tsx",
+      "language": "typescript",
+      "sizeLines": 212,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/routes.tsx",
+      "language": "typescript",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/app/theme.ts",
+      "language": "typescript",
+      "sizeLines": 81,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FE/DEMO/src/main.tsx",
+      "language": "typescript",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "FE/DEMO/src/app/pages/AuthPage.test.tsx": [
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/pages/AuthPage.tsx"
+    ],
+    "FE/DEMO/src/app/pages/AuthPage.tsx": [
+      "FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "FE/DEMO/src/app/lib/api.ts"
+    ],
+    "FE/DEMO/src/app/pages/CatalogPage.test.tsx": [
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/pages/CatalogPage.tsx"
+    ],
+    "FE/DEMO/src/app/pages/CatalogPage.tsx": [
+      "FE/DEMO/src/app/components/AsyncState.tsx",
+      "FE/DEMO/src/app/components/CourseCard.tsx",
+      "FE/DEMO/src/app/components/PageHeader.tsx",
+      "FE/DEMO/src/app/components/ui/use-mobile.ts",
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/lib/contracts.ts"
+    ],
+    "FE/DEMO/src/app/pages/CheckoutPage.test.tsx": [
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/pages/CheckoutPage.tsx"
+    ],
+    "FE/DEMO/src/app/pages/CheckoutPage.tsx": [
+      "FE/DEMO/src/app/components/AsyncState.tsx",
+      "FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/lib/contracts.ts"
+    ],
+    "FE/DEMO/src/app/pages/CoursePage.test.tsx": [
+      "FE/DEMO/src/app/pages/CoursePage.tsx"
+    ],
+    "FE/DEMO/src/app/pages/CoursePage.tsx": [
+      "FE/DEMO/src/app/components/AsyncState.tsx",
+      "FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/lib/contracts.ts"
+    ],
+    "FE/DEMO/src/app/pages/Home.test.tsx": [
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/pages/Home.tsx"
+    ],
+    "FE/DEMO/src/app/pages/Home.tsx": [
+      "FE/DEMO/src/app/components/AsyncState.tsx",
+      "FE/DEMO/src/app/components/CourseCard.tsx",
+      "FE/DEMO/src/app/components/HeroBanner.tsx",
+      "FE/DEMO/src/app/components/MetricsStrip.tsx",
+      "FE/DEMO/src/app/components/SectionHeading.tsx",
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/lib/contracts.ts",
+      "FE/DEMO/src/app/theme.ts"
+    ],
+    "FE/DEMO/src/app/pages/LearnCoursePage.test.tsx": [
+      "FE/DEMO/src/app/pages/LearnCoursePage.tsx"
+    ],
+    "FE/DEMO/src/app/pages/LearnCoursePage.tsx": [
+      "FE/DEMO/src/app/components/AsyncState.tsx",
+      "FE/DEMO/src/app/components/PageHeader.tsx",
+      "FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+      "FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/lib/contracts.ts"
+    ],
+    "FE/DEMO/src/app/pages/Login.tsx": [
+      "FE/DEMO/src/app/contexts/AuthContext.tsx"
+    ],
+    "FE/DEMO/src/app/pages/MyCoursesPage.test.tsx": [
+      "FE/DEMO/src/app/pages/MyCoursesPage.tsx"
+    ],
+    "FE/DEMO/src/app/pages/MyCoursesPage.tsx": [
+      "FE/DEMO/src/app/components/AsyncState.tsx",
+      "FE/DEMO/src/app/components/PageHeader.tsx",
+      "FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/lib/contracts.ts"
+    ],
+    "FE/DEMO/src/app/pages/ProfilePage.test.tsx": [
+      "FE/DEMO/src/app/lib/api.ts",
+      "FE/DEMO/src/app/pages/ProfilePage.tsx"
+    ],
+    "FE/DEMO/src/app/pages/ProfilePage.tsx": [
+      "FE/DEMO/src/app/components/PageHeader.tsx",
+      "FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "FE/DEMO/src/app/lib/api.ts"
+    ],
+    "FE/DEMO/src/app/pages/UserProfile.tsx": [
+      "FE/DEMO/src/app/contexts/AuthContext.tsx"
+    ],
+    "FE/DEMO/src/app/routes.tsx": [
+      "FE/DEMO/src/app/components/Layout.tsx",
+      "FE/DEMO/src/app/components/RequireAuth.tsx",
+      "FE/DEMO/src/app/pages/AdminPage.tsx",
+      "FE/DEMO/src/app/pages/AuthPage.tsx",
+      "FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "FE/DEMO/src/app/pages/CoursePage.tsx",
+      "FE/DEMO/src/app/pages/Home.tsx",
+      "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "FE/DEMO/src/app/pages/ProfilePage.tsx"
+    ],
+    "FE/DEMO/src/app/theme.ts": [],
+    "FE/DEMO/src/main.tsx": [
+      "FE/DEMO/src/app/App.tsx",
+      "FE/DEMO/src/styles/index.css"
+    ]
+  }
+}

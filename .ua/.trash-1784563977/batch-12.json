@@ -1,0 +1,52 @@
+{
+  "nodes": [
+    {
+      "id": "config:BE/.env.example",
+      "type": "config",
+      "name": ".env.example",
+      "filePath": "BE/.env.example",
+      "summary": "Mẫu Laravel environment configuration cho application, logging, database, cache, queue, mail, Redis, AWS và Vite.",
+      "tags": ["configuration", "environment", "laravel", "runtime"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:BE/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "BE/README.md",
+      "summary": "README mặc định của Laravel giới thiệu framework, tài liệu học tập, Agentic Development, đóng góp, security và giấy phép MIT.",
+      "tags": ["documentation", "laravel", "getting-started", "framework"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:BE/composer.json",
+      "type": "config",
+      "name": "composer.json",
+      "filePath": "BE/composer.json",
+      "summary": "Composer manifest của Laravel backend: khai báo PHP packages, PSR-4 autoloading, development tooling và setup/dev/test scripts.",
+      "tags": ["configuration", "composer", "php", "build-system"],
+      "complexity": "moderate",
+      "languageNotes": "PSR-4 autoload mapping tách App, Database factories/seeders và Tests namespaces."
+    },
+    {
+      "id": "config:BE/package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "BE/package.json",
+      "summary": "NPM manifest của backend dùng Vite, Tailwind CSS và Laravel Vite plugin cho frontend assets, với scripts build và dev.",
+      "tags": ["configuration", "npm", "vite", "frontend-assets"],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:BE/phpunit.xml",
+      "type": "config",
+      "name": "phpunit.xml",
+      "filePath": "BE/phpunit.xml",
+      "summary": "PHPUnit configuration cho Unit và Feature test suites, bootstrap Composer autoload và Laravel testing environment dùng SQLite in-memory.",
+      "tags": ["configuration", "phpunit", "testing", "laravel"],
+      "complexity": "simple",
+      "languageNotes": "Testing environment thay queue, cache, mail và session bằng in-memory hoặc synchronous drivers."
+    }
+  ],
+  "edges": []
+}

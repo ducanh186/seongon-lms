@@ -1,0 +1,12 @@
+{
+  "projectRoot": "D:/CODE/seongon-lms",
+  "batchFiles": [
+    {"path":"FE/DEMO/ATTRIBUTIONS.md","language":"markdown","sizeLines":3,"fileCategory":"docs"},
+    {"path":"FE/DEMO/README.md","language":"markdown","sizeLines":10,"fileCategory":"docs"},
+    {"path":"FE/DEMO/default_shadcn_theme.css","language":"css","sizeLines":120,"fileCategory":"markup"},
+    {"path":"FE/DEMO/index.html","language":"html","sizeLines":21,"fileCategory":"markup"},
+    {"path":"FE/DEMO/package.json","language":"json","sizeLines":97,"fileCategory":"config"},
+    {"path":"FE/DEMO/pnpm-workspace.yaml","language":"yaml","sizeLines":1,"fileCategory":"config"}
+  ],
+  "batchImportData": {"FE/DEMO/ATTRIBUTIONS.md":[],"FE/DEMO/README.md":[],"FE/DEMO/default_shadcn_theme.css":[],"FE/DEMO/index.html":[],"FE/DEMO/package.json":[],"FE/DEMO/pnpm-workspace.yaml":[]}
+}

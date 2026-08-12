@@ -1,0 +1,229 @@
+{
+  "projectRoot": "D:/CODE/seongon-lms",
+  "batchFiles": [
+    {
+      "path": "BE/app/Models/Category.php",
+      "language": "php",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/app/Models/Course.php",
+      "language": "php",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/app/Models/Review.php",
+      "language": "php",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/app/Models/User.php",
+      "language": "php",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/app/Support/InteractsWithEnrollment.php",
+      "language": "php",
+      "sizeLines": 32,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/config/auth.php",
+      "language": "php",
+      "sizeLines": 117,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/database/factories/CourseFactory.php",
+      "language": "php",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/database/factories/EnrollmentFactory.php",
+      "language": "php",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/database/factories/LessonFactory.php",
+      "language": "php",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/database/factories/OrderFactory.php",
+      "language": "php",
+      "sizeLines": 34,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/database/factories/QuizFactory.php",
+      "language": "php",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/database/factories/ReviewFactory.php",
+      "language": "php",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/database/factories/UserFactory.php",
+      "language": "php",
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/database/seeders/DatabaseSeeder.php",
+      "language": "php",
+      "sizeLines": 34,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/routes/api.php",
+      "language": "php",
+      "sizeLines": 89,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/tests/Feature/AdminTest.php",
+      "language": "php",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/tests/Feature/Api/AuthAndCatalogTest.php",
+      "language": "php",
+      "sizeLines": 93,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/tests/Feature/AuthTest.php",
+      "language": "php",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/tests/Feature/CatalogTest.php",
+      "language": "php",
+      "sizeLines": 42,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/tests/Feature/Console/ReplaceDemoCatalogCommandTest.php",
+      "language": "php",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/tests/Feature/Console/SeedDemoOnceCommandTest.php",
+      "language": "php",
+      "sizeLines": 36,
+      "fileCategory": "code"
+    },
+    {
+      "path": "BE/tests/Feature/LearningTest.php",
+      "language": "php",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "BE/app/Models/Category.php": [],
+    "BE/app/Models/Course.php": [],
+    "BE/app/Models/Review.php": [],
+    "BE/app/Models/User.php": [
+      "BE/database/factories/UserFactory.php"
+    ],
+    "BE/app/Support/InteractsWithEnrollment.php": [
+      "BE/app/Models/Course.php",
+      "BE/app/Models/Enrollment.php",
+      "BE/app/Models/User.php"
+    ],
+    "BE/config/auth.php": [
+      "BE/app/Models/User.php"
+    ],
+    "BE/database/factories/CourseFactory.php": [
+      "BE/app/Models/Category.php"
+    ],
+    "BE/database/factories/EnrollmentFactory.php": [
+      "BE/app/Models/Course.php",
+      "BE/app/Models/User.php"
+    ],
+    "BE/database/factories/LessonFactory.php": [
+      "BE/app/Models/Course.php"
+    ],
+    "BE/database/factories/OrderFactory.php": [
+      "BE/app/Models/Course.php",
+      "BE/app/Models/User.php"
+    ],
+    "BE/database/factories/QuizFactory.php": [
+      "BE/app/Models/Course.php"
+    ],
+    "BE/database/factories/ReviewFactory.php": [
+      "BE/app/Models/Course.php",
+      "BE/app/Models/User.php"
+    ],
+    "BE/database/factories/UserFactory.php": [
+      "BE/app/Models/User.php"
+    ],
+    "BE/database/seeders/DatabaseSeeder.php": [
+      "BE/app/Models/User.php"
+    ],
+    "BE/routes/api.php": [
+      "BE/app/Http/Controllers/Api/Admin/CategoryController.php",
+      "BE/app/Http/Controllers/Api/Admin/CourseController.php",
+      "BE/app/Http/Controllers/Api/Admin/DashboardController.php",
+      "BE/app/Http/Controllers/Api/Admin/LessonController.php",
+      "BE/app/Http/Controllers/Api/Admin/QuestionController.php",
+      "BE/app/Http/Controllers/Api/Admin/QuizController.php",
+      "BE/app/Http/Controllers/Api/Admin/ReviewController.php",
+      "BE/app/Http/Controllers/Api/Admin/UserController.php",
+      "BE/app/Http/Controllers/Api/AuthController.php",
+      "BE/app/Http/Controllers/Api/CategoryController.php",
+      "BE/app/Http/Controllers/Api/CourseController.php",
+      "BE/app/Http/Controllers/Api/Student/CertificateController.php",
+      "BE/app/Http/Controllers/Api/Student/LessonController.php",
+      "BE/app/Http/Controllers/Api/Student/MyCourseController.php",
+      "BE/app/Http/Controllers/Api/Student/OrderController.php",
+      "BE/app/Http/Controllers/Api/Student/QuizController.php",
+      "BE/app/Http/Controllers/Api/Student/ReviewController.php"
+    ],
+    "BE/tests/Feature/AdminTest.php": [
+      "BE/app/Models/Course.php",
+      "BE/app/Models/User.php"
+    ],
+    "BE/tests/Feature/Api/AuthAndCatalogTest.php": [
+      "BE/app/Models/Category.php",
+      "BE/app/Models/Course.php",
+      "BE/app/Models/User.php"
+    ],
+    "BE/tests/Feature/AuthTest.php": [
+      "BE/app/Models/User.php"
+    ],
+    "BE/tests/Feature/CatalogTest.php": [
+      "BE/app/Models/Category.php",
+      "BE/app/Models/Course.php",
+      "BE/app/Models/Review.php"
+    ],
+    "BE/tests/Feature/Console/ReplaceDemoCatalogCommandTest.php": [
+      "BE/app/Models/Category.php",
+      "BE/app/Models/Course.php",
+      "BE/app/Models/Enrollment.php",
+      "BE/app/Models/User.php"
+    ],
+    "BE/tests/Feature/Console/SeedDemoOnceCommandTest.php": [
+      "BE/app/Models/User.php"
+    ],
+    "BE/tests/Feature/LearningTest.php": [
+      "BE/app/Models/Enrollment.php",
+      "BE/app/Models/User.php"
+    ]
+  }
+}

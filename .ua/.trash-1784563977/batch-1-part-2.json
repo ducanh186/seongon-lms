@@ -1,0 +1,1108 @@
+{
+  "nodes": [
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "type": "file",
+      "name": "breadcrumb.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:Breadcrumb",
+      "type": "function",
+      "name": "Breadcrumb",
+      "filePath": "FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        7,
+        9
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbList",
+      "type": "function",
+      "name": "BreadcrumbList",
+      "filePath": "FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        11,
+        22
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbItem",
+      "type": "function",
+      "name": "BreadcrumbItem",
+      "filePath": "FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        24,
+        32
+      ],
+      "summary": "Render item component có styling và behavior phù hợp trong UI collection tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbLink",
+      "type": "function",
+      "name": "BreadcrumbLink",
+      "filePath": "FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        34,
+        50
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbPage",
+      "type": "function",
+      "name": "BreadcrumbPage",
+      "filePath": "FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        52,
+        63
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbSeparator",
+      "type": "function",
+      "name": "BreadcrumbSeparator",
+      "filePath": "FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        65,
+        81
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbEllipsis",
+      "type": "function",
+      "name": "BreadcrumbEllipsis",
+      "filePath": "FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        83,
+        99
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/button.tsx",
+      "type": "file",
+      "name": "button.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/button.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/button.tsx:Button",
+      "type": "function",
+      "name": "Button",
+      "filePath": "FE/DEMO/src/app/components/ui/button.tsx",
+      "lineRange": [
+        37,
+        56
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/calendar.tsx",
+      "type": "file",
+      "name": "calendar.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/calendar.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/calendar.tsx:Calendar",
+      "type": "function",
+      "name": "Calendar",
+      "filePath": "FE/DEMO/src/app/components/ui/calendar.tsx",
+      "lineRange": [
+        10,
+        73
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "type": "file",
+      "name": "card.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/card.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/card.tsx:Card",
+      "type": "function",
+      "name": "Card",
+      "filePath": "FE/DEMO/src/app/components/ui/card.tsx",
+      "lineRange": [
+        5,
+        16
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/card.tsx:CardHeader",
+      "type": "function",
+      "name": "CardHeader",
+      "filePath": "FE/DEMO/src/app/components/ui/card.tsx",
+      "lineRange": [
+        18,
+        29
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/card.tsx:CardTitle",
+      "type": "function",
+      "name": "CardTitle",
+      "filePath": "FE/DEMO/src/app/components/ui/card.tsx",
+      "lineRange": [
+        31,
+        39
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/card.tsx:CardDescription",
+      "type": "function",
+      "name": "CardDescription",
+      "filePath": "FE/DEMO/src/app/components/ui/card.tsx",
+      "lineRange": [
+        41,
+        49
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/card.tsx:CardAction",
+      "type": "function",
+      "name": "CardAction",
+      "filePath": "FE/DEMO/src/app/components/ui/card.tsx",
+      "lineRange": [
+        51,
+        62
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/card.tsx:CardContent",
+      "type": "function",
+      "name": "CardContent",
+      "filePath": "FE/DEMO/src/app/components/ui/card.tsx",
+      "lineRange": [
+        64,
+        72
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/card.tsx:CardFooter",
+      "type": "function",
+      "name": "CardFooter",
+      "filePath": "FE/DEMO/src/app/components/ui/card.tsx",
+      "lineRange": [
+        74,
+        82
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "type": "file",
+      "name": "carousel.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/carousel.tsx",
+      "summary": "Cung cấp bộ React components cho carousel, quản lý Embla API, navigation state và keyboard interaction.",
+      "tags": [
+        "react",
+        "carousel",
+        "state-management",
+        "accessibility"
+      ],
+      "complexity": "complex",
+      "languageNotes": "TypeScript React composition kết hợp reusable primitives và typed props."
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/carousel.tsx:Carousel",
+      "type": "function",
+      "name": "Carousel",
+      "filePath": "FE/DEMO/src/app/components/ui/carousel.tsx",
+      "lineRange": [
+        45,
+        133
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselContent",
+      "type": "function",
+      "name": "CarouselContent",
+      "filePath": "FE/DEMO/src/app/components/ui/carousel.tsx",
+      "lineRange": [
+        135,
+        154
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselItem",
+      "type": "function",
+      "name": "CarouselItem",
+      "filePath": "FE/DEMO/src/app/components/ui/carousel.tsx",
+      "lineRange": [
+        156,
+        172
+      ],
+      "summary": "Render item component có styling và behavior phù hợp trong UI collection tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselPrevious",
+      "type": "function",
+      "name": "CarouselPrevious",
+      "filePath": "FE/DEMO/src/app/components/ui/carousel.tsx",
+      "lineRange": [
+        174,
+        202
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselNext",
+      "type": "function",
+      "name": "CarouselNext",
+      "filePath": "FE/DEMO/src/app/components/ui/carousel.tsx",
+      "lineRange": [
+        204,
+        232
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "type": "file",
+      "name": "chart.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/chart.tsx",
+      "summary": "Cung cấp chart container, tooltip và legend có theme-aware styling, dùng ChartContext để chia sẻ configuration.",
+      "tags": [
+        "react",
+        "charting",
+        "data-visualization",
+        "theming"
+      ],
+      "complexity": "complex",
+      "languageNotes": "TypeScript React composition kết hợp reusable primitives và typed props."
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartContainer",
+      "type": "function",
+      "name": "ChartContainer",
+      "filePath": "FE/DEMO/src/app/components/ui/chart.tsx",
+      "lineRange": [
+        37,
+        70
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartStyle",
+      "type": "function",
+      "name": "ChartStyle",
+      "filePath": "FE/DEMO/src/app/components/ui/chart.tsx",
+      "lineRange": [
+        72,
+        103
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartTooltipContent",
+      "type": "function",
+      "name": "ChartTooltipContent",
+      "filePath": "FE/DEMO/src/app/components/ui/chart.tsx",
+      "lineRange": [
+        107,
+        249
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartLegendContent",
+      "type": "function",
+      "name": "ChartLegendContent",
+      "filePath": "FE/DEMO/src/app/components/ui/chart.tsx",
+      "lineRange": [
+        253,
+        305
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/chart.tsx:getPayloadConfigFromPayload",
+      "type": "function",
+      "name": "getPayloadConfigFromPayload",
+      "filePath": "FE/DEMO/src/app/components/ui/chart.tsx",
+      "lineRange": [
+        308,
+        344
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:Breadcrumb",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:Breadcrumb",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbList",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbList",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbLink",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbLink",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbSeparator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbSeparator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbEllipsis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbEllipsis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/breadcrumb.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbList",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbItem",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbLink",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbPage",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbSeparator",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/breadcrumb.tsx:BreadcrumbEllipsis",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/button.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/button.tsx:Button",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/button.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/button.tsx:Button",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/button.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/button.tsx:Button",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/calendar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/calendar.tsx:Calendar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/calendar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/calendar.tsx:Calendar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/calendar.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/button.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/calendar.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/calendar.tsx:Calendar",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:Card",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:Card",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardHeader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardHeader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardTitle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardDescription",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardDescription",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardAction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardAction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardFooter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/card.tsx:CardFooter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/card.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/card.tsx:Card",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/card.tsx:CardHeader",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/card.tsx:CardTitle",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/card.tsx:CardDescription",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/card.tsx:CardAction",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/card.tsx:CardContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/card.tsx:CardFooter",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/carousel.tsx:Carousel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/carousel.tsx:Carousel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselPrevious",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselPrevious",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselNext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselNext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/button.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/carousel.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/carousel.tsx:Carousel",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselItem",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselPrevious",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/carousel.tsx:CarouselNext",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartContainer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartContainer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartStyle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartStyle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartTooltipContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartTooltipContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartLegendContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartLegendContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/chart.tsx:getPayloadConfigFromPayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/chart.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartContainer",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartTooltipContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/chart.tsx:ChartLegendContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

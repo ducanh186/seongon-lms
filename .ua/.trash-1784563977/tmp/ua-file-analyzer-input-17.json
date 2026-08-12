@@ -1,0 +1,19 @@
+{
+  "projectRoot": "D:\\CODE\\seongon-lms",
+  "batchFiles": [
+    {"path":"docs/superpowers/specs/2026-07-10-seongon-lms-backend-design.md","language":"markdown","sizeLines":454,"fileCategory":"docs"},
+    {"path":"docs/superpowers/specs/2026-07-11-seongon-lms-full-ui-integration-design.md","language":"markdown","sizeLines":147,"fileCategory":"docs"},
+    {"path":"docs/superpowers/specs/2026-07-12-production-docker-design.md","language":"markdown","sizeLines":213,"fileCategory":"docs"},
+    {"path":"docs/superpowers/specs/2026-07-14-demo-catalog-data-design.md","language":"markdown","sizeLines":87,"fileCategory":"docs"},
+    {"path":"docs/superpowers/specs/2026-07-15-reference-led-system-wide-redesign-design.md","language":"markdown","sizeLines":66,"fileCategory":"docs"},
+    {"path":"docs/superpowers/specs/2026-07-20-native-windows-runtime-and-docker-wsl-removal-design.md","language":"markdown","sizeLines":185,"fileCategory":"docs"}
+  ],
+  "batchImportData": {
+    "docs/superpowers/specs/2026-07-10-seongon-lms-backend-design.md": [],
+    "docs/superpowers/specs/2026-07-11-seongon-lms-full-ui-integration-design.md": [],
+    "docs/superpowers/specs/2026-07-12-production-docker-design.md": [],
+    "docs/superpowers/specs/2026-07-14-demo-catalog-data-design.md": [],
+    "docs/superpowers/specs/2026-07-15-reference-led-system-wide-redesign-design.md": [],
+    "docs/superpowers/specs/2026-07-20-native-windows-runtime-and-docker-wsl-removal-design.md": []
+  }
+}

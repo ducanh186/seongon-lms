@@ -1,0 +1,1175 @@
+{
+  "nodes": [
+    {
+      "id": "file:FE/DEMO/src/app/pages/AuthPage.test.tsx",
+      "type": "file",
+      "name": "AuthPage.test.tsx",
+      "filePath": "FE/DEMO/src/app/pages/AuthPage.test.tsx",
+      "summary": "Kiểm thử hành vi hiển thị và tương tác của AuthPage bằng React Testing Library và Vitest.",
+      "tags": [
+        "test",
+        "react-testing",
+        "vitest",
+        "frontend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/AuthPage.tsx",
+      "type": "file",
+      "name": "AuthPage.tsx",
+      "filePath": "FE/DEMO/src/app/pages/AuthPage.tsx",
+      "summary": "Cung cấp màn hình xác thực, chuyển giữa login và register, rồi điều hướng người dùng sau khi xác thực.",
+      "tags": [
+        "page",
+        "react-component",
+        "frontend",
+        "user-interface"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/AuthPage.tsx:AuthPage",
+      "type": "function",
+      "name": "AuthPage",
+      "filePath": "FE/DEMO/src/app/pages/AuthPage.tsx",
+      "lineRange": [
+        7,
+        69
+      ],
+      "summary": "Điều khiển form login/register và điều hướng sau khi AuthContext xác thực thành công.",
+      "tags": [
+        "react-component",
+        "page-logic",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/CatalogPage.test.tsx",
+      "type": "file",
+      "name": "CatalogPage.test.tsx",
+      "filePath": "FE/DEMO/src/app/pages/CatalogPage.test.tsx",
+      "summary": "Kiểm thử hành vi hiển thị và tương tác của CatalogPage bằng React Testing Library và Vitest.",
+      "tags": [
+        "test",
+        "react-testing",
+        "vitest",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/CatalogPage.test.tsx:useViewport",
+      "type": "function",
+      "name": "useViewport",
+      "filePath": "FE/DEMO/src/app/pages/CatalogPage.test.tsx",
+      "lineRange": [
+        15,
+        27
+      ],
+      "summary": "Thiết lập viewport mock cho CatalogPage responsive test.",
+      "tags": [
+        "test-helper",
+        "responsive-testing",
+        "vitest"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "type": "file",
+      "name": "CatalogPage.tsx",
+      "filePath": "FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "summary": "Hiển thị course catalog có search, category filter, sorting, pagination và giao diện filter phù hợp mobile.",
+      "tags": [
+        "page",
+        "react-component",
+        "frontend",
+        "user-interface"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/CatalogPage.tsx:CatalogPage",
+      "type": "function",
+      "name": "CatalogPage",
+      "filePath": "FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "lineRange": [
+        31,
+        186
+      ],
+      "summary": "Tải và lọc catalog theo search parameters, category, sort và pagination.",
+      "tags": [
+        "react-component",
+        "page-logic",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/CheckoutPage.test.tsx",
+      "type": "file",
+      "name": "CheckoutPage.test.tsx",
+      "filePath": "FE/DEMO/src/app/pages/CheckoutPage.test.tsx",
+      "summary": "Kiểm thử hành vi hiển thị và tương tác của CheckoutPage bằng React Testing Library và Vitest.",
+      "tags": [
+        "test",
+        "react-testing",
+        "vitest",
+        "frontend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "type": "file",
+      "name": "CheckoutPage.tsx",
+      "filePath": "FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "summary": "Điều phối checkout cho một course, từ tải thông tin course đến tạo order và thanh toán.",
+      "tags": [
+        "page",
+        "react-component",
+        "frontend",
+        "user-interface"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/CheckoutPage.tsx:CheckoutPage",
+      "type": "function",
+      "name": "CheckoutPage",
+      "filePath": "FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "lineRange": [
+        9,
+        96
+      ],
+      "summary": "Tải course, tạo order và xử lý payment flow cho course được chọn.",
+      "tags": [
+        "react-component",
+        "page-logic",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/CoursePage.test.tsx",
+      "type": "file",
+      "name": "CoursePage.test.tsx",
+      "filePath": "FE/DEMO/src/app/pages/CoursePage.test.tsx",
+      "summary": "Kiểm thử hành vi hiển thị và tương tác của CoursePage bằng React Testing Library và Vitest.",
+      "tags": [
+        "test",
+        "react-testing",
+        "vitest",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/CoursePage.tsx",
+      "type": "file",
+      "name": "CoursePage.tsx",
+      "filePath": "FE/DEMO/src/app/pages/CoursePage.tsx",
+      "summary": "Trình bày course detail, lessons và reviews cho course theo slug.",
+      "tags": [
+        "page",
+        "react-component",
+        "frontend",
+        "user-interface"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/CoursePage.tsx:CoursePage",
+      "type": "function",
+      "name": "CoursePage",
+      "filePath": "FE/DEMO/src/app/pages/CoursePage.tsx",
+      "lineRange": [
+        24,
+        115
+      ],
+      "summary": "Tải course cùng reviews rồi hiển thị detail và enrollment action.",
+      "tags": [
+        "react-component",
+        "page-logic",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/Home.test.tsx",
+      "type": "file",
+      "name": "Home.test.tsx",
+      "filePath": "FE/DEMO/src/app/pages/Home.test.tsx",
+      "summary": "Kiểm thử hành vi hiển thị và tương tác của Home bằng React Testing Library và Vitest.",
+      "tags": [
+        "test",
+        "react-testing",
+        "vitest",
+        "frontend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "type": "file",
+      "name": "Home.tsx",
+      "filePath": "FE/DEMO/src/app/pages/Home.tsx",
+      "summary": "Xây dựng landing page với hero, metrics, categories và các course nổi bật.",
+      "tags": [
+        "page",
+        "react-component",
+        "frontend",
+        "user-interface"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/Home.tsx:Home",
+      "type": "function",
+      "name": "Home",
+      "filePath": "FE/DEMO/src/app/pages/Home.tsx",
+      "lineRange": [
+        33,
+        152
+      ],
+      "summary": "Tải featured catalog data và render các section của landing page.",
+      "tags": [
+        "react-component",
+        "page-logic",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/LearnCoursePage.test.tsx",
+      "type": "file",
+      "name": "LearnCoursePage.test.tsx",
+      "filePath": "FE/DEMO/src/app/pages/LearnCoursePage.test.tsx",
+      "summary": "Kiểm thử hành vi hiển thị và tương tác của LearnCoursePage bằng React Testing Library và Vitest.",
+      "tags": [
+        "test",
+        "react-testing",
+        "vitest",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/LearnCoursePage.test.tsx:useViewport",
+      "type": "function",
+      "name": "useViewport",
+      "filePath": "FE/DEMO/src/app/pages/LearnCoursePage.test.tsx",
+      "lineRange": [
+        28,
+        38
+      ],
+      "summary": "Thiết lập viewport mock cho CatalogPage responsive test.",
+      "tags": [
+        "test-helper",
+        "responsive-testing",
+        "vitest"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "type": "file",
+      "name": "LearnCoursePage.tsx",
+      "filePath": "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "summary": "Cung cấp workspace học course với lessons, progress, quiz, review và certificate.",
+      "tags": [
+        "page",
+        "react-component",
+        "frontend",
+        "user-interface"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/LearnCoursePage.tsx:LearnCoursePage",
+      "type": "function",
+      "name": "LearnCoursePage",
+      "filePath": "FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "lineRange": [
+        31,
+        352
+      ],
+      "summary": "Điều phối lesson progress, quiz, review và certificate trong learning workspace.",
+      "tags": [
+        "react-component",
+        "page-logic",
+        "frontend"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/Login.tsx",
+      "type": "file",
+      "name": "Login.tsx",
+      "filePath": "FE/DEMO/src/app/pages/Login.tsx",
+      "summary": "Cung cấp giao diện login đơn giản với quick-login presets và điều hướng sau khi xác thực.",
+      "tags": [
+        "page",
+        "react-component",
+        "frontend",
+        "user-interface"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/Login.tsx:Login",
+      "type": "function",
+      "name": "Login",
+      "filePath": "FE/DEMO/src/app/pages/Login.tsx",
+      "lineRange": [
+        6,
+        154
+      ],
+      "summary": "Xử lý login form và quick-login preset trước khi chuyển route.",
+      "tags": [
+        "react-component",
+        "page-logic",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/MyCoursesPage.test.tsx",
+      "type": "file",
+      "name": "MyCoursesPage.test.tsx",
+      "filePath": "FE/DEMO/src/app/pages/MyCoursesPage.test.tsx",
+      "summary": "Kiểm thử hành vi hiển thị và tương tác của MyCoursesPage bằng React Testing Library và Vitest.",
+      "tags": [
+        "test",
+        "react-testing",
+        "vitest",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "type": "file",
+      "name": "MyCoursesPage.tsx",
+      "filePath": "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "summary": "Hiển thị các enrollment của học viên với thống kê, filter tiến độ và link để tiếp tục học.",
+      "tags": [
+        "page",
+        "react-component",
+        "frontend",
+        "user-interface"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/MyCoursesPage.tsx:MyCoursesPage",
+      "type": "function",
+      "name": "MyCoursesPage",
+      "filePath": "FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "lineRange": [
+        37,
+        209
+      ],
+      "summary": "Tải enrollment list, tính summary và render filter theo tiến độ.",
+      "tags": [
+        "react-component",
+        "page-logic",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/ProfilePage.test.tsx",
+      "type": "file",
+      "name": "ProfilePage.test.tsx",
+      "filePath": "FE/DEMO/src/app/pages/ProfilePage.test.tsx",
+      "summary": "Kiểm thử hành vi hiển thị và tương tác của ProfilePage bằng React Testing Library và Vitest.",
+      "tags": [
+        "test",
+        "react-testing",
+        "vitest",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "type": "file",
+      "name": "ProfilePage.tsx",
+      "filePath": "FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "summary": "Cho phép user xem và cập nhật profile hoặc password trong cùng một trang.",
+      "tags": [
+        "page",
+        "react-component",
+        "frontend",
+        "user-interface"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/ProfilePage.tsx:ProfilePage",
+      "type": "function",
+      "name": "ProfilePage",
+      "filePath": "FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "lineRange": [
+        24,
+        185
+      ],
+      "summary": "Quản lý form cập nhật profile và password cho authenticated user.",
+      "tags": [
+        "react-component",
+        "page-logic",
+        "frontend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/pages/UserProfile.tsx",
+      "type": "file",
+      "name": "UserProfile.tsx",
+      "filePath": "FE/DEMO/src/app/pages/UserProfile.tsx",
+      "summary": "Cung cấp profile UI có chế độ chỉnh sửa cho dữ liệu cá nhân của user hiện tại.",
+      "tags": [
+        "page",
+        "react-component",
+        "frontend",
+        "user-interface"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/pages/UserProfile.tsx:UserProfile",
+      "type": "function",
+      "name": "UserProfile",
+      "filePath": "FE/DEMO/src/app/pages/UserProfile.tsx",
+      "lineRange": [
+        5,
+        212
+      ],
+      "summary": "Render và chỉnh sửa profile state cục bộ của user hiện tại.",
+      "tags": [
+        "react-component",
+        "page-logic",
+        "frontend"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/routes.tsx",
+      "type": "file",
+      "name": "routes.tsx",
+      "filePath": "FE/DEMO/src/app/routes.tsx",
+      "summary": "Khai báo browser router và các route công khai, protected route, admin route của frontend.",
+      "tags": [
+        "routing",
+        "react-router",
+        "frontend",
+        "configuration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/theme.ts",
+      "type": "file",
+      "name": "theme.ts",
+      "filePath": "FE/DEMO/src/app/theme.ts",
+      "summary": "Tập trung MUI theme, focus token và layout token dùng xuyên suốt frontend.",
+      "tags": [
+        "theme",
+        "mui",
+        "design-tokens",
+        "configuration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/main.tsx",
+      "type": "file",
+      "name": "main.tsx",
+      "filePath": "FE/DEMO/src/main.tsx",
+      "summary": "Bootstrap React application bằng cách mount App vào DOM root.",
+      "tags": [
+        "entry-point",
+        "react",
+        "frontend"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:FE/DEMO/src/app/pages/AuthPage.test.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/AuthPage.test.tsx",
+      "target": "file:FE/DEMO/src/app/pages/AuthPage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/AuthPage.tsx",
+      "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/AuthPage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/AuthPage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/AuthPage.tsx:AuthPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/AuthPage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/AuthPage.tsx:AuthPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.test.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.test.tsx",
+      "target": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.test.tsx",
+      "target": "function:FE/DEMO/src/app/pages/CatalogPage.test.tsx:useViewport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "target": "file:FE/DEMO/src/app/components/AsyncState.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "target": "file:FE/DEMO/src/app/components/CourseCard.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "target": "file:FE/DEMO/src/app/components/PageHeader.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/use-mobile.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/contracts.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/CatalogPage.tsx:CatalogPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/CatalogPage.tsx:CatalogPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CheckoutPage.test.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CheckoutPage.test.tsx",
+      "target": "file:FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "target": "file:FE/DEMO/src/app/components/AsyncState.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/contracts.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/CheckoutPage.tsx:CheckoutPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/CheckoutPage.tsx:CheckoutPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CoursePage.test.tsx",
+      "target": "file:FE/DEMO/src/app/pages/CoursePage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/components/AsyncState.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/contracts.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CoursePage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/CoursePage.tsx:CoursePage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CoursePage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/CoursePage.tsx:CoursePage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.test.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.test.tsx",
+      "target": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "file:FE/DEMO/src/app/components/AsyncState.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "file:FE/DEMO/src/app/components/CourseCard.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "file:FE/DEMO/src/app/components/HeroBanner.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "file:FE/DEMO/src/app/components/MetricsStrip.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "file:FE/DEMO/src/app/components/SectionHeading.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "file:FE/DEMO/src/app/lib/contracts.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "file:FE/DEMO/src/app/theme.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "function:FE/DEMO/src/app/pages/Home.tsx:Home",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "function:FE/DEMO/src/app/pages/Home.tsx:Home",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.test.tsx",
+      "target": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.test.tsx",
+      "target": "function:FE/DEMO/src/app/pages/LearnCoursePage.test.tsx:useViewport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/components/AsyncState.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/components/PageHeader.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/contracts.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/LearnCoursePage.tsx:LearnCoursePage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/LearnCoursePage.tsx:LearnCoursePage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Login.tsx",
+      "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Login.tsx",
+      "target": "function:FE/DEMO/src/app/pages/Login.tsx:Login",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Login.tsx",
+      "target": "function:FE/DEMO/src/app/pages/Login.tsx:Login",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/MyCoursesPage.test.tsx",
+      "target": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "target": "file:FE/DEMO/src/app/components/AsyncState.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "target": "file:FE/DEMO/src/app/components/PageHeader.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/contracts.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/MyCoursesPage.tsx:MyCoursesPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/MyCoursesPage.tsx:MyCoursesPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/ProfilePage.test.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/ProfilePage.test.tsx",
+      "target": "file:FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "target": "file:FE/DEMO/src/app/components/PageHeader.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "target": "file:FE/DEMO/src/app/lib/api.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/ProfilePage.tsx:ProfilePage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "target": "function:FE/DEMO/src/app/pages/ProfilePage.tsx:ProfilePage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/UserProfile.tsx",
+      "target": "file:FE/DEMO/src/app/contexts/AuthContext.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/UserProfile.tsx",
+      "target": "function:FE/DEMO/src/app/pages/UserProfile.tsx:UserProfile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/UserProfile.tsx",
+      "target": "function:FE/DEMO/src/app/pages/UserProfile.tsx:UserProfile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/components/Layout.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/components/RequireAuth.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/pages/AdminPage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/pages/AuthPage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/pages/CoursePage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/routes.tsx",
+      "target": "file:FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/main.tsx",
+      "target": "file:FE/DEMO/src/app/App.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/main.tsx",
+      "target": "file:FE/DEMO/src/styles/index.css",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/AuthPage.tsx",
+      "target": "file:FE/DEMO/src/app/pages/AuthPage.test.tsx",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CatalogPage.tsx",
+      "target": "file:FE/DEMO/src/app/pages/CatalogPage.test.tsx",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CheckoutPage.tsx",
+      "target": "file:FE/DEMO/src/app/pages/CheckoutPage.test.tsx",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/CoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/pages/CoursePage.test.tsx",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/Home.tsx",
+      "target": "file:FE/DEMO/src/app/pages/Home.test.tsx",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/LearnCoursePage.tsx",
+      "target": "file:FE/DEMO/src/app/pages/LearnCoursePage.test.tsx",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/MyCoursesPage.tsx",
+      "target": "file:FE/DEMO/src/app/pages/MyCoursesPage.test.tsx",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:FE/DEMO/src/app/pages/ProfilePage.tsx",
+      "target": "file:FE/DEMO/src/app/pages/ProfilePage.test.tsx",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

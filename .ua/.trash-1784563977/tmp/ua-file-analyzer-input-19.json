@@ -1,0 +1,33 @@
+{
+  "projectRoot": "D:/CODE/seongon-lms",
+  "batchFiles": [
+    {"path":"BE/database/migrations/0001_01_01_000002_create_jobs_table.php","language":"php","sizeLines":59,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_163036_create_personal_access_tokens_table.php","language":"php","sizeLines":33,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170001_create_categories_table.php","language":"php","sizeLines":24,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170002_create_courses_table.php","language":"php","sizeLines":31,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170003_create_lessons_table.php","language":"php","sizeLines":28,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170004_create_orders_table.php","language":"php","sizeLines":29,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170005_create_enrollments_table.php","language":"php","sizeLines":29,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170006_create_lesson_progress_table.php","language":"php","sizeLines":26,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170007_create_quizzes_table.php","language":"php","sizeLines":25,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170008_create_questions_table.php","language":"php","sizeLines":23,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170009_create_question_options_table.php","language":"php","sizeLines":24,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170010_create_quiz_attempts_table.php","language":"php","sizeLines":28,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170011_create_quiz_attempt_answers_table.php","language":"php","sizeLines":25,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170012_create_reviews_table.php","language":"php","sizeLines":27,"fileCategory":"code"},
+    {"path":"BE/database/migrations/2026_07_10_170013_create_certificates_table.php","language":"php","sizeLines":25,"fileCategory":"code"},
+    {"path":"BE/public/.htaccess","language":"unknown","sizeLines":25,"fileCategory":"code"},
+    {"path":"BE/public/index.php","language":"php","sizeLines":20,"fileCategory":"code"},
+    {"path":"BE/public/robots.txt","language":"txt","sizeLines":2,"fileCategory":"docs"},
+    {"path":"BE/resources/css/app.css","language":"css","sizeLines":9,"fileCategory":"markup"},
+    {"path":"BE/resources/js/app.js","language":"javascript","sizeLines":1,"fileCategory":"code"},
+    {"path":"BE/resources/views/certificates/default.blade.php","language":"php","sizeLines":38,"fileCategory":"code"},
+    {"path":"BE/resources/views/welcome.blade.php","language":"php","sizeLines":223,"fileCategory":"code"},
+    {"path":"BE/routes/console.php","language":"php","sizeLines":8,"fileCategory":"code"},
+    {"path":"BE/routes/web.php","language":"php","sizeLines":7,"fileCategory":"code"},
+    {"path":"BE/tests/Feature/CorsTest.php","language":"php","sizeLines":11,"fileCategory":"code"}
+  ],
+  "batchImportData": {
+    "BE/database/migrations/0001_01_01_000002_create_jobs_table.php":[],"BE/database/migrations/2026_07_10_163036_create_personal_access_tokens_table.php":[],"BE/database/migrations/2026_07_10_170001_create_categories_table.php":[],"BE/database/migrations/2026_07_10_170002_create_courses_table.php":[],"BE/database/migrations/2026_07_10_170003_create_lessons_table.php":[],"BE/database/migrations/2026_07_10_170004_create_orders_table.php":[],"BE/database/migrations/2026_07_10_170005_create_enrollments_table.php":[],"BE/database/migrations/2026_07_10_170006_create_lesson_progress_table.php":[],"BE/database/migrations/2026_07_10_170007_create_quizzes_table.php":[],"BE/database/migrations/2026_07_10_170008_create_questions_table.php":[],"BE/database/migrations/2026_07_10_170009_create_question_options_table.php":[],"BE/database/migrations/2026_07_10_170010_create_quiz_attempts_table.php":[],"BE/database/migrations/2026_07_10_170011_create_quiz_attempt_answers_table.php":[],"BE/database/migrations/2026_07_10_170012_create_reviews_table.php":[],"BE/database/migrations/2026_07_10_170013_create_certificates_table.php":[],"BE/public/.htaccess":[],"BE/public/index.php":[],"BE/public/robots.txt":[],"BE/resources/css/app.css":[],"BE/resources/js/app.js":[],"BE/resources/views/certificates/default.blade.php":[],"BE/resources/views/welcome.blade.php":[],"BE/routes/console.php":[],"BE/routes/web.php":[],"BE/tests/Feature/CorsTest.php":[]
+  }
+}

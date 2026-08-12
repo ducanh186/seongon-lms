@@ -1,0 +1,985 @@
+{
+  "nodes": [
+    {
+      "id": "file:FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+      "type": "file",
+      "name": "StudentWorkspaceShell.tsx",
+      "filePath": "FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+      "summary": "Cung cấp responsive workspace shell cho màn hình học viên, điều phối curriculum panel và vùng nội dung theo trạng thái mobile.",
+      "tags": [
+        "react",
+        "layout",
+        "responsive",
+        "student-workspace"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/StudentWorkspaceShell.tsx:StudentWorkspaceShell",
+      "type": "function",
+      "name": "StudentWorkspaceShell",
+      "filePath": "FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+      "lineRange": [
+        11,
+        91
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/accordion.tsx",
+      "type": "file",
+      "name": "accordion.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/accordion.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/accordion.tsx:Accordion",
+      "type": "function",
+      "name": "Accordion",
+      "filePath": "FE/DEMO/src/app/components/ui/accordion.tsx",
+      "lineRange": [
+        9,
+        13
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionItem",
+      "type": "function",
+      "name": "AccordionItem",
+      "filePath": "FE/DEMO/src/app/components/ui/accordion.tsx",
+      "lineRange": [
+        15,
+        26
+      ],
+      "summary": "Render item component có styling và behavior phù hợp trong UI collection tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionTrigger",
+      "type": "function",
+      "name": "AccordionTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/accordion.tsx",
+      "lineRange": [
+        28,
+        48
+      ],
+      "summary": "Render trigger component để khởi tạo interaction của UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionContent",
+      "type": "function",
+      "name": "AccordionContent",
+      "filePath": "FE/DEMO/src/app/components/ui/accordion.tsx",
+      "lineRange": [
+        50,
+        64
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "type": "file",
+      "name": "alert-dialog.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialog",
+      "type": "function",
+      "name": "AlertDialog",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        9,
+        13
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogTrigger",
+      "type": "function",
+      "name": "AlertDialogTrigger",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        15,
+        21
+      ],
+      "summary": "Render trigger component để khởi tạo interaction của UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogPortal",
+      "type": "function",
+      "name": "AlertDialogPortal",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        23,
+        29
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogOverlay",
+      "type": "function",
+      "name": "AlertDialogOverlay",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        31,
+        45
+      ],
+      "summary": "Render overlay layer và áp dụng styling cho UI primitive tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogContent",
+      "type": "function",
+      "name": "AlertDialogContent",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        47,
+        64
+      ],
+      "summary": "Render content region có styling và props composition cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogHeader",
+      "type": "function",
+      "name": "AlertDialogHeader",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        66,
+        77
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogFooter",
+      "type": "function",
+      "name": "AlertDialogFooter",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        79,
+        93
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogTitle",
+      "type": "function",
+      "name": "AlertDialogTitle",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        95,
+        106
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogDescription",
+      "type": "function",
+      "name": "AlertDialogDescription",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        108,
+        119
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogAction",
+      "type": "function",
+      "name": "AlertDialogAction",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        121,
+        131
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogCancel",
+      "type": "function",
+      "name": "AlertDialogCancel",
+      "filePath": "FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        133,
+        143
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-interaction",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/alert.tsx",
+      "type": "file",
+      "name": "alert.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/alert.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert.tsx:Alert",
+      "type": "function",
+      "name": "Alert",
+      "filePath": "FE/DEMO/src/app/components/ui/alert.tsx",
+      "lineRange": [
+        22,
+        35
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert.tsx:AlertTitle",
+      "type": "function",
+      "name": "AlertTitle",
+      "filePath": "FE/DEMO/src/app/components/ui/alert.tsx",
+      "lineRange": [
+        37,
+        48
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/alert.tsx:AlertDescription",
+      "type": "function",
+      "name": "AlertDescription",
+      "filePath": "FE/DEMO/src/app/components/ui/alert.tsx",
+      "lineRange": [
+        50,
+        64
+      ],
+      "summary": "Render semantic text element với styling nhất quán cho UI component tương ứng.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/avatar.tsx",
+      "type": "file",
+      "name": "avatar.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/avatar.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/avatar.tsx:Avatar",
+      "type": "function",
+      "name": "Avatar",
+      "filePath": "FE/DEMO/src/app/components/ui/avatar.tsx",
+      "lineRange": [
+        8,
+        22
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/avatar.tsx:AvatarImage",
+      "type": "function",
+      "name": "AvatarImage",
+      "filePath": "FE/DEMO/src/app/components/ui/avatar.tsx",
+      "lineRange": [
+        24,
+        35
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/avatar.tsx:AvatarFallback",
+      "type": "function",
+      "name": "AvatarFallback",
+      "filePath": "FE/DEMO/src/app/components/ui/avatar.tsx",
+      "lineRange": [
+        37,
+        51
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:FE/DEMO/src/app/components/ui/badge.tsx",
+      "type": "file",
+      "name": "badge.tsx",
+      "filePath": "FE/DEMO/src/app/components/ui/badge.tsx",
+      "summary": "Cung cấp các React UI components tái sử dụng cho giao diện frontend, kết hợp primitive library với styling nhất quán.",
+      "tags": [
+        "react",
+        "ui-component",
+        "typescript",
+        "design-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:FE/DEMO/src/app/components/ui/badge.tsx:Badge",
+      "type": "function",
+      "name": "Badge",
+      "filePath": "FE/DEMO/src/app/components/ui/badge.tsx",
+      "lineRange": [
+        28,
+        44
+      ],
+      "summary": "Render React UI component tái sử dụng với typed props và styling nhất quán.",
+      "tags": [
+        "react-component",
+        "ui-component",
+        "typescript"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+      "target": "function:FE/DEMO/src/app/components/StudentWorkspaceShell.tsx:StudentWorkspaceShell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+      "target": "function:FE/DEMO/src/app/components/StudentWorkspaceShell.tsx:StudentWorkspaceShell",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/StudentWorkspaceShell.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/use-mobile.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/StudentWorkspaceShell.tsx:StudentWorkspaceShell",
+      "target": "function:FE/DEMO/src/app/components/ui/use-mobile.ts:useIsMobile",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/accordion.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/accordion.tsx:Accordion",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/accordion.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/accordion.tsx:Accordion",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/accordion.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/accordion.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/accordion.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/accordion.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/accordion.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/accordion.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/accordion.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionItem",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionTrigger",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/accordion.tsx:AccordionContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogTrigger",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogPortal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogPortal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogOverlay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogOverlay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogContent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogHeader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogHeader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogFooter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogFooter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogTitle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogDescription",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogDescription",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogAction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogAction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogCancel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogCancel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/button.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert-dialog.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogOverlay",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogContent",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogHeader",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogFooter",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogTitle",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogDescription",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogAction",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert-dialog.tsx:AlertDialogCancel",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert.tsx:Alert",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert.tsx:Alert",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert.tsx:AlertTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert.tsx:AlertTitle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert.tsx:AlertDescription",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/alert.tsx:AlertDescription",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/alert.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert.tsx:Alert",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert.tsx:AlertTitle",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/alert.tsx:AlertDescription",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/avatar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/avatar.tsx:Avatar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/avatar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/avatar.tsx:Avatar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/avatar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/avatar.tsx:AvatarImage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/avatar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/avatar.tsx:AvatarImage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/avatar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/avatar.tsx:AvatarFallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/avatar.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/avatar.tsx:AvatarFallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/avatar.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/avatar.tsx:Avatar",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/avatar.tsx:AvatarImage",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/avatar.tsx:AvatarFallback",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/badge.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/badge.tsx:Badge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/badge.tsx",
+      "target": "function:FE/DEMO/src/app/components/ui/badge.tsx:Badge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:FE/DEMO/src/app/components/ui/badge.tsx",
+      "target": "file:FE/DEMO/src/app/components/ui/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:FE/DEMO/src/app/components/ui/badge.tsx:Badge",
+      "target": "function:FE/DEMO/src/app/components/ui/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

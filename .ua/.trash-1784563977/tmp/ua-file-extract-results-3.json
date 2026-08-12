@@ -1,0 +1,2640 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 22,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 22,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 22,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "BE/app/Console/Commands/SeedDemoOnce.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 35,
+      "nonEmptyLines": 24,
+      "functions": [
+        {
+          "name": "handle",
+          "startLine": 15,
+          "endLine": 34,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "SeedDemoOnce",
+          "startLine": 9,
+          "endLine": 35,
+          "methods": [
+            "handle"
+          ],
+          "properties": [
+            "signature",
+            "description"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SeedDemoOnce",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handle",
+          "callee": "User::query()->exists",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handle",
+          "callee": "User::query",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handle",
+          "callee": "$this->info",
+          "lineNumber": 18
+        },
+        {
+          "caller": "handle",
+          "callee": "Artisan::call",
+          "lineNumber": 23
+        },
+        {
+          "caller": "handle",
+          "callee": "$this->error",
+          "lineNumber": 26
+        },
+        {
+          "caller": "handle",
+          "callee": "$this->info",
+          "lineNumber": 31
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Admin/CategoryController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 64,
+      "nonEmptyLines": 50,
+      "functions": [
+        {
+          "name": "index",
+          "startLine": 13,
+          "endLine": 18,
+          "params": []
+        },
+        {
+          "name": "store",
+          "startLine": 20,
+          "endLine": 31,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "update",
+          "startLine": 33,
+          "endLine": 43,
+          "params": [
+            "$request",
+            "$category"
+          ]
+        },
+        {
+          "name": "destroy",
+          "startLine": 45,
+          "endLine": 50,
+          "params": [
+            "$category"
+          ]
+        },
+        {
+          "name": "uniqueSlug",
+          "startLine": 52,
+          "endLine": 63,
+          "params": [
+            "$name"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "CategoryController",
+          "startLine": 11,
+          "endLine": 64,
+          "methods": [
+            "index",
+            "store",
+            "update",
+            "destroy",
+            "uniqueSlug"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CategoryController",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "index",
+          "callee": "CategoryResource::collection",
+          "lineNumber": 15
+        },
+        {
+          "caller": "index",
+          "callee": "Category::withCount('courses')->orderBy('name')->get",
+          "lineNumber": 16
+        },
+        {
+          "caller": "index",
+          "callee": "Category::withCount('courses')->orderBy",
+          "lineNumber": 16
+        },
+        {
+          "caller": "index",
+          "callee": "Category::withCount",
+          "lineNumber": 16
+        },
+        {
+          "caller": "store",
+          "callee": "$request->validate",
+          "lineNumber": 22
+        },
+        {
+          "caller": "store",
+          "callee": "$this->uniqueSlug",
+          "lineNumber": 27
+        },
+        {
+          "caller": "store",
+          "callee": "Category::create",
+          "lineNumber": 28
+        },
+        {
+          "caller": "store",
+          "callee": "(new CategoryResource($category))->response()->setStatusCode",
+          "lineNumber": 30
+        },
+        {
+          "caller": "store",
+          "callee": "(new CategoryResource($category))->response",
+          "lineNumber": 30
+        },
+        {
+          "caller": "update",
+          "callee": "$request->validate",
+          "lineNumber": 35
+        },
+        {
+          "caller": "update",
+          "callee": "$category->update",
+          "lineNumber": 40
+        },
+        {
+          "caller": "destroy",
+          "callee": "$category->delete",
+          "lineNumber": 47
+        },
+        {
+          "caller": "destroy",
+          "callee": "response()->noContent",
+          "lineNumber": 49
+        },
+        {
+          "caller": "destroy",
+          "callee": "response",
+          "lineNumber": 49
+        },
+        {
+          "caller": "uniqueSlug",
+          "callee": "Str::slug",
+          "lineNumber": 54
+        },
+        {
+          "caller": "uniqueSlug",
+          "callee": "Category::where('slug', $slug)->exists",
+          "lineNumber": 58
+        },
+        {
+          "caller": "uniqueSlug",
+          "callee": "Category::where",
+          "lineNumber": 58
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 5,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Admin/CourseController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 103,
+      "nonEmptyLines": 81,
+      "functions": [
+        {
+          "name": "index",
+          "startLine": 14,
+          "endLine": 27,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "show",
+          "startLine": 29,
+          "endLine": 35,
+          "params": [
+            "$course"
+          ]
+        },
+        {
+          "name": "store",
+          "startLine": 37,
+          "endLine": 45,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "update",
+          "startLine": 47,
+          "endLine": 53,
+          "params": [
+            "$request",
+            "$course"
+          ]
+        },
+        {
+          "name": "publish",
+          "startLine": 55,
+          "endLine": 64,
+          "params": [
+            "$request",
+            "$course"
+          ]
+        },
+        {
+          "name": "destroy",
+          "startLine": 66,
+          "endLine": 71,
+          "params": [
+            "$course"
+          ]
+        },
+        {
+          "name": "validateData",
+          "startLine": 76,
+          "endLine": 89,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "uniqueSlug",
+          "startLine": 91,
+          "endLine": 102,
+          "params": [
+            "$title"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "CourseController",
+          "startLine": 12,
+          "endLine": 103,
+          "methods": [
+            "index",
+            "show",
+            "store",
+            "update",
+            "publish",
+            "destroy",
+            "validateData",
+            "uniqueSlug"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CourseController",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "index",
+          "callee": "Course::with('category')->withCount('lessons')->withCount",
+          "lineNumber": 16
+        },
+        {
+          "caller": "index",
+          "callee": "Course::with('category')->withCount",
+          "lineNumber": 16
+        },
+        {
+          "caller": "index",
+          "callee": "Course::with",
+          "lineNumber": 16
+        },
+        {
+          "caller": "index",
+          "callee": "$request->query",
+          "lineNumber": 18
+        },
+        {
+          "caller": "index",
+          "callee": "$query->where",
+          "lineNumber": 19
+        },
+        {
+          "caller": "index",
+          "callee": "$request->query",
+          "lineNumber": 22
+        },
+        {
+          "caller": "index",
+          "callee": "$query->where",
+          "lineNumber": 23
+        },
+        {
+          "caller": "index",
+          "callee": "CourseResource::collection",
+          "lineNumber": 26
+        },
+        {
+          "caller": "index",
+          "callee": "$query->latest()->paginate(15)->withQueryString",
+          "lineNumber": 26
+        },
+        {
+          "caller": "index",
+          "callee": "$query->latest()->paginate",
+          "lineNumber": 26
+        },
+        {
+          "caller": "index",
+          "callee": "$query->latest",
+          "lineNumber": 26
+        },
+        {
+          "caller": "show",
+          "callee": "$course->load(['category', 'lessons', 'quiz.questions.options'])->loadCount",
+          "lineNumber": 31
+        },
+        {
+          "caller": "show",
+          "callee": "$course->load",
+          "lineNumber": 31
+        },
+        {
+          "caller": "store",
+          "callee": "$this->validateData",
+          "lineNumber": 39
+        },
+        {
+          "caller": "store",
+          "callee": "$this->uniqueSlug",
+          "lineNumber": 40
+        },
+        {
+          "caller": "store",
+          "callee": "Course::create",
+          "lineNumber": 42
+        },
+        {
+          "caller": "store",
+          "callee": "(new CourseResource($course->load('category')))->response()->setStatusCode",
+          "lineNumber": 44
+        },
+        {
+          "caller": "store",
+          "callee": "(new CourseResource($course->load('category')))->response",
+          "lineNumber": 44
+        },
+        {
+          "caller": "store",
+          "callee": "$course->load",
+          "lineNumber": 44
+        },
+        {
+          "caller": "update",
+          "callee": "$this->validateData",
+          "lineNumber": 49
+        },
+        {
+          "caller": "update",
+          "callee": "$course->update",
+          "lineNumber": 50
+        },
+        {
+          "caller": "update",
+          "callee": "$course->load",
+          "lineNumber": 52
+        },
+        {
+          "caller": "publish",
+          "callee": "$request->validate",
+          "lineNumber": 57
+        },
+        {
+          "caller": "publish",
+          "callee": "$course->update",
+          "lineNumber": 61
+        },
+        {
+          "caller": "destroy",
+          "callee": "$course->delete",
+          "lineNumber": 68
+        },
+        {
+          "caller": "destroy",
+          "callee": "response()->noContent",
+          "lineNumber": 70
+        },
+        {
+          "caller": "destroy",
+          "callee": "response",
+          "lineNumber": 70
+        },
+        {
+          "caller": "validateData",
+          "callee": "$request->validate",
+          "lineNumber": 78
+        },
+        {
+          "caller": "uniqueSlug",
+          "callee": "Str::slug",
+          "lineNumber": 93
+        },
+        {
+          "caller": "uniqueSlug",
+          "callee": "Course::where('slug', $slug)->exists",
+          "lineNumber": 97
+        },
+        {
+          "caller": "uniqueSlug",
+          "callee": "Course::where",
+          "lineNumber": 97
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 8,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Admin/LessonController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 65,
+      "nonEmptyLines": 51,
+      "functions": [
+        {
+          "name": "store",
+          "startLine": 13,
+          "endLine": 28,
+          "params": [
+            "$request",
+            "$course"
+          ]
+        },
+        {
+          "name": "update",
+          "startLine": 30,
+          "endLine": 43,
+          "params": [
+            "$request",
+            "$lesson"
+          ]
+        },
+        {
+          "name": "destroy",
+          "startLine": 45,
+          "endLine": 50,
+          "params": [
+            "$lesson"
+          ]
+        },
+        {
+          "name": "reorder",
+          "startLine": 52,
+          "endLine": 64,
+          "params": [
+            "$request",
+            "$course"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "LessonController",
+          "startLine": 11,
+          "endLine": 65,
+          "methods": [
+            "store",
+            "update",
+            "destroy",
+            "reorder"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "LessonController",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "store",
+          "callee": "$request->validate",
+          "lineNumber": 15
+        },
+        {
+          "caller": "store",
+          "callee": "$course->lessons()->max",
+          "lineNumber": 23
+        },
+        {
+          "caller": "store",
+          "callee": "$course->lessons",
+          "lineNumber": 23
+        },
+        {
+          "caller": "store",
+          "callee": "$course->lessons()->create",
+          "lineNumber": 25
+        },
+        {
+          "caller": "store",
+          "callee": "$course->lessons",
+          "lineNumber": 25
+        },
+        {
+          "caller": "store",
+          "callee": "(new LessonResource($lesson))->response()->setStatusCode",
+          "lineNumber": 27
+        },
+        {
+          "caller": "store",
+          "callee": "(new LessonResource($lesson))->response",
+          "lineNumber": 27
+        },
+        {
+          "caller": "update",
+          "callee": "$request->validate",
+          "lineNumber": 32
+        },
+        {
+          "caller": "update",
+          "callee": "$lesson->update",
+          "lineNumber": 40
+        },
+        {
+          "caller": "destroy",
+          "callee": "$lesson->delete",
+          "lineNumber": 47
+        },
+        {
+          "caller": "destroy",
+          "callee": "response()->noContent",
+          "lineNumber": 49
+        },
+        {
+          "caller": "destroy",
+          "callee": "response",
+          "lineNumber": 49
+        },
+        {
+          "caller": "reorder",
+          "callee": "$request->validate",
+          "lineNumber": 54
+        },
+        {
+          "caller": "reorder",
+          "callee": "$course->lessons()->whereKey($lessonId)->update",
+          "lineNumber": 60
+        },
+        {
+          "caller": "reorder",
+          "callee": "$course->lessons()->whereKey",
+          "lineNumber": 60
+        },
+        {
+          "caller": "reorder",
+          "callee": "$course->lessons",
+          "lineNumber": 60
+        },
+        {
+          "caller": "reorder",
+          "callee": "LessonResource::collection",
+          "lineNumber": 63
+        },
+        {
+          "caller": "reorder",
+          "callee": "$course->lessons()->get",
+          "lineNumber": 63
+        },
+        {
+          "caller": "reorder",
+          "callee": "$course->lessons",
+          "lineNumber": 63
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 4,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Admin/QuestionController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 59,
+      "nonEmptyLines": 47,
+      "functions": [
+        {
+          "name": "store",
+          "startLine": 13,
+          "endLine": 25,
+          "params": [
+            "$request",
+            "$quiz"
+          ]
+        },
+        {
+          "name": "update",
+          "startLine": 27,
+          "endLine": 38,
+          "params": [
+            "$request",
+            "$question"
+          ]
+        },
+        {
+          "name": "destroy",
+          "startLine": 40,
+          "endLine": 45,
+          "params": [
+            "$question"
+          ]
+        },
+        {
+          "name": "validateData",
+          "startLine": 50,
+          "endLine": 58,
+          "params": [
+            "$request"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "QuestionController",
+          "startLine": 11,
+          "endLine": 59,
+          "methods": [
+            "store",
+            "update",
+            "destroy",
+            "validateData"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "QuestionController",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "store",
+          "callee": "$this->validateData",
+          "lineNumber": 15
+        },
+        {
+          "caller": "store",
+          "callee": "DB::transaction",
+          "lineNumber": 17
+        },
+        {
+          "caller": "store",
+          "callee": "$quiz->questions()->create",
+          "lineNumber": 18
+        },
+        {
+          "caller": "store",
+          "callee": "$quiz->questions",
+          "lineNumber": 18
+        },
+        {
+          "caller": "store",
+          "callee": "$question->options()->createMany",
+          "lineNumber": 19
+        },
+        {
+          "caller": "store",
+          "callee": "$question->options",
+          "lineNumber": 19
+        },
+        {
+          "caller": "store",
+          "callee": "response()->json",
+          "lineNumber": 24
+        },
+        {
+          "caller": "store",
+          "callee": "response",
+          "lineNumber": 24
+        },
+        {
+          "caller": "store",
+          "callee": "$question->load",
+          "lineNumber": 24
+        },
+        {
+          "caller": "update",
+          "callee": "$this->validateData",
+          "lineNumber": 29
+        },
+        {
+          "caller": "update",
+          "callee": "DB::transaction",
+          "lineNumber": 31
+        },
+        {
+          "caller": "update",
+          "callee": "$question->update",
+          "lineNumber": 32
+        },
+        {
+          "caller": "update",
+          "callee": "$question->options()->delete",
+          "lineNumber": 33
+        },
+        {
+          "caller": "update",
+          "callee": "$question->options",
+          "lineNumber": 33
+        },
+        {
+          "caller": "update",
+          "callee": "$question->options()->createMany",
+          "lineNumber": 34
+        },
+        {
+          "caller": "update",
+          "callee": "$question->options",
+          "lineNumber": 34
+        },
+        {
+          "caller": "update",
+          "callee": "response()->json",
+          "lineNumber": 37
+        },
+        {
+          "caller": "update",
+          "callee": "response",
+          "lineNumber": 37
+        },
+        {
+          "caller": "update",
+          "callee": "$question->load",
+          "lineNumber": 37
+        },
+        {
+          "caller": "destroy",
+          "callee": "$question->delete",
+          "lineNumber": 42
+        },
+        {
+          "caller": "destroy",
+          "callee": "response()->noContent",
+          "lineNumber": 44
+        },
+        {
+          "caller": "destroy",
+          "callee": "response",
+          "lineNumber": 44
+        },
+        {
+          "caller": "validateData",
+          "callee": "$request->validate",
+          "lineNumber": 52
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 4,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Admin/QuizController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 26,
+      "nonEmptyLines": 21,
+      "functions": [
+        {
+          "name": "upsert",
+          "startLine": 14,
+          "endLine": 25,
+          "params": [
+            "$request",
+            "$course"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "QuizController",
+          "startLine": 9,
+          "endLine": 26,
+          "methods": [
+            "upsert"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "QuizController",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "upsert",
+          "callee": "$request->validate",
+          "lineNumber": 16
+        },
+        {
+          "caller": "upsert",
+          "callee": "$course->quiz()->updateOrCreate",
+          "lineNumber": 22
+        },
+        {
+          "caller": "upsert",
+          "callee": "$course->quiz",
+          "lineNumber": 22
+        },
+        {
+          "caller": "upsert",
+          "callee": "response()->json",
+          "lineNumber": 24
+        },
+        {
+          "caller": "upsert",
+          "callee": "response",
+          "lineNumber": 24
+        },
+        {
+          "caller": "upsert",
+          "callee": "$quiz->load",
+          "lineNumber": 24
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Admin/ReviewController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 30,
+      "functions": [
+        {
+          "name": "index",
+          "startLine": 12,
+          "endLine": 21,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "updateStatus",
+          "startLine": 23,
+          "endLine": 32,
+          "params": [
+            "$request",
+            "$review"
+          ]
+        },
+        {
+          "name": "destroy",
+          "startLine": 34,
+          "endLine": 39,
+          "params": [
+            "$review"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "ReviewController",
+          "startLine": 10,
+          "endLine": 40,
+          "methods": [
+            "index",
+            "updateStatus",
+            "destroy"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ReviewController",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "index",
+          "callee": "Review::with",
+          "lineNumber": 14
+        },
+        {
+          "caller": "index",
+          "callee": "$request->query",
+          "lineNumber": 16
+        },
+        {
+          "caller": "index",
+          "callee": "$query->where",
+          "lineNumber": 17
+        },
+        {
+          "caller": "index",
+          "callee": "ReviewResource::collection",
+          "lineNumber": 20
+        },
+        {
+          "caller": "index",
+          "callee": "$query->latest()->paginate(15)->withQueryString",
+          "lineNumber": 20
+        },
+        {
+          "caller": "index",
+          "callee": "$query->latest()->paginate",
+          "lineNumber": 20
+        },
+        {
+          "caller": "index",
+          "callee": "$query->latest",
+          "lineNumber": 20
+        },
+        {
+          "caller": "updateStatus",
+          "callee": "$request->validate",
+          "lineNumber": 25
+        },
+        {
+          "caller": "updateStatus",
+          "callee": "$review->update",
+          "lineNumber": 29
+        },
+        {
+          "caller": "updateStatus",
+          "callee": "$review->load",
+          "lineNumber": 31
+        },
+        {
+          "caller": "destroy",
+          "callee": "$review->delete",
+          "lineNumber": 36
+        },
+        {
+          "caller": "destroy",
+          "callee": "response()->noContent",
+          "lineNumber": 38
+        },
+        {
+          "caller": "destroy",
+          "callee": "response",
+          "lineNumber": 38
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Admin/UserController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 31,
+      "functions": [
+        {
+          "name": "index",
+          "startLine": 12,
+          "endLine": 27,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "updateStatus",
+          "startLine": 29,
+          "endLine": 39,
+          "params": [
+            "$request",
+            "$user"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "UserController",
+          "startLine": 10,
+          "endLine": 40,
+          "methods": [
+            "index",
+            "updateStatus"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "UserController",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "index",
+          "callee": "User::where",
+          "lineNumber": 14
+        },
+        {
+          "caller": "index",
+          "callee": "$request->query",
+          "lineNumber": 16
+        },
+        {
+          "caller": "index",
+          "callee": "$query->where",
+          "lineNumber": 17
+        },
+        {
+          "caller": "index",
+          "callee": "$w->where('name', 'like', \"%{$q}%\")->orWhere",
+          "lineNumber": 18
+        },
+        {
+          "caller": "index",
+          "callee": "$w->where",
+          "lineNumber": 18
+        },
+        {
+          "caller": "index",
+          "callee": "$request->query",
+          "lineNumber": 22
+        },
+        {
+          "caller": "index",
+          "callee": "$query->where",
+          "lineNumber": 23
+        },
+        {
+          "caller": "index",
+          "callee": "UserResource::collection",
+          "lineNumber": 26
+        },
+        {
+          "caller": "index",
+          "callee": "$query->latest()->paginate(15)->withQueryString",
+          "lineNumber": 26
+        },
+        {
+          "caller": "index",
+          "callee": "$query->latest()->paginate",
+          "lineNumber": 26
+        },
+        {
+          "caller": "index",
+          "callee": "$query->latest",
+          "lineNumber": 26
+        },
+        {
+          "caller": "updateStatus",
+          "callee": "$request->validate",
+          "lineNumber": 31
+        },
+        {
+          "caller": "updateStatus",
+          "callee": "$user->save",
+          "lineNumber": 36
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/AuthController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 115,
+      "nonEmptyLines": 91,
+      "functions": [
+        {
+          "name": "register",
+          "startLine": 16,
+          "endLine": 37,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "login",
+          "startLine": 39,
+          "endLine": 66,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "logout",
+          "startLine": 68,
+          "endLine": 76,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "me",
+          "startLine": 78,
+          "endLine": 81,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "updateProfile",
+          "startLine": 83,
+          "endLine": 94,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "updatePassword",
+          "startLine": 96,
+          "endLine": 114,
+          "params": [
+            "$request"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "AuthController",
+          "startLine": 14,
+          "endLine": 115,
+          "methods": [
+            "register",
+            "login",
+            "logout",
+            "me",
+            "updateProfile",
+            "updatePassword"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AuthController",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "register",
+          "callee": "$request->validate",
+          "lineNumber": 18
+        },
+        {
+          "caller": "register",
+          "callee": "Password::defaults",
+          "lineNumber": 21
+        },
+        {
+          "caller": "register",
+          "callee": "User::create",
+          "lineNumber": 25
+        },
+        {
+          "caller": "register",
+          "callee": "$user->createToken",
+          "lineNumber": 31
+        },
+        {
+          "caller": "register",
+          "callee": "response()->json",
+          "lineNumber": 33
+        },
+        {
+          "caller": "register",
+          "callee": "response",
+          "lineNumber": 33
+        },
+        {
+          "caller": "register",
+          "callee": "$user->fresh",
+          "lineNumber": 34
+        },
+        {
+          "caller": "login",
+          "callee": "$request->validate",
+          "lineNumber": 41
+        },
+        {
+          "caller": "login",
+          "callee": "User::where('email', $data['email'])->first",
+          "lineNumber": 46
+        },
+        {
+          "caller": "login",
+          "callee": "User::where",
+          "lineNumber": 46
+        },
+        {
+          "caller": "login",
+          "callee": "Hash::check",
+          "lineNumber": 48
+        },
+        {
+          "caller": "login",
+          "callee": "ValidationException::withMessages",
+          "lineNumber": 49
+        },
+        {
+          "caller": "login",
+          "callee": "ValidationException::withMessages",
+          "lineNumber": 55
+        },
+        {
+          "caller": "login",
+          "callee": "$user->createToken",
+          "lineNumber": 60
+        },
+        {
+          "caller": "login",
+          "callee": "response()->json",
+          "lineNumber": 62
+        },
+        {
+          "caller": "login",
+          "callee": "response",
+          "lineNumber": 62
+        },
+        {
+          "caller": "logout",
+          "callee": "$request->user()->currentAccessToken()->delete",
+          "lineNumber": 70
+        },
+        {
+          "caller": "logout",
+          "callee": "$request->user()->currentAccessToken",
+          "lineNumber": 70
+        },
+        {
+          "caller": "logout",
+          "callee": "$request->user",
+          "lineNumber": 70
+        },
+        {
+          "caller": "logout",
+          "callee": "Auth::guard('sanctum')->forgetUser",
+          "lineNumber": 73
+        },
+        {
+          "caller": "logout",
+          "callee": "Auth::guard",
+          "lineNumber": 73
+        },
+        {
+          "caller": "logout",
+          "callee": "response()->noContent",
+          "lineNumber": 75
+        },
+        {
+          "caller": "logout",
+          "callee": "response",
+          "lineNumber": 75
+        },
+        {
+          "caller": "me",
+          "callee": "$request->user",
+          "lineNumber": 80
+        },
+        {
+          "caller": "updateProfile",
+          "callee": "$request->validate",
+          "lineNumber": 85
+        },
+        {
+          "caller": "updateProfile",
+          "callee": "$request->user()->update",
+          "lineNumber": 91
+        },
+        {
+          "caller": "updateProfile",
+          "callee": "$request->user",
+          "lineNumber": 91
+        },
+        {
+          "caller": "updateProfile",
+          "callee": "$request->user()->fresh",
+          "lineNumber": 93
+        },
+        {
+          "caller": "updateProfile",
+          "callee": "$request->user",
+          "lineNumber": 93
+        },
+        {
+          "caller": "updatePassword",
+          "callee": "$request->validate",
+          "lineNumber": 98
+        },
+        {
+          "caller": "updatePassword",
+          "callee": "Password::defaults",
+          "lineNumber": 100
+        },
+        {
+          "caller": "updatePassword",
+          "callee": "$request->user",
+          "lineNumber": 103
+        },
+        {
+          "caller": "updatePassword",
+          "callee": "Hash::check",
+          "lineNumber": 105
+        },
+        {
+          "caller": "updatePassword",
+          "callee": "ValidationException::withMessages",
+          "lineNumber": 106
+        },
+        {
+          "caller": "updatePassword",
+          "callee": "$user->update",
+          "lineNumber": 111
+        },
+        {
+          "caller": "updatePassword",
+          "callee": "response()->noContent",
+          "lineNumber": 113
+        },
+        {
+          "caller": "updatePassword",
+          "callee": "response",
+          "lineNumber": 113
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 6,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/CategoryController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 19,
+      "nonEmptyLines": 15,
+      "functions": [
+        {
+          "name": "index",
+          "startLine": 11,
+          "endLine": 18,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "CategoryController",
+          "startLine": 9,
+          "endLine": 19,
+          "methods": [
+            "index"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CategoryController",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "index",
+          "callee": "Category::withCount(['courses' => fn ($q) => $q->where('status', 'published')])\n            ->orderBy('name')->get",
+          "lineNumber": 13
+        },
+        {
+          "caller": "index",
+          "callee": "Category::withCount(['courses' => fn ($q) => $q->where('status', 'published')])->orderBy",
+          "lineNumber": 13
+        },
+        {
+          "caller": "index",
+          "callee": "Category::withCount",
+          "lineNumber": 13
+        },
+        {
+          "caller": "index",
+          "callee": "$q->where",
+          "lineNumber": 13
+        },
+        {
+          "caller": "index",
+          "callee": "CategoryResource::collection",
+          "lineNumber": 17
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/CourseController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 78,
+      "nonEmptyLines": 64,
+      "functions": [
+        {
+          "name": "index",
+          "startLine": 13,
+          "endLine": 51,
+          "params": [
+            "$request"
+          ]
+        },
+        {
+          "name": "show",
+          "startLine": 53,
+          "endLine": 64,
+          "params": [
+            "$slug"
+          ]
+        },
+        {
+          "name": "reviews",
+          "startLine": 66,
+          "endLine": 77,
+          "params": [
+            "$slug"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "CourseController",
+          "startLine": 11,
+          "endLine": 78,
+          "methods": [
+            "index",
+            "show",
+            "reviews"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CourseController",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "index",
+          "callee": "Course::query()\n            ->published()\n            ->with('category')\n            ->withCount('lessons')\n            ->withCount('reviews')->withAvg",
+          "lineNumber": 15
+        },
+        {
+          "caller": "index",
+          "callee": "Course::query()\n            ->published()\n            ->with('category')\n            ->withCount('lessons')->withCount",
+          "lineNumber": 15
+        },
+        {
+          "caller": "index",
+          "callee": "Course::query()\n            ->published()\n            ->with('category')->withCount",
+          "lineNumber": 15
+        },
+        {
+          "caller": "index",
+          "callee": "Course::query()\n            ->published()->with",
+          "lineNumber": 15
+        },
+        {
+          "caller": "index",
+          "callee": "Course::query()->published",
+          "lineNumber": 15
+        },
+        {
+          "caller": "index",
+          "callee": "Course::query",
+          "lineNumber": 15
+        },
+        {
+          "caller": "index",
+          "callee": "$request->query",
+          "lineNumber": 22
+        },
+        {
+          "caller": "index",
+          "callee": "$query->where",
+          "lineNumber": 23
+        },
+        {
+          "caller": "index",
+          "callee": "$w->where('title', 'like', \"%{$q}%\")->orWhere",
+          "lineNumber": 24
+        },
+        {
+          "caller": "index",
+          "callee": "$w->where",
+          "lineNumber": 24
+        },
+        {
+          "caller": "index",
+          "callee": "$request->query",
+          "lineNumber": 29
+        },
+        {
+          "caller": "index",
+          "callee": "$query->whereHas",
+          "lineNumber": 30
+        },
+        {
+          "caller": "index",
+          "callee": "$c->where('slug', $category)->orWhere",
+          "lineNumber": 31
+        },
+        {
+          "caller": "index",
+          "callee": "$c->where",
+          "lineNumber": 31
+        },
+        {
+          "caller": "index",
+          "callee": "$request->filled",
+          "lineNumber": 35
+        },
+        {
+          "caller": "index",
+          "callee": "$query->where",
+          "lineNumber": 36
+        },
+        {
+          "caller": "index",
+          "callee": "$request->query",
+          "lineNumber": 36
+        },
+        {
+          "caller": "index",
+          "callee": "$request->filled",
+          "lineNumber": 39
+        },
+        {
+          "caller": "index",
+          "callee": "$query->where",
+          "lineNumber": 40
+        },
+        {
+          "caller": "index",
+          "callee": "$request->query",
+          "lineNumber": 40
+        },
+        {
+          "caller": "index",
+          "callee": "$request->query",
+          "lineNumber": 43
+        },
+        {
+          "caller": "index",
+          "callee": "$query->orderBy",
+          "lineNumber": 44
+        },
+        {
+          "caller": "index",
+          "callee": "$query->orderByDesc",
+          "lineNumber": 45
+        },
+        {
+          "caller": "index",
+          "callee": "$query->orderByDesc",
+          "lineNumber": 46
+        },
+        {
+          "caller": "index",
+          "callee": "$query->orderByDesc",
+          "lineNumber": 47
+        },
+        {
+          "caller": "index",
+          "callee": "CourseResource::collection",
+          "lineNumber": 50
+        },
+        {
+          "caller": "index",
+          "callee": "$query->paginate(12)->withQueryString",
+          "lineNumber": 50
+        },
+        {
+          "caller": "index",
+          "callee": "$query->paginate",
+          "lineNumber": 50
+        },
+        {
+          "caller": "show",
+          "callee": "Course::query()\n            ->published()\n            ->where('slug', $slug)\n            ->with(['category', 'lessons', 'quiz'])\n            ->withCount(['lessons', 'reviews'])\n            ->withAvg('reviews', 'rating')->firstOrFail",
+          "lineNumber": 55
+        },
+        {
+          "caller": "show",
+          "callee": "Course::query()\n            ->published()\n            ->where('slug', $slug)\n            ->with(['category', 'lessons', 'quiz'])\n            ->withCount(['lessons', 'reviews'])->withAvg",
+          "lineNumber": 55
+        },
+        {
+          "caller": "show",
+          "callee": "Course::query()\n            ->published()\n            ->where('slug', $slug)\n            ->with(['category', 'lessons', 'quiz'])->withCount",
+          "lineNumber": 55
+        },
+        {
+          "caller": "show",
+          "callee": "Course::query()\n            ->published()\n            ->where('slug', $slug)->with",
+          "lineNumber": 55
+        },
+        {
+          "caller": "show",
+          "callee": "Course::query()\n            ->published()->where",
+          "lineNumber": 55
+        },
+        {
+          "caller": "show",
+          "callee": "Course::query()->published",
+          "lineNumber": 55
+        },
+        {
+          "caller": "show",
+          "callee": "Course::query",
+          "lineNumber": 55
+        },
+        {
+          "caller": "reviews",
+          "callee": "Course::where('slug', $slug)->firstOrFail",
+          "lineNumber": 68
+        },
+        {
+          "caller": "reviews",
+          "callee": "Course::where",
+          "lineNumber": 68
+        },
+        {
+          "caller": "reviews",
+          "callee": "$course->reviews()\n            ->where('status', 'visible')\n            ->with('user')\n            ->latest()->paginate",
+          "lineNumber": 70
+        },
+        {
+          "caller": "reviews",
+          "callee": "$course->reviews()\n            ->where('status', 'visible')\n            ->with('user')->latest",
+          "lineNumber": 70
+        },
+        {
+          "caller": "reviews",
+          "callee": "$course->reviews()\n            ->where('status', 'visible')->with",
+          "lineNumber": 70
+        },
+        {
+          "caller": "reviews",
+          "callee": "$course->reviews()->where",
+          "lineNumber": 70
+        },
+        {
+          "caller": "reviews",
+          "callee": "$course->reviews",
+          "lineNumber": 70
+        },
+        {
+          "caller": "reviews",
+          "callee": "ReviewResource::collection",
+          "lineNumber": 76
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Student/CertificateController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 31,
+      "nonEmptyLines": 24,
+      "functions": [
+        {
+          "name": "download",
+          "startLine": 13,
+          "endLine": 30,
+          "params": [
+            "$request",
+            "$course"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "CertificateController",
+          "startLine": 11,
+          "endLine": 31,
+          "methods": [
+            "download"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CertificateController",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "download",
+          "callee": "$request->user",
+          "lineNumber": 15
+        },
+        {
+          "caller": "download",
+          "callee": "Enrollment::where('user_id', $user->id)\n            ->where('course_id', $course->id)->firstOrFail",
+          "lineNumber": 17
+        },
+        {
+          "caller": "download",
+          "callee": "Enrollment::where('user_id', $user->id)->where",
+          "lineNumber": 17
+        },
+        {
+          "caller": "download",
+          "callee": "Enrollment::where",
+          "lineNumber": 17
+        },
+        {
+          "caller": "download",
+          "callee": "$enrollment->certificate()->firstOrFail",
+          "lineNumber": 21
+        },
+        {
+          "caller": "download",
+          "callee": "$enrollment->certificate",
+          "lineNumber": 21
+        },
+        {
+          "caller": "download",
+          "callee": "Pdf::loadView",
+          "lineNumber": 23
+        },
+        {
+          "caller": "download",
+          "callee": "$pdf->download",
+          "lineNumber": 29
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Student/LessonController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 24,
+      "nonEmptyLines": 18,
+      "functions": [
+        {
+          "name": "complete",
+          "startLine": 15,
+          "endLine": 23,
+          "params": [
+            "$request",
+            "$lesson",
+            "$progress"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "LessonController",
+          "startLine": 11,
+          "endLine": 24,
+          "methods": [
+            "complete"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "LessonController",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "complete",
+          "callee": "$lesson->loadMissing",
+          "lineNumber": 17
+        },
+        {
+          "caller": "complete",
+          "callee": "$this->resolveActiveEnrollment",
+          "lineNumber": 18
+        },
+        {
+          "caller": "complete",
+          "callee": "$request->user",
+          "lineNumber": 18
+        },
+        {
+          "caller": "complete",
+          "callee": "$progress->completeLesson",
+          "lineNumber": 20
+        },
+        {
+          "caller": "complete",
+          "callee": "response()->json",
+          "lineNumber": 22
+        },
+        {
+          "caller": "complete",
+          "callee": "response",
+          "lineNumber": 22
+        },
+        {
+          "caller": "complete",
+          "callee": "$progress->summary",
+          "lineNumber": 22
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Student/MyCourseController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 44,
+      "functions": [
+        {
+          "name": "index",
+          "startLine": 18,
+          "endLine": 32,
+          "params": [
+            "$request",
+            "$progress"
+          ]
+        },
+        {
+          "name": "lessons",
+          "startLine": 34,
+          "endLine": 50,
+          "params": [
+            "$request",
+            "$course"
+          ]
+        },
+        {
+          "name": "progress",
+          "startLine": 52,
+          "endLine": 57,
+          "params": [
+            "$request",
+            "$course",
+            "$progress"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "MyCourseController",
+          "startLine": 14,
+          "endLine": 58,
+          "methods": [
+            "index",
+            "lessons",
+            "progress"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "MyCourseController",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "index",
+          "callee": "Enrollment::where('user_id', $request->user()->id)\n            ->with('course.category')\n            ->latest()->paginate",
+          "lineNumber": 20
+        },
+        {
+          "caller": "index",
+          "callee": "Enrollment::where('user_id', $request->user()->id)\n            ->with('course.category')->latest",
+          "lineNumber": 20
+        },
+        {
+          "caller": "index",
+          "callee": "Enrollment::where('user_id', $request->user()->id)->with",
+          "lineNumber": 20
+        },
+        {
+          "caller": "index",
+          "callee": "Enrollment::where",
+          "lineNumber": 20
+        },
+        {
+          "caller": "index",
+          "callee": "$request->user",
+          "lineNumber": 20
+        },
+        {
+          "caller": "index",
+          "callee": "$enrollments->getCollection()->transform",
+          "lineNumber": 25
+        },
+        {
+          "caller": "index",
+          "callee": "$enrollments->getCollection",
+          "lineNumber": 25
+        },
+        {
+          "caller": "index",
+          "callee": "$progress->summary",
+          "lineNumber": 26
+        },
+        {
+          "caller": "index",
+          "callee": "EnrollmentResource::collection",
+          "lineNumber": 31
+        },
+        {
+          "caller": "lessons",
+          "callee": "$this->resolveActiveEnrollment",
+          "lineNumber": 36
+        },
+        {
+          "caller": "lessons",
+          "callee": "$request->user",
+          "lineNumber": 36
+        },
+        {
+          "caller": "lessons",
+          "callee": "$enrollment->lessonProgress()\n            ->where('is_completed', true)\n            ->pluck('lesson_id')->flip",
+          "lineNumber": 38
+        },
+        {
+          "caller": "lessons",
+          "callee": "$enrollment->lessonProgress()\n            ->where('is_completed', true)->pluck",
+          "lineNumber": 38
+        },
+        {
+          "caller": "lessons",
+          "callee": "$enrollment->lessonProgress()->where",
+          "lineNumber": 38
+        },
+        {
+          "caller": "lessons",
+          "callee": "$enrollment->lessonProgress",
+          "lineNumber": 38
+        },
+        {
+          "caller": "lessons",
+          "callee": "$course->lessons()->get()->map",
+          "lineNumber": 43
+        },
+        {
+          "caller": "lessons",
+          "callee": "$course->lessons()->get",
+          "lineNumber": 43
+        },
+        {
+          "caller": "lessons",
+          "callee": "$course->lessons",
+          "lineNumber": 43
+        },
+        {
+          "caller": "lessons",
+          "callee": "$completed->has",
+          "lineNumber": 44
+        },
+        {
+          "caller": "lessons",
+          "callee": "LessonResource::collection",
+          "lineNumber": 49
+        },
+        {
+          "caller": "progress",
+          "callee": "$this->resolveActiveEnrollment",
+          "lineNumber": 54
+        },
+        {
+          "caller": "progress",
+          "callee": "$request->user",
+          "lineNumber": 54
+        },
+        {
+          "caller": "progress",
+          "callee": "response()->json",
+          "lineNumber": 56
+        },
+        {
+          "caller": "progress",
+          "callee": "response",
+          "lineNumber": 56
+        },
+        {
+          "caller": "progress",
+          "callee": "$progress->summary",
+          "lineNumber": 56
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Api/Student/ReviewController.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 38,
+      "nonEmptyLines": 30,
+      "functions": [
+        {
+          "name": "store",
+          "startLine": 14,
+          "endLine": 37,
+          "params": [
+            "$request",
+            "$course"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "ReviewController",
+          "startLine": 12,
+          "endLine": 38,
+          "methods": [
+            "store"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ReviewController",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "store",
+          "callee": "$request->user",
+          "lineNumber": 16
+        },
+        {
+          "caller": "store",
+          "callee": "Enrollment::where('user_id', $user->id)\n            ->where('course_id', $course->id)->exists",
+          "lineNumber": 18
+        },
+        {
+          "caller": "store",
+          "callee": "Enrollment::where('user_id', $user->id)->where",
+          "lineNumber": 18
+        },
+        {
+          "caller": "store",
+          "callee": "Enrollment::where",
+          "lineNumber": 18
+        },
+        {
+          "caller": "store",
+          "callee": "abort_unless",
+          "lineNumber": 22
+        },
+        {
+          "caller": "store",
+          "callee": "$request->validate",
+          "lineNumber": 24
+        },
+        {
+          "caller": "store",
+          "callee": "Review::updateOrCreate",
+          "lineNumber": 29
+        },
+        {
+          "caller": "store",
+          "callee": "(new ReviewResource($review->load('user')))\n            ->response()->setStatusCode",
+          "lineNumber": 34
+        },
+        {
+          "caller": "store",
+          "callee": "(new ReviewResource($review->load('user')))->response",
+          "lineNumber": 34
+        },
+        {
+          "caller": "store",
+          "callee": "$review->load",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Controllers/Controller.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 8,
+      "nonEmptyLines": 6,
+      "classes": [
+        {
+          "name": "Controller",
+          "startLine": 5,
+          "endLine": 8,
+          "methods": [],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Controller",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Resources/AdminCourseResource.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 37,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "toArray",
+          "startLine": 9,
+          "endLine": 36,
+          "params": [
+            "$request"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "AdminCourseResource",
+          "startLine": 7,
+          "endLine": 37,
+          "methods": [
+            "toArray"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminCourseResource",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toArray",
+          "callee": "parent::toArray",
+          "lineNumber": 12
+        },
+        {
+          "caller": "toArray",
+          "callee": "$this->whenLoaded",
+          "lineNumber": 13
+        },
+        {
+          "caller": "toArray",
+          "callee": "$this->quiz->questions->map(fn ($question) => [\n                        'id' => $question->id,\n                        'content' => $question->content,\n                        'options' => $question->options->map(fn ($option) => [\n                            'id' => $option->id,\n                            'content' => $option->content,\n                            'is_correct' => $option->is_correct,\n                        ])->values(),\n                    ])->values",
+          "lineNumber": 24
+        },
+        {
+          "caller": "toArray",
+          "callee": "$this->quiz->questions->map",
+          "lineNumber": 24
+        },
+        {
+          "caller": "toArray",
+          "callee": "$question->options->map(fn ($option) => [\n                            'id' => $option->id,\n                            'content' => $option->content,\n                            'is_correct' => $option->is_correct,\n                        ])->values",
+          "lineNumber": 27
+        },
+        {
+          "caller": "toArray",
+          "callee": "$question->options->map",
+          "lineNumber": 27
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Resources/CategoryResource.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 20,
+      "nonEmptyLines": 17,
+      "functions": [
+        {
+          "name": "toArray",
+          "startLine": 10,
+          "endLine": 19,
+          "params": [
+            "$request"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "CategoryResource",
+          "startLine": 8,
+          "endLine": 20,
+          "methods": [
+            "toArray"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CategoryResource",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toArray",
+          "callee": "$this->whenCounted",
+          "lineNumber": 17
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Resources/CourseResource.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 36,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "toArray",
+          "startLine": 10,
+          "endLine": 35,
+          "params": [
+            "$request"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "CourseResource",
+          "startLine": 8,
+          "endLine": 36,
+          "methods": [
+            "toArray"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CourseResource",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toArray",
+          "callee": "$this->whenCounted",
+          "lineNumber": 24
+        },
+        {
+          "caller": "toArray",
+          "callee": "$this->whenCounted",
+          "lineNumber": 25
+        },
+        {
+          "caller": "toArray",
+          "callee": "$this->when",
+          "lineNumber": 26
+        },
+        {
+          "caller": "toArray",
+          "callee": "round",
+          "lineNumber": 28
+        },
+        {
+          "caller": "toArray",
+          "callee": "$this->whenLoaded",
+          "lineNumber": 30
+        },
+        {
+          "caller": "toArray",
+          "callee": "LessonResource::collection",
+          "lineNumber": 31
+        },
+        {
+          "caller": "toArray",
+          "callee": "$this->whenLoaded",
+          "lineNumber": 31
+        },
+        {
+          "caller": "toArray",
+          "callee": "$this->when",
+          "lineNumber": 32
+        },
+        {
+          "caller": "toArray",
+          "callee": "$this->relationLoaded",
+          "lineNumber": 32
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Resources/LessonResource.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 24,
+      "nonEmptyLines": 21,
+      "functions": [
+        {
+          "name": "toArray",
+          "startLine": 10,
+          "endLine": 23,
+          "params": [
+            "$request"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "LessonResource",
+          "startLine": 8,
+          "endLine": 24,
+          "methods": [
+            "toArray"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "LessonResource",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toArray",
+          "callee": "$this->when",
+          "lineNumber": 21
+        },
+        {
+          "caller": "toArray",
+          "callee": "isset",
+          "lineNumber": 21
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Resources/ReviewResource.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 25,
+      "nonEmptyLines": 22,
+      "functions": [
+        {
+          "name": "toArray",
+          "startLine": 10,
+          "endLine": 24,
+          "params": [
+            "$request"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "ReviewResource",
+          "startLine": 8,
+          "endLine": 25,
+          "methods": [
+            "toArray"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ReviewResource",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toArray",
+          "callee": "$this->whenLoaded",
+          "lineNumber": 19
+        },
+        {
+          "caller": "toArray",
+          "callee": "$this->whenLoaded",
+          "lineNumber": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "BE/app/Http/Resources/UserResource.php",
+      "language": "php",
+      "fileCategory": "code",
+      "totalLines": 23,
+      "nonEmptyLines": 20,
+      "functions": [
+        {
+          "name": "toArray",
+          "startLine": 10,
+          "endLine": 22,
+          "params": [
+            "$request"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "UserResource",
+          "startLine": 8,
+          "endLine": 23,
+          "methods": [
+            "toArray"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "UserResource",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    }
+  ]
+}

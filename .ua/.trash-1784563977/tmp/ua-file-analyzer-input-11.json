@@ -1,0 +1,9 @@
+{
+  "projectRoot": "D:/CODE/seongon-lms",
+  "batchFiles": [
+    {"path":"Infra/docker/php/Dockerfile","language":"dockerfile","sizeLines":64,"fileCategory":"infra"}
+  ],
+  "batchImportData": {
+    "Infra/docker/php/Dockerfile": []
+  }
+}
