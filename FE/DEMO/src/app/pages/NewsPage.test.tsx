@@ -157,9 +157,10 @@ describe('News public pages', () => {
     const realApiModule = await vi.importActual<typeof import('../lib/api')>('../lib/api');
 
     await realApiModule.api.news({ category: 'SEO', page: 1 });
+    const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '');
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'http://127.0.0.1:8000/api/v1/news?category=SEO&page=1',
+      `${apiBaseUrl}/news?category=SEO&page=1`,
       expect.any(Object),
     );
   });

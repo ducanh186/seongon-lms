@@ -87,9 +87,10 @@ describe('apiRequest', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     const certificate = await api.downloadCertificate('student-token', 42);
+    const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '');
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'http://127.0.0.1:8000/api/v1/my/courses/42/certificate',
+      `${apiBaseUrl}/my/courses/42/certificate`,
       { headers: { Authorization: 'Bearer student-token' } },
     );
     expect(certificate.type).toBe('application/pdf');
