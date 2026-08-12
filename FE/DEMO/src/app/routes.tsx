@@ -14,22 +14,37 @@ import { NewsDetailPage } from './pages/NewsDetailPage';
 import { NewsPage } from './pages/NewsPage';
 import { ProfilePage } from './pages/ProfilePage';
 
-export const router = createBrowserRouter([{ path: '/', Component: Layout, children: [
-  { index: true, Component: Home },
-  { path: 'courses', Component: CatalogPage },
-  { path: 'courses/:slug', Component: CoursePage },
-  { path: 'news', Component: NewsPage },
-  { path: 'news/:slug', Component: NewsDetailPage },
-  { path: 'login', Component: AuthPage },
-  { Component: RequireAuth, children: [
-    { path: 'profile', Component: ProfilePage },
-    { Component: () => <RequireAuth role="student" />, children: [
-      { path: 'cart', Component: CartPage },
-      { path: 'checkout/:slug', Component: CheckoutPage },
-      { path: 'my-courses', Component: MyCoursesPage },
-      { path: 'learn/:courseId', Component: LearnCoursePage },
-    ] },
-  ] },
-  { Component: () => <RequireAuth role="admin" />, children: [{ path: 'admin', Component: AdminPage }] },
-  { path: '*', element: <Navigate to="/" replace /> },
-] }]);
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    Component: Layout,
+    children: [
+      { index: true, Component: Home },
+      { path: 'courses', Component: CatalogPage },
+      { path: 'courses/:slug', Component: CoursePage },
+      { path: 'news', Component: NewsPage },
+      { path: 'news/:slug', Component: NewsDetailPage },
+      { path: 'login', Component: AuthPage },
+      {
+        Component: RequireAuth,
+        children: [
+          { path: 'profile', Component: ProfilePage },
+          {
+            Component: () => <RequireAuth role="student" />,
+            children: [
+              { path: 'cart', Component: CartPage },
+              { path: 'checkout/:slug', Component: CheckoutPage },
+              { path: 'my-courses', Component: MyCoursesPage },
+              { path: 'learn/:courseId', Component: LearnCoursePage },
+            ],
+          },
+        ],
+      },
+      { path: '*', element: <Navigate to="/" replace /> },
+    ],
+  },
+  {
+    Component: () => <RequireAuth role="admin" />,
+    children: [{ path: '/admin', Component: AdminPage }],
+  },
+]);

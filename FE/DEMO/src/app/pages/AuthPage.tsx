@@ -25,7 +25,7 @@ export function AuthPage() {
         ? await login(email, password)
         : await register(name, email, password, passwordConfirmation);
       const returnPath = (location.state as { from?: string } | null)?.from;
-      navigate(returnPath ?? (user.role === 'admin' ? '/admin' : '/my-courses'));
+      navigate(user.role === 'admin' ? '/admin' : (returnPath ?? '/my-courses'));
     } catch (reason) {
       setError(reason instanceof ApiError ? reason : new ApiError('Không thể xác thực tài khoản.', 0));
     } finally {
@@ -34,19 +34,19 @@ export function AuthPage() {
   };
 
   return (
-    <Box sx={{ py: { xs: 5, md: 8 }, minHeight: '70dvh' }}>
+    <Box sx={{ py: 8, minHeight: '70dvh' }}>
       <Container maxWidth="lg" sx={{ maxWidth: 1120 }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '.9fr 1fr' }, border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 18px 50px rgba(18, 51, 61, .1)' }}>
-          <Box component="aside" aria-label="Giới thiệu nền tảng học tập" sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 4, p: { xs: 3, sm: 4, md: 5 }, color: 'common.white', bgcolor: '#12333D', minHeight: { xs: 260, md: 560 } }}>
+        <Box data-testid="auth-layout" sx={{ display: 'grid', gridTemplateColumns: '.9fr 1fr', border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 18px 50px rgba(18, 51, 61, .1)' }}>
+          <Box component="aside" aria-label="Giới thiệu nền tảng học tập" sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 4, p: 5, color: 'common.white', bgcolor: '#12333D', minHeight: 560 }}>
             <Typography variant="overline" fontWeight={800} letterSpacing=".1em">SEONGON ACADEMY</Typography>
             <Box>
-              <Typography component="h2" variant="h3" sx={{ fontSize: { xs: '2rem', md: '2.6rem' } }}>Quay lại lộ trình đang chờ bạn.</Typography>
-              <Typography sx={{ mt: 2, color: 'rgba(255,255,255,.78)', lineHeight: 1.75, maxWidth: 440 }}>Học theo bài, theo dõi tiến độ và lưu lại thành quả trong một tài khoản duy nhất.</Typography>
+              <Typography component="h2" variant="h3" sx={{ fontSize: '2.6rem' }}>Học Marketing thực chiến để tạo kết quả có thể đo lường.</Typography>
+              <Typography sx={{ mt: 2, color: 'rgba(255,255,255,.78)', lineHeight: 1.75, maxWidth: 440 }}>Tiếp cận kiến thức SEO, Google Ads, Content và AI Search qua những bài học gắn với công việc thực tế.</Typography>
             </Box>
             <Typography variant="body2" sx={{ color: 'rgba(255,255,255,.72)' }}>Marketing thực chiến · Lộ trình có cấu trúc</Typography>
           </Box>
-          <Paper component="form" aria-label="Đăng nhập hoặc đăng ký" onSubmit={submit} elevation={0} sx={{ p: { xs: 3, sm: 5, md: 6 }, borderRadius: 0, alignSelf: 'stretch' }}>
-            <Typography variant="overline" color="primary.dark" fontWeight={800}>TÀI KHOẢN HỌC TẬP</Typography>
+          <Paper component="form" aria-label="Đăng nhập hoặc đăng ký" onSubmit={submit} elevation={0} sx={{ p: 6, borderRadius: 0, alignSelf: 'stretch' }}>
+            <Typography variant="overline" color="primary.dark" fontWeight={800}>SEONGON ACADEMY</Typography>
             <Typography component="h1" variant="h4" sx={{ mt: 1 }}>Chào mừng bạn</Typography>
             <Typography color="text.secondary" sx={{ mt: 1.25 }}>Đăng nhập để tiếp tục lộ trình học của bạn.</Typography>
             <Tabs value={mode} onChange={(_, value) => setMode(value)} sx={{ mt: 3 }}>

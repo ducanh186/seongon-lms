@@ -1,4 +1,5 @@
 import { configDefaults, defineConfig } from 'vitest/config'
+import fs from 'fs'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
@@ -33,6 +34,14 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+  server: {
+    fs: {
+      allow: [
+        path.resolve(__dirname),
+        fs.realpathSync(path.resolve(__dirname, 'node_modules')),
+      ],
+    },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],

@@ -37,6 +37,36 @@ class AuthAndCatalogTest extends TestCase
             ->assertJsonFragment(['slug' => 'seo', 'courses_count' => 1]);
     }
 
+    public function test_guest_catalog_filters_price_level_and_sorts_paid_courses_descending(): void
+    {
+        $seo = Category::factory()->create(['name' => 'SEO', 'slug' => 'seo']);
+        Course::factory()->create(['category_id' => $seo->id, 'price' => 0, 'level' => 'beginner']);
+        $middle = Course::factory()->create(['category_id' => $seo->id, 'price' => 100000, 'level' => 'advanced']);
+        $highest = Course::factory()->create(['category_id' => $seo->id, 'price' => 300000, 'level' => 'advanced']);
+        Course::factory()->draft()->create(['category_id' => $seo->id, 'price' => 900000, 'level' => 'advanced']);
+
+        $response = $this->getJson('/api/v1/courses?category=seo&level=advanced&price=paid&sort=price_desc');
+
+        $response->assertOk()
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('data.0.id', $highest->id)
+            ->assertJsonPath('data.0.price', '300000.00')
+            ->assertJsonPath('data.1.id', $middle->id)
+            ->assertJsonPath('data.1.price', '100000.00');
+    }
+
+    public function test_guest_catalog_supports_free_courses_and_stable_pagination(): void
+    {
+        Course::factory()->count(13)->create(['price' => 0]);
+        Course::factory()->create(['price' => 200000]);
+
+        $this->getJson('/api/v1/courses?price=free&page=2')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 13)
+            ->assertJsonPath('meta.current_page', 2)
+            ->assertJsonCount(1, 'data');
+    }
+
     public function test_guest_can_register_then_login_and_a_locked_account_is_rejected(): void
     {
         $registration = $this->postJson('/api/v1/auth/register', [

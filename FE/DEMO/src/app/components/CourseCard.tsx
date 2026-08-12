@@ -4,7 +4,7 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import { Link } from 'react-router';
 import type { ApiCourse } from '../lib/contracts';
 
-const FALLBACK_COURSE_IMAGE = 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=80';
+const FALLBACK_COURSE_IMAGE = '/generated-images/course-seo.webp';
 
 const levelLabels = { beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao' } as const;
 
@@ -16,7 +16,7 @@ export function CourseCard({ course, headingLevel = 'h3', compact = false }: { c
   const hasLearningMeta = course.lessons_count != null || course.rating != null;
 
   return (
-    <Card sx={{ height: '100%', overflow: 'hidden', transition: 'transform 180ms ease', '&:hover': { transform: 'translateY(-3px)' } }}>
+    <Card component="article" aria-label={`Khóa học ${course.title}`} sx={{ height: '100%', overflow: 'hidden', transition: 'transform 180ms ease', '&:hover': { transform: 'translateY(-3px)' } }}>
       <CardActionArea component={Link} to={`/courses/${course.slug}`} sx={{ height: '100%', display: 'flex', alignItems: 'stretch', flexDirection: 'column' }}>
         <Box component="img" src={course.thumbnail ?? FALLBACK_COURSE_IMAGE} alt="" sx={{ width: '100%', height: compact ? 148 : 176, objectFit: 'cover', bgcolor: 'primary.light' }} />
         <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: compact ? 1 : 1.25, width: '100%', flexGrow: 1, p: compact ? 2 : 2.5 }}>

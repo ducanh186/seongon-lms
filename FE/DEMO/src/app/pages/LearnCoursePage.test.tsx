@@ -80,19 +80,13 @@ describe('LearnCoursePage', () => {
     expect(screen.queryByText('125 phút')).not.toBeInTheDocument();
   });
 
-  it('moves curriculum into an accessible drawer on mobile', async () => {
-    useViewport(390);
+  it('keeps the curriculum visible in the desktop learning workspace', async () => {
     myCourses.mockResolvedValue(enrollmentResponse);
     lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học 1', video_url: '', description: null, duration: null, position: 1, is_completed: false }] });
     progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, can_take_exam: false });
-    const user = userEvent.setup();
-
     renderPage();
-
-    const trigger = await screen.findByRole('button', { name: 'Mở nội dung khóa học' });
-    expect(screen.queryByRole('navigation', { name: 'Nội dung khóa học' })).not.toBeInTheDocument();
-    await user.click(trigger);
     expect(await screen.findByRole('navigation', { name: 'Nội dung khóa học' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Mở nội dung khóa học' })).not.toBeInTheDocument();
   });
 
   it('retains submitted answers and shows correct and incorrect disabled states', async () => {

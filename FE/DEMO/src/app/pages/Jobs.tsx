@@ -39,7 +39,7 @@ export function Jobs() {
     <div>
       {/* Header Banner */}
       <div className="relative bg-gradient-to-br from-[#E91E8C] via-[#00D4E7] to-[#D91E7C] text-white overflow-hidden py-16">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1770669564689-d3e8ec8d1595?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZWNydWl0bWVudCUyMGhpcmluZyUyMHByb2Zlc3Npb25hbHN8ZW58MXx8fHwxNzczODg2NTc0fDA&ixlib=rb-4.1.0&q=80&w=1080')] opacity-10 bg-cover bg-center\"></div>
+        <div className="absolute inset-0 bg-[url('/generated-images/catalog-hero.webp')] opacity-10 bg-cover bg-center\"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="mb-4 text-4xl md:text-5xl">Cơ hội việc làm tại SEONGON</h1>
           <p className="text-lg opacity-90">

@@ -32,6 +32,16 @@ class CourseController extends Controller
             });
         }
 
+        if ($level = $request->query('level')) {
+            $query->where('level', $level);
+        }
+
+        match ($request->query('price')) {
+            'free' => $query->where('price', 0),
+            'paid' => $query->where('price', '>', 0),
+            default => null,
+        };
+
         if ($request->filled('min_price')) {
             $query->where('price', '>=', (float) $request->query('min_price'));
         }

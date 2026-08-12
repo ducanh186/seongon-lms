@@ -56,7 +56,7 @@ export function MotivationalBanner({ variant = 'primary' }: MotivationalBannerPr
 
   return (
     <section className={`py-12 bg-gradient-to-r ${selectedBanner.gradient} text-white overflow-hidden relative`}>
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920')] opacity-10 bg-cover bg-center"></div>
+      <div className="absolute inset-0 bg-[url('/generated-images/home-hero.webp')] opacity-10 bg-cover bg-center"></div>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-start gap-4 flex-1">

@@ -20,7 +20,7 @@ class NewsPostFactory extends Factory
             'category' => fake()->randomElement(['Announcements', 'Learning', 'Events']),
             'excerpt' => fake()->sentence(),
             'content' => fake()->paragraphs(3, true),
-            'thumbnail' => 'https://picsum.photos/seed/'.fake()->uuid().'/600/400',
+            'thumbnail' => '/generated-images/catalog-hero.webp',
             'status' => 'published',
             'published_at' => now()->subMinute(),
         ];

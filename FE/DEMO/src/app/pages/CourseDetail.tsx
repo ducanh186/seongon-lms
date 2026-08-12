@@ -168,7 +168,7 @@ export function CourseDetail() {
                   <div key={review.id} className="p-6 border border-border rounded-lg">
                     <div className="flex items-start gap-4">
                       <img
-                        src={review.userAvatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100'}
+                        src={review.userAvatar || '/generated-images/testimonial-01.webp'}
                         alt={review.userName}
                         className="w-12 h-12 rounded-full object-cover"
                       />

@@ -66,7 +66,7 @@ function deferred<T>() {
 
 function mockAdminData() {
   useAuth.mockReturnValue({ token: 'admin-token', isReady: true, user: { id: 1, role: 'admin' } });
-  adminStats.mockResolvedValue({ students: 1, courses: 1, published_courses: 0, enrollments: 0, certificates: 0, completion_rate: 0, revenue: 0 });
+  adminStats.mockResolvedValue({ students: 1, courses: 1, published_courses: 0, enrollments: 0, certificates: 0, completion_rate: 0, revenue: 0, monthly_enrollments: [], popular_courses: [] });
   adminUsers.mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } });
   adminCategories.mockResolvedValue({ data: [{ id: 1, name: 'SEO', slug: 'seo', description: null, courses_count: 1 }] });
   adminCourses.mockResolvedValue({ data: [course], meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 } });
@@ -92,12 +92,12 @@ describe('AdminPage', () => {
 
     const navigation = await screen.findByRole('navigation', { name: 'Quản trị' });
     expect(within(navigation).getAllByRole('button').map((button) => button.textContent)).toEqual([
-      'Dashboard',
-      'Người dùng',
+      'Tổng quan',
+      'Học viên',
       'Danh mục',
       'Khóa học',
       'Đánh giá',
-      'Quản lý tin tức',
+      'Tin tức',
     ]);
     expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'false');
 
@@ -114,6 +114,7 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    expect(screen.getByRole('region', { name: 'Bộ lọc khóa học' })).toHaveAttribute('data-admin-toolbar', 'true');
 
     expect(screen.queryByRole('heading', { name: 'Tạo khóa học' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Tạo khóa học mới' })).toBeInTheDocument();
@@ -162,7 +163,8 @@ describe('AdminPage', () => {
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Người dùng' }));
+    await user.click(await screen.findByRole('button', { name: 'Học viên' }));
+    expect(screen.getByRole('region', { name: 'Bộ lọc học viên' })).toHaveAttribute('data-admin-toolbar', 'true');
 
     const table = await screen.findByRole('table', { name: 'Danh sách học viên' });
     expect(within(table).getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
@@ -207,7 +209,7 @@ describe('AdminPage', () => {
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Người dùng' }));
+    await user.click(await screen.findByRole('button', { name: 'Học viên' }));
     adminUsers.mockClear();
     await user.type(screen.getByLabelText('Tìm học viên'), 'Học viên Demo');
 
@@ -285,9 +287,11 @@ describe('AdminPage', () => {
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Quản lý tin tức' }));
+    await user.click(await screen.findByRole('button', { name: 'Tin tức' }));
 
     expect(await screen.findByRole('table', { name: 'Danh sách tin tức' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Bộ lọc tin tức' })).toHaveStyle({ display: 'grid' });
+    expect(screen.getByRole('button', { name: 'Tạo tin tức mới' })).toHaveStyle({ whiteSpace: 'nowrap', minWidth: '132px' });
     expect(screen.getByText('Bản nháp SEO')).toBeInTheDocument();
     expect(screen.getByText('Tin đã xuất bản')).toBeInTheDocument();
     expect(screen.getByText('Bản nháp')).toBeInTheDocument();
@@ -307,7 +311,7 @@ describe('AdminPage', () => {
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Quản lý tin tức' }));
+    await user.click(await screen.findByRole('button', { name: 'Tin tức' }));
     expect(screen.queryByRole('heading', { name: 'Tạo tin tức' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Tạo tin tức mới' }));
     const editorTitle = await screen.findByRole('heading', { name: 'Tạo tin tức' });
@@ -338,7 +342,7 @@ describe('AdminPage', () => {
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Quản lý tin tức' }));
+    await user.click(await screen.findByRole('button', { name: 'Tin tức' }));
     await user.click(screen.getByRole('button', { name: 'Tạo tin tức mới' }));
     const editorTitle = await screen.findByRole('heading', { name: 'Tạo tin tức' });
     const editor = editorTitle.closest('form');
@@ -362,7 +366,7 @@ describe('AdminPage', () => {
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Quản lý tin tức' }));
+    await user.click(await screen.findByRole('button', { name: 'Tin tức' }));
     const draftRow = await screen.findByRole('row', { name: /Bản nháp SEO/ });
     await user.click(within(draftRow).getByRole('button', { name: 'Xóa' }));
 
@@ -378,7 +382,7 @@ describe('AdminPage', () => {
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Quản lý tin tức' }));
+    await user.click(await screen.findByRole('button', { name: 'Tin tức' }));
     const draftRow = await screen.findByRole('row', { name: /Bản nháp SEO/ });
     await user.click(within(draftRow).getByRole('button', { name: 'Xuất bản' }));
 
@@ -397,7 +401,7 @@ describe('AdminPage', () => {
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Quản lý tin tức' }));
+    await user.click(await screen.findByRole('button', { name: 'Tin tức' }));
     const publishedRow = await screen.findByRole('row', { name: /Tin đã xuất bản/ });
     await user.click(within(publishedRow).getByRole('button', { name: 'Chuyển về nháp' }));
 
@@ -416,7 +420,7 @@ describe('AdminPage', () => {
     render(<AdminPage />);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Quản lý tin tức' }));
+    await user.click(await screen.findByRole('button', { name: 'Tin tức' }));
     await screen.findByRole('table', { name: 'Danh sách tin tức' });
     const olderRequest = deferred<{ data: typeof newsPosts; meta: { current_page: number; last_page: number; per_page: number; total: number } }>();
     const newerPost = { ...newsPosts[1], id: 23, title: 'Tin mới nhất', slug: 'tin-moi-nhat' };

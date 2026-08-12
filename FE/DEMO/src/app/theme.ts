@@ -11,7 +11,7 @@ export const focusTokens = {
 export const layoutTokens = {
   contentMaxWidth: 1280,
   headerHeight: 80,
-  sectionPadding: { xs: 6, md: 8 },
+  sectionPadding: 8,
 } as const;
 
 export const theme = createTheme({
@@ -48,7 +48,7 @@ export const theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        body: { minWidth: 320, backgroundColor: '#F2F6F8', color: navy },
+        body: { minWidth: 0, backgroundColor: '#F2F6F8', color: navy },
         '::selection': { background: alpha(teal, 0.2) },
         'a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible': {
           outline: `3px solid ${focusTokens.onLight}`,

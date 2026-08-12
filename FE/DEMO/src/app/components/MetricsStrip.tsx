@@ -16,7 +16,8 @@ export function MetricsStrip({ items }: { items: MetricItem[] }) {
         sx={{
           maxWidth: layoutTokens.contentMaxWidth,
           display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(5, 1fr)' },
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          px: 3,
         }}
       >
         {items.map((item) => (

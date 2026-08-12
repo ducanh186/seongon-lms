@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Category;
+use App\Support\DemoCourseThumbnail;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -17,7 +18,7 @@ class CourseFactory extends Factory
             'title' => $title,
             'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(1, 1000000),
             'description' => fake()->paragraphs(3, true),
-            'thumbnail' => 'https://picsum.photos/seed/'.fake()->uuid().'/600/400',
+            'thumbnail' => DemoCourseThumbnail::forTrack('factory', fake()->numberBetween(1, 100)),
             'price' => fake()->randomElement([0, 199000, 299000, 499000, 799000]),
             'instructor_name' => fake()->name(),
             'instructor_bio' => fake()->sentence(),

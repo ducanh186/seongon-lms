@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -58,6 +58,7 @@ describe('Layout', () => {
   it('gives the SEONGON brand the approved header prominence', () => {
     renderLayout();
 
+    expect(window.getComputedStyle(screen.getByRole('banner')).position).toBe('static');
     const brandLink = screen.getByRole('link', { name: 'SEONGON Academy - Trang chủ' });
     const logo = brandLink.querySelector('img');
 
@@ -86,7 +87,25 @@ describe('Layout', () => {
     expect(screen.getByRole('contentinfo')).toHaveAttribute('data-surface', 'dark');
   });
 
-  it('shows only public navigation, search, and login to guests', () => {
+  it('renders the full four-column public footer with real destinations', () => {
+    renderLayout();
+
+    const footer = screen.getByRole('contentinfo');
+    expect(within(footer).getByText('SEONGON Academy')).toBeInTheDocument();
+    expect(within(footer).getByRole('heading', { name: 'Khám phá' })).toBeInTheDocument();
+    expect(within(footer).getByRole('heading', { name: 'Tài khoản' })).toBeInTheDocument();
+    expect(within(footer).getByRole('heading', { name: 'Liên hệ & chính sách' })).toBeInTheDocument();
+    expect(within(footer).getByRole('link', { name: 'Tất cả khóa học' })).toHaveAttribute('href', '/courses');
+    expect(within(footer).getByRole('link', { name: 'Tin tức & kiến thức' })).toHaveAttribute('href', '/news');
+    expect(within(footer).getByRole('link', { name: 'Đăng nhập' })).toHaveAttribute('href', '/login');
+    expect(within(footer).getByRole('link', { name: 'Giỏ hàng' })).toHaveAttribute('href', '/cart');
+    expect(within(footer).getByTestId('public-footer-grid')).toHaveStyle({
+      display: 'grid',
+      gridTemplateColumns: '1.5fr 1fr 1fr 1fr',
+    });
+  });
+
+  it('shows the approved desktop role matrix to guests', () => {
     renderLayout('/courses');
     const desktopNavigation = screen.getByRole('navigation', { name: 'Điều hướng chính' });
 
@@ -95,8 +114,13 @@ describe('Layout', () => {
     expect(within(desktopNavigation).getByRole('link', { name: 'Tin tức' })).toHaveAttribute('href', '/news');
     expect(within(desktopNavigation).queryByRole('link', { name: 'Quản trị' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Tìm kiếm khóa học' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Đăng nhập' })).toBeInTheDocument();
+    const banner = screen.getByRole('banner');
+    expect(within(banner).getByRole('link', { name: 'Giỏ hàng' })).toHaveAttribute('href', '/cart');
+    expect(within(banner).getByRole('link', { name: 'Đăng nhập' })).toHaveAttribute('href', '/login');
+    expect(within(banner).getByRole('link', { name: 'Đăng ký' })).toHaveAttribute('href', '/login');
     expect(screen.queryByRole('button', { name: 'Thông báo' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Tài khoản/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Mở menu' })).not.toBeInTheDocument();
   });
 
   it('gives students notifications and a student-only account menu without a standalone my-courses link', async () => {
@@ -112,20 +136,47 @@ describe('Layout', () => {
     expect(notificationButton).toHaveAttribute('aria-controls');
     expect(screen.getByRole('button', { name: 'Giỏ hàng' })).toBeInTheDocument();
 
-    await user.click(notificationButton);
+    fireEvent.mouseEnter(notificationButton);
     expect(notificationButton).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('menu', { name: 'Thông báo' })).toHaveAttribute(
       'aria-labelledby',
       notificationButton.getAttribute('id'),
     );
     expect(screen.getByText('Bạn chưa có thông báo mới.')).toBeInTheDocument();
+    expect(screen.getByRole('menu', { name: 'Thông báo' }).closest('.MuiModal-root')).toHaveStyle({ pointerEvents: 'none' });
     await user.keyboard('{Escape}');
 
-    await user.click(screen.getByRole('button', { name: /Học viên/ }));
+    fireEvent.mouseEnter(screen.getByRole('button', { name: /Học viên/ }));
     expect(screen.getByRole('menuitem', { name: 'Hồ sơ' })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Khóa học của tôi' })).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Quản trị' })).not.toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Đăng xuất' })).toBeInTheDocument();
+    expect(screen.getByRole('menu', { name: /Tài khoản Học viên/ }).closest('.MuiModal-root')).toHaveStyle({ pointerEvents: 'none' });
+  });
+
+  it('keeps header dropdowns open across the trigger-panel gap and cancels a pending close on re-entry', () => {
+    vi.useFakeTimers();
+    try {
+      renderLayout('/courses', 'student');
+      const trigger = screen.getByRole('button', { name: 'Thông báo' });
+
+      fireEvent.mouseEnter(trigger);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      fireEvent.mouseLeave(trigger);
+      act(() => vi.advanceTimersByTime(199));
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      fireEvent.mouseEnter(trigger);
+      act(() => vi.advanceTimersByTime(200));
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      fireEvent.mouseLeave(trigger);
+      act(() => vi.advanceTimersByTime(200));
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    } finally {
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
+    }
   });
 
   it('gives admins their admin navigation and no student controls', async () => {
@@ -134,68 +185,16 @@ describe('Layout', () => {
     const desktopNavigation = screen.getByRole('navigation', { name: 'Điều hướng chính' });
 
     expect(within(desktopNavigation).getByRole('link', { name: 'Tin tức' })).toHaveAttribute('href', '/news');
-    expect(within(desktopNavigation).getByRole('link', { name: 'Quản trị' })).toBeInTheDocument();
+    expect(within(desktopNavigation).queryByRole('link', { name: 'Quản trị' })).not.toBeInTheDocument();
     expect(within(desktopNavigation).queryByRole('link', { name: 'Khóa học của tôi' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Thông báo' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Giỏ hàng' })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /SEONGON Admin/ }));
+    fireEvent.mouseEnter(screen.getByRole('button', { name: /SEONGON Admin/ }));
     expect(screen.getByRole('menuitem', { name: 'Hồ sơ' })).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Khóa học của tôi' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Quản trị' })).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Admin Portal' })).toHaveAttribute('href', '/admin');
     expect(screen.getByRole('menuitem', { name: 'Đăng xuất' })).toBeInTheDocument();
   });
 
-  it.each([
-    ['guest', null, false, false],
-    ['student', 'student', false, true],
-    ['admin', 'admin', true, false],
-  ] as const)('applies the role navigation rules to mobile for %s', async (_roleName, role, seesAdmin, seesCart) => {
-    renderLayout('/', role);
-    const user = userEvent.setup();
-    const menuButton = screen.getByRole('button', { name: 'Mở menu' });
-
-    expect(menuButton).toHaveAttribute('aria-expanded', 'false');
-    await user.click(menuButton);
-
-    const mobileNavigation = screen.getByRole('navigation', { name: 'Điều hướng di động' });
-    expect(within(mobileNavigation).getByRole('link', { name: 'Trang chủ' })).toBeInTheDocument();
-    expect(within(mobileNavigation).getByRole('link', { name: 'Khóa học' })).toBeInTheDocument();
-    expect(within(mobileNavigation).getByRole('link', { name: 'Tin tức' })).toHaveAttribute('href', '/news');
-    expect(within(mobileNavigation).queryByRole('link', { name: 'Khóa học của tôi' })).not.toBeInTheDocument();
-
-    if (seesCart) {
-      expect(within(mobileNavigation).getByRole('link', { name: 'Giỏ hàng' })).toHaveAttribute('href', '/cart');
-      expect(within(mobileNavigation).getByText('2')).toBeInTheDocument();
-    } else {
-      expect(within(mobileNavigation).queryByRole('link', { name: 'Giỏ hàng' })).not.toBeInTheDocument();
-    }
-
-    if (seesAdmin) {
-      expect(within(mobileNavigation).getByRole('link', { name: 'Quản trị' })).toBeInTheDocument();
-    } else {
-      expect(within(mobileNavigation).queryByRole('link', { name: 'Quản trị' })).not.toBeInTheDocument();
-    }
-  });
-
-  it('keeps My Courses inside the student avatar menu on mobile', async () => {
-    renderLayout('/', 'student');
-    const user = userEvent.setup();
-
-    await user.click(screen.getByRole('button', { name: /Học viên/ }));
-
-    expect(screen.getByRole('menuitem', { name: 'Khóa học của tôi' })).toHaveAttribute('href', '/my-courses');
-  });
-
-  it('lets authenticated users log out from the mobile navigation', async () => {
-    const { logout } = renderLayout('/courses', 'student');
-    const user = userEvent.setup();
-
-    await user.click(screen.getByRole('button', { name: 'Mở menu' }));
-    const mobileNavigation = screen.getByRole('navigation', { name: 'Điều hướng di động' });
-    await user.click(within(mobileNavigation).getByRole('button', { name: 'Đăng xuất' }));
-
-    expect(logout).toHaveBeenCalledOnce();
-    await waitFor(() => expect(screen.getByTestId('current-path')).toHaveTextContent('/'));
-  });
 });
