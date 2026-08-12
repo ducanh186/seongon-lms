@@ -1,5 +1,7 @@
+import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
+import { Avatar, Box, Button, Stack, Typography } from '@mui/material';
 import type { ReactNode } from 'react';
-import { Box, Button, Stack, Typography } from '@mui/material';
+import { useAuth } from '../contexts/AuthContext';
 
 export type AdminSection = 'overview' | 'users' | 'categories' | 'courses' | 'reviews' | 'news';
 
@@ -10,70 +12,69 @@ interface AdminShellProps {
 }
 
 const adminSections: ReadonlyArray<readonly [AdminSection, string]> = [
-  ['overview', 'Dashboard'],
-  ['users', 'Người dùng'],
+  ['overview', 'Tổng quan'],
+  ['users', 'Học viên'],
   ['categories', 'Danh mục'],
   ['courses', 'Khóa học'],
   ['reviews', 'Đánh giá'],
-  ['news', 'Quản lý tin tức'],
+  ['news', 'Tin tức'],
 ];
 
 export function AdminShell({ active, onChange, children }: AdminShellProps) {
+  const { user } = useAuth();
+
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: { xs: 'minmax(0, 1fr)', lg: '232px minmax(0, 1fr)' },
-        gap: { xs: 2, lg: 3 },
-        minWidth: 0,
-      }}
-    >
-      <Box component="aside" sx={{ minWidth: 0 }}>
+    <Box sx={{ width: '100%', maxWidth: '100vw', minHeight: '100dvh', overflowX: 'hidden', bgcolor: 'background.default' }}>
+      <Box component="header" aria-label="Admin Portal" data-surface="dark" sx={{ bgcolor: '#102E38', color: 'common.white' }}>
+        <Stack direction="row" alignItems="center" sx={{ maxWidth: 1440, height: 72, mx: 'auto', px: { xs: 4, lg: 5 } }}>
+          <Box>
+            <Typography variant="overline" sx={{ display: 'block', color: '#65D4D7', fontWeight: 800, lineHeight: 1.2 }}>SEONGON ACADEMY</Typography>
+            <Typography variant="h6" color="common.white" sx={{ mt: 0.5, lineHeight: 1.2 }}>Admin Portal</Typography>
+          </Box>
+          <Box sx={{ flexGrow: 1 }} />
+          <Button component="a" href="/" color="inherit" startIcon={<ExitToAppRoundedIcon />} sx={{ mr: 2, whiteSpace: 'nowrap' }}>
+            Xem site public
+          </Button>
+          <Stack direction="row" alignItems="center" spacing={1.25} sx={{ pl: 2, borderLeft: '1px solid rgba(255,255,255,.18)' }}>
+            <Avatar src={user?.avatar ?? undefined} sx={{ width: 34, height: 34, bgcolor: 'primary.main' }}>{user?.name?.[0] ?? 'A'}</Avatar>
+            <Box>
+              <Typography variant="body2" color="common.white" fontWeight={750}>{user?.name ?? 'SEONGON Admin'}</Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,.65)' }}>Quản trị hệ thống</Typography>
+            </Box>
+          </Stack>
+        </Stack>
+      </Box>
+
+      <Box sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
         <Stack
           component="nav"
           aria-label="Quản trị"
-          direction={{ xs: 'row', lg: 'column' }}
-          spacing={0.75}
-          sx={{
-            position: { lg: 'sticky' },
-            top: { lg: 92 },
-            p: 1,
-            maxWidth: '100%',
-            overflowX: { xs: 'auto', lg: 'visible' },
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 2.5,
-            bgcolor: 'background.paper',
-          }}
+          direction="row"
+          sx={{ maxWidth: 1440, mx: 'auto', px: { xs: 4, lg: 5 }, overflowX: 'auto' }}
         >
-          <Typography
-            variant="overline"
-            color="text.secondary"
-            sx={{ display: { xs: 'none', lg: 'block' }, px: 1.25, pt: 0.5 }}
-          >
-            Khu vực quản trị
-          </Typography>
-          {adminSections.map(([value, label]) => (
-            <Button
-              key={value}
-              aria-pressed={active === value}
-              variant={active === value ? 'contained' : 'text'}
-              color={active === value ? 'primary' : 'inherit'}
-              onClick={() => onChange(value)}
-              sx={{
-                justifyContent: 'flex-start',
-                whiteSpace: 'nowrap',
-                minHeight: 42,
-                px: 1.5,
-                boxShadow: 'none',
-              }}
-            >
-              {label}
-            </Button>
-          ))}
+          {adminSections.map(([value, label]) => {
+            const selected = active === value;
+            return (
+              <Button
+                key={value}
+                aria-pressed={selected}
+                color="inherit"
+                onClick={() => onChange(value)}
+                sx={{
+                  position: 'relative', minHeight: 56, px: 2.25, flexShrink: 0, whiteSpace: 'nowrap', borderRadius: 0,
+                  color: selected ? 'primary.dark' : 'text.secondary', fontWeight: selected ? 800 : 650,
+                  '&::after': { content: '""', position: 'absolute', left: 18, right: 18, bottom: 0, height: 3, bgcolor: selected ? 'primary.main' : 'transparent' },
+                  '&:hover': { bgcolor: 'rgba(0,137,148,.06)', color: 'primary.dark' },
+                }}
+              >
+                {label}
+              </Button>
+            );
+          })}
         </Stack>
       </Box>
-      <Box component="section" aria-live="polite" sx={{ minWidth: 0 }}>
+
+      <Box component="main" aria-live="polite" sx={{ width: '100%', maxWidth: 1440, minWidth: 0, mx: 'auto', overflowX: 'hidden', p: { xs: 4, lg: 5 } }}>
         {children}
       </Box>
     </Box>

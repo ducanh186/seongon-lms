@@ -21,23 +21,14 @@ import {
   Typography,
 } from '@mui/material';
 import { api, ApiError } from '../lib/api';
-import type { ApiAdminCourse, ApiAdminQuestion, ApiCategory, ApiCourse, ApiNewsPost, ApiReview, ApiUser, Paginated } from '../lib/contracts';
+import type { ApiAdminCourse, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiNewsPost, ApiReview, ApiUser, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { useAuth } from '../contexts/AuthContext';
-import { PageHeader } from '../components/PageHeader';
+import { AdminSectionHeader } from '../components/AdminSectionHeader';
 import { StatusChip } from '../components/StatusChip';
 import { AdminDataTable, type AdminColumn } from '../components/AdminDataTable';
 import { AdminShell, type AdminSection } from '../components/AdminShell';
-
-type Stats = {
-  students: number;
-  courses: number;
-  published_courses: number;
-  enrollments: number;
-  certificates: number;
-  completion_rate: number;
-  revenue: number;
-};
+import { AdminOverview } from './AdminOverview';
 
 type CourseDraft = {
   title: string;
@@ -106,6 +97,15 @@ const blankQuestionOptions: QuestionOptionDraft[] = [
   { content: '', is_correct: false },
 ];
 
+const adminSectionCopy: Record<AdminSection, { title: string; description: string }> = {
+  overview: { title: 'Tổng quan vận hành', description: 'Theo dõi nhanh hoạt động học tập và hiệu quả nội dung.' },
+  users: { title: 'Quản lý học viên', description: 'Tìm kiếm, kiểm tra ghi danh và quản lý trạng thái tài khoản.' },
+  categories: { title: 'Danh mục khóa học', description: 'Tổ chức chủ đề để học viên khám phá nội dung dễ dàng.' },
+  courses: { title: 'Quản lý khóa học', description: 'Quản lý nội dung, bài học, bài kiểm tra và trạng thái xuất bản.' },
+  reviews: { title: 'Kiểm duyệt đánh giá', description: 'Theo dõi và kiểm soát đánh giá hiển thị trên hệ thống.' },
+  news: { title: 'Tin tức và kiến thức', description: 'Biên tập nội dung công khai theo quy trình nháp và xuất bản.' },
+};
+
 function getErrorMessage(reason: unknown, fallback: string): string {
   return reason instanceof ApiError ? reason.message : fallback;
 }
@@ -144,7 +144,7 @@ function newsDraftFrom(newsPost: ApiNewsPost): NewsDraft {
 export function AdminPage() {
   const { token } = useAuth();
   const [tab, setTab] = useState<AdminSection>('overview');
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [stats, setStats] = useState<ApiAdminStats | null>(null);
   const [users, setUsers] = useState<Paginated<ApiUser> | null>(null);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [courses, setCourses] = useState<Paginated<ApiCourse> | null>(null);
@@ -487,26 +487,18 @@ export function AdminPage() {
   }
 
   return (
-    <Box sx={{ py: { xs: 4, md: 7 }, minHeight: '70dvh' }}>
-      <Container maxWidth={false} sx={{ maxWidth: 1520 }}>
+    <Box sx={{ minHeight: '100dvh' }}>
+      <AdminShell active={tab} onChange={setTab}>
         <Stack spacing={3}>
-          <PageHeader eyebrow="ADMIN CONSOLE" title="Quản trị SEONGON LMS" description="Quản lý dữ liệu học tập bằng dữ liệu và quyền hạn từ Laravel API." />
+          <AdminSectionHeader title={adminSectionCopy[tab].title} description={adminSectionCopy[tab].description} />
           {notice && <Alert severity="success" onClose={() => setNotice(null)}>{notice}</Alert>}
           {error && <RequestError message={error} onRetry={() => void load()} />}
-          <AdminShell active={tab} onChange={setTab}>
-            <Stack spacing={3} sx={{ minWidth: 0 }}>
+          <Stack spacing={3} sx={{ minWidth: 0 }}>
 
-          {tab === 'overview' && <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2 }}>
-            {[
-              ['Học viên', stats?.students ?? 0],
-              ['Khóa học', stats?.courses ?? 0],
-              ['Ghi danh', stats?.enrollments ?? 0],
-              ['Doanh thu', `${Number(stats?.revenue ?? 0).toLocaleString('vi-VN')} đ`],
-            ].map(([label, value]) => <Card key={String(label)} sx={{ borderRadius: 3 }}><CardContent><Typography color="text.secondary" variant="body2">{label}</Typography><Typography variant="h5" fontWeight={800} color="primary.main" sx={{ mt: 1 }}>{value}</Typography></CardContent></Card>)}
-          </Box>}
+          {tab === 'overview' && stats && <AdminOverview stats={stats} />}
 
           {tab === 'users' && <Stack spacing={2}>
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <Stack component="section" role="region" aria-label="Bộ lọc học viên" data-admin-toolbar="true" direction="row" spacing={2} alignItems="stretch" sx={{ p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
               <TextField label="Tìm học viên" value={userQuery} onChange={(event) => setUserQuery(event.target.value)} fullWidth />
               <FormControl fullWidth><InputLabel id="student-status">Trạng thái</InputLabel><Select labelId="student-status" label="Trạng thái" value={userStatus} onChange={(event) => setUserStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="active">Đang hoạt động</MenuItem><MenuItem value="locked">Đã khóa</MenuItem></Select></FormControl>
               <Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, page: 1 })} sx={{ whiteSpace: 'nowrap' }}>Áp dụng</Button>
@@ -525,6 +517,9 @@ export function AdminPage() {
                   { key: 'status', header: 'Trạng thái', render: (user) => <StatusChip status={user.status} /> },
                   { key: 'actions', header: 'Thao tác', align: 'right', render: (user) => <Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => api.updateUserStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button> },
                 ] satisfies AdminColumn<ApiUser>[]}
+                minWidth={980}
+                stickyFirstColumn
+                stickyLastColumn
               /> : <EmptyState title="Không có người dùng phù hợp." />}
             </CardContent></Card>
             {users && users.meta.last_page > 1 && <Pagination count={users.meta.last_page} page={appliedUserFilters.page} onChange={(_, page) => setAppliedUserFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
@@ -536,7 +531,7 @@ export function AdminPage() {
           </Box>}
 
           {tab === 'courses' && <Stack spacing={2}>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(220px, 1fr) minmax(180px, .7fr) auto auto' }, gap: 2, alignItems: 'stretch' }}><TextField label="Tìm khóa học" value={courseQuery} onChange={(event) => setCourseQuery(event.target.value)} fullWidth /><FormControl fullWidth><InputLabel id="course-status-filter">Trạng thái</InputLabel><Select labelId="course-status-filter" label="Trạng thái" value={courseStatus} onChange={(event) => setCourseStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="draft">Bản nháp</MenuItem><MenuItem value="published">Xuất bản</MenuItem></Select></FormControl><Button variant="contained" onClick={() => setAppliedCourseFilters({ q: courseQuery, status: courseStatus, page: 1 })} sx={{ whiteSpace: 'nowrap' }}>Áp dụng</Button><Button variant="outlined" onClick={() => { setEditingCourse(null); setCourseCategoryId(''); setCourseForm(blankCourse); setIsCourseEditorOpen(true); }} sx={{ whiteSpace: 'nowrap' }}>Tạo khóa học mới</Button></Box>
+            <Box component="section" role="region" aria-label="Bộ lọc khóa học" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 1fr) minmax(180px, .7fr) auto auto', gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}><TextField label="Tìm khóa học" value={courseQuery} onChange={(event) => setCourseQuery(event.target.value)} fullWidth /><FormControl fullWidth><InputLabel id="course-status-filter">Trạng thái</InputLabel><Select labelId="course-status-filter" label="Trạng thái" value={courseStatus} onChange={(event) => setCourseStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="draft">Bản nháp</MenuItem><MenuItem value="published">Xuất bản</MenuItem></Select></FormControl><Button variant="contained" onClick={() => setAppliedCourseFilters({ q: courseQuery, status: courseStatus, page: 1 })} sx={{ whiteSpace: 'nowrap' }}>Áp dụng</Button><Button variant="outlined" onClick={() => { setEditingCourse(null); setCourseCategoryId(''); setCourseForm(blankCourse); setIsCourseEditorOpen(true); }} sx={{ whiteSpace: 'nowrap' }}>Tạo khóa học mới</Button></Box>
             {isCourseEditorOpen && <Card component="form" onSubmit={submitCourse} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingCourse ? 'Sửa khóa học' : 'Tạo khóa học'}</Typography><FormControl required><InputLabel id="course-category">Danh mục</InputLabel><Select labelId="course-category" label="Danh mục" value={courseCategoryId} onChange={(event) => setCourseCategoryId(event.target.value)}>{categories.map((category) => <MenuItem key={category.id} value={String(category.id)}>{category.name}</MenuItem>)}</Select></FormControl><TextField required label="Tiêu đề" value={courseForm.title} onChange={(event) => setCourseForm({ ...courseForm, title: event.target.value })} /><TextField label="Mô tả" multiline minRows={2} value={courseForm.description} onChange={(event) => setCourseForm({ ...courseForm, description: event.target.value })} /><TextField label="Ảnh thumbnail URL" value={courseForm.thumbnail} onChange={(event) => setCourseForm({ ...courseForm, thumbnail: event.target.value })} /><TextField required label="Giá" type="number" value={courseForm.price} onChange={(event) => setCourseForm({ ...courseForm, price: event.target.value })} /><TextField label="Tên giảng viên" value={courseForm.instructor_name} onChange={(event) => setCourseForm({ ...courseForm, instructor_name: event.target.value })} /><TextField label="Giới thiệu giảng viên" multiline minRows={2} value={courseForm.instructor_bio} onChange={(event) => setCourseForm({ ...courseForm, instructor_bio: event.target.value })} /><FormControl><InputLabel id="course-level">Cấp độ</InputLabel><Select labelId="course-level" label="Cấp độ" value={courseForm.level} onChange={(event) => setCourseForm({ ...courseForm, level: event.target.value as CourseDraft['level'] })}><MenuItem value="beginner">Cơ bản</MenuItem><MenuItem value="intermediate">Trung cấp</MenuItem><MenuItem value="advanced">Nâng cao</MenuItem></Select></FormControl><FormControl><InputLabel id="course-status">Trạng thái</InputLabel><Select labelId="course-status" label="Trạng thái" value={courseForm.status} onChange={(event) => setCourseForm({ ...courseForm, status: event.target.value as CourseDraft['status'] })}><MenuItem value="draft">Bản nháp</MenuItem><MenuItem value="published">Xuất bản</MenuItem></Select></FormControl><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingCourse ? 'Cập nhật' : 'Lưu khóa học'}</Button><Button onClick={() => { setEditingCourse(null); setCourseCategoryId(''); setCourseForm(blankCourse); setIsCourseEditorOpen(false); }}>Hủy</Button></Stack></Stack></CardContent></Card>}
               <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
                 {courses?.data.length ? <AdminDataTable<ApiCourse>
@@ -552,7 +547,7 @@ export function AdminPage() {
             {courses && courses.meta.last_page > 1 && <Pagination count={courses.meta.last_page} page={appliedCourseFilters.page} onChange={(_, page) => setAppliedCourseFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
 
-          {tab === 'courses' && selectedCourse && <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(270px, .55fr) 1fr' }, gap: 3, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+          {tab === 'courses' && selectedCourse && <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(270px, .55fr) 1fr', gap: 3, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
             <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Chọn khóa học</Typography><Stack divider={<Divider flexItem />} sx={{ mt: 1 }}>{courses?.data.map((course) => <Button key={course.id} onClick={() => void selectContent(course.id)} color="inherit" sx={{ justifyContent: 'flex-start', textAlign: 'left', py: 1.5, fontWeight: selectedCourse?.id === course.id ? 800 : 400 }}>{course.title}</Button>)}</Stack></CardContent></Card>
             <Stack spacing={3}><>
               <Card component="form" onSubmit={submitLesson} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingLessonId ? 'Sửa bài học' : `Thêm bài học cho ${selectedCourse.title}`}</Typography><TextField required label="Tiêu đề bài học" value={lessonForm.title} onChange={(event) => setLessonForm({ ...lessonForm, title: event.target.value })} /><TextField required label="Video embed URL" value={lessonForm.video_url} onChange={(event) => setLessonForm({ ...lessonForm, video_url: event.target.value })} /><TextField label="Mô tả" multiline minRows={2} value={lessonForm.description} onChange={(event) => setLessonForm({ ...lessonForm, description: event.target.value })} /><TextField label="Thời lượng (giây)" type="number" value={lessonForm.duration} onChange={(event) => setLessonForm({ ...lessonForm, duration: event.target.value })} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingLessonId ? 'Cập nhật bài học' : 'Thêm bài học'}</Button>{editingLessonId && <Button onClick={() => { setEditingLessonId(null); setLessonForm(blankLesson); }}>Hủy</Button>}</Stack></Stack></CardContent></Card>
@@ -563,7 +558,7 @@ export function AdminPage() {
           </Box>}
 
           {tab === 'news' && <Stack spacing={2}>
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <Box component="section" role="region" aria-label="Bộ lọc tin tức" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1.1fr) minmax(220px, 1fr) auto auto', gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
               <TextField label="Tìm tin tức" value={newsQuery} onChange={(event) => setNewsQuery(event.target.value)} fullWidth />
               <FormControl fullWidth>
                 <InputLabel id="news-status-filter">Trạng thái tin tức</InputLabel>
@@ -574,8 +569,8 @@ export function AdminPage() {
                 </Select>
               </FormControl>
               <Button variant="contained" onClick={applyNewsFilters} sx={{ whiteSpace: 'nowrap' }}>Áp dụng</Button>
-              <Button variant="outlined" onClick={() => { setEditingNews(null); setNewsForm(blankNews); setIsNewsEditorOpen(true); }} sx={{ whiteSpace: 'nowrap' }}>Tạo tin tức mới</Button>
-            </Stack>
+              <Button variant="outlined" onClick={() => { setEditingNews(null); setNewsForm(blankNews); setIsNewsEditorOpen(true); }} sx={{ whiteSpace: 'nowrap', minWidth: 132 }}>Tạo tin tức mới</Button>
+            </Box>
             <Card sx={{ borderRadius: 3, minWidth: 0 }}>
               <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
                 {news?.data.length ? <AdminDataTable<ApiNewsPost>
@@ -619,7 +614,7 @@ export function AdminPage() {
           </Stack>}
 
           {tab === 'reviews' && <Stack spacing={2}>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}><FormControl fullWidth><InputLabel id="review-status">Trạng thái</InputLabel><Select labelId="review-status" label="Trạng thái" value={reviewStatus} onChange={(event) => { setReviewStatus(event.target.value); setReviewPage(1); }}><MenuItem value="">Tất cả</MenuItem><MenuItem value="visible">Hiển thị</MenuItem><MenuItem value="hidden">Đã ẩn</MenuItem></Select></FormControl><Button variant="contained" onClick={() => void load()}>Áp dụng</Button></Stack>
+            <Stack component="section" role="region" aria-label="Bộ lọc đánh giá" data-admin-toolbar="true" direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}><FormControl fullWidth><InputLabel id="review-status">Trạng thái</InputLabel><Select labelId="review-status" label="Trạng thái" value={reviewStatus} onChange={(event) => { setReviewStatus(event.target.value); setReviewPage(1); }}><MenuItem value="">Tất cả</MenuItem><MenuItem value="visible">Hiển thị</MenuItem><MenuItem value="hidden">Đã ẩn</MenuItem></Select></FormControl><Button variant="contained" onClick={() => void load()}>Áp dụng</Button></Stack>
             <Card sx={{ minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
               {reviews?.data.length ? <AdminDataTable<ApiReview>
                 label="Danh sách đánh giá"
@@ -636,8 +631,7 @@ export function AdminPage() {
             </CardContent></Card>
             {reviews && reviews.meta.last_page > 1 && <Pagination count={reviews.meta.last_page} page={reviewPage} onChange={(_, page) => setReviewPage(page)} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
-            </Stack>
-          </AdminShell>
+          </Stack>
           <Dialog
             open={Boolean(pendingConfirmation)}
             onClose={() => setPendingConfirmation(null)}
@@ -659,7 +653,7 @@ export function AdminPage() {
             </Box>
           </Dialog>
         </Stack>
-      </Container>
+      </AdminShell>
     </Box>
   );
 }

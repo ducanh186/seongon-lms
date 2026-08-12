@@ -90,6 +90,8 @@ Pixel-perfect duplication is not required. The implementation may preserve exist
 
 The desktop menu item **Khóa học** is the `Courses Trigger`.
 
+The Mega Menu panel spans the full desktop header width. The trigger remains the **Khóa học** item only; hovering unrelated header controls must not open it.
+
 Required behavior:
 
 1. `mouseenter` on the Courses Trigger opens the Mega Menu; click is not the open trigger.
@@ -429,3 +431,13 @@ Implementation is accepted only when:
 7. No mobile navigation/layout remains; sub-`1280px` behavior is the approved unsupported-screen notice.
 8. No random external image, hotlink, fake live KPI, or unlabelled fictional testimonial remains.
 
+## 16. Desktop header hover contract
+
+- Apply the same hover interaction to every desktop-header control that owns a dropdown panel: `Khóa học`, `Thông báo`, and `Tài khoản`.
+- `mouseenter` or keyboard focus opens the corresponding panel; click is not required.
+- Opening uses `fade-in + slide-down` in `200ms`.
+- Moving from the trigger into its panel keeps it open.
+- Leaving both trigger and panel closes it after a `200ms` delay; re-entering cancels that pending close.
+- `Escape` and menu selection close immediately.
+- Direct navigation controls (`logo`, `Trang chủ`, `Tin tức`, search, cart, authentication buttons) remain ordinary links/buttons and must not open an unrelated dropdown when hovered.
+- The `Khóa học` Mega Menu panel spans the full desktop header width; the notification and account panels remain anchored to their own triggers.

@@ -3,6 +3,18 @@ export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
 export type CourseStatus = 'draft' | 'published';
 export type EnrollmentStatus = 'active' | 'expired';
 
+export interface ApiAdminStats {
+  students: number;
+  courses: number;
+  published_courses: number;
+  enrollments: number;
+  certificates: number;
+  completion_rate: number;
+  revenue: number;
+  monthly_enrollments: Array<{ month: string; total: number }>;
+  popular_courses: Array<{ id: number; title: string; enrollments_count: number }>;
+}
+
 export interface ApiUser {
   id: number;
   name: string;

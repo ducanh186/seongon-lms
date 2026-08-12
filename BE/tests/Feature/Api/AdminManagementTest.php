@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\Certificate;
 use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\Question;
@@ -17,6 +18,49 @@ use Tests\TestCase;
 class AdminManagementTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_admin_dashboard_returns_real_monthly_series_and_popular_course_ranking(): void
+    {
+        $admin = User::factory()->admin()->create();
+        User::factory()->count(2)->create();
+        $popular = Course::factory()->create(['title' => 'Popular SEO']);
+        $secondary = Course::factory()->create(['title' => 'Secondary Ads']);
+        $first = Enrollment::factory()->create(['course_id' => $popular->id, 'enrolled_at' => now()->subMonth()]);
+        Enrollment::factory()->create(['course_id' => $popular->id, 'enrolled_at' => now()]);
+        Enrollment::factory()->create(['course_id' => $secondary->id, 'enrolled_at' => now()]);
+        Certificate::query()->create([
+            'enrollment_id' => $first->id,
+            'certificate_code' => 'DASHBOARD-CERT-001',
+            'issued_at' => now(),
+        ]);
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $response = $this->withToken($token)->getJson('/api/v1/admin/dashboard/stats');
+
+        $response->assertOk()
+            ->assertJsonPath('students', 5)
+            ->assertJsonPath('courses', 2)
+            ->assertJsonPath('enrollments', 3)
+            ->assertJsonPath('certificates', 1)
+            ->assertJsonPath('completion_rate', 33.3)
+            ->assertJsonPath('popular_courses.0.id', $popular->id)
+            ->assertJsonPath('popular_courses.0.enrollments_count', 2)
+            ->assertJsonCount(12, 'monthly_enrollments');
+
+        $months = collect($response->json('monthly_enrollments'))->pluck('month')->all();
+        $this->assertSame($months, collect($months)->sort()->values()->all());
+    }
+
+    public function test_admin_dashboard_has_zero_completion_rate_without_enrollments(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/v1/admin/dashboard/stats')
+            ->assertOk()
+            ->assertJsonPath('completion_rate', 0)
+            ->assertJsonPath('popular_courses', []);
+    }
 
     public function test_admin_course_list_includes_lesson_question_and_enrollment_counts(): void
     {

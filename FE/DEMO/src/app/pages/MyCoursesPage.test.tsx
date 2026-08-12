@@ -111,9 +111,7 @@ describe('MyCoursesPage', () => {
     expect(click).not.toHaveBeenCalled();
   });
 
-  it('keeps mobile course filters accessible and applies the selected filter', async () => {
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 });
-    window.dispatchEvent(new Event('resize'));
+  it('keeps the desktop course filters accessible and applies the selected filter', async () => {
     myCourses.mockResolvedValue({
       data: [{ id: 3, course_id: 30, enrolled_at: '2026-01-01T00:00:00Z', expires_at: '2027-01-01T00:00:00Z', status: 'active', is_expired: false, course: { title: 'Google Ads thực chiến' }, progress: { completed: 4, total: 10, percent: 40, can_take_exam: false } }],
       meta: { current_page: 1, last_page: 1, per_page: 12, total: 1 },

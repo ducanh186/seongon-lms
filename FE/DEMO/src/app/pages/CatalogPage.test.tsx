@@ -1,6 +1,6 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, useLocation } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CatalogPage } from './CatalogPage';
 import { api } from '../lib/api';
@@ -12,25 +12,7 @@ vi.mock('../lib/api', () => ({
   },
 }));
 
-function useViewport(width: number) {
-  vi.stubGlobal('innerWidth', width);
-  vi.stubGlobal('matchMedia', vi.fn().mockImplementation((query: string) => ({
-    matches: query.includes('767') ? width < 768 : false,
-    media: query,
-    onchange: null,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })));
-}
-
 describe('CatalogPage', () => {
-  beforeEach(() => {
-    useViewport(1024);
-  });
-
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
@@ -69,8 +51,10 @@ describe('CatalogPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('search', { name: 'Tìm khóa học' })).toBeInTheDocument();
-    expect(screen.getByRole('complementary', { name: 'Bộ lọc khóa học' })).toBeInTheDocument();
+    expect(screen.getByRole('form', { name: 'Bộ lọc khóa học' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Khám phá khóa học' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Không gian học Search Marketing có cấu trúc' })).toHaveAttribute('src', '/generated-images/catalog-hero.webp');
+    expect(screen.getByRole('form', { name: 'Bộ lọc khóa học' })).toBeInTheDocument();
     expect(await screen.findByRole('heading', { name: 'SEO Foundation' })).toBeInTheDocument();
     expect(screen.getByText('299.000 đ')).toBeInTheDocument();
     expect(screen.getByText('12 bài học')).toBeInTheDocument();
@@ -86,51 +70,39 @@ describe('CatalogPage', () => {
     expect(screen.getByLabelText('Đang tải nội dung')).toBeInTheDocument();
   });
 
-  it('keeps filters in the desktop sidebar without a drawer trigger', async () => {
-    useViewport(1024);
+  it('sends complete desktop filters, syncs the URL, and resets pagination', async () => {
     vi.mocked(api.categories).mockResolvedValue({ data: [] });
     vi.mocked(api.courses).mockResolvedValue({
       data: [],
-      meta: { current_page: 1, last_page: 1, per_page: 12, total: 0 },
-    });
-
-    render(<MemoryRouter><CatalogPage /></MemoryRouter>);
-
-    expect(await screen.findByRole('complementary', { name: 'Bộ lọc khóa học' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Lọc khóa học' })).not.toBeInTheDocument();
-  });
-
-  it('opens a focus-trapped filter drawer on mobile and closes it with Escape', async () => {
-    useViewport(390);
-    vi.mocked(api.categories).mockResolvedValue({ data: [] });
-    vi.mocked(api.courses).mockResolvedValue({
-      data: [],
-      meta: { current_page: 1, last_page: 1, per_page: 12, total: 0 },
+      meta: { current_page: 2, last_page: 2, per_page: 12, total: 13 },
     });
     const user = userEvent.setup();
 
-    render(<MemoryRouter><CatalogPage /></MemoryRouter>);
+    render(<MemoryRouter initialEntries={['/courses?page=2']}><CatalogPage /><CurrentSearch /></MemoryRouter>);
 
-    const trigger = await screen.findByRole('button', { name: 'Lọc khóa học' });
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.queryByRole('complementary', { name: 'Bộ lọc khóa học' })).not.toBeInTheDocument();
+    const filterForm = await screen.findByRole('form', { name: 'Bộ lọc khóa học' });
+    await user.click(screen.getByRole('combobox', { name: 'Cấp độ' }));
+    await user.click(screen.getByRole('option', { name: 'Nâng cao' }));
+    await user.click(screen.getByRole('combobox', { name: 'Mức giá' }));
+    await user.click(screen.getByRole('option', { name: 'Có phí' }));
+    await user.click(screen.getByRole('combobox', { name: 'Sắp xếp' }));
+    await user.click(screen.getByRole('option', { name: 'Giá giảm dần' }));
+    await user.click(screen.getByRole('button', { name: 'Áp dụng bộ lọc' }));
 
-    await user.click(trigger);
-
-    const drawer = await screen.findByRole('complementary', { name: 'Bộ lọc khóa học' });
-    expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    expect(within(drawer).getByRole('button', { name: 'Đóng bộ lọc' })).toHaveFocus();
-
-    await user.keyboard('{Escape}');
-
-    expect(screen.queryByRole('complementary', { name: 'Bộ lọc khóa học' })).not.toBeInTheDocument();
-    expect(trigger).toHaveFocus();
-
-    await user.click(trigger);
-    await screen.findByRole('complementary', { name: 'Bộ lọc khóa học' });
-    fireEvent.click(document.querySelector('.MuiBackdrop-root') as HTMLElement);
-
-    expect(screen.queryByRole('complementary', { name: 'Bộ lọc khóa học' })).not.toBeInTheDocument();
-    expect(trigger).toHaveFocus();
+    expect(filterForm).toBeInTheDocument();
+    expect(api.courses).toHaveBeenLastCalledWith(expect.objectContaining({
+      level: 'advanced',
+      price: 'paid',
+      sort: 'price_desc',
+      page: 1,
+    }));
+    expect(screen.getByTestId('current-search')).toHaveTextContent('level=advanced');
+    expect(screen.getByTestId('current-search')).toHaveTextContent('price=paid');
+    expect(screen.getByTestId('current-search')).toHaveTextContent('sort=price_desc');
+    expect(screen.getByTestId('current-search')).not.toHaveTextContent('page=2');
   });
 });
+
+function CurrentSearch() {
+  return <output data-testid="current-search">{useLocation().search}</output>;
+}

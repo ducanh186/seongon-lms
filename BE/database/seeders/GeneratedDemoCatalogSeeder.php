@@ -14,6 +14,7 @@ use App\Models\Quiz;
 use App\Models\Review;
 use App\Models\User;
 use App\Support\DemoCourseThumbnail;
+use App\Support\CuratedDemoCatalog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -22,55 +23,6 @@ use RuntimeException;
 
 class GeneratedDemoCatalogSeeder extends Seeder
 {
-    private const TRACKS = [
-        [
-            'slug' => 'seo-ai-max',
-            'name' => 'SEO AI Max',
-            'count' => 34,
-            'description' => 'Khóa học tối ưu hóa công cụ tìm kiếm (SEO) ứng dụng các công cụ AI để tăng tốc độ và hiệu suất làm việc.',
-            'topics' => [
-                'Nghiên cứu từ khóa bằng AI',
-                'Technical SEO với AI',
-                'SEO Onpage tự động',
-                'Phân tích đối thủ',
-                'Xây dựng topical map',
-            ],
-        ],
-        [
-            'slug' => 'google-ads',
-            'name' => 'Google Ads',
-            'count' => 33,
-            'description' => 'Khóa học thực chiến về thiết lập, tối ưu và quản lý chiến dịch quảng cáo trên nền tảng Google.',
-            'topics' => [
-                'Search Ads thực chiến',
-                'Performance Max',
-                'Tối ưu chuyển đổi',
-                'Đo lường với GA4',
-                'Quản lý ngân sách',
-            ],
-        ],
-        [
-            'slug' => 'content-seo',
-            'name' => 'Content SEO',
-            'count' => 33,
-            'description' => 'Khóa học định hướng và kỹ năng viết nội dung chuẩn SEO, tối ưu trải nghiệm người dùng và thuật toán tìm kiếm.',
-            'topics' => [
-                'Search Intent',
-                'Content Brief',
-                'Viết bài chuẩn SEO',
-                'Content Audit',
-                'Entity và Semantic SEO',
-            ],
-        ],
-    ];
-
-    private const LESSON_TITLES = [
-        'Tổng quan và mục tiêu',
-        'Quy trình thực hành từng bước',
-        'Phân tích dữ liệu và tối ưu',
-        'Bài tập ứng dụng thực tế',
-    ];
-
     public const COURSE_VIDEO_IDS = [
         'seo-ai-max-01' => ['KjK5-L-wDVg', 'vxoMlEMtwuw', 'TPtCjy4n4cU', '_s2h7X-c2jE'],
         'seo-ai-max-14' => ['EqMjWU7vF2o', '_oU8lclN114', 'n-kxOhnSH-Q', 'HPL0O7Oe3j0'],
@@ -164,18 +116,18 @@ class GeneratedDemoCatalogSeeder extends Seeder
     {
         $courses = collect();
 
-        foreach (self::TRACKS as $track) {
+        foreach (CuratedDemoCatalog::tracks() as $track) {
             $category = Category::query()->create([
                 'name' => $track['name'],
                 'slug' => $track['slug'],
                 'description' => $track['description'],
             ]);
 
-            foreach (range(1, $track['count']) as $number) {
-                $topic = $track['topics'][($number - 1) % count($track['topics'])];
+            foreach ($track['titles'] as $titleIndex => $title) {
+                $number = $titleIndex + 1;
                 $course = Course::query()->create([
                     'category_id' => $category->id,
-                    'title' => sprintf('%s %02d: %s', $track['name'], $number, $topic),
+                    'title' => $title,
                     'slug' => sprintf('%s-%02d', $track['slug'], $number),
                     'description' => $track['description'].' Chương trình gồm bài học nền tảng, quy trình thực hành và bài tập ứng dụng.',
                     'thumbnail' => DemoCourseThumbnail::forTrack($track['slug'], $number),
@@ -186,7 +138,7 @@ class GeneratedDemoCatalogSeeder extends Seeder
                     'status' => 'published',
                 ]);
 
-                $this->createCourseContent($course, $topic);
+                $this->createCourseContent($course, $title);
                 $courses->push($course->load('lessons'));
             }
         }
@@ -196,12 +148,12 @@ class GeneratedDemoCatalogSeeder extends Seeder
 
     private function createCourseContent(Course $course, string $topic): void
     {
-        foreach (self::LESSON_TITLES as $index => $lessonTitle) {
+        foreach (CuratedDemoCatalog::lessons($topic) as $index => $lessonTitle) {
             $videoId = self::COURSE_VIDEO_IDS[$course->slug][$index] ?? 'aqz-KE-bpKQ';
 
             Lesson::query()->create([
                 'course_id' => $course->id,
-                'title' => sprintf('Bài %d: %s', $index + 1, $lessonTitle),
+                'title' => $lessonTitle,
                 'video_url' => "https://www.youtube.com/embed/{$videoId}",
                 'description' => sprintf('%s — nội dung thực hành cho chủ đề %s.', $lessonTitle, $topic),
                 'duration' => 600 + ($index * 180),

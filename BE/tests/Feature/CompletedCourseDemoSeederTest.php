@@ -28,7 +28,7 @@ class CompletedCourseDemoSeederTest extends TestCase
         $this->seed(CompletedCourseDemoSeeder::class);
 
         $student = User::query()->where('email', 'student@seongon.vn')->firstOrFail();
-        $course = Course::query()->where('title', 'Completed Demo Course')->firstOrFail();
+        $course = Course::query()->where('slug', 'completed-demo-course')->firstOrFail();
         $enrollment = Enrollment::query()
             ->where('user_id', $student->id)
             ->where('course_id', $course->id)
@@ -41,7 +41,26 @@ class CompletedCourseDemoSeederTest extends TestCase
         $this->assertSame('active', $student->status);
         $this->assertTrue(Hash::check('password', $student->password));
         $this->assertSame('published', $course->status);
-        $this->assertSame('/course-images/course-thumb-6.svg', $course->thumbnail);
+        $this->assertSame('Thực hành xây dựng kế hoạch SEO 90 ngày', $course->title);
+        $this->assertSame('SEO thực chiến', $course->category->name);
+        $this->assertSame('Nguyễn Minh Anh', $course->instructor_name);
+        $this->assertSame(
+            ['Xác định mục tiêu SEO và KPI', 'Xây dựng kế hoạch SEO 90 ngày'],
+            $course->lessons()->orderBy('position')->pluck('title')->all(),
+        );
+        $this->assertSame('Đánh giá cuối khóa SEO Foundation', $course->quiz->title);
+        $visibleCopy = implode(' ', [
+            $course->category->name,
+            $course->category->description,
+            $course->title,
+            $course->description,
+            $course->instructor_name,
+            $course->instructor_bio,
+            ...$course->lessons()->pluck('title')->all(),
+            $course->quiz->title,
+        ]);
+        $this->assertDoesNotMatchRegularExpression('/\bDemo\b/i', $visibleCopy);
+        $this->assertSame('/generated-images/course-analytics.webp', $course->thumbnail);
         $this->assertDatabaseCount('enrollments', 1);
         $this->assertSame('active', $enrollment->status);
         $this->assertSame(2, $course->lessons()->count());

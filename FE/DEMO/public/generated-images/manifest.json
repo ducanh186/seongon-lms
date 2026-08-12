@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-08-12T15:43:14+07:00",
+  "generator": "OpenAI built-in image generation",
+  "assets": [
+    {
+      "file": "home-hero.webp",
+      "prompt": "Premium editorial photograph of a Vietnamese digital marketing team collaborating around a desktop analytics monitor in a modern Hanoi agency; people on the right, dark-teal negative space on the left; SEONGON navy, teal, restrained magenta; no text, logos, watermarks, distorted hands, or mobile imagery.",
+      "width": 1672,
+      "height": 941,
+      "target": "Desktop homepage hero"
+    },
+    {
+      "file": "catalog-hero.webp",
+      "prompt": "Sophisticated visual metaphor for navigating a structured Search Marketing learning library; dark navy-to-teal studio, translucent pathways, data nodes, subtle search-grid geometry; key visual on the right and calm negative space on the left; no text, letters, logos, watermarks, browser UI, or mobile imagery.",
+      "width": 1672,
+      "height": 941,
+      "target": "Desktop course catalog hero"
+    },
+    {
+      "file": "course-seo.webp",
+      "prompt": "Premium SEO strategy course thumbnail; dark navy editorial desk, magnifying glass over abstract search-results grid, connected keyword nodes and upward organic growth graph; navy and teal with a small magenta accent; no text, letters, logos, watermarks, people, or fake UI labels.",
+      "width": 1536,
+      "height": 1024,
+      "target": "SEO course cards"
+    },
+    {
+      "file": "course-ads.webp",
+      "prompt": "Premium paid-search campaign strategy course thumbnail; dark navy studio, abstract campaign tiles, target rings, click pathways and rising conversion graph; navy and teal with restrained cyan and magenta accents; no text, letters, logos, watermarks, people, currency symbols, or fake UI labels.",
+      "width": 1536,
+      "height": 1024,
+      "target": "Google Ads course cards"
+    },
+    {
+      "file": "course-content.webp",
+      "prompt": "Premium Content Marketing course thumbnail; dark navy editorial workspace, layered story cards, editorial calendar blocks, fountain pen, connected audience nodes and idea-to-publication pathway; no text, letters, logos, watermarks, people, or fake UI labels.",
+      "width": 1536,
+      "height": 1024,
+      "target": "Content course cards"
+    },
+    {
+      "file": "course-ai-search.webp",
+      "prompt": "Premium AI Search Marketing course thumbnail; dark navy studio, luminous neural network forming a magnifying-glass search symbol, connected data nodes and upward insight path; intelligent and practical rather than science fiction; no text, letters, logos, watermarks, humanoid robots, or fake UI labels.",
+      "width": 1536,
+      "height": 1024,
+      "target": "AI Search course cards"
+    },
+    {
+      "file": "course-analytics.webp",
+      "prompt": "Premium Digital Analytics course thumbnail; dark navy analytics studio, layered unlabeled charts, glass compass, connected metric nodes and clear upward trend; precise and trustworthy; no text, letters, logos, watermarks, people, or fake UI labels.",
+      "width": 1536,
+      "height": 1024,
+      "target": "Analytics and completed course cards"
+    },
+    {
+      "file": "testimonial-01.webp",
+      "prompt": "Illustrative fictional Vietnamese female marketing manager in her early 30s, smart-casual teal blazer, natural confident expression, softly blurred modern agency; authentic editorial corporate photography; no text, logo, watermark, badge, or exaggerated retouching.",
+      "width": 1122,
+      "height": 1402,
+      "target": "Homepage testimonial 1"
+    },
+    {
+      "file": "testimonial-02.webp",
+      "prompt": "Illustrative fictional Vietnamese male small-business owner in his late 30s, smart-casual navy shirt, calm confident expression, softly blurred contemporary workspace; authentic editorial corporate photography; no text, logo, watermark, badge, or exaggerated retouching.",
+      "width": 1122,
+      "height": 1402,
+      "target": "Homepage testimonial 2"
+    },
+    {
+      "file": "testimonial-03.webp",
+      "prompt": "Illustrative fictional Vietnamese female performance marketing specialist in her late 20s, cream blouse with subtle magenta accessory, analytical and energetic, softly blurred analytics workspace; authentic editorial corporate photography; no text, logo, watermark, badge, or exaggerated retouching.",
+      "width": 1122,
+      "height": 1402,
+      "target": "Homepage testimonial 3"
+    }
+  ]
+}

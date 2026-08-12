@@ -57,17 +57,13 @@ return new class extends Migration
                     $number = max(1, (int) ($matches[1] ?? 1));
 
                     DB::table('courses')->where('id', $course->id)->update([
-                        'thumbnail' => sprintf(
-                            'https://picsum.photos/seed/seongon-%s-%02d/800/450',
-                            $trackSlug,
-                            $number,
-                        ),
+                        'thumbnail' => "/course-images/course-thumb-{$number}.svg",
                     ]);
                 });
         }
 
         DB::table('courses')->where('slug', 'completed-demo-course')->update([
-            'thumbnail' => 'https://picsum.photos/seed/seongon-completed-demo/800/450',
+            'thumbnail' => '/course-images/course-thumb-6.svg',
         ]);
     }
 };

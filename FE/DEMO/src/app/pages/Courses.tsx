@@ -31,7 +31,7 @@ export function Courses() {
     <div>
       {/* Header */}
       <div className="relative bg-gradient-to-br from-[#00D4E7] via-[#E91E8C] to-[#0BC4D9] text-white overflow-hidden py-16">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1608222351212-18fe0ec7b13b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBhbmFseXRpY3MlMjBkYXNoYm9hcmR8ZW58MXx8fHwxNzc0MDE2MzQ3fDA&ixlib=rb-4.1.0&q=80&w=1080')] opacity-10 bg-cover bg-center"></div>
+        <div className="absolute inset-0 bg-[url('/generated-images/catalog-hero.webp')] opacity-10 bg-cover bg-center"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="mb-4 text-4xl md:text-5xl">Khóa học trực tuyến</h1>
           <p className="text-lg opacity-90">

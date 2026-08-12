@@ -120,6 +120,18 @@ docker compose --env-file 'Infra\.env' -f 'Infra\docker-compose.yml' down
 
 > **Cảnh báo:** `docker compose down -v` xóa cả `mysql_data` và `app_storage`. Lệnh này làm mất database cùng file Laravel persistent; chỉ dùng cho môi trường test sau khi xác nhận đúng Compose project.
 
+## Tự build frontend khi code thay đổi trên Windows
+
+Chạy từ thư mục repository hoặc nhấp đúp file:
+
+```powershell
+Infra\watch-build-web-windows.bat
+```
+
+Script tự xác định `FE\DEMO`, cài npm dependencies nếu `node_modules` chưa tồn tại, sau đó giữ terminal mở với `npm run build -- --watch`. Mỗi lần file frontend thay đổi, Vite build lại thư mục `dist`.
+
+Laravel đọc source PHP theo từng request trong môi trường local nên thay đổi backend không cần bước compile. Script này không chạy Composer, migration, seeder hoặc web server. Dùng `Infra\start-local-web-windows.bat` riêng khi cần khởi động Laravel và Vite development server.
+
 ## 7. Production hardening tiếp theo
 
 Stack hiện giả định TLS terminate tại load balancer hoặc reverse proxy bên ngoài. Khi có domain/certificate, bổ sung HTTPS ở hạ tầng ngoài stack hoặc thực hiện trong một task riêng có kế hoạch certificate renewal rõ ràng.

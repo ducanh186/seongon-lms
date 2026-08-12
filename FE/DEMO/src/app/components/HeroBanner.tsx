@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import type { ApiCourse } from '../lib/contracts';
 import { layoutTokens } from '../theme';
 
-const FALLBACK_HERO_IMAGE = 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1600&q=82';
+const FALLBACK_HERO_IMAGE = '/generated-images/home-hero.webp';
 
 export function HeroBanner({ courses }: { courses: ApiCourse[] }) {
   const featured = courses.slice(0, 3);

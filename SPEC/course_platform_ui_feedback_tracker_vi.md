@@ -458,9 +458,11 @@ Chỉ coi là xong khi:
 | 11 | Avatar Dropdown | Đạt | [x] | Có Hồ sơ, Khóa học của tôi, Đăng xuất. |
 | 12 | My Courses Dashboard | Đạt | [x] | Label trên, số dưới; section trắng sạch ở 375 px và desktop. |
 | 13 | Course Filter Order | Đạt | [x] | Tất cả → Đang học → Đã hoàn thành. |
-| 14 | Completed Demo Course | Đạt | [x] | `Completed Demo Course`, tiến độ 100%. |
+| 14 | Khóa học hoàn thành mẫu | Đạt sau sửa | [x] | Đổi thành `Thực hành xây dựng kế hoạch SEO 90 ngày`, tiến độ 100%; không còn tên Demo/Latin. |
 | 15 | Certificate Demo Flow | Đạt | [x] | CTA tải chứng chỉ hiển thị; endpoint PDF đã trả 200 và `%PDF`. |
 | 16 | Explore More CTA | Đạt | [x] | Primary teal, tương phản rõ trên desktop/mobile. |
+
+| 17 | Hover dropdown toàn bộ desktop Header | Đạt sau sửa | [x] | Mọi control có dropdown (`Khóa học`, `Thông báo`, `Tài khoản`) đều mở bằng hover/focus, animation 200ms và delay đóng 200ms; các link trực tiếp không mở menu ngoài ý muốn. |
 
 ---
 
@@ -489,6 +491,28 @@ Chỉ coi là xong khi:
 | 11 | Avatar Dropdown | `student-avatar-menu-desktop.png`, `student-avatar-menu-mobile-375.png` | Có Hồ sơ, Khóa học của tôi, Đăng xuất; không có button My Courses đứng riêng. |
 | 12 | My Courses Dashboard | `student-my-courses-desktop.png`, `student-my-courses-mobile-top-375.png` | Section trắng sạch; label trên, số dưới ở desktop và 375 px. |
 | 13 | Course Filter Order | `student-completed-filter-mobile-top-375.png` | `Tất cả → Đang học → Đã hoàn thành`; tab Completed được chọn và chỉ còn khóa hoàn thành. |
-| 14 | Completed Demo Course | `student-completed-filter-mobile-top-375.png`, `student-my-courses-desktop.png` | `Completed Demo Course`, 2/2 bài học, 100%, trạng thái Hoàn thành. |
+| 14 | Khóa học hoàn thành mẫu | `my-courses-curated-1440-viewport.png` | `Thực hành xây dựng kế hoạch SEO 90 ngày`, 2/2 bài học, 100%, trạng thái Hoàn thành; không còn tên Demo/Latin. |
 | 15 | Certificate Demo Flow | `student-completed-filter-mobile-top-375.png` và `C:\Users\AL\Downloads\certificate-SEONGON-2026-ZJHFV73Q.pdf` | CTA `Tải chứng chỉ` hiển thị; file tải thật 878052 bytes, signature `%PDF`. |
 | 16 | Explore More CTA | `student-my-courses-mobile-top-375.png`, `student-my-courses-desktop.png` | `Khám phá thêm` là primary teal, tương phản rõ trên desktop/mobile. |
+
+---
+
+# 16. Nhật ký triển khai và nghiệm thu 12/08/2026
+
+- Catalog đã được thay bằng 101 tên khóa học có chủ đích: 101/101 tiêu đề duy nhất, 0 tên Latin ngẫu nhiên, 0 tiêu đề chứa `Demo`.
+- My Courses live hiển thị `Thực hành xây dựng kế hoạch SEO 90 ngày`, `SEO Foundation: Xây nền tảng tăng trưởng bền vững`, `Xây dựng hệ thống Internal Link`, `SEO cho trang sản phẩm và danh mục`.
+- Admin Portal bỏ sidebar, dùng top navigation 6 mục; dashboard không scroll ngang ở 1280/1440 px và nhãn tháng không chồng nhau.
+- News toolbar đã kiểm tra lại sau sửa: Search, Status, `Áp dụng`, `Tạo tin tức` không chồng lấn.
+- Watch build đã chứng minh build lần đầu và rebuild sau khi chạm file nguồn; `Infra\watch-build-web-windows.bat --verify` trả exit code 0.
+- Full regression cuối: Backend 67/67 (381 assertions), Frontend 23 files/96 tests, production build và watch-build verify đều exit code 0.
+
+## 16.1 Ảnh mới đã mở và kiểm tra trực tiếp
+
+| Hạng mục | Ảnh đạt | Kiểm tra trực quan |
+|---|---|---|
+| Admin Overview 1280 | `overview-1280-final.png` | KPI, biểu đồ, tỷ lệ hoàn thành, bảng khóa học phổ biến rõ; nhãn tháng không chồng. |
+| Admin Overview 1440 + Header | `overview-1440-viewport-final.png` | Top navigation đủ 6 mục, không sidebar, không overflow ngang, dữ liệu thật đã render. |
+| Admin News editor | `news-editor-1440-checked.png` | Toolbar không chồng nút; form và bảng phân cấp rõ. |
+| My Courses curated | `my-courses-curated-1440-viewport.png` | Đúng tài khoản Student, 4 tên khóa học biên tập, ảnh đúng chủ đề, 0 tên Latin/Demo. |
+
+Thư mục bằng chứng: `D:\CODE\seongon-lms-feedback-v2-evidence\2026-08-12\admin-redesign`.

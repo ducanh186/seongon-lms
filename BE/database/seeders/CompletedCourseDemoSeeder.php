@@ -38,8 +38,8 @@ class CompletedCourseDemoSeeder extends Seeder
             $category = Category::query()->updateOrCreate(
                 ['slug' => 'completed-demo'],
                 [
-                    'name' => 'Completed Demo',
-                    'description' => 'A completed course used to demonstrate progress, quiz results, and certificates.',
+                    'name' => 'SEO thực chiến',
+                    'description' => 'Lộ trình thực hành SEO bài bản, từ mục tiêu kinh doanh đến kế hoạch tăng trưởng organic.',
                 ],
             );
 
@@ -47,12 +47,12 @@ class CompletedCourseDemoSeeder extends Seeder
                 ['slug' => 'completed-demo-course'],
                 [
                     'category_id' => $category->id,
-                    'title' => 'Completed Demo Course',
-                    'description' => 'A completed demo course for the student learning and certificate flow.',
+                    'title' => 'Thực hành xây dựng kế hoạch SEO 90 ngày',
+                    'description' => 'Khóa học giúp học viên xây dựng nền tảng SEO, xác định KPI và lập kế hoạch triển khai 90 ngày.',
                     'thumbnail' => DemoCourseThumbnail::completed(),
                     'price' => 0,
-                    'instructor_name' => 'SEONGON Demo Instructor',
-                    'instructor_bio' => 'Demonstrates the completed learning flow.',
+                    'instructor_name' => 'Nguyễn Minh Anh',
+                    'instructor_bio' => 'Giảng viên SEONGON giàu kinh nghiệm triển khai chiến lược SEO cho doanh nghiệp.',
                     'level' => 'beginner',
                     'status' => 'published',
                 ],
@@ -61,16 +61,16 @@ class CompletedCourseDemoSeeder extends Seeder
             $lessons = collect([
                 [
                     'position' => 1,
-                    'title' => 'Completed Demo Course: Introduction',
+                    'title' => 'Xác định mục tiêu SEO và KPI',
                     'video_url' => 'https://www.youtube.com/embed/aqz-KE-bpKQ',
-                    'description' => 'Introduction to the completed demo course.',
+                    'description' => 'Liên kết mục tiêu SEO với mục tiêu kinh doanh và hệ thống chỉ số đo lường.',
                     'duration' => 300,
                 ],
                 [
                     'position' => 2,
-                    'title' => 'Completed Demo Course: Final Practice',
+                    'title' => 'Xây dựng kế hoạch SEO 90 ngày',
                     'video_url' => 'https://www.youtube.com/embed/aqz-KE-bpKQ',
-                    'description' => 'Final practice for the completed demo course.',
+                    'description' => 'Thực hành lập lộ trình SEO ưu tiên theo nguồn lực và dữ liệu hiện có.',
                     'duration' => 420,
                 ],
             ])->map(fn (array $attributes): Lesson => Lesson::query()->updateOrCreate(
@@ -81,7 +81,7 @@ class CompletedCourseDemoSeeder extends Seeder
             $quiz = Quiz::query()->updateOrCreate(
                 ['course_id' => $course->id],
                 [
-                    'title' => 'Completed Demo Course Final Quiz',
+                    'title' => 'Đánh giá cuối khóa SEO Foundation',
                     'pass_score' => 75,
                     'max_attempts' => 3,
                 ],

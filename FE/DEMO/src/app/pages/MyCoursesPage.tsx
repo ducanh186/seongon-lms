@@ -95,9 +95,9 @@ export function MyCoursesPage() {
   };
 
   return (
-    <Box sx={{ py: { xs: 4, md: 6 }, minHeight: '70dvh' }}>
+    <Box sx={{ py: 6, minHeight: '70dvh' }}>
       <Container maxWidth="lg">
-        <Stack spacing={{ xs: 3, md: 4 }}>
+        <Stack spacing={4}>
           <PageHeader
             eyebrow="KHÔNG GIAN HỌC TẬP"
             title="Khóa học của tôi"
@@ -117,7 +117,7 @@ export function MyCoursesPage() {
                   bgcolor: 'background.paper',
                 }}
               >
-                <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+                <CardContent sx={{ p: 2 }}>
                 <Stack spacing={1.5}>
                   <Box
                     component="section"
@@ -136,17 +136,17 @@ export function MyCoursesPage() {
                       <Stack
                         key={item.label}
                         spacing={0.25}
-                        alignItems={{ xs: 'center', sm: 'flex-start' }}
+                        alignItems="flex-start"
                         sx={{
-                          p: { xs: 1, sm: 2 },
+                          p: 2,
                           minWidth: 0,
-                          textAlign: { xs: 'center', sm: 'left' },
+                          textAlign: 'left',
                           borderLeft: index === 0 ? 0 : '1px solid',
                           borderColor: 'divider',
                         }}
                       >
-                        <Box sx={{ color: 'primary.main', display: 'flex', '& svg': { fontSize: { xs: 20, sm: 24 } } }}>{item.icon}</Box>
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>{item.label}</Typography>
+                        <Box sx={{ color: 'primary.main', display: 'flex', '& svg': { fontSize: 24 } }}>{item.icon}</Box>
+                        <Typography variant="body2" color="text.secondary">{item.label}</Typography>
                         <Typography variant="h6" fontWeight={800}>{item.value}</Typography>
                       </Stack>
                     ))}
@@ -157,7 +157,7 @@ export function MyCoursesPage() {
                     direction="row"
                     spacing={1}
                     aria-label="Lọc khóa học"
-                    sx={{ justifyContent: { xs: 'space-between', sm: 'flex-start' }, borderTop: '1px solid', borderColor: 'divider', pt: 1.5 }}
+                    sx={{ justifyContent: 'flex-start', borderTop: '1px solid', borderColor: 'divider', pt: 1.5 }}
                   >
                     {filters.map((item) => (
                       <Button
@@ -166,7 +166,7 @@ export function MyCoursesPage() {
                         variant={filter === item.value ? 'contained' : 'outlined'}
                         aria-pressed={filter === item.value}
                         onClick={() => setFilter(item.value)}
-                        sx={{ flex: { xs: '1 1 0', sm: '0 0 auto' }, whiteSpace: 'nowrap' }}
+                        sx={{ flex: '0 0 auto', whiteSpace: 'nowrap' }}
                       >
                         {item.label}
                       </Button>
@@ -185,17 +185,17 @@ export function MyCoursesPage() {
                 <Alert severity="info">Không có khóa học phù hợp với bộ lọc này.</Alert>
               )}
 
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' }, gap: 2.5 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 2.5 }}>
                 {visibleEnrollments.map((enrollment) => {
                   const courseTitle = enrollment.course?.title ?? 'Khóa học';
                   const percent = enrollment.progress?.percent ?? 0;
                   return (
-                    <Card key={enrollment.id} variant="outlined" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '180px minmax(0, 1fr)' }, overflow: 'hidden' }}>
+                    <Card key={enrollment.id} variant="outlined" sx={{ display: 'grid', gridTemplateColumns: '180px minmax(0, 1fr)', overflow: 'hidden' }}>
                       <Box
                         component="img"
-                        src={enrollment.course?.thumbnail ?? 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=80'}
+                        src={enrollment.course?.thumbnail ?? '/generated-images/course-seo.webp'}
                         alt={`Ảnh khóa học ${courseTitle}`}
-                        sx={{ width: '100%', height: { xs: 168, sm: '100%' }, minHeight: { sm: 210 }, objectFit: 'cover' }}
+                        sx={{ width: '100%', height: '100%', minHeight: 210, objectFit: 'cover' }}
                       />
                       <CardContent sx={{ p: 2.5, minWidth: 0 }}>
                         <Stack spacing={1.5} height="100%">

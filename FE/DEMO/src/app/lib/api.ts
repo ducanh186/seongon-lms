@@ -1,6 +1,7 @@
 import type {
   ApiCategory,
   ApiAdminCourse,
+  ApiAdminStats,
   ApiAdminQuestion,
   ApiAdminQuiz,
   ApiCertificate,
@@ -137,15 +138,7 @@ export const api = {
     return response.blob();
   },
 
-  adminStats: (token: string) => apiRequest<{
-    students: number;
-    courses: number;
-    published_courses: number;
-    enrollments: number;
-    certificates: number;
-    completion_rate: number;
-    revenue: number;
-  }>('/admin/dashboard/stats', { token }),
+  adminStats: (token: string) => apiRequest<ApiAdminStats>('/admin/dashboard/stats', { token }),
   adminNews: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiNewsPost>>(`/admin/news${queryString(filters)}`, { token }),
   saveNews: (token: string, body: Record<string, unknown>, newsId?: number) =>

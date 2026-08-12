@@ -4,22 +4,22 @@ namespace App\Support;
 
 final class DemoCourseThumbnail
 {
-    private const TRACK_STYLES = [
-        'seo-ai-max' => [1, 4, 6],
-        'google-ads' => [2, 5, 6],
-        'content-seo' => [3, 4, 5],
+    private const TRACK_IMAGES = [
+        'seo-ai-max' => ['ai-search', 'seo', 'analytics'],
+        'google-ads' => ['ads', 'analytics', 'ads'],
+        'content-seo' => ['content', 'seo', 'ai-search'],
     ];
 
     public static function forTrack(string $trackSlug, int $number): string
     {
-        $styles = self::TRACK_STYLES[$trackSlug] ?? [1, 2, 3, 4, 5, 6];
-        $style = $styles[max(0, $number - 1) % count($styles)];
+        $images = self::TRACK_IMAGES[$trackSlug] ?? ['seo', 'ads', 'content', 'ai-search', 'analytics'];
+        $image = $images[max(0, $number - 1) % count($images)];
 
-        return "/course-images/course-thumb-{$style}.svg";
+        return "/generated-images/course-{$image}.webp";
     }
 
     public static function completed(): string
     {
-        return '/course-images/course-thumb-6.svg';
+        return '/generated-images/course-analytics.webp';
     }
 }
