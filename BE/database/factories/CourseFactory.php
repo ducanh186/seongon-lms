@@ -17,7 +17,7 @@ class CourseFactory extends Factory
             'title' => $title,
             'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(1, 1000000),
             'description' => fake()->paragraphs(3, true),
-            'thumbnail' => 'https://picsum.photos/seed/'.fake()->uuid().'/600/400',
+            'thumbnail' => '/course-images/course-thumb-'.fake()->numberBetween(1, 6).'.svg',
             'price' => fake()->randomElement([0, 199000, 299000, 499000, 799000]),
             'instructor_name' => fake()->name(),
             'instructor_bio' => fake()->sentence(),

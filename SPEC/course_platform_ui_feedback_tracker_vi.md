@@ -6,7 +6,11 @@
 
 ---
 
-# 1. Thông tin học sinh
+# 1. Thông tin học sinhSet-Location '.\BE'
+php artisan migrate --force
+
+Set-Location '..\FE\DEMO'
+npm.cmd run build
 
 - [ ] Kiểm tra phần thông tin học sinh.
 - [ ] Hệ thống hiện tại chưa biết/hiển thị được nhiều thông tin của học sinh.

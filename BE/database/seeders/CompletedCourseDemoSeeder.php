@@ -14,6 +14,7 @@ use App\Models\QuizAttempt;
 use App\Models\QuizAttemptAnswer;
 use App\Models\User;
 use App\Services\CertificateService;
+use App\Support\DemoCourseThumbnail;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -48,7 +49,7 @@ class CompletedCourseDemoSeeder extends Seeder
                     'category_id' => $category->id,
                     'title' => 'Completed Demo Course',
                     'description' => 'A completed demo course for the student learning and certificate flow.',
-                    'thumbnail' => 'https://picsum.photos/seed/seongon-completed-demo/800/450',
+                    'thumbnail' => DemoCourseThumbnail::completed(),
                     'price' => 0,
                     'instructor_name' => 'SEONGON Demo Instructor',
                     'instructor_bio' => 'Demonstrates the completed learning flow.',

@@ -41,6 +41,7 @@ class CompletedCourseDemoSeederTest extends TestCase
         $this->assertSame('active', $student->status);
         $this->assertTrue(Hash::check('password', $student->password));
         $this->assertSame('published', $course->status);
+        $this->assertSame('/course-images/course-thumb-6.svg', $course->thumbnail);
         $this->assertDatabaseCount('enrollments', 1);
         $this->assertSame('active', $enrollment->status);
         $this->assertSame(2, $course->lessons()->count());

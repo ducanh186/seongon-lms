@@ -13,6 +13,7 @@ use App\Models\QuestionOption;
 use App\Models\Quiz;
 use App\Models\Review;
 use App\Models\User;
+use App\Support\DemoCourseThumbnail;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -177,11 +178,7 @@ class GeneratedDemoCatalogSeeder extends Seeder
                     'title' => sprintf('%s %02d: %s', $track['name'], $number, $topic),
                     'slug' => sprintf('%s-%02d', $track['slug'], $number),
                     'description' => $track['description'].' Chương trình gồm bài học nền tảng, quy trình thực hành và bài tập ứng dụng.',
-                    'thumbnail' => sprintf(
-                        'https://picsum.photos/seed/seongon-%s-%02d/800/450',
-                        $track['slug'],
-                        $number,
-                    ),
+                    'thumbnail' => DemoCourseThumbnail::forTrack($track['slug'], $number),
                     'price' => [299000, 399000, 499000, 599000][($number - 1) % 4],
                     'instructor_name' => self::INSTRUCTORS[($number - 1) % count(self::INSTRUCTORS)],
                     'instructor_bio' => 'Giảng viên thực chiến của SEONGON với kinh nghiệm triển khai dự án Digital Marketing.',
