@@ -3,195 +3,312 @@
 param(
     [Parameter(Position = 0)]
     [ValidateSet('start', 'stop', 'restart', 'status', 'logs')]
-    [string]$Action = 'restart',
-    [switch]$NoBrowser,
-    [string]$ProjectRoot,
-    [ValidateRange(1024, 65535)][int]$BackendPort = 8000,
-    [ValidateRange(1024, 65535)][int]$FrontendPort = 5173,
-    [switch]$SkipMySqlCheck,
-    [switch]$SkipPreparationCommands
+    [string]$Action = 'status'
 )
 
+Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-function Resolve-Executable {
-    param([Parameter(Mandatory = $true)][string]$Name)
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$backendRoot = Join-Path $projectRoot 'BE'
+$frontendRoot = Join-Path $projectRoot 'FE\DEMO'
+$stateDirectory = Join-Path $PSScriptRoot '.native-runtime'
+$backendUrl = 'http://127.0.0.1:8000'
+$frontendUrl = 'http://localhost:5173'
 
-    $command = Get-Command $Name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($null -eq $command) {
-        throw "Required executable '$Name' was not found on PATH."
+$roleConfiguration = @{
+    backend = [pscustomobject]@{
+        DisplayName = 'Backend'
+        Port = 8000
+        PidPath = Join-Path $stateDirectory 'backend.pid.json'
+        StdoutPath = Join-Path $stateDirectory 'backend.stdout.log'
+        StderrPath = Join-Path $stateDirectory 'backend.stderr.log'
     }
+    frontend = [pscustomobject]@{
+        DisplayName = 'Frontend'
+        Port = 5173
+        PidPath = Join-Path $stateDirectory 'frontend.pid.json'
+        StdoutPath = Join-Path $stateDirectory 'frontend.stdout.log'
+        StderrPath = Join-Path $stateDirectory 'frontend.stderr.log'
+    }
+}
+$verificationMarkerPath = Join-Path $stateDirectory 'native-verified.json'
 
-    return $command.Source
+function Ensure-StateDirectory {
+    if (-not (Test-Path -LiteralPath $stateDirectory -PathType Container)) {
+        New-Item -ItemType Directory -Path $stateDirectory -Force | Out-Null
+    }
 }
 
-function Get-Sha256 {
-    param([Parameter(Mandatory = $true)][string]$Path)
-    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+function Remove-PidMetadata {
+    param([Parameter(Mandatory)][string]$Role)
+
+    $pidPath = $roleConfiguration[$Role].PidPath
+    if (Test-Path -LiteralPath $pidPath -PathType Leaf) {
+        Remove-Item -LiteralPath $pidPath -Force
+    }
 }
 
-function Get-EnvValue {
-    param(
-        [Parameter(Mandatory = $true)][string]$EnvPath,
-        [Parameter(Mandatory = $true)][string]$Key
-    )
+function Get-PidMetadata {
+    param([Parameter(Mandatory)][string]$Role)
 
-    foreach ($line in Get-Content -LiteralPath $EnvPath) {
-        if ($line -match ('^\s*' + [regex]::Escape($Key) + '\s*=\s*(.*)$')) {
-            return $Matches[1].Trim().Trim('"').Trim("'")
-        }
+    $pidPath = $roleConfiguration[$Role].PidPath
+    if (-not (Test-Path -LiteralPath $pidPath -PathType Leaf)) {
+        return $null
     }
 
-    return $null
-}
-
-function Assert-TestBypassAllowed {
-    param([Parameter(Mandatory = $true)][string]$ResolvedProjectRoot)
-
-    $temporaryRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()).TrimEnd('\')
-    $comparison = [System.StringComparison]::OrdinalIgnoreCase
-    if (-not $ResolvedProjectRoot.StartsWith($temporaryRoot + '\', $comparison)) {
-        throw 'Test-only bypass switches are only permitted for the explicit native runner test fixture.'
-    }
-
-    $markerPath = Join-Path $ResolvedProjectRoot 'Infra\.native-runtime-test-fixture.json'
     try {
-        $marker = Get-Content -LiteralPath $markerPath -Raw | ConvertFrom-Json
-        if ($marker.kind -ne 'native-runner-test-fixture' -or $marker.projectRoot -ne $ResolvedProjectRoot) {
-            throw 'invalid fixture marker'
+        $metadata = Get-Content -LiteralPath $pidPath -Raw | ConvertFrom-Json
+        if ($null -eq $metadata.pid -or [int]$metadata.pid -le 0) {
+            throw 'PID metadata does not contain a positive pid.'
         }
+        return $metadata
     }
     catch {
-        throw 'Test-only bypass switches are only permitted for the explicit native runner test fixture.'
+        Write-Warning "Removing invalid $Role PID metadata: $($_.Exception.Message)"
+        Remove-PidMetadata -Role $Role
+        return $null
     }
 }
 
-function Get-FrontendFingerprint {
-    param([Parameter(Mandatory = $true)][string]$FrontendRoot)
+function Test-ProjectRootCommandLine {
+    param([Parameter(Mandatory)][string]$CommandLine)
 
-    $candidates = New-Object System.Collections.Generic.List[string]
-    $sourceRoot = Join-Path $FrontendRoot 'src'
-    if (Test-Path -LiteralPath $sourceRoot) {
-        foreach ($file in Get-ChildItem -LiteralPath $sourceRoot -File -Recurse) {
-            $candidates.Add($file.FullName)
-        }
-    }
-
-    foreach ($name in @('index.html', 'package.json', 'package-lock.json', '.env')) {
-        $path = Join-Path $FrontendRoot $name
-        if (Test-Path -LiteralPath $path) {
-            $candidates.Add($path)
-        }
-    }
-
-    foreach ($file in Get-ChildItem -LiteralPath $FrontendRoot -File -ErrorAction SilentlyContinue) {
-        if ($file.Name -like 'vite.config.*' -or $file.Name -like 'tsconfig*.json') {
-            $candidates.Add($file.FullName)
-        }
-    }
-
-    $records = foreach ($path in ($candidates | Select-Object -Unique | Sort-Object)) {
-        $relativePath = $path.Substring($FrontendRoot.Length).TrimStart('\', '/').Replace('\', '/')
-        '{0}|{1}' -f $relativePath, (Get-Sha256 -Path $path)
-    }
-    $bytes = [System.Text.Encoding]::UTF8.GetBytes(($records -join "`n"))
-    $sha256 = [System.Security.Cryptography.SHA256]::Create()
-    try {
-        return ([System.BitConverter]::ToString($sha256.ComputeHash($bytes))).Replace('-', '').ToLowerInvariant()
-    }
-    finally {
-        $sha256.Dispose()
-    }
+    $normalizedRoot = [IO.Path]::GetFullPath($projectRoot).TrimEnd('\\')
+    $escapedRoot = [regex]::Escape($normalizedRoot)
+    return $CommandLine -match ('(?i)' + $escapedRoot + '(?=$|[\\/\s"''])')
 }
 
-function Invoke-NativeCommand {
+function Test-RoleCommandLine {
     param(
-        [Parameter(Mandatory = $true)][string]$Description,
-        [Parameter(Mandatory = $true)][string]$Executable,
-        [string[]]$Arguments = @(),
-        [Parameter(Mandatory = $true)][string]$WorkingDirectory
+        [Parameter(Mandatory)][string]$Role,
+        [Parameter(Mandatory)][string]$CommandLine
     )
 
-    $previousErrorActionPreference = $ErrorActionPreference
-    try {
-        # Windows PowerShell 5.1 exposes native stderr as ErrorRecord objects.
-        $ErrorActionPreference = 'Continue'
-        Push-Location -LiteralPath $WorkingDirectory
-        $output = @(& $Executable @Arguments 2>&1)
-        $exitCode = $LASTEXITCODE
-    }
-    finally {
-        Pop-Location
-        $ErrorActionPreference = $previousErrorActionPreference
+    if (-not (Test-ProjectRootCommandLine -CommandLine $CommandLine)) {
+        return $false
     }
 
-    if ($exitCode -ne 0) {
-        $text = ($output | Out-String).Trim()
-        throw "$Description failed with exit code ${exitCode}. $text"
+    if ($Role -eq 'backend') {
+        return $CommandLine -match '(?i)\bartisan["'']?\s+serve\b'
     }
-}
 
-function Write-TextFile {
-    param(
-        [Parameter(Mandatory = $true)][string]$Path,
-        [Parameter(Mandatory = $true)][string]$Value
-    )
-
-    [System.IO.File]::WriteAllText($Path, $Value + [Environment]::NewLine, (New-Object System.Text.UTF8Encoding($false)))
+    return $CommandLine.IndexOf($frontendRoot, [StringComparison]::OrdinalIgnoreCase) -ge 0 -and
+        $CommandLine -match '(?i)\b(vite|npm(?:\.cmd)?)\b'
 }
 
 function Get-OwnedProcess {
-    param(
-        [Parameter(Mandatory = $true)][string]$PidRecordPath,
-        [Parameter(Mandatory = $true)][string]$ExpectedPath,
-        [Parameter(Mandatory = $true)][string]$ResolvedProjectRoot
-    )
+    param([Parameter(Mandatory)][string]$Role)
 
-    if (-not (Test-Path -LiteralPath $PidRecordPath)) {
+    $metadata = Get-PidMetadata -Role $Role
+    if ($null -eq $metadata) {
         return $null
     }
 
+    $processId = [int]$metadata.pid
     try {
-        $record = Get-Content -LiteralPath $PidRecordPath -Raw | ConvertFrom-Json
-        $process = Get-CimInstance Win32_Process -Filter ("ProcessId = {0}" -f [int]$record.pid) -ErrorAction Stop
-        if ($null -eq $process -or [string]::IsNullOrWhiteSpace($process.CommandLine)) {
-            return $null
-        }
-
-        if ($process.CommandLine.IndexOf($ResolvedProjectRoot, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
-            return $null
-        }
-        if ($process.CommandLine.IndexOf($ExpectedPath, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
-            return $null
-        }
-
-        return $process
+        $process = Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $processId" -ErrorAction Stop
     }
     catch {
+        Write-Warning "Removing stale $Role PID metadata because PID $processId cannot be queried."
+        Remove-PidMetadata -Role $Role
         return $null
     }
+
+    if ($null -eq $process -or -not (Test-RoleCommandLine -Role $Role -CommandLine ([string]$process.CommandLine))) {
+        Write-Warning "Removing non-owned $Role PID metadata for PID $processId."
+        Remove-PidMetadata -Role $Role
+        return $null
+    }
+
+    return [pscustomobject]@{
+        Pid = $processId
+        Process = $process
+    }
 }
 
-function Remove-PidRecordAndStopOwnedProcess {
+function Save-PidMetadata {
     param(
-        [Parameter(Mandatory = $true)][string]$PidRecordPath,
-        [Parameter(Mandatory = $true)][string]$ExpectedPath,
-        [Parameter(Mandatory = $true)][string]$ResolvedProjectRoot
+        [Parameter(Mandatory)][string]$Role,
+        [Parameter(Mandatory)][int]$ProcessId
     )
 
-    $process = Get-OwnedProcess -PidRecordPath $PidRecordPath -ExpectedPath $ExpectedPath -ResolvedProjectRoot $ResolvedProjectRoot
-    if ($null -ne $process) {
-        Stop-Process -Id $process.ProcessId -ErrorAction SilentlyContinue
-        Wait-Process -Id $process.ProcessId -Timeout 10 -ErrorAction SilentlyContinue
-    }
-    Remove-Item -LiteralPath $PidRecordPath -Force -ErrorAction SilentlyContinue
+    Ensure-StateDirectory
+    [ordered]@{
+        pid = $ProcessId
+        role = $Role
+        projectRoot = $projectRoot
+        startedAtUtc = [DateTime]::UtcNow.ToString('o')
+    } | ConvertTo-Json | Set-Content -LiteralPath $roleConfiguration[$Role].PidPath -Encoding UTF8
 }
 
-function Test-HttpEndpoint {
-    param([Parameter(Mandatory = $true)][string]$Uri)
+function Test-OwnedDescendantCommandLine {
+    param(
+        [Parameter(Mandatory)][string]$Role,
+        [Parameter(Mandatory)][string]$CommandLine
+    )
+
+    if (-not (Test-ProjectRootCommandLine -CommandLine $CommandLine)) {
+        return $false
+    }
+    if ($Role -eq 'backend') {
+        return $CommandLine -match '(?i)\bphp(?:\.exe)?\b' -and
+            $CommandLine -match '(?i)(?:\s-S\s|\bserver\.php\b|\bartisan\b)'
+    }
+    return $CommandLine.IndexOf($frontendRoot, [StringComparison]::OrdinalIgnoreCase) -ge 0 -and
+        $CommandLine -match '(?i)\b(?:node(?:\.exe)?|vite)\b' -and
+        $CommandLine -match '(?i)\bvite\b'
+}
+
+function Get-OwnedProcessTree {
+    param(
+        [Parameter(Mandatory)][string]$Role,
+        [Parameter(Mandatory)]$RootProcess
+    )
 
     try {
-        $response = Invoke-WebRequest -Uri $Uri -UseBasicParsing -TimeoutSec 3 -ErrorAction Stop
+        $allProcesses = @(Get-CimInstance -ClassName Win32_Process -ErrorAction Stop)
+    }
+    catch {
+        throw "Unable to query $Role process tree ownership: $($_.Exception.Message)"
+    }
+
+    $rootProcessId = [int]$RootProcess.Pid
+    $tree = @([pscustomobject]@{ Process = $RootProcess.Process; Depth = 0 })
+    $knownProcessIds = @($rootProcessId)
+    $frontierProcessIds = @($rootProcessId)
+    $depth = 0
+    while ($frontierProcessIds.Count -gt 0) {
+        $children = @($allProcesses | Where-Object { $frontierProcessIds -contains [int]$_.ParentProcessId })
+        $frontierProcessIds = @()
+        if ($children.Count -eq 0) {
+            continue
+        }
+        $depth++
+        foreach ($child in $children) {
+            $childId = [int]$child.ProcessId
+            if ($knownProcessIds -contains $childId) {
+                continue
+            }
+            $knownProcessIds += $childId
+            $frontierProcessIds += $childId
+            if (Test-OwnedDescendantCommandLine -Role $Role -CommandLine ([string]$child.CommandLine)) {
+                $tree += [pscustomobject]@{ Process = $child; Depth = $depth }
+            }
+        }
+    }
+
+    return @($tree | Sort-Object -Property Depth -Descending)
+}
+
+function Get-ListenerProcessId {
+    param([Parameter(Mandatory)][int]$Port)
+
+    try {
+        $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop)
+        $listener = $listeners | Where-Object { [int]$_.LocalPort -eq $Port } | Select-Object -First 1
+    }
+    catch {
+        throw "Unable to query port $Port ownership: $($_.Exception.Message)"
+    }
+
+    if ($null -eq $listener) {
+        return $null
+    }
+    return [int]$listener.OwningProcess
+}
+
+function Assert-PortAvailableOrOwned {
+    param([Parameter(Mandatory)][string]$Role)
+
+    $configuration = $roleConfiguration[$Role]
+    $listenerPid = Get-ListenerProcessId -Port $configuration.Port
+    if ($null -eq $listenerPid) {
+        return
+    }
+
+    $ownedProcess = Get-OwnedProcess -Role $Role
+    if ($null -ne $ownedProcess) {
+        $ownedTree = Get-OwnedProcessTree -Role $Role -RootProcess $ownedProcess
+        if ($ownedTree | Where-Object { [int]$_.Process.ProcessId -eq $listenerPid }) {
+            return
+        }
+    }
+
+    throw "Port $($configuration.Port) is in use by a process not owned by this repository."
+}
+
+function Ensure-MySql80Running {
+    $service = Get-Service -Name 'MySQL80' -ErrorAction Stop
+    if ($service.Status -ne 'Running') {
+        Start-Service -Name 'MySQL80' -ErrorAction Stop
+        $service.WaitForStatus('Running', [TimeSpan]::FromSeconds(30))
+    }
+}
+
+function Stop-NewOwnedProcess {
+    param(
+        [Parameter(Mandatory)][string]$Role,
+        [Parameter(Mandatory)][int]$ProcessId
+    )
+
+    try {
+        $process = Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $ProcessId" -ErrorAction Stop
+        if ($null -ne $process -and (Test-RoleCommandLine -Role $Role -CommandLine ([string]$process.CommandLine))) {
+            $rootProcess = [pscustomobject]@{ Pid = $ProcessId; Process = $process }
+            foreach ($entry in (Get-OwnedProcessTree -Role $Role -RootProcess $rootProcess)) {
+                Stop-Process -Id ([int]$entry.Process.ProcessId) -Force -ErrorAction Stop
+            }
+        }
+    }
+    finally {
+        Remove-PidMetadata -Role $Role
+    }
+}
+
+function Start-RoleProcess {
+    param([Parameter(Mandatory)][string]$Role)
+
+    $existingProcess = Get-OwnedProcess -Role $Role
+    if ($null -ne $existingProcess) {
+        return [pscustomobject]@{ Role = $Role; Created = $false; Pid = $existingProcess.Pid }
+    }
+
+    Assert-PortAvailableOrOwned -Role $Role
+    Ensure-StateDirectory
+    $configuration = $roleConfiguration[$Role]
+    if ($Role -eq 'backend') {
+        $php = Get-Command 'php.exe' -ErrorAction Stop
+        $artisanPath = Join-Path $backendRoot 'artisan'
+        $process = Start-Process -FilePath $php.Source -ArgumentList @($artisanPath, 'serve', '--host=127.0.0.1', '--port=8000') `
+            -WorkingDirectory $backendRoot -PassThru -WindowStyle Hidden `
+            -RedirectStandardOutput $configuration.StdoutPath -RedirectStandardError $configuration.StderrPath
+    }
+    else {
+        $npm = Get-Command 'npm.cmd' -ErrorAction Stop
+        $process = Start-Process -FilePath $npm.Source -ArgumentList @('--prefix', $frontendRoot, 'run', 'dev', '--', '--host', '127.0.0.1', '--port', '5173') `
+            -WorkingDirectory $frontendRoot -PassThru -WindowStyle Hidden `
+            -RedirectStandardOutput $configuration.StdoutPath -RedirectStandardError $configuration.StderrPath
+    }
+
+    try {
+        Save-PidMetadata -Role $Role -ProcessId $process.Id
+    }
+    catch {
+        Stop-NewOwnedProcess -Role $Role -ProcessId $process.Id
+        throw
+    }
+    return [pscustomobject]@{ Role = $Role; Created = $true; Pid = $process.Id }
+}
+
+function Test-HttpSuccess {
+    param(
+        [Parameter(Mandatory)][string]$Url,
+        [ValidateRange(1, 5)][int]$TimeoutSeconds = 5
+    )
+
+    try {
+        $response = Invoke-WebRequest -UseBasicParsing -Uri $Url -TimeoutSec $TimeoutSeconds -ErrorAction Stop
         return $response.StatusCode -ge 200 -and $response.StatusCode -lt 400
     }
     catch {
@@ -199,293 +316,255 @@ function Test-HttpEndpoint {
     }
 }
 
-function Test-PortIsInUse {
-    param([Parameter(Mandatory = $true)][int]$Port)
+function Wait-ForRuntimeReady {
+    param([ValidateRange(0, 60)][int]$TimeoutSeconds = 60)
 
-    $connections = @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)
-    return $connections.Count -gt 0
-}
-
-function Assert-PortAvailable {
-    param([Parameter(Mandatory = $true)][int]$Port)
-
-    if (Test-PortIsInUse -Port $Port) {
-        throw "Port $Port is already owned by another process. Stop that process or choose a different port."
-    }
-}
-
-function Write-PidRecord {
-    param(
-        [Parameter(Mandatory = $true)][string]$Path,
-        [Parameter(Mandatory = $true)]$Process,
-        [Parameter(Mandatory = $true)][string]$ExpectedPath
-    )
-
-    [ordered]@{
-        pid = $Process.Id
-        expectedPath = $ExpectedPath
-        startedAt = (Get-Date).ToString('o')
-    } | ConvertTo-Json | Set-Content -LiteralPath $Path -Encoding UTF8
-}
-
-function Stop-NewOwnedProcess {
-    param(
-        [Parameter(Mandatory = $true)]$Process,
-        [Parameter(Mandatory = $true)][string]$ExpectedPath,
-        [Parameter(Mandatory = $true)][string]$ResolvedProjectRoot
-    )
-
-    try {
-        $liveProcess = Get-CimInstance Win32_Process -Filter ("ProcessId = {0}" -f $Process.Id) -ErrorAction Stop
-        if ($null -ne $liveProcess -and
-            -not [string]::IsNullOrWhiteSpace($liveProcess.CommandLine) -and
-            $liveProcess.CommandLine.IndexOf($ResolvedProjectRoot, [System.StringComparison]::OrdinalIgnoreCase) -ge 0 -and
-            $liveProcess.CommandLine.IndexOf($ExpectedPath, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
-            Stop-Process -Id $liveProcess.ProcessId -ErrorAction SilentlyContinue
-            Wait-Process -Id $liveProcess.ProcessId -Timeout 10 -ErrorAction SilentlyContinue
-        }
-    }
-    catch {
-        # A missing or mismatched process is intentionally left untouched.
-    }
-}
-
-function ConvertTo-StartProcessArgument {
-    param([Parameter(Mandatory = $true)][string]$Value)
-
-    if ($Value -notmatch '[\s"]') {
-        return $Value
-    }
-    return '"' + $Value.Replace('"', '\"') + '"'
-}
-
-function Wait-ForEndpoints {
-    param(
-        [Parameter(Mandatory = $true)][int]$BackendPort,
-        [Parameter(Mandatory = $true)][int]$FrontendPort
-    )
-
-    $deadline = (Get-Date).AddSeconds(60)
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
     do {
-        if ((Test-HttpEndpoint -Uri ("http://127.0.0.1:{0}/up" -f $BackendPort)) -and (Test-HttpEndpoint -Uri ("http://127.0.0.1:{0}/" -f $FrontendPort))) {
+        $backendRemainingSeconds = [Math]::Floor(($deadline - [DateTime]::UtcNow).TotalSeconds)
+        if ($backendRemainingSeconds -lt 1) {
+            break
+        }
+        $backendReady = Test-HttpSuccess -Url "$backendUrl/up" -TimeoutSeconds ([Math]::Min(5, [int]$backendRemainingSeconds))
+
+        $frontendRemainingSeconds = [Math]::Floor(($deadline - [DateTime]::UtcNow).TotalSeconds)
+        if ($frontendRemainingSeconds -lt 1) {
+            break
+        }
+        $frontendReady = Test-HttpSuccess -Url "$frontendUrl/" -TimeoutSeconds ([Math]::Min(5, [int]$frontendRemainingSeconds))
+        if ($backendReady -and $frontendReady) {
             return
         }
-        Start-Sleep -Seconds 1
-    } while ((Get-Date) -lt $deadline)
+        $remainingMilliseconds = [Math]::Floor(($deadline - [DateTime]::UtcNow).TotalMilliseconds)
+        if ($remainingMilliseconds -lt 1) {
+            break
+        }
+        Start-Sleep -Milliseconds ([Math]::Min(1000, [int]$remainingMilliseconds))
+    } while ($true)
 
-    throw 'Native backend or frontend did not become ready within 60 seconds.'
+    throw "Timed out waiting for backend and frontend within $TimeoutSeconds seconds."
 }
 
-function Prepare-NativeRuntime {
+function Get-ServiceExecutablePath {
+    param([Parameter(Mandatory)][string]$PathName)
+
+    if ($PathName -match '^\s*"([^"]+mysqld\.exe)"') {
+        return $matches[1]
+    }
+    if ($PathName -match '^\s*([^\s]+mysqld\.exe)') {
+        return $matches[1]
+    }
+    return $null
+}
+
+function Get-DotEnvValue {
     param(
-        [Parameter(Mandatory = $true)][string]$BackendRoot,
-        [Parameter(Mandatory = $true)][string]$FrontendRoot,
-        [Parameter(Mandatory = $true)][string]$RuntimeRoot,
-        [Parameter(Mandatory = $true)][string]$EnvPath,
-        [Parameter(Mandatory = $true)][string]$ComposerLockPath,
-        [Parameter(Mandatory = $true)][string]$PackageLockPath,
-        [switch]$SkipMySql,
-        [switch]$SkipCommands
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$Key
     )
 
-    $dbUser = Get-EnvValue -EnvPath $EnvPath -Key 'DB_USERNAME'
-    $dbPassword = Get-EnvValue -EnvPath $EnvPath -Key 'DB_PASSWORD'
-    if ([string]::IsNullOrWhiteSpace($dbUser) -or $dbUser -eq 'root' -or [string]::IsNullOrWhiteSpace($dbPassword)) {
-        throw 'BE/.env must define a non-root, non-blank DB_USERNAME and a non-blank DB_PASSWORD.'
+    $line = Get-Content -LiteralPath $Path | Where-Object { $_ -match ('^\s*' + [regex]::Escape($Key) + '\s*=') } | Select-Object -Last 1
+    if ($null -eq $line) {
+        return $null
+    }
+    $value = ($line -replace '^\s*[^=]+=\s*', '').Trim()
+    if ($value.Length -ge 2 -and (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'")))) {
+        return $value.Substring(1, $value.Length - 2)
+    }
+    return $value
+}
+
+function Get-MySql80Evidence {
+    $service = Get-CimInstance -ClassName Win32_Service -Filter "Name='MySQL80'" -ErrorAction Stop
+    if ($null -eq $service -or $service.State -ne 'Running') {
+        throw 'MySQL80 is not running.'
+    }
+    $serverPath = Get-ServiceExecutablePath -PathName $service.PathName
+    if (-not $serverPath -or -not (Test-Path -LiteralPath $serverPath -PathType Leaf)) {
+        throw 'Unable to locate the MySQL80 server binary.'
+    }
+    $binaryVersion = ((& $serverPath --version | Select-Object -First 1) -join ' ').Trim()
+    if ($LASTEXITCODE -ne 0 -or $binaryVersion -notmatch '(?i)\b(?:Ver\s+)?8\.0\.\d+\b') {
+        throw "MySQL80 binary is not MySQL 8.0: $binaryVersion"
     }
 
-    $composerLockHash = Get-Sha256 -Path $ComposerLockPath
-    $packageLockHash = Get-Sha256 -Path $PackageLockPath
-    $frontendFingerprint = Get-FrontendFingerprint -FrontendRoot $FrontendRoot
-    $composerStampPath = Join-Path $RuntimeRoot 'composer-lock.sha256'
-    $npmStampPath = Join-Path $RuntimeRoot 'npm-lock.sha256'
-    $frontendStampPath = Join-Path $RuntimeRoot 'frontend-fingerprint.sha256'
-
-    if ($SkipCommands) {
-        return
-    }
-
-    $phpPath = Resolve-Executable -Name 'php'
-    $composerPath = Resolve-Executable -Name 'composer'
-    $nodePath = Resolve-Executable -Name 'node'
-    $npmPath = Resolve-Executable -Name 'npm.cmd'
-
-    if (-not $SkipMySql) {
-        $service = Get-Service -Name 'MySQL80' -ErrorAction Stop
-        if ($service.Status -ne 'Running') {
-            Start-Service -Name 'MySQL80'
-            $service.WaitForStatus('Running', [TimeSpan]::FromSeconds(60))
+    $envPath = Join-Path $backendRoot '.env'
+    $php = Get-Command 'php.exe' -ErrorAction Stop
+    foreach ($key in @('DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD')) {
+        $value = Get-DotEnvValue -Path $envPath -Key $key
+        if ($null -eq $value) {
+            throw "BE/.env is missing $key."
         }
-        $serviceInfo = Get-CimInstance Win32_Service -Filter "Name = 'MySQL80'" -ErrorAction Stop
-        $serviceExecutable = if ($serviceInfo.PathName -match '^\s*"([^"]+)"') { $Matches[1] } else { ($serviceInfo.PathName -split '\s+')[0] }
-        $versionOutput = @(& $serviceExecutable '--version' 2>&1) -join ' '
-        if ($LASTEXITCODE -ne 0 -or $versionOutput -match 'MariaDB' -or $versionOutput -notmatch '(?<!\d)8\.0(?!\d)') {
-            throw 'MySQL80 must run Oracle MySQL Server 8.0; MariaDB and MySQL 8.4 are not supported.'
+        Set-Item -Path ("Env:NATIVE_$key") -Value $value
+    }
+    try {
+        $phpCode = 'try { $pdo = new PDO("mysql:host=" . getenv("NATIVE_DB_HOST") . ";port=" . getenv("NATIVE_DB_PORT") . ";dbname=" . getenv("NATIVE_DB_DATABASE"), getenv("NATIVE_DB_USERNAME"), getenv("NATIVE_DB_PASSWORD")); echo $pdo->query("SELECT VERSION()")->fetchColumn(); } catch (Throwable $error) { fwrite(STDERR, $error->getMessage()); exit(1); }'
+        $serverVersion = ((& $php.Source -r $phpCode | Select-Object -First 1) -join ' ').Trim()
+        if ($LASTEXITCODE -ne 0 -or $serverVersion -notmatch '^8\.0\.\d+') {
+            throw "MySQL80 server did not report an 8.0.x version: $serverVersion"
+        }
+        return [pscustomobject]@{ ServerVersion = $serverVersion; BinaryVersion = $binaryVersion }
+    }
+    finally {
+        foreach ($key in @('DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD')) {
+            Remove-Item -Path ("Env:NATIVE_$key") -ErrorAction SilentlyContinue
         }
     }
+}
 
-    $autoloadPath = Join-Path $BackendRoot 'vendor\autoload.php'
-    $previousComposerHash = if (Test-Path -LiteralPath $composerStampPath) { (Get-Content -LiteralPath $composerStampPath -Raw).Trim() } else { '' }
-    if (-not (Test-Path -LiteralPath $autoloadPath) -or $previousComposerHash -ne $composerLockHash) {
-        Invoke-NativeCommand -Description 'composer install' -Executable $composerPath -Arguments @('install', '--no-interaction', '--prefer-dist') -WorkingDirectory $BackendRoot
-        Write-TextFile -Path $composerStampPath -Value $composerLockHash
+function Write-VerificationMarker {
+    param([Parameter(Mandatory)]$MySqlEvidence)
+
+    Ensure-StateDirectory
+    $temporaryMarkerPath = Join-Path $stateDirectory ('native-verified.' + [guid]::NewGuid().ToString('N') + '.tmp')
+    $backupMarkerPath = Join-Path $stateDirectory ('native-verified.' + [guid]::NewGuid().ToString('N') + '.bak')
+    $marker = [ordered]@{
+        projectRoot = $projectRoot
+        verifiedAtUtc = [DateTime]::UtcNow.ToString('o')
+        backendUrl = $backendUrl
+        frontendUrl = $frontendUrl
+        mysqlVersion = $MySqlEvidence.ServerVersion
+        mysqlBinaryVersion = $MySqlEvidence.BinaryVersion
+    } | ConvertTo-Json
+    try {
+        Set-Content -LiteralPath $temporaryMarkerPath -Value $marker -Encoding UTF8 -NoNewline
+        if (Test-Path -LiteralPath $verificationMarkerPath -PathType Leaf) {
+            [IO.File]::Replace($temporaryMarkerPath, $verificationMarkerPath, $backupMarkerPath)
+        }
+        else {
+            [IO.File]::Move($temporaryMarkerPath, $verificationMarkerPath)
+        }
     }
-    Invoke-NativeCommand -Description 'composer check-platform-reqs' -Executable $composerPath -Arguments @('check-platform-reqs', '--no-interaction') -WorkingDirectory $BackendRoot
-
-    $nodeModulesPath = Join-Path $FrontendRoot 'node_modules'
-    $previousNpmHash = if (Test-Path -LiteralPath $npmStampPath) { (Get-Content -LiteralPath $npmStampPath -Raw).Trim() } else { '' }
-    $npmDependenciesRefreshed = $false
-    if (-not (Test-Path -LiteralPath $nodeModulesPath) -or $previousNpmHash -ne $packageLockHash) {
-        Invoke-NativeCommand -Description 'npm ci' -Executable $npmPath -Arguments @('ci') -WorkingDirectory $FrontendRoot
-        Write-TextFile -Path $npmStampPath -Value $packageLockHash
-        $npmDependenciesRefreshed = $true
-    }
-
-    $artisanPath = Join-Path $BackendRoot 'artisan'
-    Invoke-NativeCommand -Description 'php artisan config:clear' -Executable $phpPath -Arguments @($artisanPath, 'config:clear') -WorkingDirectory $BackendRoot
-    Invoke-NativeCommand -Description 'php artisan migrate' -Executable $phpPath -Arguments @($artisanPath, 'migrate', '--force') -WorkingDirectory $BackendRoot
-    Invoke-NativeCommand -Description 'php artisan app:seed-demo-once' -Executable $phpPath -Arguments @($artisanPath, 'app:seed-demo-once') -WorkingDirectory $BackendRoot
-
-    $distIndexPath = Join-Path $FrontendRoot 'dist\index.html'
-    $previousFingerprint = if (Test-Path -LiteralPath $frontendStampPath) { (Get-Content -LiteralPath $frontendStampPath -Raw).Trim() } else { '' }
-    if (-not (Test-Path -LiteralPath $distIndexPath) -or $previousFingerprint -ne $frontendFingerprint -or $npmDependenciesRefreshed) {
-        Invoke-NativeCommand -Description 'npm run build' -Executable $npmPath -Arguments @('run', 'build') -WorkingDirectory $FrontendRoot
-        Write-TextFile -Path $frontendStampPath -Value $frontendFingerprint
+    finally {
+        if (Test-Path -LiteralPath $temporaryMarkerPath -PathType Leaf) {
+            Remove-Item -LiteralPath $temporaryMarkerPath -Force
+        }
+        if (Test-Path -LiteralPath $backupMarkerPath -PathType Leaf) {
+            Remove-Item -LiteralPath $backupMarkerPath -Force
+        }
     }
 }
 
-if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
-    $ProjectRoot = Split-Path -Parent $PSScriptRoot
+function Test-VerificationMarker {
+    if (-not (Test-Path -LiteralPath $verificationMarkerPath -PathType Leaf)) {
+        return $false
+    }
+
+    try {
+        $marker = Get-Content -LiteralPath $verificationMarkerPath -Raw | ConvertFrom-Json
+        $markerRoot = [IO.Path]::GetFullPath([string]$marker.projectRoot).TrimEnd('\\')
+        $currentRoot = [IO.Path]::GetFullPath($projectRoot).TrimEnd('\\')
+        if (-not $marker.projectRoot -or -not $markerRoot.Equals($currentRoot, [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'projectRoot does not match this repository.'
+        }
+        if ($null -eq (Get-OwnedProcess -Role 'backend') -or $null -eq (Get-OwnedProcess -Role 'frontend')) {
+            throw 'one or more recorded runtime processes are not owned.'
+        }
+        if (-not (Test-HttpSuccess -Url "$backendUrl/up") -or -not (Test-HttpSuccess -Url "$frontendUrl/")) {
+            throw 'one or more runtime endpoints are unreachable.'
+        }
+        return $true
+    }
+    catch {
+        Write-Warning "Removing stale verification marker: $($_.Exception.Message)"
+        Remove-Item -LiteralPath $verificationMarkerPath -Force -ErrorAction SilentlyContinue
+        return $false
+    }
 }
-$ProjectRoot = (Resolve-Path -LiteralPath $ProjectRoot).Path
-$backendRoot = Join-Path $ProjectRoot 'BE'
-$frontendRoot = Join-Path $ProjectRoot 'FE\DEMO'
-$runtimeRoot = Join-Path $ProjectRoot 'Infra\.native-runtime'
-$artisanPath = Join-Path $backendRoot 'artisan'
-$vitePath = Join-Path $frontendRoot 'node_modules\vite\bin\vite.js'
-$backendPidPath = Join-Path $runtimeRoot 'backend.pid.json'
-$frontendPidPath = Join-Path $runtimeRoot 'frontend.pid.json'
-$verifiedPath = Join-Path $runtimeRoot 'native-verified.json'
 
-if ($SkipMySqlCheck -or $SkipPreparationCommands) {
-    Assert-TestBypassAllowed -ResolvedProjectRoot $ProjectRoot
-}
+function Stop-RoleProcess {
+    param([Parameter(Mandatory)][string]$Role)
 
-function Invoke-Stop {
-    if (Test-Path -LiteralPath $verifiedPath) {
-        Remove-Item -LiteralPath $verifiedPath -Force
+    $ownedProcess = Get-OwnedProcess -Role $Role
+    if ($null -ne $ownedProcess) {
+        $ownedTree = Get-OwnedProcessTree -Role $Role -RootProcess $ownedProcess
+        foreach ($entry in $ownedTree) {
+            Stop-Process -Id ([int]$entry.Process.ProcessId) -Force -ErrorAction Stop
+        }
     }
-    Remove-PidRecordAndStopOwnedProcess -PidRecordPath $backendPidPath -ExpectedPath $artisanPath -ResolvedProjectRoot $ProjectRoot
-    Remove-PidRecordAndStopOwnedProcess -PidRecordPath $frontendPidPath -ExpectedPath $vitePath -ResolvedProjectRoot $ProjectRoot
-    Write-Output 'Native runtime stopped.'
-}
-
-function Invoke-Status {
-    $backend = Get-OwnedProcess -PidRecordPath $backendPidPath -ExpectedPath $artisanPath -ResolvedProjectRoot $ProjectRoot
-    $frontend = Get-OwnedProcess -PidRecordPath $frontendPidPath -ExpectedPath $vitePath -ResolvedProjectRoot $ProjectRoot
-    if ($null -eq $backend -and $null -eq $frontend) {
-        Write-Output 'Native runtime is stopped.'
-        return
-    }
-
-    $backendReady = $null -ne $backend -and (Test-HttpEndpoint -Uri ("http://127.0.0.1:{0}/up" -f $BackendPort))
-    $frontendReady = $null -ne $frontend -and (Test-HttpEndpoint -Uri ("http://127.0.0.1:{0}/" -f $FrontendPort))
-    if ($backendReady -and $frontendReady) {
-        Write-Output 'Native runtime is healthy.'
-    }
-    else {
-        Write-Output 'Native runtime is not healthy.'
-    }
+    Remove-PidMetadata -Role $Role
 }
 
 function Invoke-Start {
-    $requiredPaths = @(
-        (Join-Path $backendRoot '.env'),
-        (Join-Path $backendRoot 'composer.lock'),
-        (Join-Path $frontendRoot 'package-lock.json'),
-        $artisanPath
-    )
-    foreach ($path in $requiredPaths) {
-        if (-not (Test-Path -LiteralPath $path)) {
-            throw "Required native runtime path is missing: $path"
-        }
-    }
-
-    $existingBackend = Get-OwnedProcess -PidRecordPath $backendPidPath -ExpectedPath $artisanPath -ResolvedProjectRoot $ProjectRoot
-    $existingFrontend = Get-OwnedProcess -PidRecordPath $frontendPidPath -ExpectedPath $vitePath -ResolvedProjectRoot $ProjectRoot
-    if ($null -ne $existingBackend -and $null -ne $existingFrontend -and
-        (Test-HttpEndpoint -Uri ("http://127.0.0.1:{0}/up" -f $BackendPort)) -and
-        (Test-HttpEndpoint -Uri ("http://127.0.0.1:{0}/" -f $FrontendPort))) {
-        Write-Output 'Native runtime is already healthy.'
-        return
-    }
-
-    if (Test-Path -LiteralPath $runtimeRoot) {
-        Invoke-Stop
-    }
-    New-Item -ItemType Directory -Path $runtimeRoot -Force | Out-Null
-    Prepare-NativeRuntime -BackendRoot $backendRoot -FrontendRoot $frontendRoot -RuntimeRoot $runtimeRoot -EnvPath (Join-Path $backendRoot '.env') -ComposerLockPath (Join-Path $backendRoot 'composer.lock') -PackageLockPath (Join-Path $frontendRoot 'package-lock.json') -SkipMySql:$SkipMySqlCheck -SkipCommands:$SkipPreparationCommands
-
-    $phpPath = Resolve-Executable -Name 'php'
-    $nodePath = Resolve-Executable -Name 'node'
-    if (-not (Test-Path -LiteralPath $vitePath)) {
-        throw "Vite entrypoint was not created by npm preparation: $vitePath"
-    }
-    $vitePath = (Resolve-Path -LiteralPath $vitePath).Path
-    Assert-PortAvailable -Port $BackendPort
-    Assert-PortAvailable -Port $FrontendPort
-    $backendOutput = Join-Path $runtimeRoot 'backend.stdout.log'
-    $backendError = Join-Path $runtimeRoot 'backend.stderr.log'
-    $frontendOutput = Join-Path $runtimeRoot 'frontend.stdout.log'
-    $frontendError = Join-Path $runtimeRoot 'frontend.stderr.log'
-    $newBackend = $null
-    $newFrontend = $null
+    Ensure-MySql80Running
+    $createdRoles = @()
     try {
-        $backendArguments = (@($artisanPath, 'serve', '--host=127.0.0.1', ("--port={0}" -f $BackendPort)) | ForEach-Object { ConvertTo-StartProcessArgument -Value $_ }) -join ' '
-        $newBackend = Start-Process -FilePath $phpPath -ArgumentList $backendArguments -WorkingDirectory $backendRoot -RedirectStandardOutput $backendOutput -RedirectStandardError $backendError -PassThru
-        Write-PidRecord -Path $backendPidPath -Process $newBackend -ExpectedPath $artisanPath
-        $frontendArguments = (@($vitePath, '--host', '127.0.0.1', '--port', $FrontendPort) | ForEach-Object { ConvertTo-StartProcessArgument -Value ([string]$_) }) -join ' '
-        $newFrontend = Start-Process -FilePath $nodePath -ArgumentList $frontendArguments -WorkingDirectory $frontendRoot -RedirectStandardOutput $frontendOutput -RedirectStandardError $frontendError -PassThru
-        Write-PidRecord -Path $frontendPidPath -Process $newFrontend -ExpectedPath $vitePath
-        Wait-ForEndpoints -BackendPort $BackendPort -FrontendPort $FrontendPort
-        [ordered]@{
-            verifiedAt = (Get-Date).ToString('o')
-            backend = "http://127.0.0.1:$BackendPort/up"
-            frontend = "http://127.0.0.1:$FrontendPort/"
-        } | ConvertTo-Json | Set-Content -LiteralPath $verifiedPath -Encoding UTF8
+        foreach ($role in @('backend', 'frontend')) {
+            $result = Start-RoleProcess -Role $role
+            if ($result.Created) {
+                $createdRoles += $role
+            }
+        }
+        Wait-ForRuntimeReady
+        $mySqlEvidence = Get-MySql80Evidence
+        Write-VerificationMarker -MySqlEvidence $mySqlEvidence
+        Write-Host "Native runtime verified: $backendUrl and $frontendUrl"
     }
     catch {
-        if ($null -ne $newBackend) { Stop-NewOwnedProcess -Process $newBackend -ExpectedPath $artisanPath -ResolvedProjectRoot $ProjectRoot }
-        if ($null -ne $newFrontend) { Stop-NewOwnedProcess -Process $newFrontend -ExpectedPath $vitePath -ResolvedProjectRoot $ProjectRoot }
-        Remove-Item -LiteralPath $backendPidPath, $frontendPidPath -Force -ErrorAction SilentlyContinue
-        Remove-Item -LiteralPath $verifiedPath -Force -ErrorAction SilentlyContinue
+        foreach ($role in $createdRoles) {
+            Stop-RoleProcess -Role $role
+        }
+        if (Test-Path -LiteralPath $verificationMarkerPath) {
+            Remove-Item -LiteralPath $verificationMarkerPath -Force
+        }
+        Write-Host "Backend stderr log: $($roleConfiguration.backend.StderrPath)"
+        Write-Host "Frontend stderr log: $($roleConfiguration.frontend.StderrPath)"
         throw
     }
-    Write-Output 'Native runtime is healthy.'
-    if (-not $NoBrowser) {
-        Start-Process ("http://localhost:{0}" -f $FrontendPort)
+}
+
+function Invoke-Stop {
+    if (Test-Path -LiteralPath $verificationMarkerPath) {
+        Remove-Item -LiteralPath $verificationMarkerPath -Force
+    }
+    foreach ($role in @('backend', 'frontend')) {
+        Stop-RoleProcess -Role $role
+        Write-Host "$($roleConfiguration[$role].DisplayName): stopped"
+    }
+}
+
+function Invoke-Status {
+    foreach ($role in @('backend', 'frontend')) {
+        $ownedProcess = Get-OwnedProcess -Role $role
+        if ($null -eq $ownedProcess) {
+            Write-Host "$($roleConfiguration[$role].DisplayName): stopped"
+            continue
+        }
+        $url = if ($role -eq 'backend') { "$backendUrl/up" } else { "$frontendUrl/" }
+        $reachability = if (Test-HttpSuccess -Url $url) { 'reachable' } else { 'unreachable' }
+        Write-Host "$($roleConfiguration[$role].DisplayName): running ($reachability)"
+    }
+    $hadMarker = Test-Path -LiteralPath $verificationMarkerPath -PathType Leaf
+    if (Test-VerificationMarker) {
+        Write-Host "Verification marker: $verificationMarkerPath"
+    }
+    elseif ($hadMarker) {
+        Write-Host 'Verification marker: stale and removed.'
     }
 }
 
 function Invoke-Logs {
-    if (-not (Test-Path -LiteralPath $runtimeRoot)) {
-        Write-Output 'Native runtime logs have not been created yet.'
+    if (-not (Test-Path -LiteralPath $stateDirectory -PathType Container)) {
+        Write-Host 'No native runtime logs found.'
         return
     }
-
-    foreach ($name in @('backend.stdout.log', 'backend.stderr.log', 'frontend.stdout.log', 'frontend.stderr.log')) {
-        $path = Join-Path $runtimeRoot $name
-        Write-Output $path
-        if (Test-Path -LiteralPath $path) {
-            Get-Content -LiteralPath $path -Tail 50
-        }
+    $logPaths = @(Get-ChildItem -LiteralPath $stateDirectory -Filter '*.log' -File -ErrorAction SilentlyContinue)
+    if ($logPaths.Count -eq 0) {
+        Write-Host 'No native runtime logs found.'
+        return
+    }
+    foreach ($log in $logPaths) {
+        Write-Host "--- $($log.Name) ---"
+        Get-Content -LiteralPath $log.FullName -Tail 100
     }
 }
 
-switch ($Action) {
-    'start' { Invoke-Start }
-    'stop' { Invoke-Stop }
-    'restart' { Invoke-Stop; Invoke-Start }
-    'status' { Invoke-Status }
-    'logs' { Invoke-Logs }
+if ($env:NATIVE_RUNTIME_LIBRARY_MODE -ne '1') {
+    switch ($Action) {
+        'start' { Invoke-Start }
+        'stop' { Invoke-Stop }
+        'restart' { Invoke-Stop; Invoke-Start }
+        'status' { Invoke-Status }
+        'logs' { Invoke-Logs }
+    }
 }

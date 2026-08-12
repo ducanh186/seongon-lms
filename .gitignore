@@ -62,3 +62,4 @@ yarn-error.log*
 /.worktrees/
 /.superpowers/
 /Infra/.env
+/Infra/.native-runtime/
