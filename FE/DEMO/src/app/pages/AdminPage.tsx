@@ -187,40 +187,94 @@ export function AdminPage() {
   const [newsForm, setNewsForm] = useState<NewsDraft>(blankNews);
   const [pendingConfirmation, setPendingConfirmation] = useState<PendingConfirmation | null>(null);
   const loadRequestId = useRef(0);
+  const loadedKeyBySection = useRef<Partial<Record<AdminSection, string>>>({});
 
-  const load = useCallback(async () => {
+  const cacheKeyFor = useCallback((section: AdminSection) => {
+    switch (section) {
+      case 'users':
+        return `${section}:${appliedUserFilters.q}:${appliedUserFilters.status}:${appliedUserFilters.page}`;
+      case 'courses':
+        return `${section}:${appliedCourseFilters.q}:${appliedCourseFilters.status}:${appliedCourseFilters.page}`;
+      case 'reviews':
+        return `${section}:${reviewStatus}:${reviewPage}`;
+      case 'news':
+        return `${section}:${appliedNewsFilters.q}:${appliedNewsFilters.status}:${appliedNewsFilters.page}`;
+      default:
+        return section;
+    }
+  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, reviewPage, reviewStatus]);
+
+  const load = useCallback(async (section: AdminSection, force = false) => {
     if (!token) return;
     const requestId = ++loadRequestId.current;
+    const cacheKey = cacheKeyFor(section);
+    if (!force && loadedKeyBySection.current[section] === cacheKey) {
+      setLoading(false);
+      setError(null);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const [nextStats, nextUsers, nextCategories, nextCourses, nextReviews, nextNews] = await Promise.all([
-        api.adminStats(token),
-        api.adminUsers(token, {
-          q: appliedUserFilters.q || undefined,
-          status: appliedUserFilters.status || undefined,
-          page: appliedUserFilters.page,
-        }),
-        api.adminCategories(token),
-        api.adminCourses(token, {
-          q: appliedCourseFilters.q || undefined,
-          status: appliedCourseFilters.status || undefined,
-          page: appliedCourseFilters.page,
-        }),
-        api.adminReviews(token, { status: reviewStatus || undefined, page: reviewPage }),
-        api.adminNews(token, {
-          q: appliedNewsFilters.q || undefined,
-          status: appliedNewsFilters.status || undefined,
-          page: appliedNewsFilters.page,
-        }),
-      ]);
-      if (requestId !== loadRequestId.current) return;
-      setStats(nextStats);
-      setUsers(nextUsers);
-      setCategories(nextCategories.data);
-      setCourses(nextCourses);
-      setReviews(nextReviews);
-      setNews(nextNews);
+      switch (section) {
+        case 'overview': {
+          const nextStats = await api.adminStats(token);
+          if (requestId !== loadRequestId.current) return;
+          setStats(nextStats);
+          break;
+        }
+        case 'users': {
+          const nextUsers = await api.adminUsers(token, {
+            q: appliedUserFilters.q || undefined,
+            status: appliedUserFilters.status || undefined,
+            page: appliedUserFilters.page,
+          });
+          if (requestId !== loadRequestId.current) return;
+          setUsers(nextUsers);
+          break;
+        }
+        case 'categories': {
+          const nextCategories = await api.adminCategories(token);
+          if (requestId !== loadRequestId.current) return;
+          setCategories(nextCategories.data);
+          break;
+        }
+        case 'courses': {
+          const needsCategories = loadedKeyBySection.current.categories === undefined;
+          const [nextCourses, nextCategories] = await Promise.all([
+            api.adminCourses(token, {
+              q: appliedCourseFilters.q || undefined,
+              status: appliedCourseFilters.status || undefined,
+              page: appliedCourseFilters.page,
+            }),
+            needsCategories ? api.adminCategories(token) : Promise.resolve(null),
+          ]);
+          if (requestId !== loadRequestId.current) return;
+          setCourses(nextCourses);
+          if (nextCategories) {
+            setCategories(nextCategories.data);
+            loadedKeyBySection.current.categories = 'categories';
+          }
+          break;
+        }
+        case 'reviews': {
+          const nextReviews = await api.adminReviews(token, { status: reviewStatus || undefined, page: reviewPage });
+          if (requestId !== loadRequestId.current) return;
+          setReviews(nextReviews);
+          break;
+        }
+        case 'news': {
+          const nextNews = await api.adminNews(token, {
+            q: appliedNewsFilters.q || undefined,
+            status: appliedNewsFilters.status || undefined,
+            page: appliedNewsFilters.page,
+          });
+          if (requestId !== loadRequestId.current) return;
+          setNews(nextNews);
+          break;
+        }
+      }
+      loadedKeyBySection.current[section] = cacheKey;
     } catch (reason) {
       if (requestId === loadRequestId.current) {
         setError(getErrorMessage(reason, 'Không thể tải dữ liệu quản trị.'));
@@ -230,11 +284,11 @@ export function AdminPage() {
         setLoading(false);
       }
     }
-  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, reviewPage, reviewStatus, token]);
+  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, cacheKeyFor, reviewPage, reviewStatus, token]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    void load(tab);
+  }, [load, tab]);
 
   const loadCourseDetail = useCallback(async (courseId: number) => {
     if (!token) return;
@@ -277,7 +331,8 @@ export function AdminPage() {
     try {
       await work();
       setNotice(successMessage);
-      await load();
+      delete loadedKeyBySection.current.overview;
+      await load(tab, true);
       if (refreshContent) {
         await refreshSelectedCourse();
       }
@@ -492,7 +547,7 @@ export function AdminPage() {
         <Stack spacing={3}>
           <AdminSectionHeader title={adminSectionCopy[tab].title} description={adminSectionCopy[tab].description} />
           {notice && <Alert severity="success" onClose={() => setNotice(null)}>{notice}</Alert>}
-          {error && <RequestError message={error} onRetry={() => void load()} />}
+          {error && <RequestError message={error} onRetry={() => void load(tab, true)} />}
           <Stack spacing={3} sx={{ minWidth: 0 }}>
 
           {tab === 'overview' && stats && <AdminOverview stats={stats} />}
@@ -614,7 +669,7 @@ export function AdminPage() {
           </Stack>}
 
           {tab === 'reviews' && <Stack spacing={2}>
-            <Stack component="section" role="region" aria-label="Bộ lọc đánh giá" data-admin-toolbar="true" direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}><FormControl fullWidth><InputLabel id="review-status">Trạng thái</InputLabel><Select labelId="review-status" label="Trạng thái" value={reviewStatus} onChange={(event) => { setReviewStatus(event.target.value); setReviewPage(1); }}><MenuItem value="">Tất cả</MenuItem><MenuItem value="visible">Hiển thị</MenuItem><MenuItem value="hidden">Đã ẩn</MenuItem></Select></FormControl><Button variant="contained" onClick={() => void load()}>Áp dụng</Button></Stack>
+            <Stack component="section" role="region" aria-label="Bộ lọc đánh giá" data-admin-toolbar="true" direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}><FormControl fullWidth><InputLabel id="review-status">Trạng thái</InputLabel><Select labelId="review-status" label="Trạng thái" value={reviewStatus} onChange={(event) => { setReviewStatus(event.target.value); setReviewPage(1); }}><MenuItem value="">Tất cả</MenuItem><MenuItem value="visible">Hiển thị</MenuItem><MenuItem value="hidden">Đã ẩn</MenuItem></Select></FormControl><Button variant="contained" onClick={() => void load('reviews', true)}>Áp dụng</Button></Stack>
             <Card sx={{ minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
               {reviews?.data.length ? <AdminDataTable<ApiReview>
                 label="Danh sách đánh giá"

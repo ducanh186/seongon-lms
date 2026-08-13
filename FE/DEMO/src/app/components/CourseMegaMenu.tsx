@@ -56,7 +56,10 @@ export function CourseMegaMenu({ active }: { active: boolean }) {
     triggerRef.current?.focus();
   };
 
-  useEffect(() => () => cancelClose(), []);
+  useEffect(() => {
+    loadCategories();
+    return () => cancelClose();
+  }, []);
 
   return (
     <Box

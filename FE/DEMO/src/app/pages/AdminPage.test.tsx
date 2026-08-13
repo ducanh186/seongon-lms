@@ -85,6 +85,36 @@ describe('AdminPage', () => {
     vi.clearAllMocks();
   });
 
+  it('loads only dashboard stats on the initial overview', async () => {
+    mockAdminData();
+
+    render(<AdminPage />);
+
+    expect(await screen.findByText('Tổng quan vận hành')).toBeInTheDocument();
+    expect(adminStats).toHaveBeenCalledTimes(1);
+    expect(adminUsers).not.toHaveBeenCalled();
+    expect(adminCategories).not.toHaveBeenCalled();
+    expect(adminCourses).not.toHaveBeenCalled();
+    expect(adminReviews).not.toHaveBeenCalled();
+    expect(adminNews).not.toHaveBeenCalled();
+  });
+
+  it('loads a management tab on demand and reuses its cached data', async () => {
+    mockAdminData();
+    const user = userEvent.setup();
+
+    render(<AdminPage />);
+    const navigation = await screen.findByRole('navigation', { name: 'Quản trị' });
+
+    await user.click(within(navigation).getByRole('button', { name: 'Học viên' }));
+    await waitFor(() => expect(adminUsers).toHaveBeenCalledTimes(1));
+
+    await user.click(within(navigation).getByRole('button', { name: 'Tổng quan' }));
+    await user.click(within(navigation).getByRole('button', { name: 'Học viên' }));
+
+    await waitFor(() => expect(adminUsers).toHaveBeenCalledTimes(1));
+  });
+
   it('exposes the six-section management navigation and updates its active state', async () => {
     mockAdminData();
     render(<AdminPage />);
@@ -218,6 +248,12 @@ describe('AdminPage', () => {
 
     expect(adminUsers).toHaveBeenCalledWith('admin-token', { q: 'Học viên Demo', status: undefined, page: 1 });
     expect(await screen.findByText('student@seongon.vn')).toBeInTheDocument();
+
+    await user.clear(screen.getByLabelText('Tìm học viên'));
+    await user.click(screen.getByRole('button', { name: 'Áp dụng' }));
+
+    await waitFor(() => expect(adminUsers).toHaveBeenCalledTimes(2));
+    expect(adminUsers).toHaveBeenLastCalledWith('admin-token', { q: undefined, status: undefined, page: 1 });
   });
 
   it('waits for Apply before requesting Course filters and renders the applied result', async () => {

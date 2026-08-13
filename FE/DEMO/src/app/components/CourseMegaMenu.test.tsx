@@ -39,6 +39,21 @@ afterEach(() => {
 });
 
 describe('CourseMegaMenu', () => {
+  it('preloads categories before the first hover', async () => {
+    vi.mocked(api.categories).mockResolvedValue({ data: categories });
+
+    renderMenu();
+
+    expect(api.categories).toHaveBeenCalledOnce();
+    await act(async () => Promise.resolve());
+    expect(screen.queryByRole('navigation', { name: 'Danh mục khóa học' })).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByRole('link', { name: 'Khóa học' }));
+
+    expect(within(screen.getByRole('navigation', { name: 'Danh mục khóa học' })).getByRole('link', { name: /SEO/ })).toBeVisible();
+    expect(api.categories).toHaveBeenCalledOnce();
+  });
+
   it('opens on mouseenter, loads API categories once, and routes by category query', async () => {
     vi.mocked(api.categories).mockResolvedValue({ data: categories });
     renderMenu(true);

@@ -63,3 +63,18 @@ yarn-error.log*
 /.superpowers/
 /Infra/.env
 /Infra/.native-runtime/
+
+# ===== Non-product workspace artifacts =====
+/SPEC/
+/docs/
+/.ua/
+/data/
+/*.png
+/CONTEXT.md
+/FE/DEMO/ATTRIBUTIONS.md
+/FE/DEMO/README.md
+/FE/DEMO/guidelines/
+/FE/DEMO/src/imports/pasted_text/
+/README.md
+/BE/README.md
+/Infra/README.md
