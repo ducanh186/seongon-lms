@@ -15,12 +15,12 @@ class LearningProgressContractTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_approved_erd_learning_schema_names_are_in_use(): void
+    public function test_learning_schema_is_expanded_without_contracting_legacy_names(): void
     {
         $this->assertTrue(Schema::hasTable('learning_progress'));
-        $this->assertFalse(Schema::hasTable('lesson_progress'));
+        $this->assertTrue(Schema::hasTable('lesson_progress'));
         $this->assertTrue(Schema::hasColumn('lessons', 'sort_order'));
-        $this->assertFalse(Schema::hasColumn('lessons', 'position'));
+        $this->assertTrue(Schema::hasColumn('lessons', 'position'));
     }
 
     public function test_student_learning_api_uses_new_models_without_changing_legacy_payload_fields(): void
@@ -63,6 +63,31 @@ class LearningProgressContractTest extends TestCase
             'enrollment_id' => $enrollment->id,
             'lesson_id' => $firstLesson->id,
             'is_completed' => true,
+        ]);
+        $this->assertDatabaseHas('lesson_progress', [
+            'enrollment_id' => $enrollment->id,
+            'lesson_id' => $firstLesson->id,
+            'is_completed' => true,
+        ]);
+        $this->assertDatabaseHas('lessons', [
+            'id' => $firstLesson->id,
+            'position' => 1,
+            'sort_order' => 1,
+        ]);
+
+        LearningProgress::query()
+            ->where('enrollment_id', $enrollment->id)
+            ->where('lesson_id', $firstLesson->id)
+            ->firstOrFail()
+            ->delete();
+
+        $this->assertDatabaseMissing('lesson_progress', [
+            'enrollment_id' => $enrollment->id,
+            'lesson_id' => $firstLesson->id,
+        ]);
+        $this->assertDatabaseMissing('learning_progress', [
+            'enrollment_id' => $enrollment->id,
+            'lesson_id' => $firstLesson->id,
         ]);
     }
 }

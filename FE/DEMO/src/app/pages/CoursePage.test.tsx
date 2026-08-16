@@ -19,9 +19,10 @@ afterEach(() => {
 });
 
 describe('CoursePage', () => {
-  it('lets students add the loaded course to their cart while retaining direct checkout', async () => {
+  it('adds only the Course ID before entering the single-Course checkout route', async () => {
     useAuth.mockReturnValue({ user: { id: 1, role: 'student' } });
     useCart.mockReturnValue({ add, contains: () => false });
+    add.mockResolvedValue(undefined);
     course.mockResolvedValue({
       data: {
         id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: null, thumbnail: null,
@@ -31,19 +32,16 @@ describe('CoursePage', () => {
     reviews.mockResolvedValue({ data: [] });
 
     const { default: userEvent } = await import('@testing-library/user-event');
-    render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /></Routes></MemoryRouter>);
+    render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /><Route path="/checkout/:slug" element={<div>Checkout route</div>} /></Routes></MemoryRouter>);
 
     const addToCart = await screen.findByRole('button', { name: 'Thêm vào giỏ hàng' });
     await userEvent.setup().click(addToCart);
 
-    expect(add).toHaveBeenCalledWith({
-      courseId: 10,
-      slug: 'seo-foundation',
-      title: 'SEO Foundation',
-      price: '299000.00',
-      thumbnail: null,
-    });
-    expect(screen.getByRole('link', { name: 'Đăng ký khóa học' })).toHaveAttribute('href', '/checkout/seo-foundation');
+    expect(add).toHaveBeenCalledWith(10);
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Đăng ký khóa học' }));
+    expect(await screen.findByText('Checkout route')).toBeInTheDocument();
+    expect(add).toHaveBeenLastCalledWith(10);
   });
 
   it('renders course information with an accessible enrollment summary', async () => {

@@ -132,4 +132,6 @@ Rationale: denormalised snapshots would fork the truth between `Enrollments` and
 
 This is a deliberate column-level deviation from the ERD's visible `Users → Orders → Enrollments` path. It preserves the database-level `UNIQUE(user_id, course_id)` duplicate-enrollment guard and makes `Order` optional purchase provenance rather than the owner of student access.
 
-The separate failed-payment question remains open: because `Orders` has no line-item table, D5 must not invent how a failed `Order` records intended Courses. FR-CART-03 still requires the `Cart` to survive failed payment.
+**Cart/Checkout runtime decision (2026-08-16):** authenticated Cart state is authoritative in `carts`/`cart_items`. A Cart may hold many Courses, but checkout creates one `Order` per Course because the approved ERD has no `order_items`. A failed payment keeps its single-Course `Order` plus the matching `CartItem`; a successful payment creates/reactivates `Enrollment` and removes only that purchased `CartItem` in the same transaction. Checkout reuses the oldest pending/failed Order for that Student/Course, stores a server-generated stable payment idempotency key in the existing `orders.transaction_ref`, and rejects legacy duplicate pending Orders before charging.
+
+The remaining contract question is whether `orders.course_id` can ever be removed. It cannot be contracted while the approved ERD has no order-line table and failed Orders must retain their intended Course.

@@ -16,7 +16,7 @@ class LessonResource extends JsonResource
             'video_url' => $this->video_url,
             'description' => $this->description,
             'duration' => $this->duration,
-            'position' => $this->sort_order,
+            'position' => $this->position,
             // is_completed chỉ có mặt khi controller gán (ngữ cảnh học viên).
             'is_completed' => $this->when(isset($this->is_completed), fn () => (bool) $this->is_completed),
         ];

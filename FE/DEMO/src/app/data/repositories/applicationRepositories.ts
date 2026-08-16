@@ -29,6 +29,12 @@ export const applicationRepositories = {
     createOrder: api.createOrder,
     payOrder: api.payOrder,
   },
+  cart: {
+    get: api.getCart,
+    add: api.addCartItem,
+    remove: api.deleteCartItem,
+    clear: api.clearCart,
+  },
   news: {
     list: api.news,
     get: api.newsPost,

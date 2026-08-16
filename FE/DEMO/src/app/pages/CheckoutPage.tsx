@@ -11,7 +11,7 @@ import { PageSkeleton } from '../components/AsyncState';
 export function CheckoutPage() {
   const { slug = '' } = useParams();
   const { token } = useAuth();
-  const { remove } = useCart();
+  const { refresh } = useCart();
   const navigate = useNavigate();
   const [course, setCourse] = useState<ApiCourse | null>(null);
   const [order, setOrder] = useState<ApiOrder | null>(null);
@@ -39,7 +39,7 @@ export function CheckoutPage() {
     setSubmitting(true); setError(null);
     try {
       await applicationRepositories.checkout.payOrder(token, order.id, method);
-      remove(course.id);
+      await refresh().catch(() => undefined);
       navigate('/my-courses', { state: { notice: 'Thanh toán thành công. Bạn đã có thể bắt đầu học.' } });
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Thanh toán chưa hoàn tất. Bạn có thể thử lại.');
@@ -89,7 +89,7 @@ export function CheckoutPage() {
               <Typography component="h2" variant="h6" fontWeight={800}>Tóm tắt đơn đăng ký</Typography>
               <Divider sx={{ my: 2 }} />
               <Typography fontWeight={700}>{course.title}</Typography>
-              <Typography variant="h5" color="primary.dark" fontWeight={800} sx={{ mt: 1.5 }}>{Number(course.price) === 0 ? 'Miễn phí' : `${Number(course.price).toLocaleString('vi-VN')} đ`}</Typography>
+              <Typography variant="h5" color="primary.dark" fontWeight={800} sx={{ mt: 1.5 }}>{Number(order?.amount ?? course.price) === 0 ? 'Miễn phí' : `${Number(order?.amount ?? course.price).toLocaleString('vi-VN')} đ`}</Typography>
               <Button component={Link} to={`/courses/${course.slug}`} variant="outlined" fullWidth sx={{ mt: 3 }}>Quay lại chi tiết khóa học</Button>
             </CardContent>
           </Card>

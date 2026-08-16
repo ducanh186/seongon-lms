@@ -3,7 +3,6 @@
 namespace App\Services\Payment;
 
 use App\Models\Order;
-use Illuminate\Support\Str;
 
 /**
  * Cổng thanh toán giả lập (mock).
@@ -23,7 +22,7 @@ class MockGateway implements PaymentGateway
 
         return new PaymentResult(
             true,
-            'MOCK-'.Str::upper(Str::random(12)),
+            'MOCK-'.($data['idempotency_key'] ?? "ORDER-{$order->id}"),
             'Thanh toán thành công (mock).',
         );
     }

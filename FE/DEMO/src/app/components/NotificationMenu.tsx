@@ -28,6 +28,7 @@ export function NotificationMenu() {
         anchorEl={hoverMenu.anchor}
         open={Boolean(hoverMenu.anchor)}
         onClose={hoverMenu.close}
+        disableScrollLock
         transitionDuration={{ enter: 200, exit: 150 }}
         slotProps={{
           root: { sx: { pointerEvents: 'none' } },

@@ -11,6 +11,8 @@ const adminCategories = vi.hoisted(() => vi.fn());
 const adminCourses = vi.hoisted(() => vi.fn());
 const adminReviews = vi.hoisted(() => vi.fn());
 const adminCourse = vi.hoisted(() => vi.fn());
+const saveCourse = vi.hoisted(() => vi.fn());
+const adminEnrollments = vi.hoisted(() => vi.fn());
 const reorderLessons = vi.hoisted(() => vi.fn());
 const deleteCourse = vi.hoisted(() => vi.fn());
 const adminNews = vi.hoisted(() => vi.fn());
@@ -20,14 +22,20 @@ const useAuth = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { adminStats, adminUsers, adminCategories, adminCourses, adminReviews, adminCourse, reorderLessons, deleteCourse, adminNews, saveNews, deleteNews },
+  api: { adminStats, adminUsers, adminCategories, adminCourses, adminReviews, adminCourse, saveCourse, adminEnrollments, reorderLessons, deleteCourse, adminNews, saveNews, deleteNews },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
 const course = {
   id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: 'Course description', thumbnail: null,
   price: '299000', instructor_name: 'SEONGON', instructor_bio: null, level: 'beginner' as const, status: 'draft' as const,
-  lessons_count: 2, questions_count: 3, enrollments_count: 4, reviews_count: 0, rating: null, category: { id: 1, name: 'SEO', slug: 'seo', description: null }, created_at: '2026-07-10T00:00:00Z',
+  lessons_count: 2, questions_count: 3, enrollments_count: 4, reviews_count: 2, rating: 4.5, exam_exists: true,
+  category: { id: 1, name: 'SEO', slug: 'seo', description: null },
+  categories: [
+    { id: 1, name: 'SEO', slug: 'seo', description: null },
+    { id: 2, name: 'Analytics', slug: 'analytics', description: null },
+  ],
+  created_at: '2026-07-10T00:00:00Z', updated_at: '2026-08-15T00:00:00Z',
 };
 
 const selectedCourse = {
@@ -68,10 +76,24 @@ function mockAdminData() {
   useAuth.mockReturnValue({ token: 'admin-token', isReady: true, user: { id: 1, role: 'admin' } });
   adminStats.mockResolvedValue({ students: 1, courses: 1, published_courses: 0, enrollments: 0, certificates: 0, completion_rate: 0, revenue: 0, monthly_enrollments: [], popular_courses: [] });
   adminUsers.mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } });
-  adminCategories.mockResolvedValue({ data: [{ id: 1, name: 'SEO', slug: 'seo', description: null, courses_count: 1 }] });
+  adminCategories.mockResolvedValue({ data: [
+    { id: 1, name: 'SEO', slug: 'seo', description: null, courses_count: 1 },
+    { id: 2, name: 'Analytics', slug: 'analytics', description: null, courses_count: 1 },
+  ] });
   adminCourses.mockResolvedValue({ data: [course], meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 } });
   adminReviews.mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } });
   adminCourse.mockResolvedValue({ data: selectedCourse });
+  saveCourse.mockResolvedValue({ data: selectedCourse });
+  adminEnrollments.mockResolvedValue({
+    data: [{
+      id: 44, user_id: 5, course_id: 10, order_id: 30,
+      enrolled_at: '2026-08-12T00:00:00Z', expires_at: '2027-08-12T00:00:00Z',
+      status: 'active', is_expired: false,
+      user: { id: 5, name: 'Học viên SEO', email: 'learner@example.test', role: 'student', phone: null, avatar: null, status: 'active', created_at: '2026-08-01T00:00:00Z' },
+      created_at: '2026-08-12T00:00:00Z', updated_at: '2026-08-12T00:00:00Z',
+    }],
+    meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
+  });
   reorderLessons.mockResolvedValue({ data: selectedCourse.lessons });
   deleteCourse.mockResolvedValue({});
   adminNews.mockResolvedValue({ data: newsPosts, meta: { current_page: 1, last_page: 1, per_page: 15, total: 2 } });
@@ -160,27 +182,100 @@ describe('AdminPage', () => {
 
     const table = screen.getByRole('table', { name: 'Danh sách khóa học' });
     expect(within(table).getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
+      'ID',
       'Khóa học',
       'Danh mục',
       'Cấp độ',
+      'Giảng viên',
       'Học phí',
       'Bài học',
-      'Câu hỏi',
+      'Bài kiểm tra',
       'Ghi danh',
+      'Đánh giá',
       'Trạng thái',
+      'Cập nhật',
       'Thao tác',
     ]);
     const row = within(table).getByRole('row', { name: /SEO Foundation/ });
-    expect(within(row).getAllByRole('cell')).toHaveLength(9);
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(9);
+    expect(within(row).getAllByRole('cell')).toHaveLength(13);
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(13);
+    expect(row).toHaveTextContent('SEO, Analytics');
+    expect(row).toHaveTextContent('SEONGON');
+    expect(row).toHaveTextContent('Đã cấu hình');
+    expect(row).toHaveTextContent('4.5/5');
     expect(within(table).getByRole('columnheader', { name: 'Thao tác' })).toHaveStyle({ textAlign: 'right' });
-    expect(within(row).getAllByRole('cell')[8]).toHaveStyle({ textAlign: 'right' });
-    within(within(row).getAllByRole('cell')[8]).getAllByRole('button').forEach((button) => {
+    expect(within(row).getAllByRole('cell')[12]).toHaveStyle({ textAlign: 'right' });
+    within(within(row).getAllByRole('cell')[12]).getAllByRole('button').forEach((button) => {
       expect(button).toHaveStyle({ whiteSpace: 'nowrap' });
     });
 
     await user.click(screen.getByRole('button', { name: 'Tạo khóa học mới' }));
     expect(await screen.findByRole('heading', { name: 'Tạo khóa học' })).toBeInTheDocument();
+  });
+
+  it('loads and submits multiple categories when editing a Course', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    const row = within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ });
+    await user.click(within(row).getByRole('button', { name: 'Sửa' }));
+
+    expect(await screen.findByRole('heading', { name: 'Sửa khóa học' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Danh mục' })).toHaveTextContent('SEO, Analytics');
+
+    await user.click(screen.getByRole('combobox', { name: 'Danh mục' }));
+    await user.click(screen.getByRole('option', { name: 'Analytics' }));
+    await user.click(screen.getByRole('option', { name: 'Analytics' }));
+    await user.keyboard('{Escape}');
+
+    await user.click(screen.getByRole('button', { name: 'Cập nhật' }));
+
+    await waitFor(() => expect(saveCourse).toHaveBeenCalledWith(
+      'admin-token',
+      expect.objectContaining({ category_ids: [1, 2] }),
+      10,
+    ));
+  });
+
+  it('creates a Course with multiple selected Categories', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    await user.click(screen.getByRole('button', { name: 'Tạo khóa học mới' }));
+    await screen.findByRole('heading', { name: 'Tạo khóa học' });
+    await user.type(screen.getByRole('textbox', { name: /Tiêu đề/ }), 'Course nhiều danh mục');
+    await user.click(screen.getByRole('combobox', { name: 'Danh mục' }));
+    await user.click(screen.getByRole('option', { name: 'SEO' }));
+    await user.click(screen.getByRole('option', { name: 'Analytics' }));
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: 'Lưu khóa học' }));
+
+    await waitFor(() => expect(saveCourse).toHaveBeenCalledWith(
+      'admin-token',
+      expect.objectContaining({ title: 'Course nhiều danh mục', category_ids: [1, 2] }),
+      undefined,
+    ));
+  });
+
+  it('keeps Course form data open when saving fails', async () => {
+    mockAdminData();
+    saveCourse.mockRejectedValueOnce(new Error('save failed'));
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    const row = within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ });
+    await user.click(within(row).getByRole('button', { name: 'Sửa' }));
+    await user.click(screen.getByRole('button', { name: 'Cập nhật' }));
+
+    await waitFor(() => expect(saveCourse).toHaveBeenCalled());
+    expect(screen.getByRole('heading', { name: 'Sửa khóa học' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Tiêu đề/ })).toHaveValue('SEO Foundation');
+    expect(screen.getByRole('combobox', { name: 'Danh mục' })).toHaveTextContent('SEO, Analytics');
   });
 
   it('renders the seven Student columns in order with enrollment, date, phone fallback, and lock action', async () => {
@@ -313,6 +408,31 @@ describe('AdminPage', () => {
     expect(await screen.findByDisplayValue('Câu hỏi hiện có')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Đáp án đúng')).toBeInTheDocument();
     expect(adminCourse).toHaveBeenCalledWith('admin-token', 10);
+    expect(adminEnrollments).toHaveBeenCalledWith('admin-token', { course_id: 10, page: 1 });
+    expect(screen.getByRole('heading', { name: 'Danh sách ghi danh' })).toBeInTheDocument();
+    expect(screen.getByText('learner@example.test')).toBeInTheDocument();
+  });
+
+  it('keeps an unsaved Question draft when paging Course enrollments', async () => {
+    mockAdminData();
+    adminEnrollments.mockImplementation((_token, filters) => Promise.resolve({
+      data: [],
+      meta: { current_page: filters.page, last_page: 2, per_page: 15, total: 16 },
+    }));
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    await user.click(screen.getByRole('button', { name: 'Nội dung' }));
+    const question = await screen.findByDisplayValue('Câu hỏi hiện có');
+    await user.clear(question);
+    await user.type(question, 'Câu hỏi chưa lưu');
+
+    await user.click(screen.getByRole('button', { name: 'Go to page 2' }));
+
+    await waitFor(() => expect(adminEnrollments).toHaveBeenLastCalledWith('admin-token', { course_id: 10, page: 2 }));
+    expect(screen.getByDisplayValue('Câu hỏi chưa lưu')).toBeInTheDocument();
+    expect(adminCourse).toHaveBeenCalledTimes(1);
   });
 
   it('sends the complete lesson id order after moving the first lesson down', async () => {

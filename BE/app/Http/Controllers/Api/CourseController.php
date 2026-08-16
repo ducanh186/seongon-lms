@@ -14,7 +14,7 @@ class CourseController extends Controller
     {
         $query = Course::query()
             ->published()
-            ->with('category')
+            ->with(['category', 'categories'])
             ->withCount('lessons')
             ->withCount('reviews')
             ->withAvg('reviews', 'rating');
@@ -66,7 +66,7 @@ class CourseController extends Controller
         $course = Course::query()
             ->published()
             ->where('slug', $slug)
-            ->with(['category', 'lessons', 'quiz'])
+            ->with(['category', 'categories', 'lessons', 'quiz'])
             ->withCount(['lessons', 'reviews'])
             ->withAvg('reviews', 'rating')
             ->firstOrFail();

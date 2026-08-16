@@ -15,6 +15,7 @@ class Order extends Model
         'user_id',
         'course_id',
         'amount',
+        'total_amount',
         'status',
         'payment_method',
         'transaction_ref',
@@ -25,8 +26,20 @@ class Order extends Model
     {
         return [
             'amount' => 'decimal:2',
+            'total_amount' => 'decimal:2',
             'paid_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $order): void {
+            if ($order->isDirty('amount')) {
+                $order->total_amount = $order->amount;
+            } elseif ($order->isDirty('total_amount')) {
+                $order->amount = $order->total_amount;
+            }
+        });
     }
 
     public function user(): BelongsTo

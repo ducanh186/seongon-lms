@@ -99,7 +99,7 @@ export function CourseMegaMenu({ active }: { active: boolean }) {
           borderBottom: '2px solid',
           borderColor: active ? 'primary.main' : 'transparent',
           color: active ? 'primary.dark' : 'text.primary',
-          '&:hover': { bgcolor: 'transparent', color: 'primary.dark' },
+          '&:hover': { bgcolor: 'transparent', color: 'primary.dark', transform: 'none' },
         }}
       >
         Khóa học

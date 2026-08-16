@@ -3,8 +3,10 @@
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\Admin\CourseController as AdminCourseController;
 use App\Http\Controllers\Api\Admin\DashboardController;
+use App\Http\Controllers\Api\Admin\EnrollmentController as AdminEnrollmentController;
 use App\Http\Controllers\Api\Admin\LessonController as AdminLessonController;
 use App\Http\Controllers\Api\Admin\NewsController as AdminNewsController;
+use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\QuestionController as AdminQuestionController;
 use App\Http\Controllers\Api\Admin\QuizController as AdminQuizController;
 use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
@@ -13,6 +15,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\Student\CartController as StudentCartController;
 use App\Http\Controllers\Api\Student\CertificateController;
 use App\Http\Controllers\Api\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Api\Student\MyCourseController;
@@ -42,6 +45,11 @@ Route::prefix('v1')->group(function () {
 
         // ----- Student -----
         Route::middleware('role:student')->group(function () {
+            Route::get('cart', [StudentCartController::class, 'show']);
+            Route::post('cart/items', [StudentCartController::class, 'storeItem']);
+            Route::delete('cart/items/{cartItem}', [StudentCartController::class, 'destroyItem']);
+            Route::delete('cart', [StudentCartController::class, 'destroy']);
+
             Route::post('orders', [OrderController::class, 'store']);
             Route::post('orders/{order}/pay', [OrderController::class, 'pay']);
 
@@ -60,6 +68,11 @@ Route::prefix('v1')->group(function () {
 
         // ----- Admin -----
         Route::prefix('admin')->middleware('role:admin')->group(function () {
+            Route::get('orders', [AdminOrderController::class, 'index']);
+            Route::get('orders/{order}', [AdminOrderController::class, 'show']);
+            Route::get('enrollments', [AdminEnrollmentController::class, 'index']);
+            Route::get('enrollments/{enrollment}', [AdminEnrollmentController::class, 'show']);
+
             Route::apiResource('news', AdminNewsController::class);
 
             Route::get('users', [AdminUserController::class, 'index']);

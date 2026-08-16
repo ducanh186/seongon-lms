@@ -11,7 +11,26 @@ class Lesson extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'title', 'video_url', 'description', 'duration', 'sort_order'];
+    protected $fillable = [
+        'course_id',
+        'title',
+        'video_url',
+        'description',
+        'duration',
+        'position',
+        'sort_order',
+    ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $lesson): void {
+            if ($lesson->isDirty('sort_order')) {
+                $lesson->position = $lesson->sort_order;
+            } elseif ($lesson->isDirty('position')) {
+                $lesson->sort_order = $lesson->position;
+            }
+        });
+    }
 
     public function course(): BelongsTo
     {

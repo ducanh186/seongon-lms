@@ -136,8 +136,8 @@ final class CuratedDemoCatalog
         return [
             "Nền tảng và mục tiêu của {$title}",
             "Quy trình triển khai {$title}",
-            "Phân tích dữ liệu và tối ưu kết quả",
-            "Bài tập ứng dụng vào dự án thực tế",
+            'Phân tích dữ liệu và tối ưu kết quả',
+            'Bài tập ứng dụng vào dự án thực tế',
         ];
     }
 }

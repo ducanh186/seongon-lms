@@ -30,6 +30,9 @@ export const adminRepositories = {
     updateQuestion: api.updateQuestion,
     removeQuestion: api.deleteQuestion,
   },
+  enrollments: {
+    list: api.adminEnrollments,
+  },
   reviews: {
     list: api.adminReviews,
     updateStatus: api.updateReviewStatus,

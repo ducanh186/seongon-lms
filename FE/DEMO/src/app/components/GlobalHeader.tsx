@@ -25,7 +25,13 @@ import { CourseMegaMenu } from './CourseMegaMenu';
 import { NotificationMenu } from './NotificationMenu';
 import { useHeaderHoverMenu } from './useHeaderHoverMenu';
 
-const BrandLogo = styled('img')({ display: 'block', width: 'auto', height: 48 });
+const BrandLogo = styled('img')({
+  display: 'block',
+  width: 224,
+  height: 'auto',
+  maxWidth: 'none',
+  transform: 'translate(-31px, -4px)',
+});
 
 export function GlobalHeader() {
   const { user, logout } = useAuth();
@@ -59,7 +65,7 @@ export function GlobalHeader() {
         borderBottom: '2px solid',
         borderColor: isActive(to) ? 'primary.main' : 'transparent',
         color: isActive(to) ? 'primary.dark' : 'text.primary',
-        '&:hover': { bgcolor: 'transparent', color: 'primary.dark' },
+        '&:hover': { bgcolor: 'transparent', color: 'primary.dark', transform: 'none' },
       }}
     >
       {label}
@@ -68,19 +74,28 @@ export function GlobalHeader() {
 
   return (
     <AppBar component="header" position="static" color="inherit" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-      <Container maxWidth={false} sx={{ maxWidth: layoutTokens.contentMaxWidth, px: 3 }}>
+      <Container
+        data-testid="global-header-frame"
+        maxWidth={false}
+        disableGutters
+        sx={{ maxWidth: 'none', width: '100%', px: { xs: 2, md: 3, lg: 4 } }}
+      >
         <Toolbar disableGutters sx={{ minHeight: layoutTokens.headerHeight, gap: 2 }}>
-          <Box component={Link} to="/" aria-label="SEONGON Academy - Trang chủ" sx={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0, mr: 1 }}>
-            <BrandLogo src={logoSeongon} alt="" width={180} />
+          <Box
+            component={Link}
+            to="/"
+            aria-label="SEONGON Academy - Trang chủ"
+            sx={{ display: 'inline-flex', alignItems: 'center', width: 180, height: 56, overflow: 'hidden', flexShrink: 0 }}
+          >
+            <BrandLogo src={logoSeongon} alt="" width={224} />
           </Box>
 
-          <Stack component="nav" aria-label="Điều hướng chính" direction="row" spacing={0.5} sx={{ alignSelf: 'stretch', alignItems: 'stretch' }}>
+          <Stack component="nav" aria-label="Điều hướng chính" direction="row" spacing={0.5} sx={{ ml: 'auto', alignSelf: 'stretch', alignItems: 'stretch' }}>
             {navLink({ label: 'Trang chủ', to: '/' })}
             <CourseMegaMenu active={isActive('/courses')} />
             {navLink({ label: 'Tin tức', to: '/news' })}
           </Stack>
 
-          <Box sx={{ flexGrow: 1 }} />
           <IconButton aria-label="Tìm kiếm khóa học" onClick={() => navigate('/courses')} color="primary">
             <SearchRoundedIcon />
           </IconButton>
@@ -115,7 +130,7 @@ export function GlobalHeader() {
                 aria-controls={accountMenuId}
                 aria-expanded={Boolean(accountMenu.anchor)}
                 aria-label={`Tài khoản ${user.name}`}
-                sx={{ whiteSpace: 'nowrap' }}
+                sx={{ whiteSpace: 'nowrap', '&:hover': { transform: 'none' } }}
               >
                 {user.name}
               </Button>
@@ -123,6 +138,7 @@ export function GlobalHeader() {
                 anchorEl={accountMenu.anchor}
                 open={Boolean(accountMenu.anchor)}
                 onClose={accountMenu.close}
+                disableScrollLock
                 transitionDuration={{ enter: 200, exit: 150 }}
                 slotProps={{
                   root: { sx: { pointerEvents: 'none' } },

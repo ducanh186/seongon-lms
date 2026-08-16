@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -59,11 +59,13 @@ describe('Layout', () => {
     renderLayout();
 
     expect(window.getComputedStyle(screen.getByRole('banner')).position).toBe('static');
+    expect(screen.getByTestId('global-header-frame')).toHaveStyle({ maxWidth: 'none', width: '100%' });
     const brandLink = screen.getByRole('link', { name: 'SEONGON Academy - Trang chủ' });
     const logo = brandLink.querySelector('img');
 
-    expect(logo).toHaveAttribute('width', '180');
+    expect(logo).toHaveAttribute('width', '224');
     expect(window.getComputedStyle(brandLink).flexShrink).toBe('0');
+    expect(screen.getByRole('navigation', { name: 'Điều hướng chính' })).toHaveStyle({ marginLeft: 'auto' });
     expect(layoutTokens.headerHeight).toBe(80);
   });
 
@@ -177,6 +179,23 @@ describe('Layout', () => {
       vi.runOnlyPendingTimers();
       vi.useRealTimers();
     }
+  });
+
+  it('opens notification and account menus without applying body scroll lock', async () => {
+    renderLayout('/courses', 'student');
+    const user = userEvent.setup();
+    const notificationButton = screen.getByRole('button', { name: 'Thông báo' });
+
+    fireEvent.mouseEnter(notificationButton);
+    await waitFor(() => expect(notificationButton).toHaveAttribute('aria-expanded', 'true'));
+    expect(document.body.style.overflow).not.toBe('hidden');
+    expect(document.body.style.paddingRight).toBe('');
+
+    await user.keyboard('{Escape}');
+    fireEvent.mouseEnter(screen.getByRole('button', { name: /Học viên/ }));
+    await waitFor(() => expect(screen.getByRole('menu', { name: /Tài khoản Học viên/ })).toBeInTheDocument());
+    expect(document.body.style.overflow).not.toBe('hidden');
+    expect(document.body.style.paddingRight).toBe('');
   });
 
   it('gives admins their admin navigation and no student controls', async () => {

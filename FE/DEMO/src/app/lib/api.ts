@@ -1,5 +1,6 @@
 import type {
   ApiCategory,
+  ApiCart,
   ApiAdminCourse,
   ApiAdminStats,
   ApiAdminQuestion,
@@ -112,6 +113,12 @@ export const api = {
       token,
       body: { payment_method: paymentMethod, outcome },
     }),
+  getCart: (token: string) => apiRequest<{ data: ApiCart }>('/cart', { token }),
+  addCartItem: (token: string, courseId: number) =>
+    apiRequest<{ data: ApiCart }>('/cart/items', { method: 'POST', token, body: { course_id: courseId } }),
+  deleteCartItem: (token: string, itemId: number) =>
+    apiRequest<{ data: ApiCart }>(`/cart/items/${itemId}`, { method: 'DELETE', token }),
+  clearCart: (token: string) => apiRequest<void>('/cart', { method: 'DELETE', token }),
   myCourses: (token: string, page = 1) => apiRequest<ApiMyCoursesResponse>(`/my/courses${queryString({ page })}`, { token }),
   lessons: (token: string, courseId: number) => apiRequest<{ data: ApiLesson[] }>(`/my/courses/${courseId}/lessons`, { token }),
   progress: (token: string, courseId: number) => apiRequest<ApiProgress>(`/my/courses/${courseId}/progress`, { token }),
@@ -161,6 +168,8 @@ export const api = {
   adminCourses: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiCourse>>(`/admin/courses${queryString(filters)}`, { token }),
   adminCourse: (token: string, courseId: number) => apiRequest<{ data: ApiAdminCourse }>(`/admin/courses/${courseId}`, { token }),
+  adminEnrollments: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiEnrollment>>(`/admin/enrollments${queryString(filters)}`, { token }),
   saveCourse: (token: string, body: Record<string, unknown>, courseId?: number) =>
     apiRequest<{ data: ApiCourse }>(courseId ? `/admin/courses/${courseId}` : '/admin/courses', {
       method: courseId ? 'PUT' : 'POST',

@@ -52,7 +52,7 @@ return new class extends Migration
             DB::table('courses')
                 ->where('slug', 'like', "{$trackSlug}-%")
                 ->get(['id', 'slug'])
-                ->each(function (object $course) use ($trackSlug): void {
+                ->each(function (object $course): void {
                     preg_match('/-(\d+)$/', $course->slug, $matches);
                     $number = max(1, (int) ($matches[1] ?? 1));
 

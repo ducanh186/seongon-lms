@@ -4,11 +4,17 @@ param(
     [switch]$CheckMySqlServiceOnly,
     [switch]$CheckPhpMyAdminOnly,
     [switch]$SkipPhpMyAdmin,
-    [switch]$NoBrowser
+    [switch]$NoBrowser,
+    [string]$RuntimeRoot,
+    [ValidateRange(1, 65535)][int]$PhpMyAdminPort = 8081,
+    [ValidateRange(1, 120)][int]$PhpMyAdminReadyTimeoutSeconds = 20
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($RuntimeRoot)) {
+    $RuntimeRoot = Join-Path $PSScriptRoot '.native-runtime'
+}
 
 function Resolve-RequiredFile {
     param(
@@ -28,7 +34,7 @@ function Resolve-CommandPath {
 
     $command = Get-Command $Name -ErrorAction SilentlyContinue
     if (-not $command) {
-        throw "$Name was not found in PATH. Run Infra\install-native-dependencies-windows.ps1 first."
+        throw "$Name was not found in PATH. Install the required runtime and reopen PowerShell."
     }
 
     foreach ($propertyName in @('Source', 'Path', 'Definition')) {
@@ -117,54 +123,67 @@ function Get-ChildFailureMessage {
     return $message
 }
 
-function Invoke-PhpMyAdminService {
-    param([switch]$DiagnosticOnly)
+function Test-PhpMyAdminReady {
+    param([Parameter(Mandatory = $true)][string]$Url)
 
+    try {
+        $response = Invoke-WebRequest -Uri "$Url/" -UseBasicParsing -TimeoutSec 2
+        return $response.StatusCode -eq 200 -and $response.Content -match '(?i)phpmyadmin'
+    }
+    catch {
+        return $false
+    }
+}
+
+function Invoke-PhpMyAdminService {
     if ($SkipPhpMyAdmin) {
         Write-Output 'phpMyAdmin startup skipped.'
         return
     }
 
-    $launcher = Resolve-RequiredFile `
-        -Path (Join-Path $PSScriptRoot 'start-phpmyadmin-windows.ps1') `
-        -Description 'phpMyAdmin launcher'
-    $runtimeRoot = Join-Path $PSScriptRoot '.native-runtime'
-    $logRoot = Join-Path $runtimeRoot 'logs'
-    [void](New-Item -ItemType Directory -Path $logRoot -Force)
-    $runId = '{0}-{1}' -f (Get-Date -Format 'yyyyMMdd-HHmmss'), $PID
-    $standardOutputLog = Join-Path $logRoot "phpmyadmin-launcher-$runId.out.log"
-    $standardErrorLog = Join-Path $logRoot "phpmyadmin-launcher-$runId.err.log"
-    $arguments = @(
-        '-NoProfile',
-        '-ExecutionPolicy', 'Bypass',
-        '-File', "`"$launcher`"",
-        '-RuntimeRoot', "`"$runtimeRoot`"",
-        '-NoBrowser'
-    )
-    if ($DiagnosticOnly) {
-        $arguments += @('-CheckOnly', '-SkipMySqlCheck')
+    $documentRoot = Join-Path $RuntimeRoot 'phpmyadmin-5.2.3'
+    [void](Resolve-RequiredFile -Path (Join-Path $documentRoot 'index.php') -Description 'phpMyAdmin installation')
+    $url = "http://127.0.0.1:$PhpMyAdminPort"
+    if (Test-LocalPortOpen -Port $PhpMyAdminPort) {
+        if (Test-PhpMyAdminReady -Url $url) {
+            Write-Output "phpMyAdmin already running: $url"
+            return
+        }
+        throw "Port $PhpMyAdminPort is already used by another application. Close it before running this script."
     }
 
-    $process = Start-Process -FilePath 'powershell.exe' `
-        -ArgumentList $arguments `
+    $php = Resolve-CommandPath -Name 'php.exe'
+    $logRoot = Join-Path $RuntimeRoot 'logs'
+    [void](New-Item -ItemType Directory -Path $logRoot -Force)
+    $standardOutputLog = Join-Path $logRoot 'phpmyadmin.out.log'
+    $standardErrorLog = Join-Path $logRoot 'phpmyadmin.err.log'
+    $process = Start-Process -FilePath $php `
+        -ArgumentList @('-S', "127.0.0.1:$PhpMyAdminPort", '-t', "`"$documentRoot`"") `
+        -WorkingDirectory $documentRoot `
         -WindowStyle Hidden `
         -RedirectStandardOutput $standardOutputLog `
         -RedirectStandardError $standardErrorLog `
         -PassThru
-    $process.WaitForExit()
+    Set-Content -LiteralPath (Join-Path $RuntimeRoot 'phpmyadmin.pid') -Value $process.Id -Encoding ASCII
 
-    $stdout = if (Test-Path -LiteralPath $standardOutputLog) { (Get-Content -LiteralPath $standardOutputLog | Out-String).Trim() } else { '' }
-    $stderr = if (Test-Path -LiteralPath $standardErrorLog) { (Get-Content -LiteralPath $standardErrorLog | Out-String).Trim() } else { '' }
-    if ($process.ExitCode -ne 0) {
-        throw "phpMyAdmin launcher failed with exit code $($process.ExitCode). $stderr Logs: $standardOutputLog ; $standardErrorLog"
+    $deadline = [DateTime]::UtcNow.AddSeconds($PhpMyAdminReadyTimeoutSeconds)
+    while ([DateTime]::UtcNow -lt $deadline) {
+        if (Test-PhpMyAdminReady -Url $url) {
+            Write-Output "phpMyAdmin ready: $url"
+            return
+        }
+        if ($process.HasExited) {
+            $detail = if (Test-Path -LiteralPath $standardErrorLog) { (Get-Content -LiteralPath $standardErrorLog -Raw).Trim() } else { '' }
+            throw "phpMyAdmin exited before becoming ready. $detail Logs: $standardOutputLog ; $standardErrorLog"
+        }
+        Start-Sleep -Milliseconds 250
     }
-    if ($stdout) {
-        Write-Output $stdout
-    }
+
+    throw "phpMyAdmin did not become ready within $PhpMyAdminReadyTimeoutSeconds seconds. Logs: $standardOutputLog ; $standardErrorLog"
 }
 
 if ($CheckPhpMyAdminOnly) {
-    Invoke-PhpMyAdminService -DiagnosticOnly
+    Invoke-PhpMyAdminService
     return
 }
 

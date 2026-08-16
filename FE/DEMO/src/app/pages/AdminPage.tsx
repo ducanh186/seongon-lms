@@ -21,7 +21,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ApiError } from '../lib/api';
-import type { ApiAdminCourse, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiNewsPost, ApiReview, ApiUser, Paginated } from '../lib/contracts';
+import type { ApiAdminCourse, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiNewsPost, ApiReview, ApiUser, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { useAuth } from '../contexts/AuthContext';
 import { AdminSectionHeader } from '../components/AdminSectionHeader';
@@ -180,10 +180,11 @@ export function AdminPage() {
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
   const [editingCourse, setEditingCourse] = useState<ApiCourse | null>(null);
-  const [courseCategoryId, setCourseCategoryId] = useState('');
+  const [courseCategoryIds, setCourseCategoryIds] = useState<number[]>([]);
   const [courseForm, setCourseForm] = useState<CourseDraft>(blankCourse);
   const [isCourseEditorOpen, setIsCourseEditorOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<ApiAdminCourse | null>(null);
+  const [courseEnrollments, setCourseEnrollments] = useState<Paginated<ApiEnrollment> | null>(null);
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
   const [lessonForm, setLessonForm] = useState<LessonDraft>(blankLesson);
   const [quizTitle, setQuizTitle] = useState('Bài kiểm tra cuối khóa');
@@ -306,9 +307,18 @@ export function AdminPage() {
     void load(tab);
   }, [load, tab]);
 
-  const loadCourseDetail = useCallback(async (courseId: number) => {
+  const loadCourseEnrollments = useCallback(async (courseId: number, page = 1) => {
     if (!token) return;
-    const response = await adminRepositories.courses.get(token, courseId);
+    const response = await adminRepositories.enrollments.list(token, { course_id: courseId, page });
+    setCourseEnrollments(response);
+  }, [token]);
+
+  const loadCourseDetail = useCallback(async (courseId: number, enrollmentPage = 1) => {
+    if (!token) return;
+    const [response] = await Promise.all([
+      adminRepositories.courses.get(token, courseId),
+      loadCourseEnrollments(courseId, enrollmentPage),
+    ]);
     setSelectedCourse(response.data);
     setQuizTitle(response.data.quiz?.title ?? 'Bài kiểm tra cuối khóa');
     setQuizPassScore(String(response.data.quiz?.pass_score ?? 75));
@@ -324,7 +334,7 @@ export function AdminPage() {
       setQuestionContent('');
       setQuestionOptions(blankQuestionOptions);
     }
-  }, [token]);
+  }, [loadCourseEnrollments, token]);
 
   const selectContent = async (courseId: number) => {
     setError(null);
@@ -338,7 +348,7 @@ export function AdminPage() {
 
   const refreshSelectedCourse = async () => {
     if (selectedCourse) {
-      await loadCourseDetail(selectedCourse.id);
+      await loadCourseDetail(selectedCourse.id, courseEnrollments?.meta.current_page ?? 1);
     }
   };
 
@@ -375,10 +385,10 @@ export function AdminPage() {
 
   const submitCourse = (event: FormEvent) => {
     event.preventDefault();
-    if (!token || !courseCategoryId) return;
+    if (!token || courseCategoryIds.length === 0) return;
     const body = {
       ...courseForm,
-      category_id: Number(courseCategoryId),
+      category_ids: courseCategoryIds,
       price: Number(courseForm.price),
       description: courseForm.description || null,
       thumbnail: courseForm.thumbnail || null,
@@ -388,9 +398,10 @@ export function AdminPage() {
     void runMutation(
       () => adminRepositories.courses.save(token, body, editingCourse?.id),
       editingCourse ? 'Đã cập nhật khóa học.' : 'Đã tạo khóa học.',
-    ).then(() => {
+    ).then((didSucceed) => {
+      if (!didSucceed) return;
       setEditingCourse(null);
-      setCourseCategoryId('');
+      setCourseCategoryIds([]);
       setCourseForm(blankCourse);
       setIsCourseEditorOpen(false);
     });
@@ -398,7 +409,7 @@ export function AdminPage() {
 
   const beginCourseEdit = (course: ApiCourse) => {
     setEditingCourse(course);
-    setCourseCategoryId(String(course.category_id));
+    setCourseCategoryIds(course.categories?.map((category) => category.id) ?? [course.category_id]);
     setCourseForm(courseDraftFrom(course));
     setIsCourseEditorOpen(true);
     setTab('courses');
@@ -542,14 +553,18 @@ export function AdminPage() {
   };
 
   const courseColumns: AdminColumn<ApiCourse>[] = [
+    { key: 'id', header: 'ID', align: 'right', render: (course) => course.id },
     { key: 'course', header: 'Khóa học', render: (course) => <Typography fontWeight={750} sx={{ minWidth: 210 }}>{course.title}</Typography> },
-    { key: 'category', header: 'Danh mục', render: (course) => course.category?.name ?? '—' },
+    { key: 'categories', header: 'Danh mục', render: (course) => course.categories?.map((category) => category.name).join(', ') || course.category?.name || '—' },
     { key: 'level', header: 'Cấp độ', render: (course) => ({ beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao' }[course.level ?? 'beginner']) },
+    { key: 'instructor', header: 'Giảng viên', render: (course) => course.instructor_name || '—' },
     { key: 'price', header: 'Học phí', align: 'right', render: (course) => `${Number(course.price).toLocaleString('vi-VN')} đ` },
     { key: 'lessons', header: 'Bài học', align: 'center', render: (course) => course.lessons_count ?? 0 },
-    { key: 'questions', header: 'Câu hỏi', align: 'center', render: (course) => course.questions_count ?? 0 },
+    { key: 'exam', header: 'Bài kiểm tra', render: (course) => course.exam_exists ? 'Đã cấu hình' : 'Chưa có' },
     { key: 'enrollments', header: 'Ghi danh', align: 'center', render: (course) => course.enrollments_count ?? 0 },
+    { key: 'rating', header: 'Đánh giá', align: 'center', render: (course) => course.rating == null ? '—' : `${course.rating}/5` },
     { key: 'status', header: 'Trạng thái', render: (course) => <StatusChip status={course.status} /> },
+    { key: 'updated_at', header: 'Cập nhật', render: (course) => course.updated_at ? new Date(course.updated_at).toLocaleDateString('vi-VN') : '—' },
     { key: 'actions', header: 'Thao tác', align: 'right', render: (course) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => void selectContent(course.id)}>Nội dung</Button><Button size="small" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => beginCourseEdit(course)}>Sửa</Button><Button size="small" variant="outlined" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => token && void runMutation(() => adminRepositories.courses.publish(token, course.id, course.status === 'published' ? 'draft' : 'published'), 'Đã cập nhật trạng thái xuất bản.')}>{course.status === 'published' ? 'Ẩn' : 'Xuất bản'}</Button><Button size="small" color="error" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => token && requestConfirmation('Xóa khóa học', course.title, () => adminRepositories.courses.remove(token, course.id), 'Đã xóa khóa học.')}>Xóa</Button></Stack> },
   ];
 
@@ -612,15 +627,15 @@ export function AdminPage() {
           </Box>}
 
           {tab === 'courses' && <Stack spacing={2}>
-            <Box component="section" role="region" aria-label="Bộ lọc khóa học" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 1fr) minmax(180px, .7fr) auto auto', gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}><TextField label="Tìm khóa học" value={courseQuery} onChange={(event) => setCourseQuery(event.target.value)} fullWidth /><FormControl fullWidth><InputLabel id="course-status-filter">Trạng thái</InputLabel><Select labelId="course-status-filter" label="Trạng thái" value={courseStatus} onChange={(event) => setCourseStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="draft">Bản nháp</MenuItem><MenuItem value="published">Xuất bản</MenuItem></Select></FormControl><Button variant="contained" onClick={() => setAppliedCourseFilters({ q: courseQuery, status: courseStatus, page: 1 })} sx={{ whiteSpace: 'nowrap' }}>Áp dụng</Button><Button variant="outlined" onClick={() => { setEditingCourse(null); setCourseCategoryId(''); setCourseForm(blankCourse); setIsCourseEditorOpen(true); }} sx={{ whiteSpace: 'nowrap' }}>Tạo khóa học mới</Button></Box>
-            {isCourseEditorOpen && <Card component="form" onSubmit={submitCourse} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingCourse ? 'Sửa khóa học' : 'Tạo khóa học'}</Typography><FormControl required><InputLabel id="course-category">Danh mục</InputLabel><Select labelId="course-category" label="Danh mục" value={courseCategoryId} onChange={(event) => setCourseCategoryId(event.target.value)}>{categories.map((category) => <MenuItem key={category.id} value={String(category.id)}>{category.name}</MenuItem>)}</Select></FormControl><TextField required label="Tiêu đề" value={courseForm.title} onChange={(event) => setCourseForm({ ...courseForm, title: event.target.value })} /><TextField label="Mô tả" multiline minRows={2} value={courseForm.description} onChange={(event) => setCourseForm({ ...courseForm, description: event.target.value })} /><TextField label="Ảnh thumbnail URL" value={courseForm.thumbnail} onChange={(event) => setCourseForm({ ...courseForm, thumbnail: event.target.value })} /><TextField required label="Giá" type="number" value={courseForm.price} onChange={(event) => setCourseForm({ ...courseForm, price: event.target.value })} /><TextField label="Tên giảng viên" value={courseForm.instructor_name} onChange={(event) => setCourseForm({ ...courseForm, instructor_name: event.target.value })} /><TextField label="Giới thiệu giảng viên" multiline minRows={2} value={courseForm.instructor_bio} onChange={(event) => setCourseForm({ ...courseForm, instructor_bio: event.target.value })} /><FormControl><InputLabel id="course-level">Cấp độ</InputLabel><Select labelId="course-level" label="Cấp độ" value={courseForm.level} onChange={(event) => setCourseForm({ ...courseForm, level: event.target.value as CourseDraft['level'] })}><MenuItem value="beginner">Cơ bản</MenuItem><MenuItem value="intermediate">Trung cấp</MenuItem><MenuItem value="advanced">Nâng cao</MenuItem></Select></FormControl><FormControl><InputLabel id="course-status">Trạng thái</InputLabel><Select labelId="course-status" label="Trạng thái" value={courseForm.status} onChange={(event) => setCourseForm({ ...courseForm, status: event.target.value as CourseDraft['status'] })}><MenuItem value="draft">Bản nháp</MenuItem><MenuItem value="published">Xuất bản</MenuItem></Select></FormControl><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingCourse ? 'Cập nhật' : 'Lưu khóa học'}</Button><Button onClick={() => { setEditingCourse(null); setCourseCategoryId(''); setCourseForm(blankCourse); setIsCourseEditorOpen(false); }}>Hủy</Button></Stack></Stack></CardContent></Card>}
+            <Box component="section" role="region" aria-label="Bộ lọc khóa học" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 1fr) minmax(180px, .7fr) auto auto', gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}><TextField label="Tìm khóa học" value={courseQuery} onChange={(event) => setCourseQuery(event.target.value)} fullWidth /><FormControl fullWidth><InputLabel id="course-status-filter">Trạng thái</InputLabel><Select labelId="course-status-filter" label="Trạng thái" value={courseStatus} onChange={(event) => setCourseStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="draft">Bản nháp</MenuItem><MenuItem value="published">Xuất bản</MenuItem></Select></FormControl><Button variant="contained" onClick={() => setAppliedCourseFilters({ q: courseQuery, status: courseStatus, page: 1 })} sx={{ whiteSpace: 'nowrap' }}>Áp dụng</Button><Button variant="outlined" onClick={() => { setEditingCourse(null); setCourseCategoryIds([]); setCourseForm(blankCourse); setIsCourseEditorOpen(true); }} sx={{ whiteSpace: 'nowrap' }}>Tạo khóa học mới</Button></Box>
+            {isCourseEditorOpen && <Card component="form" onSubmit={submitCourse} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingCourse ? 'Sửa khóa học' : 'Tạo khóa học'}</Typography><FormControl required><InputLabel id="course-category">Danh mục</InputLabel><Select multiple labelId="course-category" label="Danh mục" value={courseCategoryIds} onChange={(event) => { const value = event.target.value; setCourseCategoryIds(typeof value === 'string' ? value.split(',').map(Number) : value); }} renderValue={(selected) => selected.map((id) => categories.find((category) => category.id === id)?.name ?? id).join(', ')}>{categories.map((category) => <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>)}</Select></FormControl><TextField required label="Tiêu đề" value={courseForm.title} onChange={(event) => setCourseForm({ ...courseForm, title: event.target.value })} /><TextField label="Mô tả" multiline minRows={2} value={courseForm.description} onChange={(event) => setCourseForm({ ...courseForm, description: event.target.value })} /><TextField label="Ảnh thumbnail URL" value={courseForm.thumbnail} onChange={(event) => setCourseForm({ ...courseForm, thumbnail: event.target.value })} /><TextField required label="Giá" type="number" value={courseForm.price} onChange={(event) => setCourseForm({ ...courseForm, price: event.target.value })} /><TextField label="Tên giảng viên" value={courseForm.instructor_name} onChange={(event) => setCourseForm({ ...courseForm, instructor_name: event.target.value })} /><TextField label="Giới thiệu giảng viên" multiline minRows={2} value={courseForm.instructor_bio} onChange={(event) => setCourseForm({ ...courseForm, instructor_bio: event.target.value })} /><FormControl><InputLabel id="course-level">Cấp độ</InputLabel><Select labelId="course-level" label="Cấp độ" value={courseForm.level} onChange={(event) => setCourseForm({ ...courseForm, level: event.target.value as CourseDraft['level'] })}><MenuItem value="beginner">Cơ bản</MenuItem><MenuItem value="intermediate">Trung cấp</MenuItem><MenuItem value="advanced">Nâng cao</MenuItem></Select></FormControl><FormControl><InputLabel id="course-status">Trạng thái</InputLabel><Select labelId="course-status" label="Trạng thái" value={courseForm.status} onChange={(event) => setCourseForm({ ...courseForm, status: event.target.value as CourseDraft['status'] })}><MenuItem value="draft">Bản nháp</MenuItem><MenuItem value="published">Xuất bản</MenuItem></Select></FormControl><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingCourse ? 'Cập nhật' : 'Lưu khóa học'}</Button><Button onClick={() => { setEditingCourse(null); setCourseCategoryIds([]); setCourseForm(blankCourse); setIsCourseEditorOpen(false); }}>Hủy</Button></Stack></Stack></CardContent></Card>}
               <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
                 {courses?.data.length ? <AdminDataTable<ApiCourse>
                   label="Danh sách khóa học"
                   rows={courses.data}
                   getRowKey={(course) => course.id}
                   columns={courseColumns}
-                  minWidth={1120}
+                  minWidth={1760}
                   stickyFirstColumn
                   stickyLastColumn
                 /> : <EmptyState title="Không có khóa học phù hợp." />}
@@ -631,6 +646,8 @@ export function AdminPage() {
           {tab === 'courses' && selectedCourse && <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(270px, .55fr) 1fr', gap: 3, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
             <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Chọn khóa học</Typography><Stack divider={<Divider flexItem />} sx={{ mt: 1 }}>{courses?.data.map((course) => <Button key={course.id} onClick={() => void selectContent(course.id)} color="inherit" sx={{ justifyContent: 'flex-start', textAlign: 'left', py: 1.5, fontWeight: selectedCourse?.id === course.id ? 800 : 400 }}>{course.title}</Button>)}</Stack></CardContent></Card>
             <Stack spacing={3}><>
+              <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Tổng quan khóa học</Typography><Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5, mt: 2 }}><Typography><strong>ID:</strong> {selectedCourse.id}</Typography><Typography><strong>Trạng thái:</strong> {selectedCourse.status === 'published' ? 'Xuất bản' : 'Bản nháp'}</Typography><Typography><strong>Danh mục:</strong> {selectedCourse.categories?.map((category) => category.name).join(', ') || selectedCourse.category?.name || '—'}</Typography><Typography><strong>Ghi danh:</strong> {selectedCourse.enrollments_count ?? 0}</Typography><Typography><strong>Bài học:</strong> {selectedCourse.lessons_count ?? selectedCourse.lessons?.length ?? 0}</Typography><Typography><strong>Bài kiểm tra:</strong> {selectedCourse.quiz ? 'Đã cấu hình' : 'Chưa có'}</Typography></Box></CardContent></Card>
+              <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Danh sách ghi danh</Typography><Stack divider={<Divider flexItem />} sx={{ mt: 1 }}>{courseEnrollments?.data.map((enrollment) => <Stack key={enrollment.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between" sx={{ py: 1.25 }}><Box><Typography fontWeight={700}>{enrollment.user?.name ?? `Học viên #${enrollment.user_id}`}</Typography><Typography variant="body2" color="text.secondary">{enrollment.user?.email ?? '—'}</Typography></Box><Box sx={{ textAlign: { sm: 'right' } }}><Typography variant="body2">{enrollment.status === 'active' ? 'Đang học' : 'Hết hạn'}</Typography><Typography variant="caption" color="text.secondary">Ghi danh {new Date(enrollment.enrolled_at).toLocaleDateString('vi-VN')}</Typography></Box></Stack>)}{courseEnrollments?.data.length === 0 && <EmptyState title="Khóa học chưa có ghi danh." />}</Stack>{courseEnrollments && courseEnrollments.meta.last_page > 1 && <Pagination count={courseEnrollments.meta.last_page} page={courseEnrollments.meta.current_page} onChange={(_, page) => void loadCourseEnrollments(selectedCourse.id, page)} color="primary" sx={{ mt: 2 }} />}</CardContent></Card>
               <Card component="form" onSubmit={submitLesson} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingLessonId ? 'Sửa bài học' : `Thêm bài học cho ${selectedCourse.title}`}</Typography><TextField required label="Tiêu đề bài học" value={lessonForm.title} onChange={(event) => setLessonForm({ ...lessonForm, title: event.target.value })} /><TextField required label="Video embed URL" value={lessonForm.video_url} onChange={(event) => setLessonForm({ ...lessonForm, video_url: event.target.value })} /><TextField label="Mô tả" multiline minRows={2} value={lessonForm.description} onChange={(event) => setLessonForm({ ...lessonForm, description: event.target.value })} /><TextField label="Thời lượng (giây)" type="number" value={lessonForm.duration} onChange={(event) => setLessonForm({ ...lessonForm, duration: event.target.value })} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingLessonId ? 'Cập nhật bài học' : 'Thêm bài học'}</Button>{editingLessonId && <Button onClick={() => { setEditingLessonId(null); setLessonForm(blankLesson); }}>Hủy</Button>}</Stack></Stack></CardContent></Card>
               <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Thứ tự bài học</Typography><Stack divider={<Divider flexItem />} sx={{ mt: 1 }}>{orderedLessons.map((lesson, index) => <Stack key={lesson.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{lesson.position}. {lesson.title}</Typography><Typography variant="body2" color="text.secondary">{lesson.duration ? `${lesson.duration} giây` : 'Chưa có thời lượng'}</Typography></Box><Button size="small" disabled={index === 0} onClick={() => moveLesson(lesson.id, -1)} aria-label={`Di chuyển bài học ${lesson.position} lên`}>Lên</Button><Button size="small" disabled={index === orderedLessons.length - 1} onClick={() => moveLesson(lesson.id, 1)} aria-label={`Di chuyển bài học ${lesson.position} xuống`}>Xuống</Button><Button size="small" onClick={() => { setEditingLessonId(lesson.id); setLessonForm({ title: lesson.title, video_url: lesson.video_url, description: lesson.description ?? '', duration: lesson.duration === null ? '' : String(lesson.duration) }); }}>Sửa</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa bài học', lesson.title, () => adminRepositories.courses.removeLesson(token, lesson.id), 'Đã xóa bài học.', true)}>Xóa</Button></Stack>)}{orderedLessons.length === 0 && <EmptyState title="Khóa học chưa có bài học." />}</Stack></CardContent></Card>
               <Card component="form" onSubmit={submitQuiz} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>Bài kiểm tra cuối khóa</Typography><TextField required label="Tiêu đề bài kiểm tra" value={quizTitle} onChange={(event) => setQuizTitle(event.target.value)} /><TextField required label="Điểm đạt" type="number" inputProps={{ min: 1, max: 100 }} value={quizPassScore} onChange={(event) => setQuizPassScore(event.target.value)} /><TextField required label="Số lần làm tối đa" type="number" inputProps={{ min: 1, max: 20 }} value={quizMaxAttempts} onChange={(event) => setQuizMaxAttempts(event.target.value)} /><Button type="submit" variant="outlined">Lưu bài kiểm tra</Button></Stack></CardContent></Card>

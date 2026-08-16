@@ -70,19 +70,14 @@ There is **no `tsconfig.json` and no `typescript` dependency**. Vite/esbuild str
 
 `VITE_API_BASE_URL` lives in `FE/DEMO/.env` (`http://127.0.0.1:8000/api/v1` for local dev). The Docker image bakes `/api/v1` at build time via a Dockerfile ARG.
 
-### Infra — run from `Infra/` (PowerShell)
+### Infra — run from the repository root (PowerShell)
 
 ```powershell
-Copy-Item .env.example .env               # then set APP_KEY, MYSQL_* — compose fails fast on missing vars
-./run-docker.ps1 up|down|restart|logs|status|admin    # 'admin' enables the phpmyadmin profile
-
-# Native Windows alternative to Docker
-./setup-native-windows.ps1                # one-time: PHP/MySQL/Node preflight + install
-./run-native-windows.ps1 start|stop|restart|status|logs
-./start-local-web-windows.bat             # double-clickable launcher
+.\Infra\build-local-web-windows.bat
+.\Infra\start-local-web-windows.bat
 ```
 
-`Infra/tests/` holds standalone PowerShell verification scripts plus two Pester specs (`*.Tests.ps1`); run them individually with `pwsh ./tests/<script>.ps1` or `Invoke-Pester`.
+The build script installs locked dependencies, applies pending migrations, runs both test suites, and builds frontend production assets. The start script launches the prepared MySQL, phpMyAdmin, Laravel, and Vite stack. PowerShell verification specs live in `tests/infra/`.
 
 ## Backend architecture
 

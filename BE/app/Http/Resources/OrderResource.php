@@ -14,12 +14,15 @@ class OrderResource extends JsonResource
             'user_id' => $this->user_id,
             'course_id' => $this->course_id,
             'amount' => $this->amount,
+            'total_amount' => $this->total_amount ?? $this->amount,
             'status' => $this->status,
             'payment_method' => $this->payment_method,
             'transaction_ref' => $this->transaction_ref,
             'paid_at' => $this->paid_at,
+            'user' => new UserResource($this->whenLoaded('user')),
             'course' => new CourseResource($this->whenLoaded('course')),
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

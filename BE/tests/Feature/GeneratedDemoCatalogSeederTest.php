@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
-use Database\Seeders\GeneratedDemoCatalogSeeder;
 use Database\Seeders\CompletedCourseDemoSeeder;
+use Database\Seeders\GeneratedDemoCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

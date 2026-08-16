@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -13,7 +14,7 @@ import {
 } from '@mui/material';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import { ApiError } from '../lib/api';
 import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiCourse, ApiReview } from '../lib/contracts';
@@ -26,7 +27,8 @@ const FALLBACK_COURSE_IMAGE = '/generated-images/course-seo.webp';
 export function CoursePage() {
   const { slug = '' } = useParams();
   const { user } = useAuth();
-  const { add, contains } = useCart();
+  const { add, contains, error: cartError } = useCart();
+  const navigate = useNavigate();
   const [course, setCourse] = useState<ApiCourse | null>(null);
   const [reviews, setReviews] = useState<ApiReview[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -47,9 +49,16 @@ export function CoursePage() {
   if (error) return <Container sx={{ py: 6 }}><RequestError message={error} onRetry={() => setReloadKey((value) => value + 1)} /></Container>;
   if (!course) return <Container sx={{ py: 6 }}><PageSkeleton rows={4} /></Container>;
 
-  const checkoutPath = user ? `/checkout/${course.slug}` : '/login';
   const isStudent = user?.role === 'student';
   const isInCart = contains(course.id);
+  const beginCheckout = async () => {
+    try {
+      if (!isInCart) await add(course.id);
+      navigate(`/checkout/${course.slug}`);
+    } catch {
+      // CartContext exposes the API error next to the action.
+    }
+  };
 
   return (
     <Box sx={{ py: { xs: 4, md: 7 } }}>
@@ -105,16 +114,10 @@ export function CoursePage() {
               <Typography component="h2" variant="h6" fontWeight={800}>Thông tin đăng ký</Typography>
               <Typography variant="h4" fontWeight={800} color="primary.dark" sx={{ mt: 1.5 }}>{Number(course.price) === 0 ? 'Miễn phí' : `${Number(course.price).toLocaleString('vi-VN')} đ`}</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{course.lessons_count ?? course.lessons?.length ?? 0} bài học</Typography>
-              {(!user || isStudent) && <Button component={Link} to={checkoutPath} state={{ course }} variant="contained" fullWidth sx={{ mt: 3 }}>
-                {user ? 'Đăng ký khóa học' : 'Đăng nhập để đăng ký'}
-              </Button>}
-              {isStudent && <Button variant="outlined" fullWidth sx={{ mt: 1.5 }} disabled={isInCart} onClick={() => add({
-                courseId: course.id,
-                slug: course.slug,
-                title: course.title,
-                price: String(course.price),
-                thumbnail: course.thumbnail,
-              })}>{isInCart ? 'Đã có trong giỏ hàng' : 'Thêm vào giỏ hàng'}</Button>}
+              {!user && <Button component={Link} to="/login" state={{ course }} variant="contained" fullWidth sx={{ mt: 3 }}>Đăng nhập để đăng ký</Button>}
+              {isStudent && <Button onClick={() => void beginCheckout()} variant="contained" fullWidth sx={{ mt: 3 }}>Đăng ký khóa học</Button>}
+              {isStudent && <Button variant="outlined" fullWidth sx={{ mt: 1.5 }} disabled={isInCart} onClick={() => void add(course.id)}>{isInCart ? 'Đã có trong giỏ hàng' : 'Thêm vào giỏ hàng'}</Button>}
+              {cartError && <Alert severity="error" sx={{ mt: 1.5 }}>{cartError}</Alert>}
               <Stack spacing={1.25} sx={{ mt: 3 }}>
                 {['Theo dõi tiến độ học', 'Bài kiểm tra cuối khóa', 'Chứng chỉ khi đạt điều kiện'].map((text) => <Stack key={text} direction="row" spacing={1} alignItems="center"><CheckRoundedIcon color="primary" fontSize="small" /><Typography variant="body2">{text}</Typography></Stack>)}
               </Stack>

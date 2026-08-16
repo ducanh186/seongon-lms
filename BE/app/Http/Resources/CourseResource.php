@@ -25,14 +25,17 @@ class CourseResource extends JsonResource
             'questions_count' => $this->whenCounted('questions'),
             'enrollments_count' => $this->whenCounted('enrollments'),
             'reviews_count' => $this->whenCounted('reviews'),
+            'exam_exists' => $this->when(isset($this->exam_exists), fn () => (bool) $this->exam_exists),
             'rating' => $this->when(
                 $this->reviews_avg_rating !== null,
                 fn () => round((float) $this->reviews_avg_rating, 1),
             ),
             'category' => new CategoryResource($this->whenLoaded('category')),
+            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'lessons' => LessonResource::collection($this->whenLoaded('lessons')),
             'has_quiz' => $this->when($this->relationLoaded('quiz'), fn () => $this->quiz !== null),
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

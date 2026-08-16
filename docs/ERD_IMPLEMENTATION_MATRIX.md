@@ -12,29 +12,29 @@ Every row must eventually read **IMPLEMENTED**.
 | `PARTIAL` | An equivalent exists under a different name/shape; migration + refactor required. |
 | `IMPLEMENTED` | Migration, model, service, admin route, admin screen, and student/public usage all done and verified. |
 
-**Current state:** P0 step C is complete, and step D is complete through **D3** (Users/Roles, Courses/Categories, Assessment domain). Remaining: **D4** Learning domain, **D5** Orders/Enrollments. All of step D uses expand → migrate → contract sequencing; no contract phase has run yet, so every legacy column and relation alias is still in place. See the step logs below.
+**Current state:** P0 step C is complete. Step D is complete through **D3**; **D4** and the safe subset of **D5** are in expand/migrate deployments. Their contract phases remain. All of step D uses expand → migrate → contract sequencing; no contract phase has run yet, so legacy identifiers stay available. See the step logs below.
 
 ---
 
 ## Matrix
 
-| ERD Table | Backend Model | Migration | Service | Admin Route | Admin Screen | Student/Public Usage | Status |
-|---|---|---|---|---|---|---|---|
-| **Roles** | `Role` ✅ | `2026_08_16_000001_create_roles_table` ✅ | `RoleService` | `/admin/roles` | Vai trò — list, create, edit, delete | none (backing store for authorization) | `PARTIAL` |
-| **Users** | `User` ✅ `role()` | `2026_08_16_000005_add_role_id_to_users_table` ✅ (expand). Contract pending: `role` drop, `role_id` NOT NULL, `name`→`full_name` | `UserService` | `/admin/users` | Người dùng — list, search, filter by role/status, lock/unlock | register, login, profile, password | `PARTIAL` |
-| **Carts** | `Cart` ✅ | `2026_08_16_000002_create_carts_table` ✅ | `CartService` | `/admin/carts` | Giỏ hàng — read-only list | student cart, replaces `localStorage` | `PARTIAL` |
-| **Cart_items** | `CartItem` ✅ | `2026_08_16_000003_create_cart_items_table` ✅ | `CartService` | `/admin/cart-items` | Chi tiết giỏ hàng — read-only list | student cart line items | `PARTIAL` |
-| **Orders** | `Order` | alter: drop `course_id`, `amount`→`total_amount`, keep `status`/`paid_at`/`payment_method` | `OrderService` | `/admin/orders` | Đơn hàng — read-only list + detail | checkout, payment | `PARTIAL` |
-| **Categories** | `Category` | alter: align columns (`created_at` only per ERD; keep `slug` for public filtering) | `CategoryService` | `/admin/categories` | Danh mục — full CRUD | catalog filter, home category counts | `PARTIAL` |
-| **Course_categories** | `CourseCategory` ✅ | `2026_08_16_000004_create_course_categories_table` ✅ (backfilled, dual-written by `Course`) | `CourseService` | `/admin/course-categories` | Phân loại khóa học — assign categories to a course | ✅ catalog filter + category counts read the pivot | `PARTIAL` |
-| **Courses** | `Course` | alter: drop `category_id`, add `avg_rating`, `total_lessons`; keep `slug`/`instructor_*`/`level`/`price`/`status` | `CourseService` | `/admin/courses` | Khóa học — full CRUD, publish/hide, nested lessons + exam | catalog, course detail, home | `PARTIAL` |
-| **Enrollments** | `Enrollment` | alter: keep `expires_at`/`status` (unused this phase). **No snapshot columns.** Keep `user_id`; keep `order_id` nullable per ADR 0001 | `EnrollmentService` | `/admin/enrollments` | Ghi danh — read-only list + detail | My Courses, learning access guard | `PARTIAL` |
-| **Exams** | `Exam` ✅ | `2026_08_16_000007` ✅ rename + `duration_minutes`, `total_questions` | `ExamGradingService` ✅ (CRUD `ExamService` pending) | `/admin/exams` | Bài kiểm tra — config pass score, attempts | ✅ final quiz reads `exams` | `PARTIAL` |
-| **Questions** | `Question` ✅ | `2026_08_16_000007` ✅ `quiz_id`→`exam_id`, `sort_order` | `ExamGradingService` ✅ | `/admin/questions` | Câu hỏi — CRUD, reorder, nested under Exam | ✅ quiz rendering | `PARTIAL` |
-| **Answers** | `Answer` ✅ | `2026_08_16_000006` ✅ rename | `ExamGradingService` ✅ | `/admin/answers` | Đáp án — CRUD, mark correct, nested under Question | ✅ quiz options | `PARTIAL` |
-| **Learning_progress** | `LearningProgress` ✅ | `2026_08_16_000010` ✅ rename `lesson_progress`→`learning_progress` | `ProgressService` ✅ | `/admin/learning-progress` | Tiến độ học tập — read-only list | ✅ lesson completion, progress %, certificate eligibility | `PARTIAL` |
-| **Attempts** | `Attempt` ✅ | `2026_08_16_000008` ✅ rename + `attempt_number`, `correct_count`, `wrong_count`, `answers` JSON · `2026_08_16_000009` ✅ folded and dropped `quiz_attempt_answers` | `ExamGradingService` ✅ | `/admin/attempts` | Lượt làm bài — read-only list + per-question detail | ✅ submission, result, past-attempt review | `PARTIAL` |
-| **Lessons** | `Lesson` ✅ | `2026_08_16_000010` ✅ `position`→`sort_order`; `material_url` pending | `LessonService` | `/admin/lessons` | Bài học — CRUD, reorder, nested under Course | ✅ learning workspace | `PARTIAL` |
+| ERD Entity | Actual DB | Model / Relationships | Migration | Service | API | Admin | Public / Student | Status |
+|---|---|---|---|---|---|---|---|---|
+| **Roles** | `roles` ✅ | `Role::users`, `User::role` ✅ | `000001` ✅ | missing `RoleService` | none | missing | authorization backing only | `PARTIAL` |
+| **Users** | `users` ✅ | `User::role/orders/enrollments` ✅ | `000005` expand ✅; legacy `role` retained | missing `UserService` | `/auth/*`, `/admin/users` ✅ | real list/status UI ✅ | auth/profile ✅ | `PARTIAL` |
+| **Carts** | `carts` ✅ | `Cart::user/items` ✅ | `000002` ✅ | `CartService` load/add/remove/clear/checkout ✅ | `/cart*` Student API ✅ | read via phpMyAdmin; no Admin mutation | authenticated Cart is DB-authoritative ✅ | `PARTIAL` |
+| **Cart_items** | `cart_items` ✅ | `CartItem::cart/course/user` ✅ | `000003`; unique `(cart_id, course_id)` ✅ | `CartService` sync/reconcile ✅ | `/cart/items*` Student API ✅ | read via phpMyAdmin; no Admin mutation | Header/Cart/Checkout use shared API state ✅ | `PARTIAL` |
+| **Orders** | `orders` ✅ | `Order::user/course/enrollment` ✅ | `000011` expand ✅; `amount`/`course_id` retained | `OrderService` admin read ✅ | Student create/pay + `/admin/orders*` read ✅ | API ready; screen pending | single-Course checkout + stable idempotency key ✅ | `PARTIAL` |
+| **Categories** | `categories` ✅ | `Category::courses` through pivot ✅ | existing | missing `CategoryService` | `/categories`, `/admin/categories` ✅ | real CRUD UI ✅ | catalog filter ✅ | `PARTIAL` |
+| **Course_categories** | `course_categories` ✅ | `CourseCategory`; `Course::categories` ✅ | `000004` + backfill ✅ | `CourseService` sync ✅ | indirect through Course ✅ | multi-select create/edit ✅ | public filter reads pivot ✅ | `PARTIAL` |
+| **Courses** | `courses` ✅ | category/categories, lessons, exam, enrollments ✅ | existing; legacy `category_id` retained as mirror | `CourseService` create/update/publish/read ✅ | `/courses`, `/admin/courses` ✅ | 13 real/aggregate columns + nested content ✅ | catalog/detail ✅ | `PARTIAL` |
+| **Enrollments** | `enrollments` ✅ | user/course/order/progress/attempts ✅ | existing; direct `user_id`, nullable `order_id` retained | `EnrollmentService` create/admin read ✅ | `/my/courses*` + `/admin/enrollments*` read ✅ | API ready; top-level screen pending | learning access ✅ | `PARTIAL` |
+| **Exams** | `exams` ✅ | `Exam::course/questions/attempts` ✅ | `000007` expand ✅ | `ExamGradingService` ✅; CRUD service missing | Admin nested legacy `/quiz`; Student quiz ✅ | nested Course content works; top-level placeholder | quiz flow ✅ | `PARTIAL` |
+| **Questions** | `questions` ✅ | `Question::exam/answers` ✅ | `000007` ✅ | grading only | Admin nested `/quizzes/{quiz}/questions` ✅ | nested Course content ✅ | quiz rendering ✅ | `PARTIAL` |
+| **Answers** | `answers` ✅ | `Answer::question` ✅ | `000006` ✅ | grading only | nested Question payload ✅ | nested Question editor ✅ | quiz answer options ✅ | `PARTIAL` |
+| **Learning_progress** | `learning_progress` ✅ plus transition `lesson_progress` | `LearningProgress::enrollment/lesson` ✅ | `000010` expand/backfill ✅; contract pending | `ProgressService` ✅ | lesson completion/progress ✅ | placeholder; no Admin API | learning progress ✅ | `PARTIAL` |
+| **Attempts** | `attempts` ✅ | `Attempt::enrollment/exam` ✅ | `000008`/`000009` ✅ | `ExamGradingService` ✅ | submit/result ✅ | placeholder; no Admin API | exam attempts ✅ | `PARTIAL` |
+| **Lessons** | `lessons` ✅ | `Lesson::course/learningProgress` ✅ | `000010` expand/backfill ✅; `position` retained | missing `LessonService` | Admin nested Course; Student lessons ✅ | nested Course content ✅; top-level placeholder | learning workspace ✅ | `PARTIAL` |
 
 ---
 
@@ -67,13 +67,13 @@ P0  Roles → Users(role_id)
     Exams → Questions → Answers
     Lessons, Learning_progress renames
     Carts → Cart_items
-    Orders → Enrollments (user_id retained; Enrollment→User is an open question)
+    Orders → Enrollments (user_id retained; order_id stays nullable per ADR 0001)
          ↓
 P1  Models + Services + API resources + endpoints
          ↓
 P2  Admin routes + 15 admin screens + sidebar IA
          ↓
-P3  Student/Public rewired: cart to backend, progress, attempts
+P3  Student/Public rewired: cart to backend ✅; progress, attempts pending
          ↓
 P4/P5  UI fixes, polish
 ```
@@ -205,30 +205,58 @@ Folded row: `[{"question_id":351,"selected_answer_id":1397,"is_correct":true}]`,
 
 **Deliberately not done here:** controller class names, route URLs, and resource field names are unchanged — they are the API boundary, owned by P2/P3. A CRUD `ExamService` is P1; D3 only renamed the grading service.
 
-### P0 step D4 — Learning domain — done
+### P0 step D4 — Learning domain — expand/migrate deployed; contract pending
 
-Migration `2026_08_16_000010` performs two ERD-alignment renames:
+Migration `2026_08_16_000010` is additive:
 
-- `lesson_progress` → `learning_progress`
-- `lessons.position` → `lessons.sort_order`
+- creates `learning_progress` and backfills every row from `lesson_progress`
+- adds `lessons.sort_order` and backfills it from `lessons.position`
+- retains the legacy table, column, indexes, and relationships required by old application versions
 
-Application code now uses `LearningProgress` and `sort_order`. Existing request and JSON field names remain `position`, mapped by `Admin\LessonController` and `LessonResource`, so the frontend contract is unchanged.
+The migration deployment keeps legacy storage authoritative. `LearningProgress` reads `lesson_progress` and mirrors every model save or delete to `learning_progress`. `Lesson` synchronises model writes across `position` and `sort_order`; bulk reorder writes both columns explicitly. Ordering and API payloads still read `position`, so an older application instance can keep writing during a rolling deployment without making current reads stale.
+
+During this transition, do not use bulk `LearningProgress` query updates or deletes: Laravel bypasses model events for those operations, so the mirror would not be updated.
+
+Before the later read cutover, drain old application instances and run a final catch-up backfill. Only after the new table and column have been authoritative through a verification window may a separate contract deployment drop `lesson_progress` and `lessons.position`. The temporary extra table is rollout compatibility infrastructure, not a change to the approved final 15-table ERD.
 
 **Dev DB parity**
 
 | Check | Before | After |
 |---|---:|---:|
-| Progress rows | 1,268 | 1,268 |
+| Legacy progress rows | 1,268 | 1,268 |
+| New progress rows | — | 1,268 |
 | Lesson rows | 402 | 402 |
 | Lesson ordering sum | 1,003 | 1,003 |
 | Orphan progress → enrollment | — | 0 |
 | Orphan progress → lesson | — | 0 |
 
-**Verification:** `LearningProgressContractTest` was observed red before implementation and green after it. Full backend suite: **90 passed, 454 assertions**. Pint passes on every D4-touched PHP file; the full Pint scan still reports only the pre-existing files listed in the handoff.
+**Verification:** `LearningProgressContractTest` was observed red against the destructive rename and green after the additive migration and dual-write compatibility were added. Delete mirroring was separately observed red before the `deleted` hook and green after it. The live MySQL migration and rollback both preserved 1,268 progress rows, 402 lessons, and an ordering sum of 1,003. Full backend suite: **90 passed, 458 assertions**. Pint passes on every D4-touched PHP file.
 
-### Remaining P0
+### P0 step D5 — Orders/Enrollments — safe expand/migrate deployed; contract blocked
 
-`Orders`/`Enrollments` remains the highest-risk edge and is deferred. Enrollment ownership is now resolved: keep `enrollments.user_id` and nullable `order_id` per `docs/adr/0001-keep-direct-enrollment-ownership.md`. Failed-order line-item persistence remains open; D5 must not invent it. See `docs/ERD_FEATURE_GAPS.md`.
+Migration `2026_08_16_000011` adds nullable `orders.total_amount` and backfills it from `orders.amount`. `Order` keeps `amount` authoritative during the rolling transition and synchronises model writes in either field to both columns. Existing request routes and `OrderResource` output remain single-course and continue exposing `course_id` and `amount`.
+
+After a successful gateway response, the paid Order update and Enrollment creation run in one database transaction. If Enrollment persistence fails, the Order does not remain paid without access.
+
+`Enrollment` remains the Student-to-Course access owner. `enrollments.user_id` is retained and `order_id` stays nullable per `docs/adr/0001-keep-direct-enrollment-ownership.md`; no zero-amount Order is invented for an Administrator grant. Existing `expires_at` and `status` behavior is preserved, and no ERD snapshot columns are added.
+
+**Dev DB parity**
+
+| Check | Before | After |
+|---|---:|---:|
+| Orders | 634 | 634 |
+| `amount` sum | 281,166,000.00 | 281,166,000.00 |
+| `total_amount` sum | — | 281,166,000.00 |
+| Amount mismatches | — | 0 |
+| Enrollments | 635 | 635 |
+| Administrator grants (`order_id IS NULL`) | 1 | 1 |
+| Orphan enrollment orders | 0 | 0 |
+
+**Deliberately not contracted:** `orders.amount` and `orders.course_id` remain. Failed Orders currently need `course_id` to retain purchase intent because no approved order-line table exists. Multi-course checkout and failed-order line-item persistence require a mentor decision before read cutover or contract; D5 does not invent either model.
+
+During this transition, do not use bulk `Order` query updates for `amount` or `total_amount`: Laravel bypasses model events for bulk operations, so the paired column would not be updated.
+
+**Verification:** `OrderEnrollmentContractTest` was observed red before the additive migration and dual-write model compatibility, then green. The payment atomicity test was separately observed red with a persisted paid Order after Enrollment failure, then green after the transaction boundary. The live MySQL migration and rollback both preserved 634 Orders, 635 Enrollments, one Administrator grant, and the total amount sum. After the Course Management milestone and Admin commerce read endpoints, full backend suite: **97 passed, 513 assertions**. Pint passes on every touched PHP file.
 
 ---
 

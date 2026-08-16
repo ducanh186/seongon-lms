@@ -20,7 +20,7 @@ class LessonController extends Controller
             'position' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $data['sort_order'] = $data['position'] ?? (int) $course->lessons()->max('sort_order') + 1;
+        $data['sort_order'] = $data['position'] ?? (int) $course->lessons()->max('position') + 1;
         unset($data['position']);
 
         $lesson = $course->lessons()->create($data);
@@ -63,7 +63,10 @@ class LessonController extends Controller
         ]);
 
         foreach ($data['order'] as $index => $lessonId) {
-            $course->lessons()->whereKey($lessonId)->update(['sort_order' => $index + 1]);
+            $course->lessons()->whereKey($lessonId)->update([
+                'position' => $index + 1,
+                'sort_order' => $index + 1,
+            ]);
         }
 
         return LessonResource::collection($course->lessons()->get());

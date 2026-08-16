@@ -63,10 +63,29 @@ export interface ApiCourse {
   enrollments_count?: number;
   reviews_count?: number;
   rating?: number | null;
+  exam_exists?: boolean;
   category?: ApiCategory | null;
+  categories?: ApiCategory[];
   lessons?: ApiLesson[];
   has_quiz?: boolean;
   created_at: string;
+  updated_at?: string;
+}
+
+export interface ApiCartItem {
+  id: number;
+  course_id: number;
+  course: ApiCourse;
+  created_at: string;
+}
+
+export interface ApiCart {
+  id: number | null;
+  user_id: number;
+  items: ApiCartItem[];
+  count: number;
+  total_amount: string;
+  updated_at: string | null;
 }
 
 export interface ApiNewsPost {
@@ -102,14 +121,19 @@ export interface ApiProgress {
 
 export interface ApiEnrollment {
   id: number;
+  user_id?: number;
   course_id: number;
+  order_id?: number | null;
   enrolled_at: string;
   expires_at: string;
   status: EnrollmentStatus;
   is_expired: boolean;
+  user?: ApiUser;
   course?: ApiCourse;
   progress?: ApiProgress;
-  certificate: ApiCertificate | null;
+  certificate?: ApiCertificate | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface ApiEnrollmentSummary {

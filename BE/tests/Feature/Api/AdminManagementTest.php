@@ -62,21 +62,80 @@ class AdminManagementTest extends TestCase
             ->assertJsonPath('popular_courses', []);
     }
 
-    public function test_admin_course_list_includes_lesson_question_and_enrollment_counts(): void
+    public function test_admin_course_list_includes_real_business_fields_and_aggregates(): void
     {
         $admin = User::factory()->admin()->create();
-        $course = Course::factory()->create();
+        $primary = Category::factory()->create(['name' => 'SEO']);
+        $secondary = Category::factory()->create(['name' => 'Analytics']);
+        $course = Course::factory()->create([
+            'category_id' => $primary->id,
+            'instructor_name' => 'SEONGON Mentor',
+        ]);
+        $course->categories()->attach($secondary->id);
         Lesson::factory()->count(2)->create(['course_id' => $course->id]);
         $quiz = Exam::factory()->create(['course_id' => $course->id]);
         Question::factory()->count(3)->create(['exam_id' => $quiz->id]);
         Enrollment::factory()->count(4)->create(['course_id' => $course->id]);
+        Review::factory()->create(['course_id' => $course->id, 'rating' => 4]);
+        Review::factory()->create(['course_id' => $course->id, 'rating' => 5]);
         $token = $admin->createToken('test')->plainTextToken;
 
         $this->withToken($token)->getJson('/api/v1/admin/courses')
             ->assertOk()
+            ->assertJsonPath('data.0.id', $course->id)
+            ->assertJsonPath('data.0.instructor_name', 'SEONGON Mentor')
+            ->assertJsonCount(2, 'data.0.categories')
             ->assertJsonPath('data.0.lessons_count', 2)
             ->assertJsonPath('data.0.questions_count', 3)
-            ->assertJsonPath('data.0.enrollments_count', 4);
+            ->assertJsonPath('data.0.exam_exists', true)
+            ->assertJsonPath('data.0.enrollments_count', 4)
+            ->assertJsonPath('data.0.rating', 4.5)
+            ->assertJsonPath('data.0.updated_at', $course->updated_at->toJSON());
+    }
+
+    public function test_admin_create_and_update_syncs_multiple_course_categories(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $first = Category::factory()->create();
+        $second = Category::factory()->create();
+        $third = Category::factory()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $create = $this->withToken($token)->postJson('/api/v1/admin/courses', [
+            'category_ids' => [$first->id, $second->id],
+            'title' => 'Multi category course',
+            'price' => 299000,
+            'level' => 'beginner',
+            'status' => 'draft',
+        ]);
+
+        $create->assertCreated()
+            ->assertJsonCount(2, 'data.categories')
+            ->assertJsonPath('data.categories.0.id', $first->id)
+            ->assertJsonPath('data.categories.1.id', $second->id);
+
+        $courseId = $create->json('data.id');
+        $this->assertDatabaseHas('courses', ['id' => $courseId, 'category_id' => $first->id]);
+        $this->assertDatabaseHas('course_categories', ['course_id' => $courseId, 'category_id' => $first->id]);
+        $this->assertDatabaseHas('course_categories', ['course_id' => $courseId, 'category_id' => $second->id]);
+
+        $update = $this->withToken($token)->putJson("/api/v1/admin/courses/{$courseId}", [
+            'category_ids' => [$second->id, $third->id],
+            'title' => 'Updated multi category course',
+            'price' => 399000,
+            'level' => 'intermediate',
+            'status' => 'published',
+        ]);
+
+        $update->assertOk()
+            ->assertJsonCount(2, 'data.categories')
+            ->assertJsonPath('data.categories.0.id', $second->id)
+            ->assertJsonPath('data.categories.1.id', $third->id);
+
+        $this->assertDatabaseHas('courses', ['id' => $courseId, 'category_id' => $second->id]);
+        $this->assertDatabaseMissing('course_categories', ['course_id' => $courseId, 'category_id' => $first->id]);
+        $this->assertDatabaseHas('course_categories', ['course_id' => $courseId, 'category_id' => $second->id]);
+        $this->assertDatabaseHas('course_categories', ['course_id' => $courseId, 'category_id' => $third->id]);
     }
 
     public function test_admin_user_list_includes_each_students_enrollment_count(): void

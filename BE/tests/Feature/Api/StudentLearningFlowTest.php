@@ -38,6 +38,7 @@ class StudentLearningFlowTest extends TestCase
         $course = Course::factory()->create(['price' => 499000]);
         $token = $student->createToken('test')->plainTextToken;
 
+        $this->withToken($token)->postJson('/api/v1/cart/items', ['course_id' => $course->id])->assertCreated();
         $orderResponse = $this->withToken($token)->postJson('/api/v1/orders', ['course_id' => $course->id]);
         $orderResponse->assertCreated()->assertJsonPath('data.status', 'pending');
         $orderId = $orderResponse->json('data.id');
