@@ -2,7 +2,7 @@ import { Box, Button, CircularProgress, Link, Stack, Typography, useMediaQuery }
 import { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import type { ApiCategory } from '../lib/contracts';
-import { api } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 
 export const OPEN_MS = 200;
 export const CLOSE_DELAY_MS = 200;
@@ -30,7 +30,7 @@ export function CourseMegaMenu({ active }: { active: boolean }) {
     if (requested.current) return;
     requested.current = true;
     setLoadState('loading');
-    void api.categories()
+    void applicationRepositories.catalog.listCategories()
       .then(({ data }) => {
         setCategories(data);
         setLoadState('success');

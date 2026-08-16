@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { api } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiUser } from '../lib/contracts';
+import { localStorageAdapter } from '../data/adapters/LocalStorageAdapter';
 
 const SESSION_KEY = 'seongon.session';
 
@@ -19,18 +20,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function readStoredSession(): StoredSession | null {
-  try {
-    const value = localStorage.getItem(SESSION_KEY);
-    if (!value) {
-      return null;
-    }
-
-    const parsed = JSON.parse(value) as Partial<StoredSession>;
-    return typeof parsed.token === 'string' && parsed.token ? { token: parsed.token } : null;
-  } catch {
-    localStorage.removeItem(SESSION_KEY);
-    return null;
-  }
+  const parsed = localStorageAdapter.read<Partial<StoredSession>>(SESSION_KEY);
+  return typeof parsed?.token === 'string' && parsed.token ? { token: parsed.token } : null;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -39,13 +30,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
 
   const saveSession = (nextToken: string, nextUser: ApiUser) => {
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ token: nextToken }));
+    localStorageAdapter.write(SESSION_KEY, { token: nextToken });
     setToken(nextToken);
     setUser(nextUser);
   };
 
   const clearSession = () => {
-    localStorage.removeItem(SESSION_KEY);
+    localStorageAdapter.remove(SESSION_KEY);
     setToken(null);
     setUser(null);
   };
@@ -57,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    api.me(session.token)
+        applicationRepositories.auth.me(session.token)
       .then(({ data }) => saveSession(session.token, data))
       .catch(clearSession)
       .finally(() => setIsReady(true));
@@ -68,12 +59,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     token,
     isReady,
     login: async (email, password) => {
-      const result = await api.login({ email, password });
+    const result = await applicationRepositories.auth.login({ email, password });
       saveSession(result.token, result.user);
       return result.user;
     },
     register: async (name, email, password, passwordConfirmation) => {
-      const result = await api.register({
+    const result = await applicationRepositories.auth.register({
         name,
         email,
         password,
@@ -88,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const { data } = await api.me(token);
+    const { data } = await applicationRepositories.auth.me(token);
         setUser(data);
         return data;
       } catch (error) {
@@ -99,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout: async () => {
       try {
         if (token) {
-          await api.logout(token);
+      await applicationRepositories.auth.logout(token);
         }
       } finally {
         clearSession();

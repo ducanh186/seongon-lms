@@ -21,7 +21,8 @@ import {
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { useParams } from 'react-router';
-import { api, ApiError } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiEnrollment, ApiLesson, ApiProgress, ApiQuiz } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
 import { PageSkeleton } from '../components/AsyncState';
@@ -38,7 +39,7 @@ export function LearnCoursePage() {
   const [activeLesson, setActiveLesson] = useState<ApiLesson | null>(null);
   const [quiz, setQuiz] = useState<ApiQuiz | null>(null);
   const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [quizResult, setQuizResult] = useState<Awaited<ReturnType<typeof api.submitQuiz>> | null>(null);
+  const [quizResult, setQuizResult] = useState<Awaited<ReturnType<typeof applicationRepositories.learning.submitQuiz>> | null>(null);
   const [rating, setRating] = useState<number | null>(5);
   const [comment, setComment] = useState('');
   const [notice, setNotice] = useState<string | null>(null);
@@ -48,9 +49,9 @@ export function LearnCoursePage() {
   const refresh = async () => {
     if (!token || !courseId) return;
     const [enrollmentResponse, lessonResponse, progressResponse] = await Promise.all([
-      api.myCourses(token),
-      api.lessons(token, courseId),
-      api.progress(token, courseId),
+      applicationRepositories.learning.listMyCourses(token),
+      applicationRepositories.learning.listLessons(token, courseId),
+      applicationRepositories.learning.getProgress(token, courseId),
     ]);
     const current = enrollmentResponse.data.find((item) => item.course_id === courseId) ?? null;
     setEnrollment(current);
@@ -74,7 +75,7 @@ export function LearnCoursePage() {
     if (!token) return;
     setError(null);
     try {
-      await api.completeLesson(token, lesson.id);
+      await applicationRepositories.learning.completeLesson(token, lesson.id);
       setNotice(`Đã hoàn thành: ${lesson.title}`);
       await refresh();
     } catch (reason) {
@@ -85,7 +86,7 @@ export function LearnCoursePage() {
   const openQuiz = async () => {
     if (!token || !progress?.can_take_exam) return;
     try {
-      setQuiz((await api.quiz(token, courseId)).data);
+      setQuiz((await applicationRepositories.learning.getQuiz(token, courseId)).data);
       setQuizResult(null);
       setAnswers({});
       setNotice(null);
@@ -97,7 +98,7 @@ export function LearnCoursePage() {
   const submitQuiz = async () => {
     if (!token || !quiz) return;
     try {
-      const result = await api.submitQuiz(
+      const result = await applicationRepositories.learning.submitQuiz(
         token,
         courseId,
         quiz.questions.map((question) => ({ question_id: question.id, option_id: answers[question.id] ?? null })),
@@ -111,7 +112,7 @@ export function LearnCoursePage() {
   const submitReview = async () => {
     if (!token || !rating) return;
     try {
-      await api.reviewCourse(token, courseId, rating, comment);
+      await applicationRepositories.learning.reviewCourse(token, courseId, rating, comment);
       setNotice('Cảm ơn bạn đã gửi đánh giá.');
       setComment('');
     } catch (reason) {
@@ -122,7 +123,7 @@ export function LearnCoursePage() {
   const downloadCertificate = async () => {
     if (!token) return;
     try {
-      const blob = await api.downloadCertificate(token, courseId);
+      const blob = await applicationRepositories.learning.downloadCertificate(token, courseId);
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;

@@ -17,7 +17,8 @@ import {
 import { Link } from 'react-router';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { SectionHeading } from '../components/SectionHeading';
-import { api, ApiError } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiNewsList } from '../lib/contracts';
 
 export function NewsPage() {
@@ -33,7 +34,7 @@ export function NewsPage() {
     setError(null);
     setNews(null);
 
-    api.news({ category: category || undefined, page })
+    applicationRepositories.news.list({ category: category || undefined, page })
       .then((result) => {
         if (!active) return;
         setNews(result);

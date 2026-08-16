@@ -14,7 +14,8 @@ import {
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { Link, useParams } from 'react-router';
-import { api, ApiError } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiCourse, ApiReview } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../cart/CartContext';
@@ -33,7 +34,7 @@ export function CoursePage() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([api.course(slug), api.reviews(slug)])
+    Promise.all([applicationRepositories.catalog.getCourse(slug), applicationRepositories.catalog.listReviews(slug)])
       .then(([courseResponse, reviewResponse]) => {
         if (!active) return;
         setCourse(courseResponse.data);

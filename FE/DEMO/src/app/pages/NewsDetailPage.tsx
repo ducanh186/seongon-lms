@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, Chip, Container, Stack, Typography } from '@mui/material';
 import { Link, useParams } from 'react-router';
 import { PageSkeleton, RequestError } from '../components/AsyncState';
-import { api, ApiError } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiNewsPost } from '../lib/contracts';
 
 export function NewsDetailPage() {
@@ -16,7 +17,7 @@ export function NewsDetailPage() {
     setError(null);
     setPost(null);
 
-    api.newsPost(slug)
+    applicationRepositories.news.get(slug)
       .then((result) => active && setPost(result.data))
       .catch((reason: unknown) => active && setError(reason instanceof ApiError ? reason.message : 'Không thể tải bài viết.'));
 

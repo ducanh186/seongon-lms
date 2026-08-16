@@ -1,9 +1,11 @@
 import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import { Avatar, Box, Button, Stack, Typography } from '@mui/material';
 import type { ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { ADMIN_NAVIGATION, type AdminSection } from '../admin/adminNavigation';
 
-export type AdminSection = 'overview' | 'users' | 'categories' | 'courses' | 'reviews' | 'news';
+export type { AdminSection } from '../admin/adminNavigation';
 
 interface AdminShellProps {
   active: AdminSection;
@@ -11,17 +13,8 @@ interface AdminShellProps {
   children: ReactNode;
 }
 
-const adminSections: ReadonlyArray<readonly [AdminSection, string]> = [
-  ['overview', 'Tổng quan'],
-  ['users', 'Học viên'],
-  ['categories', 'Danh mục'],
-  ['courses', 'Khóa học'],
-  ['reviews', 'Đánh giá'],
-  ['news', 'Tin tức'],
-];
-
 export function AdminShell({ active, onChange, children }: AdminShellProps) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100vw', minHeight: '100dvh', overflowX: 'hidden', bgcolor: 'background.default' }}>
@@ -34,6 +27,9 @@ export function AdminShell({ active, onChange, children }: AdminShellProps) {
           <Box sx={{ flexGrow: 1 }} />
           <Button component="a" href="/" color="inherit" startIcon={<ExitToAppRoundedIcon />} sx={{ mr: 2, whiteSpace: 'nowrap' }}>
             Xem site public
+          </Button>
+          <Button color="inherit" startIcon={<LogoutRoundedIcon />} onClick={() => void logout()} sx={{ mr: 2, whiteSpace: 'nowrap' }}>
+            Đăng xuất
           </Button>
           <Stack direction="row" alignItems="center" spacing={1.25} sx={{ pl: 2, borderLeft: '1px solid rgba(255,255,255,.18)' }}>
             <Avatar src={user?.avatar ?? undefined} sx={{ width: 34, height: 34, bgcolor: 'primary.main' }}>{user?.name?.[0] ?? 'A'}</Avatar>
@@ -52,25 +48,29 @@ export function AdminShell({ active, onChange, children }: AdminShellProps) {
           direction="row"
           sx={{ maxWidth: 1440, mx: 'auto', px: { xs: 4, lg: 5 }, overflowX: 'auto' }}
         >
-          {adminSections.map(([value, label]) => {
-            const selected = active === value;
-            return (
-              <Button
-                key={value}
-                aria-pressed={selected}
-                color="inherit"
-                onClick={() => onChange(value)}
-                sx={{
-                  position: 'relative', minHeight: 56, px: 2.25, flexShrink: 0, whiteSpace: 'nowrap', borderRadius: 0,
-                  color: selected ? 'primary.dark' : 'text.secondary', fontWeight: selected ? 800 : 650,
-                  '&::after': { content: '""', position: 'absolute', left: 18, right: 18, bottom: 0, height: 3, bgcolor: selected ? 'primary.main' : 'transparent' },
-                  '&:hover': { bgcolor: 'rgba(0,137,148,.06)', color: 'primary.dark' },
-                }}
-              >
-                {label}
-              </Button>
-            );
-          })}
+          {ADMIN_NAVIGATION.map((group) => (
+            <Stack key={group.key} component="section" aria-label={group.label} direction="row" alignItems="center">
+              {group.items.map((item) => {
+                const selected = active === item.section;
+                return (
+                  <Button
+                    key={item.section}
+                    aria-pressed={selected}
+                    color="inherit"
+                    onClick={() => onChange(item.section)}
+                    sx={{
+                      position: 'relative', minHeight: 56, px: 2.25, flexShrink: 0, whiteSpace: 'nowrap', borderRadius: 0,
+                      color: selected ? 'primary.dark' : 'text.secondary', fontWeight: selected ? 800 : 650,
+                      '&::after': { content: '""', position: 'absolute', left: 18, right: 18, bottom: 0, height: 3, bgcolor: selected ? 'primary.main' : 'transparent' },
+                      '&:hover': { bgcolor: 'rgba(0,137,148,.06)', color: 'primary.dark' },
+                    }}
+                  >
+                    {item.label}
+                  </Button>
+                );
+              })}
+            </Stack>
+          ))}
         </Stack>
       </Box>
 

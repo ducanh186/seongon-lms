@@ -10,6 +10,9 @@ class AdminCourseResource extends CourseResource
     {
         return [
             ...parent::toArray($request),
+            // Both the `quiz` field name and the `quiz` eager-load key stay: renaming
+            // them is a frontend-visible break that belongs with P3. Course::quiz()
+            // is an expand-phase alias for exam(), so this reads the exams table.
             'quiz' => $this->whenLoaded('quiz', function () {
                 if ($this->quiz === null) {
                     return null;
@@ -24,7 +27,7 @@ class AdminCourseResource extends CourseResource
                     'questions' => $this->quiz->questions->map(fn ($question) => [
                         'id' => $question->id,
                         'content' => $question->content,
-                        'options' => $question->options->map(fn ($option) => [
+                        'options' => $question->answers->map(fn ($option) => [
                             'id' => $option->id,
                             'content' => $option->content,
                             'is_correct' => $option->is_correct,

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Attempt;
 use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Enrollment;
-use App\Models\LessonProgress;
-use App\Models\QuizAttempt;
+use App\Models\LearningProgress;
 use App\Models\User;
 use Database\Seeders\CompletedCourseDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,7 +33,7 @@ class CompletedCourseDemoSeederTest extends TestCase
             ->where('user_id', $student->id)
             ->where('course_id', $course->id)
             ->firstOrFail();
-        $attempt = QuizAttempt::query()->where('enrollment_id', $enrollment->id)->firstOrFail();
+        $attempt = Attempt::query()->where('enrollment_id', $enrollment->id)->firstOrFail();
 
         $this->assertDatabaseHas('courses', ['id' => $existingCourse->id]);
         $this->assertSame($existingDemoStudent->id, $student->id);
@@ -46,7 +46,7 @@ class CompletedCourseDemoSeederTest extends TestCase
         $this->assertSame('Nguyễn Minh Anh', $course->instructor_name);
         $this->assertSame(
             ['Xác định mục tiêu SEO và KPI', 'Xây dựng kế hoạch SEO 90 ngày'],
-            $course->lessons()->orderBy('position')->pluck('title')->all(),
+            $course->lessons()->orderBy('sort_order')->pluck('title')->all(),
         );
         $this->assertSame('Đánh giá cuối khóa SEO Foundation', $course->quiz->title);
         $visibleCopy = implode(' ', [
@@ -64,20 +64,23 @@ class CompletedCourseDemoSeederTest extends TestCase
         $this->assertDatabaseCount('enrollments', 1);
         $this->assertSame('active', $enrollment->status);
         $this->assertSame(2, $course->lessons()->count());
-        $this->assertSame(2, LessonProgress::query()->where('enrollment_id', $enrollment->id)->count());
-        $this->assertSame(2, LessonProgress::query()
+        $this->assertSame(2, LearningProgress::query()->where('enrollment_id', $enrollment->id)->count());
+        $this->assertSame(2, LearningProgress::query()
             ->where('enrollment_id', $enrollment->id)
             ->where('is_completed', true)
             ->count());
         $this->assertSame(1, $course->quiz()->count());
         $this->assertSame(1, $course->quiz->questions()->count());
-        $this->assertSame(2, $course->quiz->questions->first()->options()->count());
-        $this->assertSame(1, $course->quiz->questions->first()->options()->where('is_correct', true)->count());
-        $this->assertSame(1, $course->quiz->questions->first()->options()->where('is_correct', false)->count());
-        $this->assertSame(1, QuizAttempt::query()->where('enrollment_id', $enrollment->id)->count());
+        $this->assertSame(2, $course->quiz->questions->first()->answers()->count());
+        $this->assertSame(1, $course->quiz->questions->first()->answers()->where('is_correct', true)->count());
+        $this->assertSame(1, $course->quiz->questions->first()->answers()->where('is_correct', false)->count());
+        $this->assertSame(1, Attempt::query()->where('enrollment_id', $enrollment->id)->count());
         $this->assertSame(100, $attempt->score);
         $this->assertTrue($attempt->passed);
-        $this->assertSame(1, $attempt->answers()->count());
+        // attempts.answers is the approved JSON column, not a relation.
+        $this->assertCount(1, $attempt->answers);
+        $this->assertSame(1, $attempt->correct_count);
+        $this->assertSame(0, $attempt->wrong_count);
         $this->assertSame(1, Certificate::query()->where('enrollment_id', $enrollment->id)->count());
 
         $token = $student->createToken('test')->plainTextToken;

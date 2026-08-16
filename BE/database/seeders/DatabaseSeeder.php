@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        $this->call(RoleSeeder::class);
+
         User::factory()->admin()->create([
             'name' => 'SEONGON Admin',
             'email' => 'admin@seongon.vn',

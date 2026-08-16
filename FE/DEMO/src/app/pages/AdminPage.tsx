@@ -20,7 +20,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { api, ApiError } from '../lib/api';
+import { ApiError } from '../lib/api';
 import type { ApiAdminCourse, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiNewsPost, ApiReview, ApiUser, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { useAuth } from '../contexts/AuthContext';
@@ -28,7 +28,12 @@ import { AdminSectionHeader } from '../components/AdminSectionHeader';
 import { StatusChip } from '../components/StatusChip';
 import { AdminDataTable, type AdminColumn } from '../components/AdminDataTable';
 import { AdminShell, type AdminSection } from '../components/AdminShell';
+import { AdminEntityPage } from '../components/AdminEntityPage';
 import { AdminOverview } from './AdminOverview';
+import { adminRepositories } from '../data/repositories/adminRepositories';
+import { DashboardService } from '../application/services/DashboardService';
+
+const dashboardService = new DashboardService(adminRepositories.dashboard);
 
 type CourseDraft = {
   title: string;
@@ -102,6 +107,11 @@ const adminSectionCopy: Record<AdminSection, { title: string; description: strin
   users: { title: 'Quản lý học viên', description: 'Tìm kiếm, kiểm tra ghi danh và quản lý trạng thái tài khoản.' },
   categories: { title: 'Danh mục khóa học', description: 'Tổ chức chủ đề để học viên khám phá nội dung dễ dàng.' },
   courses: { title: 'Quản lý khóa học', description: 'Quản lý nội dung, bài học, bài kiểm tra và trạng thái xuất bản.' },
+  lessons: { title: 'Quản lý bài học', description: 'Đối chiếu cấu trúc bài học với ERD chính thức trước khi tách khỏi khóa học.' },
+  quizzes: { title: 'Quản lý bài kiểm tra', description: 'Đối chiếu bài kiểm tra, câu hỏi và đáp án với ERD chính thức.' },
+  enrollments: { title: 'Quản lý ghi danh', description: 'Theo dõi quan hệ ghi danh giữa học viên và khóa học.' },
+  quizAttempts: { title: 'Kết quả bài kiểm tra', description: 'Theo dõi lượt làm bài sau khi chốt cấu trúc ERD.' },
+  certificates: { title: 'Quản lý chứng chỉ', description: 'Theo dõi chứng chỉ sau khi chốt cấu trúc ERD.' },
   reviews: { title: 'Kiểm duyệt đánh giá', description: 'Theo dõi và kiểm soát đánh giá hiển thị trên hệ thống.' },
   news: { title: 'Tin tức và kiến thức', description: 'Biên tập nội dung công khai theo quy trình nháp và xuất bản.' },
 };
@@ -218,13 +228,13 @@ export function AdminPage() {
     try {
       switch (section) {
         case 'overview': {
-          const nextStats = await api.adminStats(token);
+          const nextStats = await dashboardService.getOverview(token);
           if (requestId !== loadRequestId.current) return;
           setStats(nextStats);
           break;
         }
         case 'users': {
-          const nextUsers = await api.adminUsers(token, {
+          const nextUsers = await adminRepositories.users.list(token, {
             q: appliedUserFilters.q || undefined,
             status: appliedUserFilters.status || undefined,
             page: appliedUserFilters.page,
@@ -234,7 +244,7 @@ export function AdminPage() {
           break;
         }
         case 'categories': {
-          const nextCategories = await api.adminCategories(token);
+          const nextCategories = await adminRepositories.categories.list(token);
           if (requestId !== loadRequestId.current) return;
           setCategories(nextCategories.data);
           break;
@@ -242,12 +252,12 @@ export function AdminPage() {
         case 'courses': {
           const needsCategories = loadedKeyBySection.current.categories === undefined;
           const [nextCourses, nextCategories] = await Promise.all([
-            api.adminCourses(token, {
+            adminRepositories.courses.list(token, {
               q: appliedCourseFilters.q || undefined,
               status: appliedCourseFilters.status || undefined,
               page: appliedCourseFilters.page,
             }),
-            needsCategories ? api.adminCategories(token) : Promise.resolve(null),
+            needsCategories ? adminRepositories.categories.list(token) : Promise.resolve(null),
           ]);
           if (requestId !== loadRequestId.current) return;
           setCourses(nextCourses);
@@ -258,13 +268,13 @@ export function AdminPage() {
           break;
         }
         case 'reviews': {
-          const nextReviews = await api.adminReviews(token, { status: reviewStatus || undefined, page: reviewPage });
+          const nextReviews = await adminRepositories.reviews.list(token, { status: reviewStatus || undefined, page: reviewPage });
           if (requestId !== loadRequestId.current) return;
           setReviews(nextReviews);
           break;
         }
         case 'news': {
-          const nextNews = await api.adminNews(token, {
+          const nextNews = await adminRepositories.news.list(token, {
             q: appliedNewsFilters.q || undefined,
             status: appliedNewsFilters.status || undefined,
             page: appliedNewsFilters.page,
@@ -273,6 +283,12 @@ export function AdminPage() {
           setNews(nextNews);
           break;
         }
+        case 'lessons':
+        case 'quizzes':
+        case 'enrollments':
+        case 'quizAttempts':
+        case 'certificates':
+          break;
       }
       loadedKeyBySection.current[section] = cacheKey;
     } catch (reason) {
@@ -292,7 +308,7 @@ export function AdminPage() {
 
   const loadCourseDetail = useCallback(async (courseId: number) => {
     if (!token) return;
-    const response = await api.adminCourse(token, courseId);
+    const response = await adminRepositories.courses.get(token, courseId);
     setSelectedCourse(response.data);
     setQuizTitle(response.data.quiz?.title ?? 'Bài kiểm tra cuối khóa');
     setQuizPassScore(String(response.data.quiz?.pass_score ?? 75));
@@ -348,7 +364,7 @@ export function AdminPage() {
     if (!token) return;
     const body = { name: categoryName, description: categoryDescription || undefined };
     void runMutation(
-      () => editingCategory ? api.updateCategory(token, editingCategory.id, body) : api.createCategory(token, body),
+      () => editingCategory ? adminRepositories.categories.update(token, editingCategory.id, body) : adminRepositories.categories.create(token, body),
       editingCategory ? 'Đã cập nhật danh mục.' : 'Đã tạo danh mục.',
     ).then(() => {
       setEditingCategory(null);
@@ -370,7 +386,7 @@ export function AdminPage() {
       instructor_bio: courseForm.instructor_bio || null,
     };
     void runMutation(
-      () => api.saveCourse(token, body, editingCourse?.id),
+      () => adminRepositories.courses.save(token, body, editingCourse?.id),
       editingCourse ? 'Đã cập nhật khóa học.' : 'Đã tạo khóa học.',
     ).then(() => {
       setEditingCourse(null);
@@ -396,7 +412,7 @@ export function AdminPage() {
       thumbnail: newsForm.thumbnail || null,
     };
     void runMutation(
-      () => api.saveNews(token, body, editingNews?.id),
+      () => adminRepositories.news.save(token, body, editingNews?.id),
       editingNews ? 'Đã cập nhật tin tức.' : 'Đã tạo tin tức.',
     ).then((didSucceed) => {
       if (!didSucceed) return;
@@ -421,7 +437,7 @@ export function AdminPage() {
       status: nextStatus,
     };
     void runMutation(
-      () => api.saveNews(token, body, newsPost.id),
+      () => adminRepositories.news.save(token, body, newsPost.id),
       nextStatus === 'published' ? 'Đã xuất bản tin tức.' : 'Đã chuyển tin tức về bản nháp.',
     );
   };
@@ -440,7 +456,7 @@ export function AdminPage() {
       duration: lessonForm.duration === '' ? null : Number(lessonForm.duration),
     };
     void runMutation(
-      () => api.saveLesson(token, body, selectedCourse.id, editingLessonId ?? undefined),
+      () => adminRepositories.courses.saveLesson(token, body, selectedCourse.id, editingLessonId ?? undefined),
       editingLessonId ? 'Đã cập nhật bài học.' : 'Đã thêm bài học.',
       true,
     ).then(() => {
@@ -462,7 +478,7 @@ export function AdminPage() {
     const next = [...orderedLessons];
     [next[index], next[target]] = [next[target], next[index]];
     void runMutation(
-      () => api.reorderLessons(token, selectedCourse.id, next.map((lesson) => lesson.id)),
+      () => adminRepositories.courses.reorderLessons(token, selectedCourse.id, next.map((lesson) => lesson.id)),
       'Đã cập nhật thứ tự bài học.',
       true,
     );
@@ -472,7 +488,7 @@ export function AdminPage() {
     event.preventDefault();
     if (!token || !selectedCourse) return;
     void runMutation(
-      () => api.saveQuiz(token, selectedCourse.id, { title: quizTitle, pass_score: Number(quizPassScore), max_attempts: Number(quizMaxAttempts) }),
+      () => adminRepositories.courses.saveQuiz(token, selectedCourse.id, { title: quizTitle, pass_score: Number(quizPassScore), max_attempts: Number(quizMaxAttempts) }),
       'Đã lưu cấu hình bài kiểm tra.',
       true,
     );
@@ -490,7 +506,7 @@ export function AdminPage() {
     if (!token || !selectedCourse?.quiz) return;
     const body = { content: questionContent, options: questionOptions };
     void runMutation(
-      () => editingQuestionId ? api.updateQuestion(token, editingQuestionId, body) : api.saveQuestion(token, selectedCourse.quiz!.id, body),
+      () => editingQuestionId ? adminRepositories.courses.updateQuestion(token, editingQuestionId, body) : adminRepositories.courses.saveQuestion(token, selectedCourse.quiz!.id, body),
       editingQuestionId ? 'Đã cập nhật câu hỏi.' : 'Đã thêm câu hỏi.',
       true,
     ).then(() => {
@@ -534,7 +550,7 @@ export function AdminPage() {
     { key: 'questions', header: 'Câu hỏi', align: 'center', render: (course) => course.questions_count ?? 0 },
     { key: 'enrollments', header: 'Ghi danh', align: 'center', render: (course) => course.enrollments_count ?? 0 },
     { key: 'status', header: 'Trạng thái', render: (course) => <StatusChip status={course.status} /> },
-    { key: 'actions', header: 'Thao tác', align: 'right', render: (course) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => void selectContent(course.id)}>Nội dung</Button><Button size="small" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => beginCourseEdit(course)}>Sửa</Button><Button size="small" variant="outlined" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => token && void runMutation(() => api.publishCourse(token, course.id, course.status === 'published' ? 'draft' : 'published'), 'Đã cập nhật trạng thái xuất bản.')}>{course.status === 'published' ? 'Ẩn' : 'Xuất bản'}</Button><Button size="small" color="error" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => token && requestConfirmation('Xóa khóa học', course.title, () => api.deleteCourse(token, course.id), 'Đã xóa khóa học.')}>Xóa</Button></Stack> },
+    { key: 'actions', header: 'Thao tác', align: 'right', render: (course) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => void selectContent(course.id)}>Nội dung</Button><Button size="small" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => beginCourseEdit(course)}>Sửa</Button><Button size="small" variant="outlined" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => token && void runMutation(() => adminRepositories.courses.publish(token, course.id, course.status === 'published' ? 'draft' : 'published'), 'Đã cập nhật trạng thái xuất bản.')}>{course.status === 'published' ? 'Ẩn' : 'Xuất bản'}</Button><Button size="small" color="error" sx={{ minWidth: 'auto', px: 0.75, whiteSpace: 'nowrap' }} onClick={() => token && requestConfirmation('Xóa khóa học', course.title, () => adminRepositories.courses.remove(token, course.id), 'Đã xóa khóa học.')}>Xóa</Button></Stack> },
   ];
 
   if (loading && !stats) {
@@ -545,10 +561,20 @@ export function AdminPage() {
     <Box sx={{ minHeight: '100dvh' }}>
       <AdminShell active={tab} onChange={setTab}>
         <Stack spacing={3}>
-          <AdminSectionHeader title={adminSectionCopy[tab].title} description={adminSectionCopy[tab].description} />
+          {!['lessons', 'quizzes', 'enrollments', 'quizAttempts', 'certificates'].includes(tab) && (
+            <AdminSectionHeader title={adminSectionCopy[tab].title} description={adminSectionCopy[tab].description} />
+          )}
           {notice && <Alert severity="success" onClose={() => setNotice(null)}>{notice}</Alert>}
           {error && <RequestError message={error} onRetry={() => void load(tab, true)} />}
           <Stack spacing={3} sx={{ minWidth: 0 }}>
+
+          {['lessons', 'quizzes', 'enrollments', 'quizAttempts', 'certificates'].includes(tab) && (
+            <AdminEntityPage
+              title={adminSectionCopy[tab].title}
+              description={adminSectionCopy[tab].description}
+              status="placeholder"
+            />
+          )}
 
           {tab === 'overview' && stats && <AdminOverview stats={stats} />}
 
@@ -570,7 +596,7 @@ export function AdminPage() {
                   { key: 'enrollments', header: 'Khóa đã đăng ký', align: 'center', render: (user) => user.enrollments_count ?? 0 },
                   { key: 'createdAt', header: 'Ngày tạo', render: (user) => new Date(user.created_at).toLocaleDateString('vi-VN') },
                   { key: 'status', header: 'Trạng thái', render: (user) => <StatusChip status={user.status} /> },
-                  { key: 'actions', header: 'Thao tác', align: 'right', render: (user) => <Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => api.updateUserStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button> },
+                  { key: 'actions', header: 'Thao tác', align: 'right', render: (user) => <Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => adminRepositories.users.updateStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button> },
                 ] satisfies AdminColumn<ApiUser>[]}
                 minWidth={980}
                 stickyFirstColumn
@@ -582,7 +608,7 @@ export function AdminPage() {
 
           {tab === 'categories' && <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(260px, .6fr) 1fr' }, gap: 3 }}>
             <Card component="form" onSubmit={submitCategory} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingCategory ? 'Sửa danh mục' : 'Tạo danh mục'}</Typography><TextField required label="Tên danh mục" value={categoryName} onChange={(event) => setCategoryName(event.target.value)} /><TextField label="Mô tả" multiline minRows={3} value={categoryDescription} onChange={(event) => setCategoryDescription(event.target.value)} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingCategory ? 'Cập nhật' : 'Lưu danh mục'}</Button>{editingCategory && <Button onClick={() => { setEditingCategory(null); setCategoryName(''); setCategoryDescription(''); }}>Hủy</Button>}</Stack></Stack></CardContent></Card>
-            <Card sx={{ borderRadius: 3 }}><CardContent><Stack divider={<Divider flexItem />}>{categories.map((category) => <Stack key={category.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{category.name}</Typography><Typography variant="body2" color="text.secondary">{category.description || 'Chưa có mô tả'}</Typography></Box><Button size="small" onClick={() => { setEditingCategory(category); setCategoryName(category.name); setCategoryDescription(category.description ?? ''); }}>Sửa</Button><Button color="error" size="small" onClick={() => token && requestConfirmation('Xóa danh mục', category.name, () => api.deleteCategory(token, category.id), 'Đã xóa danh mục.')}>Xóa</Button></Stack>)}{categories.length === 0 && <EmptyState title="Chưa có danh mục." />}</Stack></CardContent></Card>
+            <Card sx={{ borderRadius: 3 }}><CardContent><Stack divider={<Divider flexItem />}>{categories.map((category) => <Stack key={category.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{category.name}</Typography><Typography variant="body2" color="text.secondary">{category.description || 'Chưa có mô tả'}</Typography></Box><Button size="small" onClick={() => { setEditingCategory(category); setCategoryName(category.name); setCategoryDescription(category.description ?? ''); }}>Sửa</Button><Button color="error" size="small" onClick={() => token && requestConfirmation('Xóa danh mục', category.name, () => adminRepositories.categories.remove(token, category.id), 'Đã xóa danh mục.')}>Xóa</Button></Stack>)}{categories.length === 0 && <EmptyState title="Chưa có danh mục." />}</Stack></CardContent></Card>
           </Box>}
 
           {tab === 'courses' && <Stack spacing={2}>
@@ -606,9 +632,9 @@ export function AdminPage() {
             <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Chọn khóa học</Typography><Stack divider={<Divider flexItem />} sx={{ mt: 1 }}>{courses?.data.map((course) => <Button key={course.id} onClick={() => void selectContent(course.id)} color="inherit" sx={{ justifyContent: 'flex-start', textAlign: 'left', py: 1.5, fontWeight: selectedCourse?.id === course.id ? 800 : 400 }}>{course.title}</Button>)}</Stack></CardContent></Card>
             <Stack spacing={3}><>
               <Card component="form" onSubmit={submitLesson} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingLessonId ? 'Sửa bài học' : `Thêm bài học cho ${selectedCourse.title}`}</Typography><TextField required label="Tiêu đề bài học" value={lessonForm.title} onChange={(event) => setLessonForm({ ...lessonForm, title: event.target.value })} /><TextField required label="Video embed URL" value={lessonForm.video_url} onChange={(event) => setLessonForm({ ...lessonForm, video_url: event.target.value })} /><TextField label="Mô tả" multiline minRows={2} value={lessonForm.description} onChange={(event) => setLessonForm({ ...lessonForm, description: event.target.value })} /><TextField label="Thời lượng (giây)" type="number" value={lessonForm.duration} onChange={(event) => setLessonForm({ ...lessonForm, duration: event.target.value })} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingLessonId ? 'Cập nhật bài học' : 'Thêm bài học'}</Button>{editingLessonId && <Button onClick={() => { setEditingLessonId(null); setLessonForm(blankLesson); }}>Hủy</Button>}</Stack></Stack></CardContent></Card>
-              <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Thứ tự bài học</Typography><Stack divider={<Divider flexItem />} sx={{ mt: 1 }}>{orderedLessons.map((lesson, index) => <Stack key={lesson.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{lesson.position}. {lesson.title}</Typography><Typography variant="body2" color="text.secondary">{lesson.duration ? `${lesson.duration} giây` : 'Chưa có thời lượng'}</Typography></Box><Button size="small" disabled={index === 0} onClick={() => moveLesson(lesson.id, -1)} aria-label={`Di chuyển bài học ${lesson.position} lên`}>Lên</Button><Button size="small" disabled={index === orderedLessons.length - 1} onClick={() => moveLesson(lesson.id, 1)} aria-label={`Di chuyển bài học ${lesson.position} xuống`}>Xuống</Button><Button size="small" onClick={() => { setEditingLessonId(lesson.id); setLessonForm({ title: lesson.title, video_url: lesson.video_url, description: lesson.description ?? '', duration: lesson.duration === null ? '' : String(lesson.duration) }); }}>Sửa</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa bài học', lesson.title, () => api.deleteLesson(token, lesson.id), 'Đã xóa bài học.', true)}>Xóa</Button></Stack>)}{orderedLessons.length === 0 && <EmptyState title="Khóa học chưa có bài học." />}</Stack></CardContent></Card>
+              <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Thứ tự bài học</Typography><Stack divider={<Divider flexItem />} sx={{ mt: 1 }}>{orderedLessons.map((lesson, index) => <Stack key={lesson.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{lesson.position}. {lesson.title}</Typography><Typography variant="body2" color="text.secondary">{lesson.duration ? `${lesson.duration} giây` : 'Chưa có thời lượng'}</Typography></Box><Button size="small" disabled={index === 0} onClick={() => moveLesson(lesson.id, -1)} aria-label={`Di chuyển bài học ${lesson.position} lên`}>Lên</Button><Button size="small" disabled={index === orderedLessons.length - 1} onClick={() => moveLesson(lesson.id, 1)} aria-label={`Di chuyển bài học ${lesson.position} xuống`}>Xuống</Button><Button size="small" onClick={() => { setEditingLessonId(lesson.id); setLessonForm({ title: lesson.title, video_url: lesson.video_url, description: lesson.description ?? '', duration: lesson.duration === null ? '' : String(lesson.duration) }); }}>Sửa</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa bài học', lesson.title, () => adminRepositories.courses.removeLesson(token, lesson.id), 'Đã xóa bài học.', true)}>Xóa</Button></Stack>)}{orderedLessons.length === 0 && <EmptyState title="Khóa học chưa có bài học." />}</Stack></CardContent></Card>
               <Card component="form" onSubmit={submitQuiz} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>Bài kiểm tra cuối khóa</Typography><TextField required label="Tiêu đề bài kiểm tra" value={quizTitle} onChange={(event) => setQuizTitle(event.target.value)} /><TextField required label="Điểm đạt" type="number" inputProps={{ min: 1, max: 100 }} value={quizPassScore} onChange={(event) => setQuizPassScore(event.target.value)} /><TextField required label="Số lần làm tối đa" type="number" inputProps={{ min: 1, max: 20 }} value={quizMaxAttempts} onChange={(event) => setQuizMaxAttempts(event.target.value)} /><Button type="submit" variant="outlined">Lưu bài kiểm tra</Button></Stack></CardContent></Card>
-              {selectedCourse.quiz && <Card component="form" onSubmit={submitQuestion} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Stack direction="row" justifyContent="space-between" alignItems="center"><Typography component="h2" variant="h6" fontWeight={800}>{editingQuestionId ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}</Typography>{editingQuestionId && <Button size="small" onClick={() => { setEditingQuestionId(null); setQuestionContent(''); setQuestionOptions(blankQuestionOptions); }}>Tạo câu hỏi mới</Button>}</Stack><Stack direction="row" spacing={1} flexWrap="wrap">{selectedCourse.quiz.questions.map((question) => <Button key={question.id} size="small" variant={question.id === editingQuestionId ? 'contained' : 'outlined'} onClick={() => chooseQuestion(question)}>Câu hỏi {question.id}</Button>)}</Stack><TextField required label="Câu hỏi" value={questionContent} onChange={(event) => setQuestionContent(event.target.value)} />{questionOptions.map((option, index) => <Stack key={index} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}><TextField required fullWidth label={`Phương án ${index + 1}`} value={option.content} onChange={(event) => updateQuestionOption(index, { content: event.target.value })} /><RadioGroup row value={String(index)} onChange={() => markCorrectOption(index)}><FormControlLabel value={String(index)} control={<Radio checked={option.is_correct} />} label="Đáp án đúng" /></RadioGroup>{questionOptions.length > 2 && <Button color="error" onClick={() => setQuestionOptions((options) => options.filter((_, optionIndex) => optionIndex !== index))}>Xóa</Button>}</Stack>)}<Button onClick={() => setQuestionOptions((options) => [...options, { content: '', is_correct: false }])}>Thêm phương án</Button><Button type="submit" variant="contained">{editingQuestionId ? 'Cập nhật câu hỏi' : 'Lưu câu hỏi'}</Button>{editingQuestionId && <Button color="error" onClick={() => token && requestConfirmation('Xóa câu hỏi', questionContent || `Câu hỏi ${editingQuestionId}`, () => api.deleteQuestion(token, editingQuestionId), 'Đã xóa câu hỏi.', true)}>Xóa câu hỏi</Button>}</Stack></CardContent></Card>}
+              {selectedCourse.quiz && <Card component="form" onSubmit={submitQuestion} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Stack direction="row" justifyContent="space-between" alignItems="center"><Typography component="h2" variant="h6" fontWeight={800}>{editingQuestionId ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}</Typography>{editingQuestionId && <Button size="small" onClick={() => { setEditingQuestionId(null); setQuestionContent(''); setQuestionOptions(blankQuestionOptions); }}>Tạo câu hỏi mới</Button>}</Stack><Stack direction="row" spacing={1} flexWrap="wrap">{selectedCourse.quiz.questions.map((question) => <Button key={question.id} size="small" variant={question.id === editingQuestionId ? 'contained' : 'outlined'} onClick={() => chooseQuestion(question)}>Câu hỏi {question.id}</Button>)}</Stack><TextField required label="Câu hỏi" value={questionContent} onChange={(event) => setQuestionContent(event.target.value)} />{questionOptions.map((option, index) => <Stack key={index} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}><TextField required fullWidth label={`Phương án ${index + 1}`} value={option.content} onChange={(event) => updateQuestionOption(index, { content: event.target.value })} /><RadioGroup row value={String(index)} onChange={() => markCorrectOption(index)}><FormControlLabel value={String(index)} control={<Radio checked={option.is_correct} />} label="Đáp án đúng" /></RadioGroup>{questionOptions.length > 2 && <Button color="error" onClick={() => setQuestionOptions((options) => options.filter((_, optionIndex) => optionIndex !== index))}>Xóa</Button>}</Stack>)}<Button onClick={() => setQuestionOptions((options) => [...options, { content: '', is_correct: false }])}>Thêm phương án</Button><Button type="submit" variant="contained">{editingQuestionId ? 'Cập nhật câu hỏi' : 'Lưu câu hỏi'}</Button>{editingQuestionId && <Button color="error" onClick={() => token && requestConfirmation('Xóa câu hỏi', questionContent || `Câu hỏi ${editingQuestionId}`, () => adminRepositories.courses.removeQuestion(token, editingQuestionId), 'Đã xóa câu hỏi.', true)}>Xóa câu hỏi</Button>}</Stack></CardContent></Card>}
             </></Stack>
           </Box>}
 
@@ -637,7 +663,7 @@ export function AdminPage() {
                     { key: 'category', header: 'Danh mục', render: (newsPost) => newsPost.category },
                     { key: 'status', header: 'Trạng thái', render: (newsPost) => <StatusChip status={newsPost.status} /> },
                     { key: 'published', header: 'Ngày xuất bản', render: (newsPost) => newsPost.published_at ? new Date(newsPost.published_at).toLocaleDateString('vi-VN') : '—' },
-                    { key: 'actions', header: 'Thao tác', align: 'right', render: (newsPost) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" onClick={() => beginNewsEdit(newsPost)}>Sửa</Button><Button size="small" variant="outlined" onClick={() => changeNewsStatus(newsPost)}>{newsPost.status === 'draft' ? 'Xuất bản' : 'Chuyển về nháp'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa tin tức', newsPost.title, () => api.deleteNews(token, newsPost.id), 'Đã xóa tin tức.')}>Xóa</Button></Stack> },
+                    { key: 'actions', header: 'Thao tác', align: 'right', render: (newsPost) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" onClick={() => beginNewsEdit(newsPost)}>Sửa</Button><Button size="small" variant="outlined" onClick={() => changeNewsStatus(newsPost)}>{newsPost.status === 'draft' ? 'Xuất bản' : 'Chuyển về nháp'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa tin tức', newsPost.title, () => adminRepositories.news.remove(token, newsPost.id), 'Đã xóa tin tức.')}>Xóa</Button></Stack> },
                   ] satisfies AdminColumn<ApiNewsPost>[]}
                 /> : <EmptyState title="Không có tin tức phù hợp." />}
               </CardContent>
@@ -680,7 +706,7 @@ export function AdminPage() {
                   { key: 'rating', header: 'Điểm', align: 'center', render: (review) => `${review.rating}/5` },
                   { key: 'comment', header: 'Nhận xét', render: (review) => <Typography variant="body2" sx={{ minWidth: 220, maxWidth: 360, overflowWrap: 'anywhere' }}>{review.comment || 'Không có nhận xét'}</Typography> },
                   { key: 'status', header: 'Trạng thái', render: (review) => <StatusChip status={review.status} /> },
-                  { key: 'actions', header: 'Thao tác', align: 'right', render: (review) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" variant="outlined" onClick={() => token && void runMutation(() => api.updateReviewStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'), 'Đã cập nhật trạng thái đánh giá.')}>{review.status === 'visible' ? 'Ẩn' : 'Hiện'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, () => api.deleteReview(token, review.id), 'Đã xóa đánh giá.')}>Xóa</Button></Stack> },
+                  { key: 'actions', header: 'Thao tác', align: 'right', render: (review) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" variant="outlined" onClick={() => token && void runMutation(() => adminRepositories.reviews.updateStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'), 'Đã cập nhật trạng thái đánh giá.')}>{review.status === 'visible' ? 'Ẩn' : 'Hiện'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, () => adminRepositories.reviews.remove(token, review.id), 'Đã xóa đánh giá.')}>Xóa</Button></Stack> },
                 ] satisfies AdminColumn<ApiReview>[]}
               /> : <EmptyState title="Không có đánh giá phù hợp." />}
             </CardContent></Card>

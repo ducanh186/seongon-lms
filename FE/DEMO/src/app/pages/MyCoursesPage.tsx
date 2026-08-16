@@ -17,7 +17,8 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { Link, useLocation } from 'react-router';
-import { api, ApiError } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiEnrollment, ApiEnrollmentSummary, Paginated } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
 import { PageSkeleton } from '../components/AsyncState';
@@ -51,7 +52,7 @@ export function MyCoursesPage() {
     let active = true;
     setLoading(true);
     setError(null);
-    api.myCourses(token, page)
+    applicationRepositories.learning.listMyCourses(token, page)
       .then((response) => {
         if (!active) return;
         setEnrollments(response.data);
@@ -82,7 +83,7 @@ export function MyCoursesPage() {
     if (!token) return;
 
     try {
-      const blob = await api.downloadCertificate(token, enrollment.course_id);
+      const blob = await applicationRepositories.learning.downloadCertificate(token, enrollment.course_id);
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;

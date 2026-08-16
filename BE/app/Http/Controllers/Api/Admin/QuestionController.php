@@ -3,20 +3,20 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Exam;
 use App\Models\Question;
-use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class QuestionController extends Controller
 {
-    public function store(Request $request, Quiz $quiz)
+    public function store(Request $request, Exam $quiz)
     {
         $data = $this->validateData($request);
 
         $question = DB::transaction(function () use ($quiz, $data) {
             $question = $quiz->questions()->create(['content' => $data['content']]);
-            $question->options()->createMany($data['options']);
+            $question->answers()->createMany($data['options']);
 
             return $question;
         });
@@ -30,8 +30,8 @@ class QuestionController extends Controller
 
         DB::transaction(function () use ($question, $data) {
             $question->update(['content' => $data['content']]);
-            $question->options()->delete();
-            $question->options()->createMany($data['options']);
+            $question->answers()->delete();
+            $question->answers()->createMany($data['options']);
         });
 
         return response()->json($question->load('options'));

@@ -34,23 +34,16 @@ function uniqueByCourseId(items: CartItem[]): CartItem[] {
 
 export function readCart(userId: number): CartItem[] {
   const key = cartKey(userId);
-  try {
-    const stored = localStorage.getItem(key);
-    if (!stored) return [];
-
-    const parsed: unknown = JSON.parse(stored);
-    if (!Array.isArray(parsed) || !parsed.every(isCartItem)) {
-      localStorage.removeItem(key);
-      return [];
-    }
-
-    return uniqueByCourseId(parsed);
-  } catch {
-    localStorage.removeItem(key);
+  const parsed = localStorageAdapter.read<unknown>(key);
+  if (!Array.isArray(parsed) || !parsed.every(isCartItem)) {
+    if (parsed !== null) localStorageAdapter.remove(key);
     return [];
   }
+
+  return uniqueByCourseId(parsed);
 }
 
 export function writeCart(userId: number, items: CartItem[]): void {
-  localStorage.setItem(cartKey(userId), JSON.stringify(uniqueByCourseId(items)));
+  localStorageAdapter.write(cartKey(userId), uniqueByCourseId(items));
 }
+import { localStorageAdapter } from '../data/adapters/LocalStorageAdapter';

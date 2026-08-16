@@ -11,15 +11,15 @@ class Lesson extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'title', 'video_url', 'description', 'duration', 'position'];
+    protected $fillable = ['course_id', 'title', 'video_url', 'description', 'duration', 'sort_order'];
 
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
     }
 
-    public function progress(): HasMany
+    public function learningProgress(): HasMany
     {
-        return $this->hasMany(LessonProgress::class);
+        return $this->hasMany(LearningProgress::class);
     }
 }

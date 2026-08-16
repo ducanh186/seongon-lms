@@ -1,0 +1,40 @@
+import { api } from '../../lib/api';
+
+// Current persistence adapter: Laravel JSON API.
+// ERD_PENDING: split or remap these boundaries only against the approved ERD/API contract.
+export const applicationRepositories = {
+  auth: {
+    me: api.me,
+    login: api.login,
+    register: api.register,
+    logout: api.logout,
+  },
+  catalog: {
+    listCategories: api.categories,
+    listCourses: api.courses,
+    getCourse: api.course,
+    listReviews: api.reviews,
+  },
+  learning: {
+    listMyCourses: api.myCourses,
+    listLessons: api.lessons,
+    getProgress: api.progress,
+    completeLesson: api.completeLesson,
+    getQuiz: api.quiz,
+    submitQuiz: api.submitQuiz,
+    reviewCourse: api.reviewCourse,
+    downloadCertificate: api.downloadCertificate,
+  },
+  checkout: {
+    createOrder: api.createOrder,
+    payOrder: api.payOrder,
+  },
+  news: {
+    list: api.news,
+    get: api.newsPost,
+  },
+  profile: {
+    update: api.updateProfile,
+    updatePassword: api.updatePassword,
+  },
+} as const;

@@ -2,19 +2,19 @@
 
 namespace Database\Seeders;
 
+use App\Models\Answer;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Exam;
+use App\Models\LearningProgress;
 use App\Models\Lesson;
-use App\Models\LessonProgress;
 use App\Models\Order;
 use App\Models\Question;
-use App\Models\QuestionOption;
-use App\Models\Quiz;
 use App\Models\Review;
 use App\Models\User;
-use App\Support\DemoCourseThumbnail;
 use App\Support\CuratedDemoCatalog;
+use App\Support\DemoCourseThumbnail;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -157,11 +157,11 @@ class GeneratedDemoCatalogSeeder extends Seeder
                 'video_url' => "https://www.youtube.com/embed/{$videoId}",
                 'description' => sprintf('%s — nội dung thực hành cho chủ đề %s.', $lessonTitle, $topic),
                 'duration' => 600 + ($index * 180),
-                'position' => $index + 1,
+                'sort_order' => $index + 1,
             ]);
         }
 
-        $quiz = Quiz::query()->create([
+        $exam = Exam::query()->create([
             'course_id' => $course->id,
             'title' => 'Bài kiểm tra cuối khóa',
             'pass_score' => 75,
@@ -170,12 +170,12 @@ class GeneratedDemoCatalogSeeder extends Seeder
 
         foreach (self::QUIZ_QUESTIONS as $questionData) {
             $question = Question::query()->create([
-                'quiz_id' => $quiz->id,
+                'exam_id' => $exam->id,
                 'content' => $questionData['content'],
             ]);
 
             foreach ($questionData['options'] as $optionIndex => $optionContent) {
-                QuestionOption::query()->create([
+                Answer::query()->create([
                     'question_id' => $question->id,
                     'content' => $optionContent,
                     'is_correct' => $optionIndex === 0,
@@ -212,7 +212,7 @@ class GeneratedDemoCatalogSeeder extends Seeder
                 $completedLessons = ($studentIndex + $slot) % 5;
 
                 foreach ($course->lessons->take($completedLessons) as $lesson) {
-                    LessonProgress::query()->create([
+                    LearningProgress::query()->create([
                         'enrollment_id' => $enrollment->id,
                         'lesson_id' => $lesson->id,
                         'is_completed' => true,

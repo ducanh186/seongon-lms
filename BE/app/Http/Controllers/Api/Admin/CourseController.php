@@ -28,7 +28,7 @@ class CourseController extends Controller
 
     public function show(Course $course)
     {
-        $course->load(['category', 'lessons', 'quiz.questions.options'])
+        $course->load(['category', 'lessons', 'quiz.questions.answers'])
             ->loadCount(['lessons', 'enrollments', 'reviews']);
 
         return new AdminCourseResource($course);

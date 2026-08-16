@@ -15,7 +15,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { CourseCard } from '../components/CourseCard';
-import { api, ApiError } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiCategory, ApiCourse, Paginated } from '../lib/contracts';
 import { layoutTokens } from '../theme';
 
@@ -54,7 +55,7 @@ export function CatalogPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.categories().then(({ data }) => setCategories(data)).catch(() => setCategories([]));
+    applicationRepositories.catalog.listCategories().then(({ data }) => setCategories(data)).catch(() => setCategories([]));
   }, []);
 
   useEffect(() => {
@@ -62,7 +63,7 @@ export function CatalogPage() {
     setError(null);
     setCatalog(null);
 
-    api.courses({
+    applicationRepositories.catalog.listCourses({
       q: applied.q || undefined,
       category: applied.category || undefined,
       level: applied.level || undefined,

@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class LessonProgress extends Model
+class LearningProgress extends Model
 {
     use HasFactory;
 
-    protected $table = 'lesson_progress';
+    protected $table = 'learning_progress';
 
     protected $fillable = ['enrollment_id', 'lesson_id', 'is_completed', 'completed_at'];
 

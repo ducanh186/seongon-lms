@@ -21,7 +21,7 @@ class QuizResource extends JsonResource
             'questions' => $this->whenLoaded('questions', fn () => $this->questions->map(fn ($q) => [
                 'id' => $q->id,
                 'content' => $q->content,
-                'options' => $q->options->map(fn ($o) => [
+                'options' => $q->answers->map(fn ($o) => [
                     'id' => $o->id,
                     'content' => $o->content,
                 ])->values(),

@@ -9,7 +9,8 @@ vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 describe('AdminShell', () => {
   it('uses a full-width Admin header and ordered horizontal navigation without a sidebar', () => {
     const onChange = vi.fn();
-    useAuth.mockReturnValue({ user: { name: 'SEONGON Admin', role: 'admin' }, logout: vi.fn() });
+    const logout = vi.fn();
+    useAuth.mockReturnValue({ user: { name: 'SEONGON Admin', role: 'admin' }, logout });
 
     render(<MemoryRouter><AdminShell active="courses" onChange={onChange}><p>Nội dung quản trị</p></AdminShell></MemoryRouter>);
 
@@ -19,11 +20,16 @@ describe('AdminShell', () => {
     expect(within(banner).getByText('Admin Portal')).toBeInTheDocument();
     expect(within(banner).getByText('SEONGON Admin')).toBeInTheDocument();
     expect(within(banner).getByRole('link', { name: 'Xem site public' })).toHaveAttribute('href', '/');
+    fireEvent.click(within(banner).getByRole('button', { name: 'Đăng xuất' }));
+    expect(logout).toHaveBeenCalledOnce();
 
     const navigation = screen.getByRole('navigation', { name: 'Quản trị' });
     expect(within(navigation).getAllByRole('button').map((button) => button.textContent)).toEqual([
-      'Tổng quan', 'Học viên', 'Danh mục', 'Khóa học', 'Đánh giá', 'Tin tức',
+      'Tổng quan', 'Khóa học', 'Danh mục', 'Bài học', 'Bài kiểm tra',
+      'Học viên', 'Ghi danh', 'Kết quả bài kiểm tra', 'Chứng chỉ', 'Đánh giá', 'Tin tức',
     ]);
+    expect(within(navigation).getByRole('region', { name: 'Nội dung' })).toBeInTheDocument();
+    expect(within(navigation).getByRole('region', { name: 'Học tập' })).toBeInTheDocument();
     expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'true');
     expect(navigation).toHaveStyle({ overflowX: 'auto' });
     expect(screen.getByRole('main')).toHaveStyle({ overflowX: 'hidden' });

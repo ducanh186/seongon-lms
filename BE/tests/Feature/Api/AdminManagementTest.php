@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Answer;
 use App\Models\Category;
-use App\Models\Course;
 use App\Models\Certificate;
+use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Exam;
 use App\Models\Lesson;
 use App\Models\Question;
-use App\Models\QuestionOption;
-use App\Models\Quiz;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -67,8 +67,8 @@ class AdminManagementTest extends TestCase
         $admin = User::factory()->admin()->create();
         $course = Course::factory()->create();
         Lesson::factory()->count(2)->create(['course_id' => $course->id]);
-        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
-        Question::factory()->count(3)->create(['quiz_id' => $quiz->id]);
+        $quiz = Exam::factory()->create(['course_id' => $course->id]);
+        Question::factory()->count(3)->create(['exam_id' => $quiz->id]);
         Enrollment::factory()->count(4)->create(['course_id' => $course->id]);
         $token = $admin->createToken('test')->plainTextToken;
 
@@ -98,9 +98,9 @@ class AdminManagementTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $course = Course::factory()->create();
-        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
-        $question = Question::factory()->create(['quiz_id' => $quiz->id, 'content' => 'Cau hoi?']);
-        QuestionOption::factory()->correct()->create(['question_id' => $question->id, 'content' => 'Dung']);
+        $quiz = Exam::factory()->create(['course_id' => $course->id]);
+        $question = Question::factory()->create(['exam_id' => $quiz->id, 'content' => 'Cau hoi?']);
+        Answer::factory()->correct()->create(['question_id' => $question->id, 'content' => 'Dung']);
         $token = $admin->createToken('test')->plainTextToken;
 
         $this->withToken($token)->getJson("/api/v1/admin/courses/{$course->id}")
@@ -199,15 +199,15 @@ class AdminManagementTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $course = Course::factory()->create();
-        $first = Lesson::factory()->create(['course_id' => $course->id, 'position' => 1]);
-        $second = Lesson::factory()->create(['course_id' => $course->id, 'position' => 2]);
+        $first = Lesson::factory()->create(['course_id' => $course->id, 'sort_order' => 1]);
+        $second = Lesson::factory()->create(['course_id' => $course->id, 'sort_order' => 2]);
         $token = $admin->createToken('test')->plainTextToken;
 
         $this->withToken($token)->patchJson("/api/v1/admin/courses/{$course->id}/lessons/reorder", [
             'order' => [$second->id, $first->id],
         ])->assertOk()->assertJsonPath('data.0.id', $second->id);
 
-        $this->assertDatabaseHas('lessons', ['id' => $second->id, 'position' => 1]);
+        $this->assertDatabaseHas('lessons', ['id' => $second->id, 'sort_order' => 1]);
     }
 
     public function test_admin_can_update_and_delete_category_course_lesson_and_question(): void
@@ -216,10 +216,10 @@ class AdminManagementTest extends TestCase
         $category = Category::factory()->create();
         $course = Course::factory()->create(['category_id' => $category->id]);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
-        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
-        $question = Question::factory()->create(['quiz_id' => $quiz->id]);
-        QuestionOption::factory()->correct()->create(['question_id' => $question->id]);
-        QuestionOption::factory()->create(['question_id' => $question->id]);
+        $quiz = Exam::factory()->create(['course_id' => $course->id]);
+        $question = Question::factory()->create(['exam_id' => $quiz->id]);
+        Answer::factory()->correct()->create(['question_id' => $question->id]);
+        Answer::factory()->create(['question_id' => $question->id]);
         $token = $admin->createToken('test')->plainTextToken;
 
         $this->withToken($token)->putJson("/api/v1/admin/categories/{$category->id}", [

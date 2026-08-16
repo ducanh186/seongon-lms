@@ -115,7 +115,7 @@ describe('AdminPage', () => {
     await waitFor(() => expect(adminUsers).toHaveBeenCalledTimes(1));
   });
 
-  it('exposes the six-section management navigation and updates its active state', async () => {
+  it('exposes the grouped ERD-ready navigation and renders pending entities honestly', async () => {
     mockAdminData();
     render(<AdminPage />);
     const user = userEvent.setup();
@@ -123,9 +123,14 @@ describe('AdminPage', () => {
     const navigation = await screen.findByRole('navigation', { name: 'Quản trị' });
     expect(within(navigation).getAllByRole('button').map((button) => button.textContent)).toEqual([
       'Tổng quan',
-      'Học viên',
-      'Danh mục',
       'Khóa học',
+      'Danh mục',
+      'Bài học',
+      'Bài kiểm tra',
+      'Học viên',
+      'Ghi danh',
+      'Kết quả bài kiểm tra',
+      'Chứng chỉ',
       'Đánh giá',
       'Tin tức',
     ]);
@@ -136,6 +141,10 @@ describe('AdminPage', () => {
     expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('table', { name: 'Danh sách khóa học' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Danh sách khóa học, có thể cuộn ngang' })).toHaveAttribute('tabindex', '0');
+
+    await user.click(within(navigation).getByRole('button', { name: 'Ghi danh' }));
+    expect(screen.getByRole('heading', { name: 'Quản lý ghi danh' })).toBeInTheDocument();
+    expect(screen.getByText('Chức năng đang chờ đối chiếu ERD chính thức.')).toBeInTheDocument();
   });
 
   it('keeps Course management list-first with aligned aggregate columns', async () => {

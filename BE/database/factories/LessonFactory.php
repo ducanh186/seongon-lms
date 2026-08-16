@@ -16,7 +16,7 @@ class LessonFactory extends Factory
             'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
             'description' => fake()->sentence(),
             'duration' => fake()->numberBetween(120, 1800),
-            'position' => 1,
+            'sort_order' => 1,
         ];
     }
 }

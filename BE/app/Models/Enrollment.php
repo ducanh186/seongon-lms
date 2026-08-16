@@ -42,14 +42,14 @@ class Enrollment extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function lessonProgress(): HasMany
+    public function learningProgress(): HasMany
     {
-        return $this->hasMany(LessonProgress::class);
+        return $this->hasMany(LearningProgress::class);
     }
 
-    public function quizAttempts(): HasMany
+    public function attempts(): HasMany
     {
-        return $this->hasMany(QuizAttempt::class);
+        return $this->hasMany(Attempt::class);
     }
 
     public function certificate(): HasOne

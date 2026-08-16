@@ -17,6 +17,9 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
 
   return (
     <Stack spacing={3}>
+      <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'flex-end' }}>
+        DEMO / ERD_PENDING
+      </Typography>
       <Box
         data-testid="admin-kpi-strip"
         sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}

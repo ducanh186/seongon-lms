@@ -11,15 +11,26 @@ class Question extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['quiz_id', 'content'];
+    protected $fillable = ['exam_id', 'content', 'sort_order'];
 
-    public function quiz(): BelongsTo
+    public function exam(): BelongsTo
     {
-        return $this->belongsTo(Quiz::class);
+        return $this->belongsTo(Exam::class);
     }
 
+    public function answers(): HasMany
+    {
+        return $this->hasMany(Answer::class);
+    }
+
+    /**
+     * Expand-phase alias for answers(). Admin\QuizController and
+     * Admin\QuestionController serialise raw models, so the relation name is part
+     * of the JSON contract the frontend reads. Delete once the frontend moves to
+     * `answers` in P3.
+     */
     public function options(): HasMany
     {
-        return $this->hasMany(QuestionOption::class);
+        return $this->answers();
     }
 }

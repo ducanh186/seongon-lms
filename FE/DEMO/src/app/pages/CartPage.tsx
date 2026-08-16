@@ -3,7 +3,8 @@ import { Alert, Box, Button, Card, CardContent, Container, Divider, Stack, Typog
 import { Link } from 'react-router';
 import { EmptyState } from '../components/AsyncState';
 import { useCart } from '../cart/CartContext';
-import { api, ApiError } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { CartItem } from '../cart/cartStorage';
 
 function formatPrice(price: string): string {
@@ -29,7 +30,7 @@ export function CartPage() {
 
     void Promise.all(items.map(async (item) => {
       try {
-        const { data: course } = await api.course(item.slug);
+          const { data: course } = await applicationRepositories.catalog.getCourse(item.slug);
         return {
           item: {
             courseId: course.id,

@@ -65,8 +65,15 @@ yarn-error.log*
 /Infra/.native-runtime/
 
 # ===== Non-product workspace artifacts =====
-/SPEC/
-/docs/
+/SPEC/*
+!/SPEC/raw_feedback.txt
+!/SPEC/feedback_cleaned.md
+!/SPEC/seongon_learning_prototype_v3.html
+/docs/*
+!/docs/SEONGON_LMS_SPEC.md
+!/docs/ERD_P1.png
+!/docs/ERD_FEATURE_GAPS.md
+!/docs/ERD_IMPLEMENTATION_MATRIX.md
 /.ua/
 /data/
 /*.png

@@ -2,6 +2,8 @@
 [CmdletBinding()]
 param(
     [switch]$CheckMySqlServiceOnly,
+    [switch]$CheckPhpMyAdminOnly,
+    [switch]$SkipPhpMyAdmin,
     [switch]$NoBrowser
 )
 
@@ -115,6 +117,57 @@ function Get-ChildFailureMessage {
     return $message
 }
 
+function Invoke-PhpMyAdminService {
+    param([switch]$DiagnosticOnly)
+
+    if ($SkipPhpMyAdmin) {
+        Write-Output 'phpMyAdmin startup skipped.'
+        return
+    }
+
+    $launcher = Resolve-RequiredFile `
+        -Path (Join-Path $PSScriptRoot 'start-phpmyadmin-windows.ps1') `
+        -Description 'phpMyAdmin launcher'
+    $runtimeRoot = Join-Path $PSScriptRoot '.native-runtime'
+    $logRoot = Join-Path $runtimeRoot 'logs'
+    [void](New-Item -ItemType Directory -Path $logRoot -Force)
+    $runId = '{0}-{1}' -f (Get-Date -Format 'yyyyMMdd-HHmmss'), $PID
+    $standardOutputLog = Join-Path $logRoot "phpmyadmin-launcher-$runId.out.log"
+    $standardErrorLog = Join-Path $logRoot "phpmyadmin-launcher-$runId.err.log"
+    $arguments = @(
+        '-NoProfile',
+        '-ExecutionPolicy', 'Bypass',
+        '-File', "`"$launcher`"",
+        '-RuntimeRoot', "`"$runtimeRoot`"",
+        '-NoBrowser'
+    )
+    if ($DiagnosticOnly) {
+        $arguments += @('-CheckOnly', '-SkipMySqlCheck')
+    }
+
+    $process = Start-Process -FilePath 'powershell.exe' `
+        -ArgumentList $arguments `
+        -WindowStyle Hidden `
+        -RedirectStandardOutput $standardOutputLog `
+        -RedirectStandardError $standardErrorLog `
+        -PassThru
+    $process.WaitForExit()
+
+    $stdout = if (Test-Path -LiteralPath $standardOutputLog) { (Get-Content -LiteralPath $standardOutputLog | Out-String).Trim() } else { '' }
+    $stderr = if (Test-Path -LiteralPath $standardErrorLog) { (Get-Content -LiteralPath $standardErrorLog | Out-String).Trim() } else { '' }
+    if ($process.ExitCode -ne 0) {
+        throw "phpMyAdmin launcher failed with exit code $($process.ExitCode). $stderr Logs: $standardOutputLog ; $standardErrorLog"
+    }
+    if ($stdout) {
+        Write-Output $stdout
+    }
+}
+
+if ($CheckPhpMyAdminOnly) {
+    Invoke-PhpMyAdminService -DiagnosticOnly
+    return
+}
+
 $mysqlService = Find-MySqlService
 if (-not $mysqlService) {
     throw 'No MySQL Server Windows service was found. Install MySQL Server first.'
@@ -149,6 +202,8 @@ if ($mysqlService.Status -ne 'Running') {
         throw "Could not start $($mysqlService.Name). Open PowerShell as Administrator once and start the service."
     }
 }
+
+Invoke-PhpMyAdminService
 
 $backendUrl = 'http://127.0.0.1:8000/up'
 $frontendUrl = 'http://127.0.0.1:5173/'
@@ -219,6 +274,9 @@ if (-not $backendReady -or -not $frontendReady) {
 
 Write-Host 'Backend ready: http://127.0.0.1:8000' -ForegroundColor Green
 Write-Host 'Frontend ready: http://localhost:5173' -ForegroundColor Green
+if (-not $SkipPhpMyAdmin) {
+    Write-Host 'phpMyAdmin ready: http://127.0.0.1:8081' -ForegroundColor Green
+}
 if (-not $NoBrowser) {
     Start-Process 'http://localhost:5173'
 }

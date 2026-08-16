@@ -3,14 +3,14 @@
 namespace App\Services;
 
 use App\Models\Enrollment;
+use App\Models\LearningProgress;
 use App\Models\Lesson;
-use App\Models\LessonProgress;
 
 class ProgressService
 {
-    public function completeLesson(Enrollment $enrollment, Lesson $lesson): LessonProgress
+    public function completeLesson(Enrollment $enrollment, Lesson $lesson): LearningProgress
     {
-        return LessonProgress::updateOrCreate(
+        return LearningProgress::updateOrCreate(
             ['enrollment_id' => $enrollment->id, 'lesson_id' => $lesson->id],
             ['is_completed' => true, 'completed_at' => now()],
         );
@@ -22,7 +22,7 @@ class ProgressService
     public function summary(Enrollment $enrollment): array
     {
         $total = Lesson::where('course_id', $enrollment->course_id)->count();
-        $completed = LessonProgress::where('enrollment_id', $enrollment->id)
+        $completed = LearningProgress::where('enrollment_id', $enrollment->id)
             ->where('is_completed', true)
             ->count();
 

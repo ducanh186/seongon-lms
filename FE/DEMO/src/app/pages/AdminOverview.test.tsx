@@ -35,6 +35,7 @@ describe('AdminOverview', () => {
     expect(screen.getByRole('table', { name: 'Khóa học phổ biến' })).toHaveTextContent('SEO thực chiến');
     expect(screen.getByRole('table', { name: 'Khóa học phổ biến' })).toHaveTextContent('01');
     expect(screen.getByText('25%')).toBeInTheDocument();
+    expect(screen.getByText('DEMO / ERD_PENDING')).toBeInTheDocument();
   });
 
   it('renders explicit empty states for zero series and rankings', () => {

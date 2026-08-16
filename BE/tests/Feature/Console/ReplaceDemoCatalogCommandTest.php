@@ -77,7 +77,7 @@ class ReplaceDemoCatalogCommandTest extends TestCase
                 ->where('slug', $courseSlug)
                 ->firstOrFail()
                 ->lessons()
-                ->orderBy('position')
+                ->orderBy('sort_order')
                 ->pluck('video_url')
                 ->all();
 

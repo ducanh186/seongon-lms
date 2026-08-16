@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Alert, Box, Button, Card, CardContent, Chip, Container, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
 import { Link, useNavigate, useParams } from 'react-router';
-import { api, ApiError } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiCourse, ApiOrder } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../cart/CartContext';
@@ -19,14 +20,14 @@ export function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    api.course(slug).then(({ data }) => setCourse(data)).catch((reason) => setError(reason instanceof ApiError ? reason.message : 'Không thể tải khóa học.'));
+    applicationRepositories.catalog.getCourse(slug).then(({ data }) => setCourse(data)).catch((reason) => setError(reason instanceof ApiError ? reason.message : 'Không thể tải khóa học.'));
   }, [slug]);
 
   const createOrder = async () => {
     if (!token || !course) return;
     setSubmitting(true); setError(null);
     try {
-      const result = await api.createOrder(token, course.id);
+      const result = await applicationRepositories.checkout.createOrder(token, course.id);
       setOrder(result.data);
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Không thể tạo đơn hàng.');
@@ -37,7 +38,7 @@ export function CheckoutPage() {
     if (!token || !order) return;
     setSubmitting(true); setError(null);
     try {
-      await api.payOrder(token, order.id, method);
+      await applicationRepositories.checkout.payOrder(token, order.id, method);
       remove(course.id);
       navigate('/my-courses', { state: { notice: 'Thanh toán thành công. Bạn đã có thể bắt đầu học.' } });
     } catch (reason) {

@@ -20,7 +20,7 @@ class MyCourseController extends Controller
         $userId = $request->user()->id;
         $summaryEnrollments = Enrollment::where('user_id', $userId)
             ->withCount([
-                'lessonProgress as completed_lessons_count' => fn ($query) => $query->where('is_completed', true),
+                'learningProgress as completed_lessons_count' => fn ($query) => $query->where('is_completed', true),
             ])
             ->get(['id', 'course_id']);
         $lessonCounts = Course::whereIn('id', $summaryEnrollments->pluck('course_id')->unique())
@@ -56,7 +56,7 @@ class MyCourseController extends Controller
     {
         $enrollment = $this->resolveActiveEnrollment($request->user(), $course);
 
-        $completed = $enrollment->lessonProgress()
+        $completed = $enrollment->learningProgress()
             ->where('is_completed', true)
             ->pluck('lesson_id')
             ->flip();

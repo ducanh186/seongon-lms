@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Quiz;
+use App\Models\Exam;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class QuestionFactory extends Factory
@@ -10,7 +10,7 @@ class QuestionFactory extends Factory
     public function definition(): array
     {
         return [
-            'quiz_id' => Quiz::factory(),
+            'exam_id' => Exam::factory(),
             'content' => fake()->sentence().' ?',
         ];
     }

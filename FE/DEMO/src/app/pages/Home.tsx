@@ -12,7 +12,8 @@ import { HomeHero } from '../components/HomeHero';
 import { IllustrativeTestimonials } from '../components/IllustrativeTestimonials';
 import { MetricsStrip } from '../components/MetricsStrip';
 import { SectionHeading } from '../components/SectionHeading';
-import { api, ApiError } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiCategory, ApiCourse, ApiNewsPost } from '../lib/contracts';
 import { focusTokens, layoutTokens } from '../theme';
 
@@ -37,7 +38,7 @@ export function Home() {
     setCourses(null);
     setNews(null);
 
-    Promise.all([api.categories(), api.courses({ sort: 'popular' }), api.news({ page: 1 })])
+    Promise.all([applicationRepositories.catalog.listCategories(), applicationRepositories.catalog.listCourses({ sort: 'popular' }), applicationRepositories.news.list({ page: 1 })])
       .then(([categoryResult, courseResult, newsResult]) => {
         if (!active) return;
         setCategories(categoryResult.data);

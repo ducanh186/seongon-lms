@@ -44,6 +44,22 @@ exit 0
         $LASTEXITCODE | Should Be 23
     }
 
+    It 'forwards launcher arguments' {
+        $caseRoot = Join-Path $TestDrive 'argument case'
+        New-Item -ItemType Directory -Path $caseRoot | Out-Null
+        Copy-Item -LiteralPath $script:sourceBat -Destination (Join-Path $caseRoot 'start-local-web-windows.bat')
+        Set-Content -LiteralPath (Join-Path $caseRoot 'start-local-web-windows.ps1') -Encoding ASCII -Value @'
+param([switch]$SkipPhpMyAdmin)
+Set-Content -LiteralPath (Join-Path $PSScriptRoot 'argument.marker') -Value $SkipPhpMyAdmin
+exit 0
+'@
+
+        & cmd.exe /d /c "`"$caseRoot\start-local-web-windows.bat`" -SkipPhpMyAdmin"
+
+        $LASTEXITCODE | Should Be 0
+        Get-Content -LiteralPath (Join-Path $caseRoot 'argument.marker') | Should Be 'True'
+    }
+
     It 'returns code 2 when the sibling PowerShell launcher is missing' {
         $caseRoot = Join-Path $TestDrive 'missing case'
         New-Item -ItemType Directory -Path $caseRoot | Out-Null

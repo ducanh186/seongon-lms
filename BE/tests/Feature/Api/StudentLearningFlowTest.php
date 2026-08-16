@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Answer;
 use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Exam;
+use App\Models\LearningProgress;
 use App\Models\Lesson;
-use App\Models\LessonProgress;
 use App\Models\Question;
-use App\Models\QuestionOption;
-use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -66,12 +66,12 @@ class StudentLearningFlowTest extends TestCase
         $student = User::factory()->create();
         $course = Course::factory()->create();
         $enrollment = Enrollment::factory()->create(['user_id' => $student->id, 'course_id' => $course->id]);
-        $firstLesson = Lesson::factory()->create(['course_id' => $course->id, 'position' => 1]);
-        $secondLesson = Lesson::factory()->create(['course_id' => $course->id, 'position' => 2]);
-        $quiz = Quiz::factory()->create(['course_id' => $course->id, 'pass_score' => 75]);
-        $question = Question::factory()->create(['quiz_id' => $quiz->id]);
-        $correctOption = QuestionOption::factory()->correct()->create(['question_id' => $question->id]);
-        QuestionOption::factory()->create(['question_id' => $question->id]);
+        $firstLesson = Lesson::factory()->create(['course_id' => $course->id, 'sort_order' => 1]);
+        $secondLesson = Lesson::factory()->create(['course_id' => $course->id, 'sort_order' => 2]);
+        $quiz = Exam::factory()->create(['course_id' => $course->id, 'pass_score' => 75]);
+        $question = Question::factory()->create(['exam_id' => $quiz->id]);
+        $correctOption = Answer::factory()->correct()->create(['question_id' => $question->id]);
+        Answer::factory()->create(['question_id' => $question->id]);
         $token = $student->createToken('test')->plainTextToken;
 
         $this->withToken($token)->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts", [
@@ -174,7 +174,7 @@ class StudentLearningFlowTest extends TestCase
             'course_id' => $completedCourse->id,
         ]);
         $completedLesson = Lesson::factory()->create(['course_id' => $completedCourse->id]);
-        LessonProgress::create([
+        LearningProgress::create([
             'enrollment_id' => $completedEnrollment->id,
             'lesson_id' => $completedLesson->id,
             'is_completed' => true,
@@ -190,7 +190,7 @@ class StudentLearningFlowTest extends TestCase
 
             if ($index <= 3) {
                 $lesson = Lesson::factory()->create(['course_id' => $course->id]);
-                LessonProgress::create([
+                LearningProgress::create([
                     'enrollment_id' => $enrollment->id,
                     'lesson_id' => $lesson->id,
                     'is_completed' => true,

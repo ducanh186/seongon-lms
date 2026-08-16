@@ -17,7 +17,8 @@ import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
-import { ApiError, api } from '../lib/api';
+import { ApiError } from '../lib/api';
+import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import { useAuth } from '../contexts/AuthContext';
 import { PageHeader } from '../components/PageHeader';
 
@@ -46,7 +47,7 @@ export function ProfilePage() {
     setError(null);
     setSavingProfile(true);
     try {
-      await api.updateProfile(token, { name, phone, avatar });
+      await applicationRepositories.profile.update(token, { name, phone, avatar });
       await refreshUser();
       setNotice('Đã cập nhật hồ sơ.');
     } catch (reason) {
@@ -62,7 +63,7 @@ export function ProfilePage() {
     setError(null);
     setSavingPassword(true);
     try {
-      await api.updatePassword(token, {
+      await applicationRepositories.profile.updatePassword(token, {
         current_password: currentPassword,
         password,
         password_confirmation: confirmation,

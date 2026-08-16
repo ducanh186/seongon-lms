@@ -27,8 +27,9 @@ class CourseController extends Controller
         }
 
         if ($category = $request->query('category')) {
-            $query->whereHas('category', function ($c) use ($category) {
-                $c->where('slug', $category)->orWhere('id', $category);
+            // Filters through the approved ERD course_categories pivot.
+            $query->whereHas('categories', function ($c) use ($category) {
+                $c->where('categories.slug', $category)->orWhere('categories.id', $category);
             });
         }
 

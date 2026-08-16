@@ -29,6 +29,7 @@ extension_dir = "ext"
 ;extension=gd
 ;extension=intl
 ;extension=mbstring
+;extension=mysqli
 ;extension=openssl
 ;extension=pdo_mysql
 ;extension=zip
@@ -41,6 +42,7 @@ extension_dir = "ext"
         'php_gd.dll',
         'php_intl.dll',
         'php_mbstring.dll',
+        'php_mysqli.dll',
         'php_openssl.dll',
         'php_pdo_mysql.dll',
         'php_zip.dll',
@@ -73,6 +75,7 @@ switch ($PhpArgs[0]) {
                 @{ Pattern = '(?im)^\s*extension\s*=\s*gd\s*$'; Name = 'gd' },
                 @{ Pattern = '(?im)^\s*extension\s*=\s*intl\s*$'; Name = 'intl' },
                 @{ Pattern = '(?im)^\s*extension\s*=\s*mbstring\s*$'; Name = 'mbstring' },
+                @{ Pattern = '(?im)^\s*extension\s*=\s*mysqli\s*$'; Name = 'mysqli' },
                 @{ Pattern = '(?im)^\s*extension\s*=\s*openssl\s*$'; Name = 'openssl' },
                 @{ Pattern = '(?im)^\s*extension\s*=\s*pdo_mysql\s*$'; Name = 'pdo_mysql' },
                 @{ Pattern = '(?im)^\s*extension\s*=\s*zip\s*$'; Name = 'zip' },
@@ -111,6 +114,7 @@ switch ($PhpArgs[0]) {
         'extension=gd',
         'extension=intl',
         'extension=mbstring',
+        'extension=mysqli',
         'extension=openssl',
         'extension=pdo_mysql',
         'extension=zip',
@@ -143,6 +147,7 @@ switch ($PhpArgs[0]) {
         'extension=gd',
         'extension=intl',
         'extension=mbstring',
+        'extension=mysqli',
         'extension=openssl',
         'extension=pdo_mysql',
         'extension=zip',

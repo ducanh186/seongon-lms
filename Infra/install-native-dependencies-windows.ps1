@@ -203,6 +203,7 @@ $requiredModules = @(
     @{ Name = 'gd'; Dll = 'php_gd.dll'; Directive = 'extension=gd'; Patterns = @('^\s*;?\s*extension\s*=\s*(?:php_)?gd(?:\.dll)?\s*$') },
     @{ Name = 'intl'; Dll = 'php_intl.dll'; Directive = 'extension=intl'; Patterns = @('^\s*;?\s*extension\s*=\s*(?:php_)?intl(?:\.dll)?\s*$') },
     @{ Name = 'mbstring'; Dll = 'php_mbstring.dll'; Directive = 'extension=mbstring'; Patterns = @('^\s*;?\s*extension\s*=\s*(?:php_)?mbstring(?:\.dll)?\s*$') },
+    @{ Name = 'mysqli'; Dll = 'php_mysqli.dll'; Directive = 'extension=mysqli'; Patterns = @('^\s*;?\s*extension\s*=\s*(?:php_)?mysqli(?:\.dll)?\s*$') },
     @{ Name = 'openssl'; Dll = 'php_openssl.dll'; Directive = 'extension=openssl'; Patterns = @('^\s*;?\s*extension\s*=\s*(?:php_)?openssl(?:\.dll)?\s*$') },
     @{ Name = 'pdo_mysql'; Dll = 'php_pdo_mysql.dll'; Directive = 'extension=pdo_mysql'; Patterns = @('^\s*;?\s*extension\s*=\s*(?:php_)?pdo_mysql(?:\.dll)?\s*$') },
     @{ Name = 'zip'; Dll = 'php_zip.dll'; Directive = 'extension=zip'; Patterns = @('^\s*;?\s*extension\s*=\s*(?:php_)?zip(?:\.dll)?\s*$') },

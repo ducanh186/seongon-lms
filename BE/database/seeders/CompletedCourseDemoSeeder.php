@@ -2,16 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Models\Answer;
+use App\Models\Attempt;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Exam;
+use App\Models\LearningProgress;
 use App\Models\Lesson;
-use App\Models\LessonProgress;
 use App\Models\Question;
-use App\Models\QuestionOption;
-use App\Models\Quiz;
-use App\Models\QuizAttempt;
-use App\Models\QuizAttemptAnswer;
 use App\Models\User;
 use App\Services\CertificateService;
 use App\Support\DemoCourseThumbnail;
@@ -60,25 +59,25 @@ class CompletedCourseDemoSeeder extends Seeder
 
             $lessons = collect([
                 [
-                    'position' => 1,
+                    'sort_order' => 1,
                     'title' => 'Xác định mục tiêu SEO và KPI',
                     'video_url' => 'https://www.youtube.com/embed/aqz-KE-bpKQ',
                     'description' => 'Liên kết mục tiêu SEO với mục tiêu kinh doanh và hệ thống chỉ số đo lường.',
                     'duration' => 300,
                 ],
                 [
-                    'position' => 2,
+                    'sort_order' => 2,
                     'title' => 'Xây dựng kế hoạch SEO 90 ngày',
                     'video_url' => 'https://www.youtube.com/embed/aqz-KE-bpKQ',
                     'description' => 'Thực hành lập lộ trình SEO ưu tiên theo nguồn lực và dữ liệu hiện có.',
                     'duration' => 420,
                 ],
             ])->map(fn (array $attributes): Lesson => Lesson::query()->updateOrCreate(
-                ['course_id' => $course->id, 'position' => $attributes['position']],
+                ['course_id' => $course->id, 'sort_order' => $attributes['sort_order']],
                 $attributes,
             ));
 
-            $quiz = Quiz::query()->updateOrCreate(
+            $exam = Exam::query()->updateOrCreate(
                 ['course_id' => $course->id],
                 [
                     'title' => 'Đánh giá cuối khóa SEO Foundation',
@@ -89,12 +88,12 @@ class CompletedCourseDemoSeeder extends Seeder
 
             $question = Question::query()->updateOrCreate(
                 [
-                    'quiz_id' => $quiz->id,
+                    'exam_id' => $exam->id,
                     'content' => 'What progress percentage is required to complete this demo course?',
                 ],
             );
 
-            $correctOption = QuestionOption::query()->updateOrCreate(
+            $correctAnswer = Answer::query()->updateOrCreate(
                 [
                     'question_id' => $question->id,
                     'content' => '100%',
@@ -102,7 +101,7 @@ class CompletedCourseDemoSeeder extends Seeder
                 ['is_correct' => true],
             );
 
-            QuestionOption::query()->updateOrCreate(
+            Answer::query()->updateOrCreate(
                 [
                     'question_id' => $question->id,
                     'content' => '50%',
@@ -120,23 +119,29 @@ class CompletedCourseDemoSeeder extends Seeder
                 ],
             );
 
-            $lessons->each(fn (Lesson $lesson) => LessonProgress::query()->updateOrCreate(
+            $lessons->each(fn (Lesson $lesson) => LearningProgress::query()->updateOrCreate(
                 ['enrollment_id' => $enrollment->id, 'lesson_id' => $lesson->id],
                 ['is_completed' => true, 'completed_at' => now()],
             ));
 
-            $attempt = QuizAttempt::query()->updateOrCreate(
+            Attempt::query()->updateOrCreate(
                 [
                     'enrollment_id' => $enrollment->id,
-                    'quiz_id' => $quiz->id,
-                    'attempt_no' => 1,
+                    'exam_id' => $exam->id,
+                    'attempt_number' => 1,
                 ],
-                ['score' => 100, 'passed' => true, 'submitted_at' => now()],
-            );
-
-            QuizAttemptAnswer::query()->updateOrCreate(
-                ['quiz_attempt_id' => $attempt->id, 'question_id' => $question->id],
-                ['selected_option_id' => $correctOption->id, 'is_correct' => true],
+                [
+                    'score' => 100,
+                    'passed' => true,
+                    'correct_count' => 1,
+                    'wrong_count' => 0,
+                    'answers' => [[
+                        'question_id' => $question->id,
+                        'selected_answer_id' => $correctAnswer->id,
+                        'is_correct' => true,
+                    ]],
+                    'submitted_at' => now(),
+                ],
             );
 
             app(CertificateService::class)->issueForEnrollment($enrollment);

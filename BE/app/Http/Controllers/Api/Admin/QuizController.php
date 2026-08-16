@@ -19,8 +19,10 @@ class QuizController extends Controller
             'max_attempts' => ['required', 'integer', 'min:1', 'max:20'],
         ]);
 
-        $quiz = $course->quiz()->updateOrCreate(['course_id' => $course->id], $data);
+        $exam = $course->exam()->updateOrCreate(['course_id' => $course->id], $data);
 
-        return response()->json($quiz->load('questions.options'));
+        // load('questions.options') keeps the `options` key the frontend reads;
+        // options() is an expand-phase alias for answers().
+        return response()->json($exam->load('questions.options'));
     }
 }
