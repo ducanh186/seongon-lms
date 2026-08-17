@@ -3,12 +3,34 @@
 namespace App\Services;
 
 use App\Models\Course;
+use App\Models\CourseCategory;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class CourseService
 {
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function paginateCategoryAssignments(array $filters = []): LengthAwarePaginator
+    {
+        return CourseCategory::query()
+            ->with(['course', 'category'])
+            ->when(
+                $filters['course_id'] ?? null,
+                fn (Builder $query, int $courseId) => $query->where('course_id', $courseId),
+            )
+            ->when(
+                $filters['category_id'] ?? null,
+                fn (Builder $query, int $categoryId) => $query->where('category_id', $categoryId),
+            )
+            ->latest('updated_at')
+            ->paginate(15)
+            ->withQueryString();
+    }
+
     /**
      * @param  array<string, mixed>  $filters
      */

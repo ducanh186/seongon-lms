@@ -48,6 +48,7 @@ export const theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        html: { scrollbarGutter: 'stable' },
         body: { minWidth: 0, backgroundColor: '#F2F6F8', color: navy },
         '::selection': { background: alpha(teal, 0.2) },
         'a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible': {
@@ -70,7 +71,12 @@ export const theme = createTheme({
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
-        root: { minHeight: 44, borderRadius: 8, paddingInline: 18, transition: 'transform 160ms ease', '&:hover': { transform: 'translateY(-1px)' } },
+        root: {
+          minHeight: 44,
+          borderRadius: 8,
+          paddingInline: 18,
+          transition: 'background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease',
+        },
       },
     },
     MuiCard: { styleOverrides: { root: { border: '1px solid', borderColor: '#D7E2E8', borderRadius: 10, boxShadow: '0 8px 24px rgba(16,42,67,.07)' } } },

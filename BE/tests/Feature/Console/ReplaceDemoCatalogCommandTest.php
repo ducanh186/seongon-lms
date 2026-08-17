@@ -70,6 +70,7 @@ class ReplaceDemoCatalogCommandTest extends TestCase
             'seo-ai-max-14' => ['EqMjWU7vF2o', '_oU8lclN114', 'n-kxOhnSH-Q', 'HPL0O7Oe3j0'],
             'seo-ai-max-27' => ['RFlpwKQ0bEs', 'aLWQqlpwHK8', 'wTwnFcWUM3k', 'G_9-AkZch4k'],
             'content-seo-09' => ['uG1TG6z8Mz4', '40U1WlmnDFU', '5LF6SwB5jZ0', 'jJPS4M72FLg'],
+            'google-ads-01' => ['16-dF2p0kKo', 'hbM3befCOv4', 'X1IrczXHbtU', 'uQDAR7Kj08c'],
         ];
 
         foreach ($expectedVideos as $courseSlug => $videoIds) {

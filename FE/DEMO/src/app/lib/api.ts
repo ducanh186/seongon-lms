@@ -1,7 +1,19 @@
 import type {
   ApiCategory,
   ApiCart,
+  ApiAdminAttempt,
+  ApiAdminAnswerIndex,
+  ApiAdminCart,
+  ApiAdminCartItem,
+  ApiAdminCertificateStatus,
   ApiAdminCourse,
+  ApiAdminCourseCategory,
+  ApiAdminExam,
+  ApiAdminLearningProgress,
+  ApiAdminLesson,
+  ApiAdminOrder,
+  ApiAdminQuestionIndex,
+  ApiAdminRole,
   ApiAdminStats,
   ApiAdminQuestion,
   ApiAdminQuiz,
@@ -146,8 +158,24 @@ export const api = {
   },
 
   adminStats: (token: string) => apiRequest<ApiAdminStats>('/admin/dashboard/stats', { token }),
+  adminRoles: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminRole>>('/admin/roles' + queryString(filters), { token }),
+  adminCarts: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminCart>>('/admin/carts' + queryString(filters), { token }),
+  adminCartItems: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminCartItem>>('/admin/cart-items' + queryString(filters), { token }),
+  adminOrders: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminOrder>>('/admin/orders' + queryString(filters), { token }),
+  adminCourseCategories: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminCourseCategory>>('/admin/course-categories' + queryString(filters), { token }),
+  adminLearningProgress: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminLearningProgress>>('/admin/learning-progress' + queryString(filters), { token }),
+  adminQuestions: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminQuestionIndex>>('/admin/questions' + queryString(filters), { token }),
+  adminAnswers: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminAnswerIndex>>('/admin/answers' + queryString(filters), { token }),
   adminNews: (token: string, filters: Record<string, string | number | undefined> = {}) =>
-    apiRequest<Paginated<ApiNewsPost>>(`/admin/news${queryString(filters)}`, { token }),
+    apiRequest<ApiNewsList>(`/admin/news${queryString(filters)}`, { token }),
   saveNews: (token: string, body: Record<string, unknown>, newsId?: number) =>
     apiRequest<{ data: ApiNewsPost }>(newsId ? `/admin/news/${newsId}` : '/admin/news', {
       method: newsId ? 'PUT' : 'POST',
@@ -168,8 +196,16 @@ export const api = {
   adminCourses: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiCourse>>(`/admin/courses${queryString(filters)}`, { token }),
   adminCourse: (token: string, courseId: number) => apiRequest<{ data: ApiAdminCourse }>(`/admin/courses/${courseId}`, { token }),
+  adminLessons: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminLesson>>(`/admin/lessons${queryString(filters)}`, { token }),
+  adminExams: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminExam>>(`/admin/exams${queryString(filters)}`, { token }),
   adminEnrollments: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiEnrollment>>(`/admin/enrollments${queryString(filters)}`, { token }),
+  adminAttempts: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminAttempt>>(`/admin/attempts${queryString(filters)}`, { token }),
+  adminCertificates: (token: string, filters: Record<string, string | number | undefined> = {}) =>
+    apiRequest<Paginated<ApiAdminCertificateStatus>>(`/admin/certificates${queryString(filters)}`, { token }),
   saveCourse: (token: string, body: Record<string, unknown>, courseId?: number) =>
     apiRequest<{ data: ApiCourse }>(courseId ? `/admin/courses/${courseId}` : '/admin/courses', {
       method: courseId ? 'PUT' : 'POST',

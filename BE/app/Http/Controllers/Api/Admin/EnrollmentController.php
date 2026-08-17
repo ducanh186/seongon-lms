@@ -14,8 +14,15 @@ class EnrollmentController extends Controller
 
     public function index(Request $request)
     {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', 'in:active,expired'],
+            'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+            'user_id' => ['nullable', 'integer', 'exists:users,id'],
+        ]);
+
         return EnrollmentResource::collection(
-            $this->enrollments->paginateForAdmin($request->only(['status', 'course_id', 'user_id'])),
+            $this->enrollments->paginateForAdmin($filters),
         );
     }
 

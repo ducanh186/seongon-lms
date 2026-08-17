@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 class OrderService
 {
@@ -13,6 +14,19 @@ class OrderService
     public function paginateForAdmin(array $filters = []): LengthAwarePaginator
     {
         $query = Order::query()->with(['user', 'course']);
+
+        if ($search = $filters['q'] ?? null) {
+            $query->where(function (Builder $orderQuery) use ($search): void {
+                $orderQuery
+                    ->whereHas('user', function (Builder $userQuery) use ($search): void {
+                        $userQuery->where(function (Builder $identityQuery) use ($search): void {
+                            $identityQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                    })
+                    ->orWhereHas('course', fn (Builder $courseQuery) => $courseQuery->where('title', 'like', "%{$search}%"));
+            });
+        }
 
         if ($status = $filters['status'] ?? null) {
             $query->where('status', $status);

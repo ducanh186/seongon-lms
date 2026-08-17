@@ -21,15 +21,15 @@ import {
   Typography,
 } from '@mui/material';
 import { ApiError } from '../lib/api';
-import type { ApiAdminCourse, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiNewsPost, ApiReview, ApiUser, Paginated } from '../lib/contracts';
+import type { ApiAdminAttempt, ApiAdminCertificateStatus, ApiAdminCourse, ApiAdminExam, ApiAdminLesson, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiNewsList, ApiNewsPost, ApiReview, ApiUser, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { useAuth } from '../contexts/AuthContext';
 import { AdminSectionHeader } from '../components/AdminSectionHeader';
 import { StatusChip } from '../components/StatusChip';
 import { AdminDataTable, type AdminColumn } from '../components/AdminDataTable';
 import { AdminShell, type AdminSection } from '../components/AdminShell';
-import { AdminEntityPage } from '../components/AdminEntityPage';
 import { AdminOverview } from './AdminOverview';
+import { AdminErdReadSection, type AdminErdReadSectionKey } from './admin/AdminErdReadSection';
 import { adminRepositories } from '../data/repositories/adminRepositories';
 import { DashboardService } from '../application/services/DashboardService';
 
@@ -75,6 +75,7 @@ type PendingConfirmation = {
 type AppliedNewsFilters = {
   q: string;
   status: string;
+  category: string;
   page: number;
 };
 
@@ -82,6 +83,50 @@ type AppliedAdminFilters = {
   q: string;
   status: string;
   page: number;
+};
+
+type OperationSection = 'lessons' | 'quizzes' | 'enrollments' | 'quizAttempts' | 'certificates';
+
+type OperationFilters = {
+  q: string;
+  courseId: string;
+  status: string;
+  page: number;
+};
+
+const operationSections: OperationSection[] = ['lessons', 'quizzes', 'enrollments', 'quizAttempts', 'certificates'];
+
+const createOperationFilterMap = (): Record<OperationSection, OperationFilters> => ({
+  lessons: { q: '', courseId: '', status: '', page: 1 },
+  quizzes: { q: '', courseId: '', status: '', page: 1 },
+  enrollments: { q: '', courseId: '', status: '', page: 1 },
+  quizAttempts: { q: '', courseId: '', status: '', page: 1 },
+  certificates: { q: '', courseId: '', status: '', page: 1 },
+});
+
+const isOperationSection = (section: AdminSection): section is OperationSection => operationSections.includes(section as OperationSection);
+
+const erdReadSections: AdminErdReadSectionKey[] = [
+  'roles',
+  'carts',
+  'cartItems',
+  'orders',
+  'courseCategories',
+  'learningProgress',
+  'questions',
+  'answers',
+];
+
+const isErdReadSection = (section: AdminSection): section is AdminErdReadSectionKey => erdReadSections.includes(section as AdminErdReadSectionKey);
+
+const operationStatusOptions: Partial<Record<OperationSection, Array<{ value: string; label: string }>>> = {
+  enrollments: [{ value: 'active', label: 'Đang học' }, { value: 'expired', label: 'Hết hạn' }],
+  quizAttempts: [{ value: '1', label: 'Đạt' }, { value: '0', label: 'Chưa đạt' }],
+  certificates: [
+    { value: 'not_eligible', label: 'Chưa đủ điều kiện' },
+    { value: 'eligible', label: 'Đủ điều kiện' },
+    { value: 'issued', label: 'Đã cấp' },
+  ],
 };
 
 const blankCourse: CourseDraft = {
@@ -104,14 +149,22 @@ const blankQuestionOptions: QuestionOptionDraft[] = [
 
 const adminSectionCopy: Record<AdminSection, { title: string; description: string }> = {
   overview: { title: 'Tổng quan vận hành', description: 'Theo dõi nhanh hoạt động học tập và hiệu quả nội dung.' },
+  roles: { title: 'Quản lý vai trò', description: 'Đối chiếu vai trò hệ thống và số tài khoản đang sử dụng từng vai trò.' },
   users: { title: 'Quản lý học viên', description: 'Tìm kiếm, kiểm tra ghi danh và quản lý trạng thái tài khoản.' },
+  carts: { title: 'Quản lý giỏ hàng', description: 'Theo dõi giỏ hàng hiện tại của học viên từ dữ liệu trong carts.' },
+  cartItems: { title: 'Mục giỏ hàng', description: 'Đối chiếu từng khóa học đang nằm trong cart_items.' },
+  orders: { title: 'Quản lý đơn hàng', description: 'Theo dõi đơn hàng, trạng thái thanh toán và quan hệ học viên - khóa học.' },
   categories: { title: 'Danh mục khóa học', description: 'Tổ chức chủ đề để học viên khám phá nội dung dễ dàng.' },
+  courseCategories: { title: 'Gán danh mục khóa học', description: 'Đối chiếu quan hệ nhiều-nhiều từ course_categories.' },
   courses: { title: 'Quản lý khóa học', description: 'Quản lý nội dung, bài học, bài kiểm tra và trạng thái xuất bản.' },
-  lessons: { title: 'Quản lý bài học', description: 'Đối chiếu cấu trúc bài học với ERD chính thức trước khi tách khỏi khóa học.' },
-  quizzes: { title: 'Quản lý bài kiểm tra', description: 'Đối chiếu bài kiểm tra, câu hỏi và đáp án với ERD chính thức.' },
+  lessons: { title: 'Quản lý bài học', description: 'Tra cứu bài học theo khóa học và mở trình biên tập nội dung thống nhất.' },
+  quizzes: { title: 'Quản lý bài kiểm tra', description: 'Theo dõi bài kiểm tra, câu hỏi và lượt làm từ dữ liệu thực.' },
   enrollments: { title: 'Quản lý ghi danh', description: 'Theo dõi quan hệ ghi danh giữa học viên và khóa học.' },
-  quizAttempts: { title: 'Kết quả bài kiểm tra', description: 'Theo dõi lượt làm bài sau khi chốt cấu trúc ERD.' },
-  certificates: { title: 'Quản lý chứng chỉ', description: 'Theo dõi chứng chỉ sau khi chốt cấu trúc ERD.' },
+  learningProgress: { title: 'Tiến độ học tập', description: 'Theo dõi tiến độ từng bài học theo bản ghi learning_progress.' },
+  questions: { title: 'Quản lý câu hỏi', description: 'Tra cứu câu hỏi theo bài kiểm tra và khóa học.' },
+  answers: { title: 'Quản lý đáp án', description: 'Tra cứu đáp án, tính đúng sai và câu hỏi liên quan.' },
+  quizAttempts: { title: 'Kết quả bài kiểm tra', description: 'Theo dõi điểm, kết quả đạt và lịch sử làm bài của học viên.' },
+  certificates: { title: 'Quản lý chứng chỉ', description: 'Theo dõi điều kiện hoàn thành và chứng chỉ đã được cấp.' },
   reviews: { title: 'Kiểm duyệt đánh giá', description: 'Theo dõi và kiểm soát đánh giá hiển thị trên hệ thống.' },
   news: { title: 'Tin tức và kiến thức', description: 'Biên tập nội dung công khai theo quy trình nháp và xuất bản.' },
 };
@@ -158,8 +211,13 @@ export function AdminPage() {
   const [users, setUsers] = useState<Paginated<ApiUser> | null>(null);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [courses, setCourses] = useState<Paginated<ApiCourse> | null>(null);
+  const [adminLessons, setAdminLessons] = useState<Paginated<ApiAdminLesson> | null>(null);
+  const [adminExams, setAdminExams] = useState<Paginated<ApiAdminExam> | null>(null);
+  const [adminEnrollments, setAdminEnrollments] = useState<Paginated<ApiEnrollment> | null>(null);
+  const [adminAttempts, setAdminAttempts] = useState<Paginated<ApiAdminAttempt> | null>(null);
+  const [adminCertificates, setAdminCertificates] = useState<Paginated<ApiAdminCertificateStatus> | null>(null);
   const [reviews, setReviews] = useState<Paginated<ApiReview> | null>(null);
-  const [news, setNews] = useState<Paginated<ApiNewsPost> | null>(null);
+  const [news, setNews] = useState<ApiNewsList | null>(null);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -174,7 +232,10 @@ export function AdminPage() {
   const [reviewPage, setReviewPage] = useState(1);
   const [newsQuery, setNewsQuery] = useState('');
   const [newsStatus, setNewsStatus] = useState('');
-  const [appliedNewsFilters, setAppliedNewsFilters] = useState<AppliedNewsFilters>({ q: '', status: '', page: 1 });
+  const [newsCategory, setNewsCategory] = useState('');
+  const [appliedNewsFilters, setAppliedNewsFilters] = useState<AppliedNewsFilters>({ q: '', status: '', category: '', page: 1 });
+  const [operationDrafts, setOperationDrafts] = useState<Record<OperationSection, OperationFilters>>(createOperationFilterMap);
+  const [operationFilters, setOperationFilters] = useState<Record<OperationSection, OperationFilters>>(createOperationFilterMap);
 
   const [editingCategory, setEditingCategory] = useState<ApiCategory | null>(null);
   const [categoryName, setCategoryName] = useState('');
@@ -209,11 +270,13 @@ export function AdminPage() {
       case 'reviews':
         return `${section}:${reviewStatus}:${reviewPage}`;
       case 'news':
-        return `${section}:${appliedNewsFilters.q}:${appliedNewsFilters.status}:${appliedNewsFilters.page}`;
+        return `${section}:${appliedNewsFilters.q}:${appliedNewsFilters.status}:${appliedNewsFilters.category}:${appliedNewsFilters.page}`;
       default:
-        return section;
+        return isOperationSection(section)
+          ? `${section}:${operationFilters[section].q}:${operationFilters[section].courseId}:${operationFilters[section].status}:${operationFilters[section].page}`
+          : section;
     }
-  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, reviewPage, reviewStatus]);
+  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, operationFilters, reviewPage, reviewStatus]);
 
   const load = useCallback(async (section: AdminSection, force = false) => {
     if (!token) return;
@@ -278,18 +341,71 @@ export function AdminPage() {
           const nextNews = await adminRepositories.news.list(token, {
             q: appliedNewsFilters.q || undefined,
             status: appliedNewsFilters.status || undefined,
+            ...(appliedNewsFilters.category ? { category: appliedNewsFilters.category } : {}),
             page: appliedNewsFilters.page,
           });
           if (requestId !== loadRequestId.current) return;
           setNews(nextNews);
           break;
         }
-        case 'lessons':
-        case 'quizzes':
-        case 'enrollments':
-        case 'quizAttempts':
-        case 'certificates':
+        case 'lessons': {
+          const filters = operationFilters.lessons;
+          const response = await adminRepositories.lessons.list(token, {
+            q: filters.q || undefined,
+            course_id: filters.courseId ? Number(filters.courseId) : undefined,
+            page: filters.page,
+          });
+          if (requestId !== loadRequestId.current) return;
+          setAdminLessons(response);
           break;
+        }
+        case 'quizzes': {
+          const filters = operationFilters.quizzes;
+          const response = await adminRepositories.exams.list(token, {
+            q: filters.q || undefined,
+            course_id: filters.courseId ? Number(filters.courseId) : undefined,
+            page: filters.page,
+          });
+          if (requestId !== loadRequestId.current) return;
+          setAdminExams(response);
+          break;
+        }
+        case 'enrollments': {
+          const filters = operationFilters.enrollments;
+          const response = await adminRepositories.enrollments.list(token, {
+            q: filters.q || undefined,
+            course_id: filters.courseId ? Number(filters.courseId) : undefined,
+            status: filters.status || undefined,
+            page: filters.page,
+          });
+          if (requestId !== loadRequestId.current) return;
+          setAdminEnrollments(response);
+          break;
+        }
+        case 'quizAttempts': {
+          const filters = operationFilters.quizAttempts;
+          const response = await adminRepositories.attempts.list(token, {
+            q: filters.q || undefined,
+            course_id: filters.courseId ? Number(filters.courseId) : undefined,
+            passed: filters.status === '' ? undefined : Number(filters.status),
+            page: filters.page,
+          });
+          if (requestId !== loadRequestId.current) return;
+          setAdminAttempts(response);
+          break;
+        }
+        case 'certificates': {
+          const filters = operationFilters.certificates;
+          const response = await adminRepositories.certificates.list(token, {
+            q: filters.q || undefined,
+            course_id: filters.courseId ? Number(filters.courseId) : undefined,
+            status: filters.status || undefined,
+            page: filters.page,
+          });
+          if (requestId !== loadRequestId.current) return;
+          setAdminCertificates(response);
+          break;
+        }
       }
       loadedKeyBySection.current[section] = cacheKey;
     } catch (reason) {
@@ -301,9 +417,15 @@ export function AdminPage() {
         setLoading(false);
       }
     }
-  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, cacheKeyFor, reviewPage, reviewStatus, token]);
+  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, cacheKeyFor, operationFilters, reviewPage, reviewStatus, token]);
 
   useEffect(() => {
+    if (isErdReadSection(tab)) {
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     void load(tab);
   }, [load, tab]);
 
@@ -454,7 +576,7 @@ export function AdminPage() {
   };
 
   const applyNewsFilters = () => {
-    setAppliedNewsFilters({ q: newsQuery, status: newsStatus, page: 1 });
+    setAppliedNewsFilters({ q: newsQuery, status: newsStatus, category: newsCategory, page: 1 });
   };
 
   const submitLesson = (event: FormEvent) => {
@@ -552,6 +674,35 @@ export function AdminPage() {
     void runMutation(pending.work, pending.successMessage, pending.refreshContent);
   };
 
+  const updateOperationDraft = (section: OperationSection, patch: Partial<OperationFilters>) => {
+    setOperationDrafts((drafts) => ({
+      ...drafts,
+      [section]: { ...drafts[section], ...patch },
+    }));
+  };
+
+  const applyOperationFilters = (section: OperationSection) => {
+    setOperationFilters((filters) => ({
+      ...filters,
+      [section]: { ...operationDrafts[section], page: 1 },
+    }));
+  };
+
+  const changeOperationPage = (section: OperationSection, page: number) => {
+    setOperationFilters((filters) => ({
+      ...filters,
+      [section]: { ...filters[section], page },
+    }));
+  };
+
+  const operationPages: Record<OperationSection, Paginated<unknown> | null> = {
+    lessons: adminLessons,
+    quizzes: adminExams,
+    enrollments: adminEnrollments,
+    quizAttempts: adminAttempts,
+    certificates: adminCertificates,
+  };
+
   const courseColumns: AdminColumn<ApiCourse>[] = [
     { key: 'id', header: 'ID', align: 'right', render: (course) => course.id },
     { key: 'course', header: 'Khóa học', render: (course) => <Typography fontWeight={750} sx={{ minWidth: 210 }}>{course.title}</Typography> },
@@ -576,20 +727,141 @@ export function AdminPage() {
     <Box sx={{ minHeight: '100dvh' }}>
       <AdminShell active={tab} onChange={setTab}>
         <Stack spacing={3}>
-          {!['lessons', 'quizzes', 'enrollments', 'quizAttempts', 'certificates'].includes(tab) && (
-            <AdminSectionHeader title={adminSectionCopy[tab].title} description={adminSectionCopy[tab].description} />
-          )}
+          <AdminSectionHeader title={adminSectionCopy[tab].title} description={adminSectionCopy[tab].description} />
           {notice && <Alert severity="success" onClose={() => setNotice(null)}>{notice}</Alert>}
           {error && <RequestError message={error} onRetry={() => void load(tab, true)} />}
           <Stack spacing={3} sx={{ minWidth: 0 }}>
 
-          {['lessons', 'quizzes', 'enrollments', 'quizAttempts', 'certificates'].includes(tab) && (
-            <AdminEntityPage
-              title={adminSectionCopy[tab].title}
-              description={adminSectionCopy[tab].description}
-              status="placeholder"
+          {token && isErdReadSection(tab) && (
+            <AdminErdReadSection
+              key={tab}
+              section={tab}
+              token={token}
+              onOpenCourse={(courseId) => void selectContent(courseId)}
             />
           )}
+
+          {isOperationSection(tab) && <Stack spacing={2}>
+            <Box component="section" role="region" aria-label={`Bộ lọc ${adminSectionCopy[tab].title.toLowerCase()}`} data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: operationStatusOptions[tab] ? 'minmax(240px, 1fr) minmax(150px, .45fr) minmax(180px, .55fr) auto' : 'minmax(240px, 1fr) minmax(150px, .45fr) auto', gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+              <TextField label="Tìm kiếm" value={operationDrafts[tab].q} onChange={(event) => updateOperationDraft(tab, { q: event.target.value })} fullWidth />
+              <TextField label="Course ID" type="number" inputProps={{ min: 1 }} value={operationDrafts[tab].courseId} onChange={(event) => updateOperationDraft(tab, { courseId: event.target.value })} fullWidth />
+              {operationStatusOptions[tab] && <FormControl fullWidth>
+                <InputLabel id={`${tab}-status-filter`}>Trạng thái</InputLabel>
+                <Select labelId={`${tab}-status-filter`} label="Trạng thái" value={operationDrafts[tab].status} onChange={(event) => updateOperationDraft(tab, { status: event.target.value })}>
+                  <MenuItem value="">Tất cả</MenuItem>
+                  {operationStatusOptions[tab]?.map((option) => <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>)}
+                </Select>
+              </FormControl>}
+              <Button variant="contained" onClick={() => applyOperationFilters(tab)}>Áp dụng</Button>
+            </Box>
+
+            {loading && <PageSkeleton rows={4} />}
+
+            {!loading && tab === 'lessons' && <Card sx={{ minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+              {adminLessons?.data.length ? <AdminDataTable<ApiAdminLesson>
+                label="Danh sách bài học"
+                rows={adminLessons.data}
+                getRowKey={(lesson) => lesson.id}
+                minWidth={1250}
+                stickyFirstColumn
+                stickyLastColumn
+                columns={[
+                  { key: 'id', header: 'ID', align: 'right', render: (lesson) => lesson.id },
+                  { key: 'lesson', header: 'Bài học', render: (lesson) => <Typography fontWeight={750} sx={{ minWidth: 220 }}>{lesson.title}</Typography> },
+                  { key: 'course', header: 'Khóa học', render: (lesson) => lesson.course.title },
+                  { key: 'categories', header: 'Danh mục', render: (lesson) => lesson.course.categories?.map((category) => category.name).join(', ') || lesson.course.category?.name || '—' },
+                  { key: 'position', header: 'Thứ tự', align: 'center', render: (lesson) => lesson.position },
+                  { key: 'duration', header: 'Thời lượng', render: (lesson) => lesson.duration ? `${Math.ceil(lesson.duration / 60)} phút` : '—' },
+                  { key: 'progress', header: 'Đã bắt đầu', align: 'center', render: (lesson) => lesson.learning_progress_count },
+                  { key: 'updated', header: 'Cập nhật', render: (lesson) => new Date(lesson.updated_at).toLocaleDateString('vi-VN') },
+                  { key: 'actions', header: 'Thao tác', align: 'right', render: (lesson) => <Button size="small" onClick={() => void selectContent(lesson.course_id)} aria-label="Mở nội dung khóa học">Mở nội dung</Button> },
+                ] satisfies AdminColumn<ApiAdminLesson>[]}
+              /> : <EmptyState title="Không có bài học phù hợp." />}
+            </CardContent></Card>}
+
+            {!loading && tab === 'quizzes' && <Card sx={{ minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+              {adminExams?.data.length ? <AdminDataTable<ApiAdminExam>
+                label="Danh sách bài kiểm tra"
+                rows={adminExams.data}
+                getRowKey={(exam) => exam.id}
+                minWidth={1150}
+                stickyFirstColumn
+                stickyLastColumn
+                columns={[
+                  { key: 'id', header: 'ID', align: 'right', render: (exam) => exam.id },
+                  { key: 'exam', header: 'Bài kiểm tra', render: (exam) => <Typography fontWeight={750} sx={{ minWidth: 210 }}>{exam.title}</Typography> },
+                  { key: 'course', header: 'Khóa học', render: (exam) => exam.course.title },
+                  { key: 'passScore', header: 'Điểm đạt', align: 'center', render: (exam) => exam.pass_score },
+                  { key: 'maxAttempts', header: 'Lượt tối đa', align: 'center', render: (exam) => exam.max_attempts },
+                  { key: 'questions', header: 'Câu hỏi', align: 'center', render: (exam) => exam.questions_count },
+                  { key: 'attempts', header: 'Lượt làm', align: 'center', render: (exam) => exam.attempts_count },
+                  { key: 'updated', header: 'Cập nhật', render: (exam) => new Date(exam.updated_at).toLocaleDateString('vi-VN') },
+                  { key: 'actions', header: 'Thao tác', align: 'right', render: (exam) => <Button size="small" onClick={() => void selectContent(exam.course_id)} aria-label="Mở nội dung khóa học">Mở nội dung</Button> },
+                ] satisfies AdminColumn<ApiAdminExam>[]}
+              /> : <EmptyState title="Không có bài kiểm tra phù hợp." />}
+            </CardContent></Card>}
+
+            {!loading && tab === 'enrollments' && <Card sx={{ minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+              {adminEnrollments?.data.length ? <AdminDataTable<ApiEnrollment>
+                label="Danh sách ghi danh"
+                rows={adminEnrollments.data}
+                getRowKey={(enrollment) => enrollment.id}
+                minWidth={1180}
+                columns={[
+                  { key: 'id', header: 'ID', align: 'right', render: (enrollment) => enrollment.id },
+                  { key: 'student', header: 'Học viên', render: (enrollment) => <Box sx={{ minWidth: 190 }}><Typography fontWeight={750}>{enrollment.user?.name ?? `#${enrollment.user_id}`}</Typography><Typography variant="body2" color="text.secondary">{enrollment.user?.email ?? '—'}</Typography></Box> },
+                  { key: 'course', header: 'Khóa học', render: (enrollment) => enrollment.course?.title ?? `#${enrollment.course_id}` },
+                  { key: 'status', header: 'Trạng thái', render: (enrollment) => enrollment.status === 'active' ? 'Đang học' : 'Hết hạn' },
+                  { key: 'enrolled', header: 'Ghi danh', render: (enrollment) => new Date(enrollment.enrolled_at).toLocaleDateString('vi-VN') },
+                  { key: 'expires', header: 'Hết hạn', render: (enrollment) => new Date(enrollment.expires_at).toLocaleDateString('vi-VN') },
+                  { key: 'order', header: 'Order ID', align: 'right', render: (enrollment) => enrollment.order_id ?? '—' },
+                  { key: 'updated', header: 'Cập nhật', render: (enrollment) => enrollment.updated_at ? new Date(enrollment.updated_at).toLocaleDateString('vi-VN') : '—' },
+                ] satisfies AdminColumn<ApiEnrollment>[]}
+              /> : <EmptyState title="Không có ghi danh phù hợp." />}
+            </CardContent></Card>}
+
+            {!loading && tab === 'quizAttempts' && <Card sx={{ minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+              {adminAttempts?.data.length ? <AdminDataTable<ApiAdminAttempt>
+                label="Danh sách kết quả bài kiểm tra"
+                rows={adminAttempts.data}
+                getRowKey={(attempt) => attempt.id}
+                minWidth={1320}
+                columns={[
+                  { key: 'id', header: 'ID', align: 'right', render: (attempt) => attempt.id },
+                  { key: 'student', header: 'Học viên', render: (attempt) => attempt.user.name },
+                  { key: 'course', header: 'Khóa học', render: (attempt) => attempt.course.title },
+                  { key: 'exam', header: 'Bài kiểm tra', render: (attempt) => attempt.exam.title },
+                  { key: 'attempt', header: 'Lần làm', align: 'center', render: (attempt) => attempt.attempt_number },
+                  { key: 'score', header: 'Điểm', align: 'center', render: (attempt) => attempt.score },
+                  { key: 'correct', header: 'Đúng/Sai', align: 'center', render: (attempt) => `${attempt.correct_count}/${attempt.wrong_count}` },
+                  { key: 'passed', header: 'Kết quả', render: (attempt) => attempt.passed ? 'Đạt' : 'Chưa đạt' },
+                  { key: 'submitted', header: 'Nộp bài', render: (attempt) => new Date(attempt.submitted_at).toLocaleString('vi-VN') },
+                ] satisfies AdminColumn<ApiAdminAttempt>[]}
+              /> : <EmptyState title="Không có kết quả bài kiểm tra phù hợp." />}
+            </CardContent></Card>}
+
+            {!loading && tab === 'certificates' && <Card sx={{ minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+              {adminCertificates?.data.length ? <AdminDataTable<ApiAdminCertificateStatus>
+                label="Danh sách chứng chỉ"
+                rows={adminCertificates.data}
+                getRowKey={(record) => record.enrollment_id}
+                minWidth={1450}
+                columns={[
+                  { key: 'enrollment', header: 'Enrollment ID', align: 'right', render: (record) => record.enrollment_id },
+                  { key: 'student', header: 'Học viên', render: (record) => <Box sx={{ minWidth: 180 }}><Typography fontWeight={750}>{record.user.name}</Typography><Typography variant="body2" color="text.secondary">{record.user.email}</Typography></Box> },
+                  { key: 'course', header: 'Khóa học', render: (record) => record.course.title },
+                  { key: 'lessons', header: 'Bài học hoàn thành', align: 'center', render: (record) => `${record.completed_lessons}/${record.total_lessons}` },
+                  { key: 'attempt', header: 'Lượt đạt gần nhất', render: (record) => record.latest_passing_attempt ? `#${record.latest_passing_attempt.id} · ${record.latest_passing_attempt.score} điểm` : '—' },
+                  { key: 'eligibility', header: 'Điều kiện', render: (record) => record.eligible ? 'Đủ điều kiện' : 'Chưa đủ điều kiện' },
+                  { key: 'code', header: 'Mã chứng chỉ', render: (record) => record.certificate?.certificate_code ?? '—' },
+                  { key: 'issued', header: 'Ngày cấp', render: (record) => record.certificate ? new Date(record.certificate.issued_at).toLocaleDateString('vi-VN') : '—' },
+                  { key: 'state', header: 'Trạng thái', render: (record) => ({ not_eligible: 'Chưa đủ điều kiện', eligible: 'Đủ điều kiện', issued: 'Đã cấp' }[record.state]) },
+                ] satisfies AdminColumn<ApiAdminCertificateStatus>[]}
+              /> : <EmptyState title="Không có dữ liệu chứng chỉ phù hợp." />}
+            </CardContent></Card>}
+
+            {operationPages[tab] && operationPages[tab]!.meta.last_page > 1 && <Pagination count={operationPages[tab]!.meta.last_page} page={operationFilters[tab].page} onChange={(_, page) => changeOperationPage(tab, page)} color="primary" sx={{ alignSelf: 'center' }} />}
+          </Stack>}
 
           {tab === 'overview' && stats && <AdminOverview stats={stats} />}
 
@@ -656,7 +928,7 @@ export function AdminPage() {
           </Box>}
 
           {tab === 'news' && <Stack spacing={2}>
-            <Box component="section" role="region" aria-label="Bộ lọc tin tức" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1.1fr) minmax(220px, 1fr) auto auto', gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+            <Box component="section" role="region" aria-label="Bộ lọc tin tức" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(240px, 1.1fr) minmax(180px, .8fr) minmax(180px, .8fr) auto auto' }, gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
               <TextField label="Tìm tin tức" value={newsQuery} onChange={(event) => setNewsQuery(event.target.value)} fullWidth />
               <FormControl fullWidth>
                 <InputLabel id="news-status-filter">Trạng thái tin tức</InputLabel>
@@ -664,6 +936,13 @@ export function AdminPage() {
                   <MenuItem value="">Tất cả</MenuItem>
                   <MenuItem value="draft">Bản nháp</MenuItem>
                   <MenuItem value="published">Xuất bản</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel id="news-category-filter">Danh mục tin tức</InputLabel>
+                <Select labelId="news-category-filter" label="Danh mục tin tức" value={newsCategory} onChange={(event) => setNewsCategory(event.target.value)}>
+                  <MenuItem value="">Tất cả</MenuItem>
+                  {news?.categories?.map((category) => <MenuItem key={category} value={category}>{category}</MenuItem>)}
                 </Select>
               </FormControl>
               <Button variant="contained" onClick={applyNewsFilters} sx={{ whiteSpace: 'nowrap' }}>Áp dụng</Button>
@@ -676,10 +955,11 @@ export function AdminPage() {
                   rows={news.data}
                   getRowKey={(newsPost) => newsPost.id}
                   columns={[
-                    { key: 'title', header: 'Tin tức', render: (newsPost) => <Box sx={{ minWidth: 220 }}><Typography fontWeight={750}>{newsPost.title}</Typography><Typography variant="body2" color="text.secondary">{newsPost.excerpt}</Typography></Box> },
+                    { key: 'title', header: 'Tin tức', render: (newsPost) => <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 320 }}>{newsPost.thumbnail && <Box component="img" src={newsPost.thumbnail} alt={newsPost.title} sx={{ width: 72, height: 48, borderRadius: 1.5, objectFit: 'cover', flexShrink: 0 }} />}<Box><Typography fontWeight={750}>{newsPost.title}</Typography><Typography variant="body2" color="text.secondary">{newsPost.excerpt}</Typography></Box></Stack> },
                     { key: 'category', header: 'Danh mục', render: (newsPost) => newsPost.category },
                     { key: 'status', header: 'Trạng thái', render: (newsPost) => <StatusChip status={newsPost.status} /> },
                     { key: 'published', header: 'Ngày xuất bản', render: (newsPost) => newsPost.published_at ? new Date(newsPost.published_at).toLocaleDateString('vi-VN') : '—' },
+                    { key: 'updated', header: 'Cập nhật', render: (newsPost) => new Date(newsPost.updated_at).toLocaleDateString('vi-VN') },
                     { key: 'actions', header: 'Thao tác', align: 'right', render: (newsPost) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" onClick={() => beginNewsEdit(newsPost)}>Sửa</Button><Button size="small" variant="outlined" onClick={() => changeNewsStatus(newsPost)}>{newsPost.status === 'draft' ? 'Xuất bản' : 'Chuyển về nháp'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa tin tức', newsPost.title, () => adminRepositories.news.remove(token, newsPost.id), 'Đã xóa tin tức.')}>Xóa</Button></Stack> },
                   ] satisfies AdminColumn<ApiNewsPost>[]}
                 /> : <EmptyState title="Không có tin tức phù hợp." />}

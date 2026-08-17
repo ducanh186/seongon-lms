@@ -1,7 +1,6 @@
 import { api } from '../../lib/api';
 
-// Current persistence adapter: Laravel JSON API.
-// ERD_PENDING: split or remap these boundaries only against the approved ERD/API contract.
+// Persistence adapter: approved Laravel JSON API contracts.
 export const applicationRepositories = {
   auth: {
     me: api.me,

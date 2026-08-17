@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Support\DemoStudentNames;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -20,18 +21,19 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory()->create([
-            'name' => 'Học viên Demo',
+            'name' => DemoStudentNames::forNumber(1),
             'email' => 'student@seongon.vn',
         ]);
 
         foreach (range(1, 15) as $number) {
             User::factory()->create([
-                'name' => sprintf('Học viên SEONGON %02d', $number),
+                'name' => DemoStudentNames::forNumber($number + 1),
                 'email' => sprintf('learner%02d@seongon.vn', $number),
             ]);
         }
 
         $this->call(GeneratedDemoCatalogSeeder::class);
         $this->call(CompletedCourseDemoSeeder::class);
+        $this->call(DemoNewsSeeder::class);
     }
 }

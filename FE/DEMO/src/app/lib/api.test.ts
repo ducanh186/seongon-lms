@@ -124,4 +124,34 @@ describe('apiRequest', () => {
     expect(fetchMock.mock.calls[1][0]).toMatch(/\/admin\/questions\/18$/);
     expect(fetchMock.mock.calls[1][1].method).toBe('PUT');
   });
+
+  it('maps every new ERD read to its exact Admin endpoint', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(
+      new Response(JSON.stringify({ data: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.adminRoles('token', { q: 'student', page: 1 });
+    await api.adminCarts('token', { state: 'non_empty', page: 1 });
+    await api.adminCartItems('token', { course_id: 10, page: 1 });
+    await api.adminOrders('token', { status: 'paid', page: 1 });
+    await api.adminCourseCategories('token', { course_id: 10, page: 1 });
+    await api.adminLearningProgress('token', { completed: 1, page: 1 });
+    await api.adminQuestions('token', { exam_id: 3, page: 1 });
+    await api.adminAnswers('token', { correct: 1, page: 1 });
+
+    expect(fetchMock.mock.calls.map(([url]) => String(url).replace(/^.*\/api\/v1/, ''))).toEqual([
+      '/admin/roles?q=student&page=1',
+      '/admin/carts?state=non_empty&page=1',
+      '/admin/cart-items?course_id=10&page=1',
+      '/admin/orders?status=paid&page=1',
+      '/admin/course-categories?course_id=10&page=1',
+      '/admin/learning-progress?completed=1&page=1',
+      '/admin/questions?exam_id=3&page=1',
+      '/admin/answers?correct=1&page=1',
+    ]);
+  });
 });

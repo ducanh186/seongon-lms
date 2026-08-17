@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
+use App\Models\Lesson;
+use App\Models\User;
 use Database\Seeders\CompletedCourseDemoSeeder;
 use Database\Seeders\GeneratedDemoCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,5 +63,38 @@ class GeneratedDemoCatalogSeederTest extends TestCase
 
         $this->assertSame(101, Course::query()->count());
         $this->assertSame(101, Course::query()->distinct()->count('title'));
+    }
+
+    public function test_it_seeds_realistic_unique_vietnamese_student_names(): void
+    {
+        $this->seed(GeneratedDemoCatalogSeeder::class);
+
+        $students = User::query()
+            ->where('email', 'like', 'student%@demo.seongon.vn')
+            ->pluck('name');
+
+        $this->assertCount(100, $students);
+        $this->assertCount(100, $students->unique());
+        $this->assertContains('Nguyễn Văn An', $students);
+        $this->assertFalse($students->contains(
+            fn (string $name): bool => preg_match('/(?:Học viên|Demo|SEONGON|\d{2,})/ui', $name) === 1,
+        ));
+    }
+
+    public function test_it_uses_topic_relevant_youtube_videos_instead_of_placeholder_animation(): void
+    {
+        $this->seed(GeneratedDemoCatalogSeeder::class);
+
+        $videos = Lesson::query()->pluck('video_url');
+        $socialCourse = Course::query()->where('title', 'Social Content cho Facebook và Instagram')->firstOrFail();
+
+        $this->assertNotEmpty($videos);
+        $this->assertFalse($videos->contains(
+            fn (string $url): bool => str_contains($url, 'aqz-KE-bpKQ'),
+        ));
+        $this->assertSame(
+            ['https://www.youtube.com/embed/tJCEVBwvrqY'],
+            $socialCourse->lessons()->pluck('video_url')->unique()->values()->all(),
+        );
     }
 }

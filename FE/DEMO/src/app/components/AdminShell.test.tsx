@@ -7,14 +7,14 @@ const useAuth = vi.hoisted(() => vi.fn());
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
 describe('AdminShell', () => {
-  it('uses a full-width Admin header and ordered horizontal navigation without a sidebar', () => {
+  it('uses a full-width Admin header and grouped persistent left sidebar', () => {
     const onChange = vi.fn();
     const logout = vi.fn();
     useAuth.mockReturnValue({ user: { name: 'SEONGON Admin', role: 'admin' }, logout });
 
     render(<MemoryRouter><AdminShell active="courses" onChange={onChange}><p>Nội dung quản trị</p></AdminShell></MemoryRouter>);
 
-    expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
+    expect(screen.getByRole('complementary')).toBeInTheDocument();
     const banner = screen.getByRole('banner', { name: 'Admin Portal' });
     expect(within(banner).getByText('SEONGON ACADEMY')).toBeInTheDocument();
     expect(within(banner).getByText('Admin Portal')).toBeInTheDocument();
@@ -24,15 +24,18 @@ describe('AdminShell', () => {
     expect(logout).toHaveBeenCalledOnce();
 
     const navigation = screen.getByRole('navigation', { name: 'Quản trị' });
+    expect(navigation).toHaveAttribute('data-admin-sidebar', 'true');
     expect(within(navigation).getAllByRole('button').map((button) => button.textContent)).toEqual([
-      'Tổng quan', 'Khóa học', 'Danh mục', 'Bài học', 'Bài kiểm tra',
-      'Học viên', 'Ghi danh', 'Kết quả bài kiểm tra', 'Chứng chỉ', 'Đánh giá', 'Tin tức',
+      'Tổng quan', 'Vai trò', 'Học viên', 'Giỏ hàng', 'Mục giỏ hàng', 'Đơn hàng',
+      'Danh mục', 'Gán danh mục', 'Khóa học', 'Bài học',
+      'Ghi danh', 'Tiến độ học tập',
+      'Bài kiểm tra', 'Câu hỏi', 'Đáp án', 'Kết quả bài kiểm tra',
+      'Chứng chỉ', 'Đánh giá', 'Tin tức',
     ]);
-    expect(within(navigation).getByRole('region', { name: 'Nội dung' })).toBeInTheDocument();
+    expect(within(navigation).getByRole('region', { name: 'Quản lý khóa học' })).toBeInTheDocument();
     expect(within(navigation).getByRole('region', { name: 'Học tập' })).toBeInTheDocument();
     expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'true');
-    expect(navigation).toHaveStyle({ overflowX: 'auto' });
-    expect(screen.getByRole('main')).toHaveStyle({ overflowX: 'hidden' });
+    expect(screen.getByRole('main')).toHaveStyle({ minWidth: 0 });
 
     fireEvent.click(within(navigation).getByRole('button', { name: 'Học viên' }));
     expect(onChange).toHaveBeenCalledWith('users');

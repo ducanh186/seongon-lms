@@ -13,7 +13,9 @@ use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\User;
 use App\Services\CertificateService;
+use App\Support\CuratedLessonVideo;
 use App\Support\DemoCourseThumbnail;
+use App\Support\DemoStudentNames;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +28,7 @@ class CompletedCourseDemoSeeder extends Seeder
             $student = User::query()->updateOrCreate(
                 ['email' => 'student@seongon.vn'],
                 [
-                    'name' => 'Học viên Demo',
+                    'name' => DemoStudentNames::forNumber(1),
                     'password' => Hash::make('password'),
                     'role' => 'student',
                     'status' => 'active',
@@ -61,14 +63,14 @@ class CompletedCourseDemoSeeder extends Seeder
                 [
                     'sort_order' => 1,
                     'title' => 'Xác định mục tiêu SEO và KPI',
-                    'video_url' => 'https://www.youtube.com/embed/aqz-KE-bpKQ',
+                    'video_url' => CuratedLessonVideo::seo(),
                     'description' => 'Liên kết mục tiêu SEO với mục tiêu kinh doanh và hệ thống chỉ số đo lường.',
                     'duration' => 300,
                 ],
                 [
                     'sort_order' => 2,
                     'title' => 'Xây dựng kế hoạch SEO 90 ngày',
-                    'video_url' => 'https://www.youtube.com/embed/aqz-KE-bpKQ',
+                    'video_url' => CuratedLessonVideo::seo(),
                     'description' => 'Thực hành lập lộ trình SEO ưu tiên theo nguồn lực và dữ liệu hiện có.',
                     'duration' => 420,
                 ],

@@ -18,7 +18,7 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
   return (
     <Stack spacing={3}>
       <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'flex-end' }}>
-        DEMO / ERD_PENDING
+        Dữ liệu trực tiếp từ hệ thống
       </Typography>
       <Box
         data-testid="admin-kpi-strip"

@@ -19,8 +19,7 @@ export function NotificationMenu() {
         color="primary"
         onMouseEnter={hoverMenu.open}
         onMouseLeave={hoverMenu.closeAfterDelay}
-        onFocus={hoverMenu.open}
-        onBlur={hoverMenu.closeAfterDelay}
+        onClick={hoverMenu.open}
       >
         <NotificationsNoneRoundedIcon />
       </IconButton>
@@ -28,22 +27,18 @@ export function NotificationMenu() {
         anchorEl={hoverMenu.anchor}
         open={Boolean(hoverMenu.anchor)}
         onClose={hoverMenu.close}
+        disableAutoFocus
+        disableEnforceFocus
+        disableRestoreFocus
         disableScrollLock
-        transitionDuration={{ enter: 200, exit: 150 }}
+        transitionDuration={0}
         slotProps={{
           root: { sx: { pointerEvents: 'none' } },
           list: { id: menuId, 'aria-labelledby': triggerId },
           paper: {
             onMouseEnter: hoverMenu.cancelClose,
             onMouseLeave: hoverMenu.closeAfterDelay,
-            sx: {
-              pointerEvents: 'auto',
-              animation: 'headerDropdownIn 200ms ease both',
-              '@keyframes headerDropdownIn': {
-                from: { opacity: 0, transform: 'translateY(-8px)' },
-                to: { opacity: 1, transform: 'translateY(0)' },
-              },
-            },
+            sx: { pointerEvents: 'auto' },
           },
         }}
       >

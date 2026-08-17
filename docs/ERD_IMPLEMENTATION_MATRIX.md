@@ -12,7 +12,7 @@ Every row must eventually read **IMPLEMENTED**.
 | `PARTIAL` | An equivalent exists under a different name/shape; migration + refactor required. |
 | `IMPLEMENTED` | Migration, model, service, admin route, admin screen, and student/public usage all done and verified. |
 
-**Current state:** P0 step C is complete. Step D is complete through **D3**; **D4** and the safe subset of **D5** are in expand/migrate deployments. Their contract phases remain. All of step D uses expand → migrate → contract sequencing; no contract phase has run yet, so legacy identifiers stay available. See the step logs below.
+**Current state:** Admin coverage is complete for all 15 approved ERD entities. The schema remains in its safe expand/migrate deployment: D4, D5, legacy compatibility columns, and the final contract removals are intentionally pending.
 
 ---
 
@@ -20,21 +20,21 @@ Every row must eventually read **IMPLEMENTED**.
 
 | ERD Entity | Actual DB | Model / Relationships | Migration | Service | API | Admin | Public / Student | Status |
 |---|---|---|---|---|---|---|---|---|
-| **Roles** | `roles` ✅ | `Role::users`, `User::role` ✅ | `000001` ✅ | missing `RoleService` | none | missing | authorization backing only | `PARTIAL` |
+| **Roles** | `roles` ✅ | `Role::users`, `User::role` ✅ | `000001` ✅ | `RoleService` admin read ✅ | `/admin/roles` read ✅ | real read-only list ✅ | authorization backing only | `PARTIAL` |
 | **Users** | `users` ✅ | `User::role/orders/enrollments` ✅ | `000005` expand ✅; legacy `role` retained | missing `UserService` | `/auth/*`, `/admin/users` ✅ | real list/status UI ✅ | auth/profile ✅ | `PARTIAL` |
-| **Carts** | `carts` ✅ | `Cart::user/items` ✅ | `000002` ✅ | `CartService` load/add/remove/clear/checkout ✅ | `/cart*` Student API ✅ | read via phpMyAdmin; no Admin mutation | authenticated Cart is DB-authoritative ✅ | `PARTIAL` |
-| **Cart_items** | `cart_items` ✅ | `CartItem::cart/course/user` ✅ | `000003`; unique `(cart_id, course_id)` ✅ | `CartService` sync/reconcile ✅ | `/cart/items*` Student API ✅ | read via phpMyAdmin; no Admin mutation | Header/Cart/Checkout use shared API state ✅ | `PARTIAL` |
-| **Orders** | `orders` ✅ | `Order::user/course/enrollment` ✅ | `000011` expand ✅; `amount`/`course_id` retained | `OrderService` admin read ✅ | Student create/pay + `/admin/orders*` read ✅ | API ready; screen pending | single-Course checkout + stable idempotency key ✅ | `PARTIAL` |
+| **Carts** | `carts` ✅ | `Cart::user/items` ✅ | `000002` ✅ | `CartService` Student operations + admin read ✅ | `/cart*` + `/admin/carts` read ✅ | real read-only list/aggregates ✅ | authenticated Cart is DB-authoritative ✅ | `PARTIAL` |
+| **Cart_items** | `cart_items` ✅ | `CartItem::cart/course/user` ✅ | `000003`; unique `(cart_id, course_id)` ✅ | `CartService` sync/reconcile/admin read ✅ | `/cart/items*` + `/admin/cart-items` read ✅ | real read-only list ✅ | Header/Cart/Checkout use shared API state ✅ | `PARTIAL` |
+| **Orders** | `orders` ✅ | `Order::user/course/enrollment` ✅ | `000011` expand ✅; `amount`/`course_id` retained | `OrderService` admin read ✅ | Student create/pay + `/admin/orders*` read ✅ | real read-only list ✅ | single-Course checkout + stable idempotency key ✅ | `PARTIAL` |
 | **Categories** | `categories` ✅ | `Category::courses` through pivot ✅ | existing | missing `CategoryService` | `/categories`, `/admin/categories` ✅ | real CRUD UI ✅ | catalog filter ✅ | `PARTIAL` |
-| **Course_categories** | `course_categories` ✅ | `CourseCategory`; `Course::categories` ✅ | `000004` + backfill ✅ | `CourseService` sync ✅ | indirect through Course ✅ | multi-select create/edit ✅ | public filter reads pivot ✅ | `PARTIAL` |
+| **Course_categories** | `course_categories` ✅ | `CourseCategory`; `Course::categories` ✅ | `000004` + backfill ✅ | `CourseService` sync/admin read ✅ | `/admin/course-categories` + Course write ✅ | real read-only pivot list + multi-select ✅ | public filter reads pivot ✅ | `PARTIAL` |
 | **Courses** | `courses` ✅ | category/categories, lessons, exam, enrollments ✅ | existing; legacy `category_id` retained as mirror | `CourseService` create/update/publish/read ✅ | `/courses`, `/admin/courses` ✅ | 13 real/aggregate columns + nested content ✅ | catalog/detail ✅ | `PARTIAL` |
-| **Enrollments** | `enrollments` ✅ | user/course/order/progress/attempts ✅ | existing; direct `user_id`, nullable `order_id` retained | `EnrollmentService` create/admin read ✅ | `/my/courses*` + `/admin/enrollments*` read ✅ | API ready; top-level screen pending | learning access ✅ | `PARTIAL` |
-| **Exams** | `exams` ✅ | `Exam::course/questions/attempts` ✅ | `000007` expand ✅ | `ExamGradingService` ✅; CRUD service missing | Admin nested legacy `/quiz`; Student quiz ✅ | nested Course content works; top-level placeholder | quiz flow ✅ | `PARTIAL` |
-| **Questions** | `questions` ✅ | `Question::exam/answers` ✅ | `000007` ✅ | grading only | Admin nested `/quizzes/{quiz}/questions` ✅ | nested Course content ✅ | quiz rendering ✅ | `PARTIAL` |
-| **Answers** | `answers` ✅ | `Answer::question` ✅ | `000006` ✅ | grading only | nested Question payload ✅ | nested Question editor ✅ | quiz answer options ✅ | `PARTIAL` |
-| **Learning_progress** | `learning_progress` ✅ plus transition `lesson_progress` | `LearningProgress::enrollment/lesson` ✅ | `000010` expand/backfill ✅; contract pending | `ProgressService` ✅ | lesson completion/progress ✅ | placeholder; no Admin API | learning progress ✅ | `PARTIAL` |
-| **Attempts** | `attempts` ✅ | `Attempt::enrollment/exam` ✅ | `000008`/`000009` ✅ | `ExamGradingService` ✅ | submit/result ✅ | placeholder; no Admin API | exam attempts ✅ | `PARTIAL` |
-| **Lessons** | `lessons` ✅ | `Lesson::course/learningProgress` ✅ | `000010` expand/backfill ✅; `position` retained | missing `LessonService` | Admin nested Course; Student lessons ✅ | nested Course content ✅; top-level placeholder | learning workspace ✅ | `PARTIAL` |
+| **Enrollments** | `enrollments` ✅ | user/course/order/progress/attempts ✅ | existing; direct `user_id`, nullable `order_id` retained | `EnrollmentService` create/admin read ✅ | `/my/courses*` + `/admin/enrollments*` read ✅ | real top-level read-only list ✅ | learning access ✅ | `PARTIAL` |
+| **Exams** | `exams` ✅ | `Exam::course/questions/attempts` ✅ | `000007` expand ✅ | `ExamGradingService` + admin index ✅ | nested write + `/admin/exams` read ✅ | real top-level list + nested Course editor ✅ | quiz flow ✅ | `PARTIAL` |
+| **Questions** | `questions` ✅ | `Question::exam/answers` ✅ | `000007` ✅ | `LearningOperationsService` admin read ✅ | nested write + `/admin/questions` read ✅ | real top-level list + nested editor ✅ | quiz rendering ✅ | `PARTIAL` |
+| **Answers** | `answers` ✅ | `Answer::question` ✅ | `000006` ✅ | `LearningOperationsService` admin read ✅ | nested write + `/admin/answers` read ✅ | real top-level list + nested editor ✅ | quiz answer options ✅ | `PARTIAL` |
+| **Learning_progress** | `learning_progress` ✅ plus transition `lesson_progress` | `LearningProgress::enrollment/lesson` ✅ | `000010` expand/backfill ✅; contract pending | `ProgressService` + admin read ✅ | lesson progress + `/admin/learning-progress` read ✅ | real top-level read-only list ✅ | learning progress ✅ | `PARTIAL` |
+| **Attempts** | `attempts` ✅ | `Attempt::enrollment/exam` ✅ | `000008`/`000009` ✅ | `ExamGradingService` + admin read ✅ | submit/result + `/admin/attempts` read ✅ | real top-level read-only list ✅ | exam attempts ✅ | `PARTIAL` |
+| **Lessons** | `lessons` ✅ | `Lesson::course/learningProgress` ✅ | `000010` expand/backfill ✅; `position` retained | `LearningOperationsService` admin read ✅ | nested write + `/admin/lessons` read ✅ | real top-level list + nested Course editor ✅ | learning workspace ✅ | `PARTIAL` |
 
 ---
 
@@ -53,7 +53,7 @@ ASSESSMENT   → Exams, Questions, Answers, Attempts
 SYSTEM       → Xem site public, Đăng xuất
 ```
 
-All screens reuse the existing shell: `AdminShell` → `AdminEntityPage` → `AdminDataTable`, with `AsyncState` supplying loading/empty/error. The `placeholder` status of `AdminEntityPage` becomes unused once every table is `IMPLEMENTED`, and the `ERD_PENDING` markers in `domain/entityRegistry.ts`, `admin/adminNavigation.ts`, and both repository files are removed at that point.
+All screens reuse `AdminShell`, the grouped persistent sidebar, `AdminDataTable`, and explicit loading/empty/error states. Mutable business entities reuse existing editors; transactional/history entities use filtered read-only indexes backed by their own Admin API.
 
 Read-only screens (no create/edit/delete) are intentional per §9 — transactional and history records: **Carts, Cart_items, Orders, Enrollments, Learning_progress, Attempts**.
 

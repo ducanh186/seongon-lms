@@ -79,4 +79,33 @@ class AdminCommerceReadTest extends TestCase
         $this->withToken($token)->getJson('/api/v1/admin/orders')->assertForbidden();
         $this->withToken($token)->getJson('/api/v1/admin/enrollments')->assertForbidden();
     }
+
+    public function test_admin_can_filter_enrollments_by_search_user_course_and_status(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create([
+            'name' => 'Trần Khánh Lan',
+            'email' => 'lan@example.test',
+        ]);
+        $course = Course::factory()->create(['title' => 'SEO Data Analysis']);
+        $enrollment = Enrollment::factory()->create([
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'status' => 'active',
+        ]);
+        Enrollment::factory()->create(['status' => 'expired']);
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)
+            ->getJson("/api/v1/admin/enrollments?q=lan%40example.test&course_id={$course->id}&user_id={$student->id}&status=active")
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.id', $enrollment->id)
+            ->assertJsonPath('data.0.user.name', 'Trần Khánh Lan')
+            ->assertJsonPath('data.0.course.title', 'SEO Data Analysis');
+
+        $this->withToken($token)
+            ->getJson('/api/v1/admin/enrollments?status=cancelled')
+            ->assertUnprocessable();
+    }
 }

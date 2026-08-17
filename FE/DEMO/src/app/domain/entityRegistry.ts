@@ -1,45 +1,66 @@
-// TEMPORARY DOMAIN REGISTRY.
-// ERD_PENDING: Replace or reconcile this metadata with the customer's approved ERD.
-// Do not treat this registry as the final database schema.
+// UI registry aligned with the approved domain model. Laravel migrations remain
+// authoritative for physical database details.
+
+export const CORE_ERD_ENTITY_KEYS = [
+  'roles',
+  'users',
+  'carts',
+  'cartItems',
+  'orders',
+  'categories',
+  'courseCategories',
+  'courses',
+  'enrollments',
+  'exams',
+  'questions',
+  'answers',
+  'learningProgress',
+  'attempts',
+  'lessons',
+] as const;
+
+export type CoreErdEntityKey = typeof CORE_ERD_ENTITY_KEYS[number];
 
 export type DomainEntityKey =
-  | 'users'
-  | 'courses'
-  | 'categories'
-  | 'lessons'
-  | 'enrollments'
+  | CoreErdEntityKey
   | 'reviews'
-  | 'quizzes'
-  | 'quizAttempts'
   | 'certificates'
-  | 'orders'
   | 'newsPosts';
 
-export type TemporaryEntityDefinition = {
+export type DomainEntityStatus = 'live' | 'read_only';
+
+export type EntityDefinition = {
   key: DomainEntityKey;
   label: string;
   adminVisible: boolean;
-  status: 'ERD_PENDING';
+  status: DomainEntityStatus;
 };
 
-function entity(key: DomainEntityKey, label: string): TemporaryEntityDefinition {
-  return { key, label, adminVisible: true, status: 'ERD_PENDING' };
+function entity(key: DomainEntityKey, label: string, status: DomainEntityStatus = 'live'): EntityDefinition {
+  return { key, label, adminVisible: true, status };
 }
 
-export const ENTITY_REGISTRY: Record<DomainEntityKey, TemporaryEntityDefinition> = {
+export const ENTITY_REGISTRY: Record<DomainEntityKey, EntityDefinition> = {
+  roles: entity('roles', 'Vai trò', 'read_only'),
   users: entity('users', 'Học viên'),
-  courses: entity('courses', 'Khóa học'),
+  carts: entity('carts', 'Giỏ hàng', 'read_only'),
+  cartItems: entity('cartItems', 'Mục giỏ hàng', 'read_only'),
+  orders: entity('orders', 'Đơn hàng', 'read_only'),
   categories: entity('categories', 'Danh mục'),
+  courseCategories: entity('courseCategories', 'Gán danh mục', 'read_only'),
+  courses: entity('courses', 'Khóa học'),
+  enrollments: entity('enrollments', 'Ghi danh', 'read_only'),
+  exams: entity('exams', 'Bài kiểm tra'),
+  questions: entity('questions', 'Câu hỏi', 'read_only'),
+  answers: entity('answers', 'Đáp án', 'read_only'),
+  learningProgress: entity('learningProgress', 'Tiến độ học tập', 'read_only'),
+  attempts: entity('attempts', 'Kết quả bài kiểm tra', 'read_only'),
   lessons: entity('lessons', 'Bài học'),
-  enrollments: entity('enrollments', 'Ghi danh'),
   reviews: entity('reviews', 'Đánh giá'),
-  quizzes: entity('quizzes', 'Bài kiểm tra'),
-  quizAttempts: entity('quizAttempts', 'Kết quả bài kiểm tra'),
-  certificates: entity('certificates', 'Chứng chỉ'),
-  orders: entity('orders', 'Đơn hàng'),
+  certificates: entity('certificates', 'Chứng chỉ', 'read_only'),
   newsPosts: entity('newsPosts', 'Tin tức'),
 };
 
-export function getAdminEntities(): TemporaryEntityDefinition[] {
+export function getAdminEntities(): EntityDefinition[] {
   return Object.values(ENTITY_REGISTRY).filter((entityDefinition) => entityDefinition.adminVisible);
 }

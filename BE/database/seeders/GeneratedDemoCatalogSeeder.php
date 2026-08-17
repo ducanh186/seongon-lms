@@ -14,7 +14,9 @@ use App\Models\Question;
 use App\Models\Review;
 use App\Models\User;
 use App\Support\CuratedDemoCatalog;
+use App\Support\CuratedLessonVideo;
 use App\Support\DemoCourseThumbnail;
+use App\Support\DemoStudentNames;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -23,11 +25,13 @@ use RuntimeException;
 
 class GeneratedDemoCatalogSeeder extends Seeder
 {
+    /** @var array<string, list<string>> Kept for the legacy video-sync migration. */
     public const COURSE_VIDEO_IDS = [
         'seo-ai-max-01' => ['KjK5-L-wDVg', 'vxoMlEMtwuw', 'TPtCjy4n4cU', '_s2h7X-c2jE'],
         'seo-ai-max-14' => ['EqMjWU7vF2o', '_oU8lclN114', 'n-kxOhnSH-Q', 'HPL0O7Oe3j0'],
         'seo-ai-max-27' => ['RFlpwKQ0bEs', 'aLWQqlpwHK8', 'wTwnFcWUM3k', 'G_9-AkZch4k'],
         'content-seo-09' => ['uG1TG6z8Mz4', '40U1WlmnDFU', '5LF6SwB5jZ0', 'jJPS4M72FLg'],
+        'google-ads-01' => ['16-dF2p0kKo', 'hbM3befCOv4', 'X1IrczXHbtU', 'uQDAR7Kj08c'],
     ];
 
     private const INSTRUCTORS = [
@@ -101,7 +105,7 @@ class GeneratedDemoCatalogSeeder extends Seeder
             $student = User::query()->firstOrNew(['email' => $email]);
 
             $student->forceFill([
-                'name' => sprintf('Học viên Demo %03d', $number),
+                'name' => DemoStudentNames::forNumber($number),
                 'password' => $password,
                 'role' => 'student',
                 'status' => 'active',
@@ -149,12 +153,10 @@ class GeneratedDemoCatalogSeeder extends Seeder
     private function createCourseContent(Course $course, string $topic): void
     {
         foreach (CuratedDemoCatalog::lessons($topic) as $index => $lessonTitle) {
-            $videoId = self::COURSE_VIDEO_IDS[$course->slug][$index] ?? 'aqz-KE-bpKQ';
-
             Lesson::query()->create([
                 'course_id' => $course->id,
                 'title' => $lessonTitle,
-                'video_url' => "https://www.youtube.com/embed/{$videoId}",
+                'video_url' => CuratedLessonVideo::forCourse($course->slug, $index),
                 'description' => sprintf('%s — nội dung thực hành cho chủ đề %s.', $lessonTitle, $topic),
                 'duration' => 600 + ($index * 180),
                 'sort_order' => $index + 1,

@@ -8,11 +8,61 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Order;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class CartService
 {
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function paginateForAdmin(array $filters = []): LengthAwarePaginator
+    {
+        return Cart::query()
+            ->with(['user', 'items.user', 'items.course'])
+            ->withCount('items')
+            ->when($filters['q'] ?? null, function (Builder $query, string $search): void {
+                $query->whereHas('user', function (Builder $userQuery) use ($search): void {
+                    $userQuery->where(function (Builder $identityQuery) use ($search): void {
+                        $identityQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+                });
+            })
+            ->when(($filters['state'] ?? null) === 'empty', fn (Builder $query) => $query->doesntHave('items'))
+            ->when(($filters['state'] ?? null) === 'non_empty', fn (Builder $query) => $query->has('items'))
+            ->latest('updated_at')
+            ->paginate(15)
+            ->withQueryString();
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function paginateItemsForAdmin(array $filters = []): LengthAwarePaginator
+    {
+        return CartItem::query()
+            ->with(['cart.user', 'user', 'course'])
+            ->when($filters['q'] ?? null, function (Builder $query, string $search): void {
+                $query->where(function (Builder $itemQuery) use ($search): void {
+                    $itemQuery
+                        ->whereHas('user', function (Builder $userQuery) use ($search): void {
+                            $userQuery->where(function (Builder $identityQuery) use ($search): void {
+                                $identityQuery->where('name', 'like', "%{$search}%")
+                                    ->orWhere('email', 'like', "%{$search}%");
+                            });
+                        })
+                        ->orWhereHas('course', fn (Builder $courseQuery) => $courseQuery->where('title', 'like', "%{$search}%"));
+                });
+            })
+            ->when($filters['course_id'] ?? null, fn (Builder $query, int $courseId) => $query->where('course_id', $courseId))
+            ->latest('created_at')
+            ->paginate(15)
+            ->withQueryString();
+    }
+
     public function forUser(User $user): ?Cart
     {
         $cart = Cart::query()

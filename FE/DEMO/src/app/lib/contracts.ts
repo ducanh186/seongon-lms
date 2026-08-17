@@ -88,6 +88,38 @@ export interface ApiCart {
   updated_at: string | null;
 }
 
+export interface ApiAdminRole {
+  id: number;
+  code: string;
+  name: string;
+  description: string | null;
+  users_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiAdminCartItem {
+  id: number;
+  cart_id: number;
+  user_id: number;
+  course_id: number;
+  user: ApiUser;
+  course: ApiCourse;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiAdminCart {
+  id: number;
+  user_id: number;
+  user: ApiUser;
+  items_count: number;
+  items: ApiAdminCartItem[];
+  current_total: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ApiNewsPost {
   id: number;
   title: string;
@@ -159,6 +191,60 @@ export interface ApiOrder {
   created_at: string;
 }
 
+export interface ApiAdminOrder extends ApiOrder {
+  total_amount: string | number;
+  user: ApiUser;
+  course: ApiCourse;
+  updated_at: string;
+}
+
+export interface ApiAdminCourseCategory {
+  id: number;
+  course_id: number;
+  category_id: number;
+  course: Pick<ApiCourse, 'id' | 'title'>;
+  category: Pick<ApiCategory, 'id' | 'name'>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiAdminLearningProgress {
+  id: number;
+  enrollment_id: number;
+  lesson_id: number;
+  is_completed: boolean;
+  completed_at: string | null;
+  user: ApiUser;
+  course: ApiCourse;
+  lesson: Pick<ApiLesson, 'id' | 'course_id' | 'title'>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiAdminQuestionIndex {
+  id: number;
+  exam_id: number;
+  content: string;
+  sort_order: number | null;
+  answers_count: number;
+  exam: { id: number; title: string };
+  course: Pick<ApiCourse, 'id' | 'title'>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiAdminAnswerIndex {
+  id: number;
+  question_id: number;
+  content: string;
+  is_correct: boolean;
+  question: { id: number; content: string };
+  exam: { id: number; title: string };
+  course: Pick<ApiCourse, 'id' | 'title'>;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ApiQuizOption {
   id: number;
   content: string;
@@ -200,6 +286,61 @@ export interface ApiQuiz {
 
 export interface ApiAdminCourse extends ApiCourse {
   quiz: ApiAdminQuiz | null;
+}
+
+export interface ApiAdminLesson extends ApiLesson {
+  learning_progress_count: number;
+  course: ApiCourse;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiAdminExam {
+  id: number;
+  course_id: number;
+  title: string;
+  pass_score: number;
+  max_attempts: number;
+  questions_count: number;
+  attempts_count: number;
+  course: ApiCourse;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiAdminAttempt {
+  id: number;
+  enrollment_id: number;
+  exam_id: number;
+  score: number;
+  passed: boolean;
+  attempt_number: number;
+  correct_count: number;
+  wrong_count: number;
+  submitted_at: string;
+  user: ApiUser;
+  course: ApiCourse;
+  exam: Pick<ApiAdminExam, 'id' | 'course_id' | 'title'>;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ApiCertificateState = 'not_eligible' | 'eligible' | 'issued';
+
+export interface ApiAdminCertificateStatus {
+  enrollment_id: number;
+  user_id: number;
+  course_id: number;
+  user: ApiUser;
+  course: ApiCourse;
+  completed_lessons: number;
+  total_lessons: number;
+  eligible: boolean;
+  latest_passing_attempt: Pick<ApiAdminAttempt, 'id' | 'exam_id' | 'score' | 'submitted_at'> | null;
+  certificate: ApiCertificate | null;
+  state: ApiCertificateState;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ApiQuizAttempt {

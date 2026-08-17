@@ -80,7 +80,16 @@ export function GlobalHeader() {
         disableGutters
         sx={{ maxWidth: 'none', width: '100%', px: { xs: 2, md: 3, lg: 4 } }}
       >
-        <Toolbar disableGutters sx={{ minHeight: layoutTokens.headerHeight, gap: 2 }}>
+        <Toolbar
+          disableGutters
+          data-testid="global-header-toolbar"
+          sx={{
+            minHeight: layoutTokens.headerHeight,
+            display: 'grid',
+            gridTemplateColumns: 'minmax(180px, 1fr) auto minmax(180px, 1fr)',
+            gap: 2,
+          }}
+        >
           <Box
             component={Link}
             to="/"
@@ -90,28 +99,30 @@ export function GlobalHeader() {
             <BrandLogo src={logoSeongon} alt="" width={224} />
           </Box>
 
-          <Stack component="nav" aria-label="Điều hướng chính" direction="row" spacing={0.5} sx={{ ml: 'auto', alignSelf: 'stretch', alignItems: 'stretch' }}>
-            {navLink({ label: 'Trang chủ', to: '/' })}
-            <CourseMegaMenu active={isActive('/courses')} />
-            {navLink({ label: 'Tin tức', to: '/news' })}
-          </Stack>
+          <Box data-testid="global-header-center" sx={{ justifySelf: 'center', alignSelf: 'stretch', display: 'flex', alignItems: 'stretch' }}>
+            <Stack component="nav" aria-label="Điều hướng chính" direction="row" spacing={0.5} sx={{ alignSelf: 'stretch', alignItems: 'stretch' }}>
+              {navLink({ label: 'Trang chủ', to: '/' })}
+              <CourseMegaMenu active={isActive('/courses')} />
+              {navLink({ label: 'Tin tức', to: '/news' })}
+            </Stack>
+            <IconButton aria-label="Tìm kiếm khóa học" onClick={() => navigate('/courses')} color="primary">
+              <SearchRoundedIcon />
+            </IconButton>
+          </Box>
 
-          <IconButton aria-label="Tìm kiếm khóa học" onClick={() => navigate('/courses')} color="primary">
-            <SearchRoundedIcon />
-          </IconButton>
-
-          {!user && (
-            <>
+          <Box data-testid="global-header-actions" sx={{ justifySelf: 'end', display: 'flex', alignItems: 'center', gap: 1 }}>
+            {!user && (
+              <>
               <IconButton component={Link} to="/cart" aria-label="Giỏ hàng" color="primary">
                 <ShoppingCartOutlinedIcon />
               </IconButton>
               <Button component={Link} to="/login" color="primary">Đăng nhập</Button>
               <Button component={Link} to="/login" variant="contained">Đăng ký</Button>
-            </>
-          )}
+              </>
+            )}
 
-          {user && (
-            <>
+            {user && (
+              <>
               {isStudent && <NotificationMenu />}
               {isStudent && (
                 <IconButton aria-label="Giỏ hàng" onClick={() => navigate('/cart')} color="primary">
@@ -122,8 +133,7 @@ export function GlobalHeader() {
                 id={accountTriggerId}
                 onMouseEnter={accountMenu.open}
                 onMouseLeave={accountMenu.closeAfterDelay}
-                onFocus={accountMenu.open}
-                onBlur={accountMenu.closeAfterDelay}
+                onClick={accountMenu.open}
                 startIcon={<Avatar src={user.avatar ?? undefined} sx={{ width: 32, height: 32, bgcolor: 'primary.dark' }}>{user.name[0]}</Avatar>}
                 color="primary"
                 aria-haspopup="menu"
@@ -138,22 +148,18 @@ export function GlobalHeader() {
                 anchorEl={accountMenu.anchor}
                 open={Boolean(accountMenu.anchor)}
                 onClose={accountMenu.close}
+                disableAutoFocus
+                disableEnforceFocus
+                disableRestoreFocus
                 disableScrollLock
-                transitionDuration={{ enter: 200, exit: 150 }}
+                transitionDuration={0}
                 slotProps={{
                   root: { sx: { pointerEvents: 'none' } },
                   list: { id: accountMenuId, 'aria-labelledby': accountTriggerId },
                   paper: {
                     onMouseEnter: accountMenu.cancelClose,
                     onMouseLeave: accountMenu.closeAfterDelay,
-                    sx: {
-                      pointerEvents: 'auto',
-                      animation: 'headerDropdownIn 200ms ease both',
-                      '@keyframes headerDropdownIn': {
-                        from: { opacity: 0, transform: 'translateY(-8px)' },
-                        to: { opacity: 1, transform: 'translateY(0)' },
-                      },
-                    },
+                    sx: { pointerEvents: 'auto' },
                   },
                 }}
               >
@@ -163,8 +169,9 @@ export function GlobalHeader() {
                 <Divider />
                 <MenuItem onClick={() => void handleLogout()}>Đăng xuất</MenuItem>
               </Menu>
-            </>
-          )}
+              </>
+            )}
+          </Box>
         </Toolbar>
       </Container>
     </AppBar>

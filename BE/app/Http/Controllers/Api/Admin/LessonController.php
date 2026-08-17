@@ -3,13 +3,27 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AdminLessonResource;
 use App\Http\Resources\LessonResource;
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Services\LearningOperationsService;
 use Illuminate\Http\Request;
 
 class LessonController extends Controller
 {
+    public function __construct(private readonly LearningOperationsService $operations) {}
+
+    public function index(Request $request)
+    {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:255'],
+            'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+        ]);
+
+        return AdminLessonResource::collection($this->operations->paginateLessons($filters));
+    }
+
     public function store(Request $request, Course $course)
     {
         $data = $request->validate([

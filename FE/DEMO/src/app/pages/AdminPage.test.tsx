@@ -6,13 +6,18 @@ import { AdminPage } from './AdminPage';
 import { RequireAuth } from '../components/RequireAuth';
 
 const adminStats = vi.hoisted(() => vi.fn());
+const adminRoles = vi.hoisted(() => vi.fn());
 const adminUsers = vi.hoisted(() => vi.fn());
 const adminCategories = vi.hoisted(() => vi.fn());
 const adminCourses = vi.hoisted(() => vi.fn());
+const adminLessons = vi.hoisted(() => vi.fn());
+const adminExams = vi.hoisted(() => vi.fn());
 const adminReviews = vi.hoisted(() => vi.fn());
 const adminCourse = vi.hoisted(() => vi.fn());
 const saveCourse = vi.hoisted(() => vi.fn());
 const adminEnrollments = vi.hoisted(() => vi.fn());
+const adminAttempts = vi.hoisted(() => vi.fn());
+const adminCertificates = vi.hoisted(() => vi.fn());
 const reorderLessons = vi.hoisted(() => vi.fn());
 const deleteCourse = vi.hoisted(() => vi.fn());
 const adminNews = vi.hoisted(() => vi.fn());
@@ -22,7 +27,7 @@ const useAuth = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { adminStats, adminUsers, adminCategories, adminCourses, adminReviews, adminCourse, saveCourse, adminEnrollments, reorderLessons, deleteCourse, adminNews, saveNews, deleteNews },
+  api: { adminStats, adminRoles, adminUsers, adminCategories, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, adminNews, saveNews, deleteNews },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
@@ -75,12 +80,31 @@ function deferred<T>() {
 function mockAdminData() {
   useAuth.mockReturnValue({ token: 'admin-token', isReady: true, user: { id: 1, role: 'admin' } });
   adminStats.mockResolvedValue({ students: 1, courses: 1, published_courses: 0, enrollments: 0, certificates: 0, completion_rate: 0, revenue: 0, monthly_enrollments: [], popular_courses: [] });
+  adminRoles.mockResolvedValue({
+    data: [{ id: 2, code: 'student', name: 'Học viên', description: 'Người học', users_count: 117, created_at: '2026-08-01T00:00:00Z', updated_at: '2026-08-15T00:00:00Z' }],
+    meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
+  });
   adminUsers.mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } });
   adminCategories.mockResolvedValue({ data: [
     { id: 1, name: 'SEO', slug: 'seo', description: null, courses_count: 1 },
     { id: 2, name: 'Analytics', slug: 'analytics', description: null, courses_count: 1 },
   ] });
   adminCourses.mockResolvedValue({ data: [course], meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 } });
+  adminLessons.mockResolvedValue({
+    data: [{
+      ...selectedCourse.lessons[0], learning_progress_count: 3, course,
+      created_at: '2026-08-10T00:00:00Z', updated_at: '2026-08-15T00:00:00Z',
+    }],
+    meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
+  });
+  adminExams.mockResolvedValue({
+    data: [{
+      id: 3, course_id: 10, title: 'Quiz SEO', pass_score: 75, max_attempts: 3,
+      questions_count: 1, attempts_count: 6, course,
+      created_at: '2026-08-10T00:00:00Z', updated_at: '2026-08-15T00:00:00Z',
+    }],
+    meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
+  });
   adminReviews.mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } });
   adminCourse.mockResolvedValue({ data: selectedCourse });
   saveCourse.mockResolvedValue({ data: selectedCourse });
@@ -94,9 +118,30 @@ function mockAdminData() {
     }],
     meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
   });
+  adminAttempts.mockResolvedValue({
+    data: [{
+      id: 71, enrollment_id: 44, exam_id: 3, score: 90, passed: true, attempt_number: 2,
+      correct_count: 9, wrong_count: 1, submitted_at: '2026-08-15T00:00:00Z',
+      user: { id: 5, name: 'Nguyễn Văn An', email: 'learner@example.test', role: 'student', phone: null, avatar: null, status: 'active', created_at: '2026-08-01T00:00:00Z' },
+      course, exam: { id: 3, course_id: 10, title: 'Quiz SEO' },
+      created_at: '2026-08-15T00:00:00Z', updated_at: '2026-08-15T00:00:00Z',
+    }],
+    meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
+  });
+  adminCertificates.mockResolvedValue({
+    data: [{
+      enrollment_id: 44, user_id: 5, course_id: 10,
+      user: { id: 5, name: 'Nguyễn Văn An', email: 'learner@example.test', role: 'student', phone: null, avatar: null, status: 'active', created_at: '2026-08-01T00:00:00Z' },
+      course, completed_lessons: 2, total_lessons: 2, eligible: true,
+      latest_passing_attempt: { id: 71, exam_id: 3, score: 90, submitted_at: '2026-08-15T00:00:00Z' },
+      certificate: { id: 8, enrollment_id: 44, certificate_code: 'SEONGON-2026-ABC', issued_at: '2026-08-16T00:00:00Z' },
+      state: 'issued', created_at: '2026-08-12T00:00:00Z', updated_at: '2026-08-16T00:00:00Z',
+    }],
+    meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
+  });
   reorderLessons.mockResolvedValue({ data: selectedCourse.lessons });
   deleteCourse.mockResolvedValue({});
-  adminNews.mockResolvedValue({ data: newsPosts, meta: { current_page: 1, last_page: 1, per_page: 15, total: 2 } });
+  adminNews.mockResolvedValue({ data: newsPosts, categories: ['Marketing', 'SEO'], meta: { current_page: 1, last_page: 1, per_page: 15, total: 2 } });
   saveNews.mockResolvedValue({ data: newsPosts[0] });
   deleteNews.mockResolvedValue({});
 }
@@ -137,7 +182,7 @@ describe('AdminPage', () => {
     await waitFor(() => expect(adminUsers).toHaveBeenCalledTimes(1));
   });
 
-  it('exposes the grouped ERD-ready navigation and renders pending entities honestly', async () => {
+  it('exposes grouped navigation and renders every learning-operation tab from API data', async () => {
     mockAdminData();
     render(<AdminPage />);
     const user = userEvent.setup();
@@ -145,12 +190,20 @@ describe('AdminPage', () => {
     const navigation = await screen.findByRole('navigation', { name: 'Quản trị' });
     expect(within(navigation).getAllByRole('button').map((button) => button.textContent)).toEqual([
       'Tổng quan',
-      'Khóa học',
-      'Danh mục',
-      'Bài học',
-      'Bài kiểm tra',
+      'Vai trò',
       'Học viên',
+      'Giỏ hàng',
+      'Mục giỏ hàng',
+      'Đơn hàng',
+      'Danh mục',
+      'Gán danh mục',
+      'Khóa học',
+      'Bài học',
       'Ghi danh',
+      'Tiến độ học tập',
+      'Bài kiểm tra',
+      'Câu hỏi',
+      'Đáp án',
       'Kết quả bài kiểm tra',
       'Chứng chỉ',
       'Đánh giá',
@@ -158,15 +211,50 @@ describe('AdminPage', () => {
     ]);
     expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'false');
 
+    await user.click(within(navigation).getByRole('button', { name: 'Vai trò' }));
+    expect(await screen.findByRole('table', { name: 'Danh sách vai trò' })).toHaveTextContent('student');
+    expect(adminRoles).toHaveBeenCalledWith('admin-token', { page: 1 });
+
     await user.click(within(navigation).getByRole('button', { name: 'Khóa học' }));
 
     expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('table', { name: 'Danh sách khóa học' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Danh sách khóa học, có thể cuộn ngang' })).toHaveAttribute('tabindex', '0');
 
+    await user.click(within(navigation).getByRole('button', { name: 'Bài học' }));
+    expect(await screen.findByRole('table', { name: 'Danh sách bài học' })).toHaveTextContent('Bài học 1');
+    expect(adminLessons).toHaveBeenCalledWith('admin-token', { q: undefined, course_id: undefined, page: 1 });
+
+    await user.click(within(navigation).getByRole('button', { name: 'Bài kiểm tra' }));
+    expect(await screen.findByRole('table', { name: 'Danh sách bài kiểm tra' })).toHaveTextContent('Quiz SEO');
+    expect(adminExams).toHaveBeenCalledWith('admin-token', { q: undefined, course_id: undefined, page: 1 });
+
     await user.click(within(navigation).getByRole('button', { name: 'Ghi danh' }));
-    expect(screen.getByRole('heading', { name: 'Quản lý ghi danh' })).toBeInTheDocument();
-    expect(screen.getByText('Chức năng đang chờ đối chiếu ERD chính thức.')).toBeInTheDocument();
+    expect(await screen.findByRole('table', { name: 'Danh sách ghi danh' })).toHaveTextContent('learner@example.test');
+
+    await user.click(within(navigation).getByRole('button', { name: 'Kết quả bài kiểm tra' }));
+    expect(await screen.findByRole('table', { name: 'Danh sách kết quả bài kiểm tra' })).toHaveTextContent('90');
+    expect(adminAttempts).toHaveBeenCalledWith('admin-token', { q: undefined, course_id: undefined, passed: undefined, page: 1 });
+
+    await user.click(within(navigation).getByRole('button', { name: 'Chứng chỉ' }));
+    expect(await screen.findByRole('table', { name: 'Danh sách chứng chỉ' })).toHaveTextContent('SEONGON-2026-ABC');
+    expect(adminCertificates).toHaveBeenCalledWith('admin-token', { q: undefined, course_id: undefined, status: undefined, page: 1 });
+    expect(screen.queryByText('Chức năng đang chờ đối chiếu ERD chính thức.')).not.toBeInTheDocument();
+  });
+
+  it('opens the existing Course content editor from Lesson and Exam indexes', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+    const navigation = await screen.findByRole('navigation', { name: 'Quản trị' });
+
+    await user.click(within(navigation).getByRole('button', { name: 'Bài học' }));
+    const lessonTable = await screen.findByRole('table', { name: 'Danh sách bài học' });
+    await user.click(within(lessonTable).getByRole('button', { name: 'Mở nội dung khóa học' }));
+
+    expect(await screen.findByRole('heading', { name: 'Tổng quan khóa học' })).toBeInTheDocument();
+    expect(adminCourse).toHaveBeenCalledWith('admin-token', 10);
+    expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('keeps Course management list-first with aligned aggregate columns', async () => {
@@ -461,14 +549,18 @@ describe('AdminPage', () => {
     expect(screen.getByText('Tin đã xuất bản')).toBeInTheDocument();
     expect(screen.getByText('Bản nháp')).toBeInTheDocument();
     expect(screen.getByText('Đang xuất bản')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Tin đã xuất bản' })).toHaveAttribute('src', 'https://example.test/news.png');
+    expect(within(screen.getByRole('table', { name: 'Danh sách tin tức' })).getByRole('columnheader', { name: 'Cập nhật' })).toBeInTheDocument();
 
     adminNews.mockClear();
     await user.type(screen.getByLabelText('Tìm tin tức'), 'SEO');
     await user.click(screen.getByLabelText('Trạng thái tin tức'));
     await user.click(screen.getByRole('option', { name: 'Bản nháp' }));
+    await user.click(screen.getByLabelText('Danh mục tin tức'));
+    await user.click(screen.getByRole('option', { name: 'SEO' }));
     await user.click(screen.getByRole('button', { name: 'Áp dụng' }));
 
-    expect(adminNews).toHaveBeenCalledWith('admin-token', { q: 'SEO', status: 'draft', page: 1 });
+    expect(adminNews).toHaveBeenCalledWith('admin-token', { q: 'SEO', status: 'draft', category: 'SEO', page: 1 });
   });
 
   it('saves News as a plain-text payload only after its editor is opened', async () => {

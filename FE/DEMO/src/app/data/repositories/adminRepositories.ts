@@ -1,10 +1,33 @@
 import { api } from '../../lib/api';
 
-// Current persistence adapter: Laravel JSON API.
-// ERD_PENDING: repository contracts may change only after the final ERD is approved.
+// Persistence adapter: approved Laravel JSON API contracts.
 export const adminRepositories = {
   dashboard: {
     getStats: api.adminStats,
+  },
+  roles: {
+    list: api.adminRoles,
+  },
+  carts: {
+    list: api.adminCarts,
+  },
+  cartItems: {
+    list: api.adminCartItems,
+  },
+  orders: {
+    list: api.adminOrders,
+  },
+  courseCategories: {
+    list: api.adminCourseCategories,
+  },
+  learningProgress: {
+    list: api.adminLearningProgress,
+  },
+  questions: {
+    list: api.adminQuestions,
+  },
+  answers: {
+    list: api.adminAnswers,
   },
   users: {
     list: api.adminUsers,
@@ -30,8 +53,20 @@ export const adminRepositories = {
     updateQuestion: api.updateQuestion,
     removeQuestion: api.deleteQuestion,
   },
+  lessons: {
+    list: api.adminLessons,
+  },
+  exams: {
+    list: api.adminExams,
+  },
   enrollments: {
     list: api.adminEnrollments,
+  },
+  attempts: {
+    list: api.adminAttempts,
+  },
+  certificates: {
+    list: api.adminCertificates,
   },
   reviews: {
     list: api.adminReviews,

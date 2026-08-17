@@ -107,6 +107,12 @@ class NewsManagementTest extends TestCase
             ->assertJsonPath('data.0.id', $draft->id)
             ->assertJsonPath('data.0.status', 'draft')
             ->assertJsonPath('meta.total', 1);
+
+        $this->withToken($token)->getJson('/api/v1/admin/news?category=SEO&status=draft')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $draft->id)
+            ->assertJsonPath('meta.total', 1);
     }
 
     public function test_admin_editing_an_already_published_post_preserves_its_original_publish_date(): void

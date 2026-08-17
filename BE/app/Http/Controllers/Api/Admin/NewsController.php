@@ -14,10 +14,15 @@ class NewsController extends Controller
 {
     public function index(Request $request)
     {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', 'in:draft,published'],
+            'category' => ['nullable', 'string', 'max:100'],
+        ]);
+        $categories = NewsPost::query()->distinct()->orderBy('category')->pluck('category')->values();
         $query = NewsPost::query()->latest();
 
-        if ($request->filled('q')) {
-            $search = $request->string('q')->toString();
+        if ($search = $filters['q'] ?? null) {
             $query->where(function ($newsQuery) use ($search): void {
                 $newsQuery->where('title', 'like', "%{$search}%")
                     ->orWhere('category', 'like', "%{$search}%")
@@ -25,12 +30,16 @@ class NewsController extends Controller
             });
         }
 
-        if ($request->filled('status')) {
-            $status = $request->validate(['status' => ['in:draft,published']])['status'];
+        if ($status = $filters['status'] ?? null) {
             $query->where('status', $status);
         }
 
-        return NewsPostResource::collection($query->paginate(15)->withQueryString());
+        if ($category = $filters['category'] ?? null) {
+            $query->where('category', $category);
+        }
+
+        return NewsPostResource::collection($query->paginate(15)->withQueryString())
+            ->additional(['categories' => $categories]);
     }
 
     public function store(Request $request)

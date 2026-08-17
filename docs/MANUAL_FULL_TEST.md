@@ -21,7 +21,16 @@ Use the MySQL username and password from `BE\.env`. Demo application accounts us
 - Admin: `admin@seongon.vn`
 - Student: `student@seongon.vn`
 
-## 2. Course workflow: Admin → Database → Public Catalog
+## 2. Admin ERD coverage
+
+1. Log in as Admin and confirm the left sidebar shows these 15 core entries: **Vai trò, Học viên, Giỏ hàng, Mục giỏ hàng, Đơn hàng, Danh mục, Gán danh mục, Khóa học, Bài học, Ghi danh, Tiến độ học tập, Bài kiểm tra, Câu hỏi, Đáp án, Kết quả bài kiểm tra**.
+2. Click every entry. Each screen must show a real table, an explicit empty state, or a retryable API error; no core entry may show an ERD placeholder.
+3. Confirm transactional/history screens are read-only: Carts, Cart items, Orders, Enrollments, Learning progress, and Attempts.
+4. From Questions or Answers, click **Mở bài kiểm tra** and confirm the existing nested Course editor opens.
+5. Confirm auxiliary features remain available separately: Certificates, Reviews, and News.
+6. Use `SPEC/ADMIN_ERD_ACCEPTANCE_CHECKLIST.md` to record the teacher-facing result for each entity.
+
+## 3. Course workflow: Admin → Database → Public Catalog
 
 1. Log in as Admin and open Course Management.
 2. Create a draft named `MANUAL FULL COURSE <timestamp>`.
@@ -67,7 +76,7 @@ Expected: one Course row with `published`, two `course_categories` rows, one Les
 
 8. Log out, open Public Catalog, search the Course title, then filter by each assigned Category. The Course must appear in both filters.
 
-## 3. Cart and checkout: Student → Database → My Courses
+## 4. Cart and checkout: Student → Database → My Courses
 
 Choose a published paid Course that `student@seongon.vn` does not already own.
 
@@ -126,7 +135,7 @@ Expected: a paid Order and one matching Enrollment exist; Course B no longer exi
 
 10. Open My Courses. Course B must appear.
 
-## 4. Learning workflow
+## 5. Learning workflow
 
 1. Open Course B from My Courses.
 2. Open a Lesson and mark it complete.
@@ -153,7 +162,7 @@ LIMIT 20;
 
 Expected: the completed Lesson exists in `learning_progress`; the submitted Exam exists in `attempts`.
 
-## 5. Negative checks
+## 6. Negative checks
 
 - Guest can see Cart navigation but must log in before authenticated Cart/Checkout access.
 - A Student cannot add a Course already present in the Cart twice.
@@ -161,7 +170,7 @@ Expected: the completed Lesson exists in `learning_progress`; the submitted Exam
 - Refreshing or logging out does not make browser `localStorage` authoritative for an authenticated Cart.
 - A failed payment creates no Enrollment and does not remove the purchased Cart item. The failure path is covered automatically by `CartCheckoutTest`; the normal UI intentionally uses the success path.
 
-## 6. ERD integrity checks in phpMyAdmin
+## 7. ERD integrity checks in phpMyAdmin
 
 The approved 15 core tables are:
 

@@ -66,8 +66,8 @@ describe('CourseMegaMenu', () => {
     expect(trigger).toHaveAttribute('href', '/courses');
     expect(trigger).toHaveAttribute('aria-current', 'page');
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    expect(within(panel).getByRole('link', { name: /SEO/ })).toHaveAttribute('href', '/courses?category=seo');
-    expect(within(panel).getByRole('link', { name: /Google Ads/ })).toHaveAttribute('href', '/courses?category=google-ads');
+    expect(await within(panel).findByRole('link', { name: /SEO/ })).toHaveAttribute('href', '/courses?category=seo');
+    expect(await within(panel).findByRole('link', { name: /Google Ads/ })).toHaveAttribute('href', '/courses?category=google-ads');
 
     fireEvent.mouseLeave(panel);
     fireEvent.mouseEnter(trigger);

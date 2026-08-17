@@ -65,7 +65,12 @@ describe('Layout', () => {
 
     expect(logo).toHaveAttribute('width', '224');
     expect(window.getComputedStyle(brandLink).flexShrink).toBe('0');
-    expect(screen.getByRole('navigation', { name: 'Điều hướng chính' })).toHaveStyle({ marginLeft: 'auto' });
+    expect(screen.getByTestId('global-header-toolbar')).toHaveStyle({
+      display: 'grid',
+      gridTemplateColumns: 'minmax(180px, 1fr) auto minmax(180px, 1fr)',
+    });
+    expect(screen.getByTestId('global-header-center')).toHaveStyle({ justifySelf: 'center' });
+    expect(screen.getByTestId('global-header-actions')).toHaveStyle({ justifySelf: 'end' });
     expect(layoutTokens.headerHeight).toBe(80);
   });
 
@@ -87,6 +92,20 @@ describe('Layout', () => {
 
     renderLayout();
     expect(screen.getByRole('contentinfo')).toHaveAttribute('data-surface', 'dark');
+  });
+
+  it('keeps the viewport and buttons geometrically stable during interaction', () => {
+    const cssBaseline = theme.components?.MuiCssBaseline?.styleOverrides as {
+      html?: { scrollbarGutter?: string };
+    };
+    const buttonStyles = theme.components?.MuiButton?.styleOverrides?.root as {
+      transition?: string;
+      '&:hover'?: { transform?: string };
+    };
+
+    expect(cssBaseline.html?.scrollbarGutter).toBe('stable');
+    expect(buttonStyles.transition).not.toContain('transform');
+    expect(buttonStyles['&:hover']?.transform).toBeUndefined();
   });
 
   it('renders the full four-column public footer with real destinations', () => {
@@ -192,10 +211,12 @@ describe('Layout', () => {
     expect(document.body.style.paddingRight).toBe('');
 
     await user.keyboard('{Escape}');
-    fireEvent.mouseEnter(screen.getByRole('button', { name: /Học viên/ }));
+    const accountButton = screen.getByRole('button', { name: /Học viên/ });
+    await user.click(accountButton);
     await waitFor(() => expect(screen.getByRole('menu', { name: /Tài khoản Học viên/ })).toBeInTheDocument());
     expect(document.body.style.overflow).not.toBe('hidden');
     expect(document.body.style.paddingRight).toBe('');
+    expect(accountButton).toHaveFocus();
   });
 
   it('gives admins their admin navigation and no student controls', async () => {

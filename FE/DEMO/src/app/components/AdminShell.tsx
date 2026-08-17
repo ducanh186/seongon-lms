@@ -41,41 +41,64 @@ export function AdminShell({ active, onChange, children }: AdminShellProps) {
         </Stack>
       </Box>
 
-      <Box sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Stack
-          component="nav"
-          aria-label="Quản trị"
-          direction="row"
-          sx={{ maxWidth: 1440, mx: 'auto', px: { xs: 4, lg: 5 }, overflowX: 'auto' }}
-        >
-          {ADMIN_NAVIGATION.map((group) => (
-            <Stack key={group.key} component="section" aria-label={group.label} direction="row" alignItems="center">
-              {group.items.map((item) => {
-                const selected = active === item.section;
-                return (
-                  <Button
-                    key={item.section}
-                    aria-pressed={selected}
-                    color="inherit"
-                    onClick={() => onChange(item.section)}
-                    sx={{
-                      position: 'relative', minHeight: 56, px: 2.25, flexShrink: 0, whiteSpace: 'nowrap', borderRadius: 0,
-                      color: selected ? 'primary.dark' : 'text.secondary', fontWeight: selected ? 800 : 650,
-                      '&::after': { content: '""', position: 'absolute', left: 18, right: 18, bottom: 0, height: 3, bgcolor: selected ? 'primary.main' : 'transparent' },
-                      '&:hover': { bgcolor: 'rgba(0,137,148,.06)', color: 'primary.dark' },
-                    }}
-                  >
-                    {item.label}
-                  </Button>
-                );
-              })}
-            </Stack>
-          ))}
-        </Stack>
-      </Box>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '260px minmax(0, 1fr)',
+          width: '100%',
+          maxWidth: 1440,
+          minHeight: 'calc(100dvh - 72px)',
+          mx: 'auto',
+        }}
+      >
+        <Box component="aside" sx={{ bgcolor: 'background.paper', borderRight: '1px solid', borderColor: 'divider' }}>
+          <Stack
+            component="nav"
+            aria-label="Quản trị"
+            data-admin-sidebar="true"
+            spacing={0.75}
+            sx={{ position: 'sticky', top: 0, maxHeight: '100dvh', overflowY: 'auto', px: 2, py: 2.5 }}
+          >
+            {ADMIN_NAVIGATION.map((group) => (
+              <Stack key={group.key} component="section" aria-label={group.label} spacing={0.25} sx={{ pb: 1.25 }}>
+                <Typography
+                  variant="overline"
+                  color="text.secondary"
+                  sx={{ px: 1.5, pt: 0.5, fontSize: '0.68rem', fontWeight: 850, letterSpacing: '0.08em' }}
+                >
+                  {group.label}
+                </Typography>
+                {group.items.map((item) => {
+                  const selected = active === item.section;
+                  return (
+                    <Button
+                      key={item.section}
+                      aria-pressed={selected}
+                      color="inherit"
+                      onClick={() => onChange(item.section)}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        minHeight: 38,
+                        px: 1.5,
+                        borderRadius: 1.5,
+                        color: selected ? 'primary.dark' : 'text.secondary',
+                        bgcolor: selected ? 'rgba(0,137,148,.1)' : 'transparent',
+                        fontWeight: selected ? 800 : 650,
+                        '&:hover': { bgcolor: 'rgba(0,137,148,.08)', color: 'primary.dark' },
+                      }}
+                    >
+                      {item.label}
+                    </Button>
+                  );
+                })}
+              </Stack>
+            ))}
+          </Stack>
+        </Box>
 
-      <Box component="main" aria-live="polite" sx={{ width: '100%', maxWidth: 1440, minWidth: 0, mx: 'auto', overflowX: 'hidden', p: { xs: 4, lg: 5 } }}>
-        {children}
+        <Box component="main" aria-live="polite" sx={{ minWidth: 0, overflowX: 'hidden', p: { xs: 4, lg: 5 } }}>
+          {children}
+        </Box>
       </Box>
     </Box>
   );

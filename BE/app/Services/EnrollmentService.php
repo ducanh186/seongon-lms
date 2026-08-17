@@ -27,6 +27,17 @@ class EnrollmentService
             $query->where('user_id', $userId);
         }
 
+        if ($search = $filters['q'] ?? null) {
+            $query->where(function ($enrollmentQuery) use ($search): void {
+                $enrollmentQuery
+                    ->whereHas('user', function ($userQuery) use ($search): void {
+                        $userQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('course', fn ($courseQuery) => $courseQuery->where('title', 'like', "%{$search}%"));
+            });
+        }
+
         return $query->latest()->paginate(15)->withQueryString();
     }
 

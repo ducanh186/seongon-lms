@@ -1,15 +1,24 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AnswerController as AdminAnswerController;
+use App\Http\Controllers\Api\Admin\AttemptController as AdminAttemptController;
+use App\Http\Controllers\Api\Admin\CartController as AdminCartController;
+use App\Http\Controllers\Api\Admin\CartItemController as AdminCartItemController;
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\Admin\CertificateController as AdminCertificateController;
+use App\Http\Controllers\Api\Admin\CourseCategoryController as AdminCourseCategoryController;
 use App\Http\Controllers\Api\Admin\CourseController as AdminCourseController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\EnrollmentController as AdminEnrollmentController;
+use App\Http\Controllers\Api\Admin\ExamController as AdminExamController;
+use App\Http\Controllers\Api\Admin\LearningProgressController as AdminLearningProgressController;
 use App\Http\Controllers\Api\Admin\LessonController as AdminLessonController;
 use App\Http\Controllers\Api\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\QuestionController as AdminQuestionController;
 use App\Http\Controllers\Api\Admin\QuizController as AdminQuizController;
 use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Api\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
@@ -68,10 +77,21 @@ Route::prefix('v1')->group(function () {
 
         // ----- Admin -----
         Route::prefix('admin')->middleware('role:admin')->group(function () {
+            Route::get('roles', [AdminRoleController::class, 'index']);
+            Route::get('carts', [AdminCartController::class, 'index']);
+            Route::get('cart-items', [AdminCartItemController::class, 'index']);
             Route::get('orders', [AdminOrderController::class, 'index']);
+            Route::get('course-categories', [AdminCourseCategoryController::class, 'index']);
+            Route::get('learning-progress', [AdminLearningProgressController::class, 'index']);
+            Route::get('questions', [AdminQuestionController::class, 'index']);
+            Route::get('answers', [AdminAnswerController::class, 'index']);
             Route::get('orders/{order}', [AdminOrderController::class, 'show']);
             Route::get('enrollments', [AdminEnrollmentController::class, 'index']);
             Route::get('enrollments/{enrollment}', [AdminEnrollmentController::class, 'show']);
+            Route::get('lessons', [AdminLessonController::class, 'index']);
+            Route::get('exams', [AdminExamController::class, 'index']);
+            Route::get('attempts', [AdminAttemptController::class, 'index']);
+            Route::get('certificates', [AdminCertificateController::class, 'index']);
 
             Route::apiResource('news', AdminNewsController::class);
 
