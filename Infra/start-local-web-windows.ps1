@@ -205,7 +205,6 @@ $frontendRoot = Join-Path $projectRoot 'FE\DEMO'
 $artisan = Resolve-RequiredFile -Path (Join-Path $backendRoot 'artisan') -Description 'Laravel Artisan'
 [void](Resolve-RequiredFile -Path (Join-Path $backendRoot '.env') -Description 'Backend .env')
 [void](Resolve-RequiredFile -Path (Join-Path $frontendRoot 'package.json') -Description 'Frontend package.json')
-[void](Resolve-RequiredFile -Path (Join-Path $frontendRoot '.env') -Description 'Frontend .env')
 [void](Resolve-RequiredFile -Path (Join-Path $frontendRoot 'node_modules\vite\bin\vite.js') -Description 'Installed Vite dependency')
 
 $phpExecutable = Resolve-CommandPath -Name 'php.exe'

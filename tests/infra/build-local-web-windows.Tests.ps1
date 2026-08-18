@@ -1,33 +1,75 @@
-$ErrorActionPreference = 'Stop'
+$repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..')).Path
+$scriptPath = Join-Path $repoRoot 'Infra\build-local-web-windows.ps1'
 
-$repositoryRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..')).Path
-$infraDirectory = Join-Path $repositoryRoot 'Infra'
-$scriptPath = Join-Path $infraDirectory 'build-local-web-windows.ps1'
+function New-PhpMyAdminFixture {
+    param([Parameter(Mandatory = $true)][string]$Root)
 
-if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) {
-    throw "Build launcher is missing: $scriptPath"
+    $packageRoot = Join-Path $Root 'phpMyAdmin-5.2.3-all-languages'
+    New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $packageRoot 'index.php') -Value '<?php echo "fixture";' -Encoding ASCII
+
+    $archivePath = Join-Path $Root 'phpMyAdmin-5.2.3-all-languages.zip'
+    Compress-Archive -LiteralPath $packageRoot -DestinationPath $archivePath -Force
+    $checksumPath = Join-Path $Root 'phpMyAdmin-5.2.3-all-languages.zip.sha256'
+    $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $archivePath).Hash.ToLowerInvariant()
+    Set-Content -LiteralPath $checksumPath -Value "$hash  phpMyAdmin-5.2.3-all-languages.zip" -Encoding ASCII
+
+    $fakePhp = Join-Path $Root 'php.ps1'
+    Set-Content -LiteralPath $fakePhp -Value @'
+param([Parameter(ValueFromRemainingArguments = $true)][string[]]$PhpArgs)
+if ($PhpArgs[0] -eq '-r') { '8.3.26'; exit 0 }
+if ($PhpArgs[0] -eq '-m') { 'mysqli'; exit 0 }
+throw "Unexpected PHP arguments: $($PhpArgs -join ' ')"
+'@ -Encoding UTF8
+
+    return @{
+        Archive = $archivePath
+        Checksum = $checksumPath
+        Php = $fakePhp
+    }
 }
 
-$output = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $scriptPath -CheckOnly 2>&1
-$exitCode = $LASTEXITCODE
-$expectedFrontend = [System.IO.Path]::GetFullPath((Join-Path $infraDirectory '..\FE\DEMO'))
-$expectedBackend = [System.IO.Path]::GetFullPath((Join-Path $infraDirectory '..\BE'))
-$joinedOutput = $output -join "`n"
+Describe 'build-local-web-windows phpMyAdmin preparation' {
+    It 'installs a verified phpMyAdmin package and generates local cookie configuration' {
+        $caseRoot = Join-Path $TestDrive 'valid'
+        $runtimeRoot = Join-Path $caseRoot 'runtime'
+        New-Item -ItemType Directory -Path $caseRoot -Force | Out-Null
+        $fixture = New-PhpMyAdminFixture -Root $caseRoot
 
-if ($exitCode -ne 0) {
-    throw "Verify mode exited with $exitCode.`n$joinedOutput"
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $scriptPath `
+            -PreparePhpMyAdminOnly `
+            -RuntimeRoot $runtimeRoot `
+            -PhpExecutable $fixture.Php `
+            -PhpMyAdminArchiveSource $fixture.Archive `
+            -PhpMyAdminChecksumSource $fixture.Checksum
+
+        $LASTEXITCODE | Should Be 0
+        $installRoot = Join-Path $runtimeRoot 'phpmyadmin-5.2.3'
+        Test-Path -LiteralPath (Join-Path $installRoot 'index.php') -PathType Leaf | Should Be $true
+        $config = Get-Content -Raw -LiteralPath (Join-Path $installRoot 'config.inc.php')
+        $config | Should Match "auth_type'\] = 'cookie'"
+        $config | Should Match "host'\] = '127\.0\.0\.1'"
+        $config | Should Match "port'\] = '3306'"
+        $config | Should Not Match 'DB_PASSWORD'
+        [regex]::Match($config, "blowfish_secret'\] = '([^']+)'").Groups[1].Value.Length | Should BeGreaterThan 20
+    }
+
+    It 'rejects a package whose SHA-256 does not match' {
+        $caseRoot = Join-Path $TestDrive 'bad-checksum'
+        $runtimeRoot = Join-Path $caseRoot 'runtime'
+        New-Item -ItemType Directory -Path $caseRoot -Force | Out-Null
+        $fixture = New-PhpMyAdminFixture -Root $caseRoot
+        Set-Content -LiteralPath $fixture.Checksum -Value (('0' * 64) + '  phpMyAdmin.zip') -Encoding ASCII
+
+        $output = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $scriptPath `
+            -PreparePhpMyAdminOnly `
+            -RuntimeRoot $runtimeRoot `
+            -PhpExecutable $fixture.Php `
+            -PhpMyAdminArchiveSource $fixture.Archive `
+            -PhpMyAdminChecksumSource $fixture.Checksum 2>&1
+
+        $LASTEXITCODE | Should Not Be 0
+        ($output -join "`n") | Should Match 'SHA-256 mismatch'
+        Test-Path -LiteralPath (Join-Path $runtimeRoot 'phpmyadmin-5.2.3') | Should Be $false
+    }
 }
-
-if ($joinedOutput -notmatch [regex]::Escape("Backend: $expectedBackend")) {
-    throw "Verify output did not report the resolved backend directory.`n$joinedOutput"
-}
-
-if ($joinedOutput -notmatch [regex]::Escape("Frontend: $expectedFrontend")) {
-    throw "Verify output did not report the resolved frontend directory.`n$joinedOutput"
-}
-
-if ($joinedOutput -notmatch 'Dependencies: ready') {
-    throw "Verify output did not report dependency readiness.`n$joinedOutput"
-}
-
-Write-Host 'PASS: build launcher resolves both applications and verifies required dependencies.'

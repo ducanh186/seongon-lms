@@ -4,11 +4,23 @@ param(
     [switch]$CheckOnly,
     [switch]$SkipTests,
     [switch]$SkipDependencies,
-    [switch]$SkipMigrations
+    [switch]$SkipMigrations,
+    [switch]$PreparePhpMyAdminOnly,
+    [switch]$ForcePhpMyAdmin,
+    [string]$RuntimeRoot,
+    [string]$PhpExecutable,
+    [string]$PhpMyAdminArchiveSource = 'https://files.phpmyadmin.net/phpMyAdmin/5.2.3/phpMyAdmin-5.2.3-all-languages.zip',
+    [string]$PhpMyAdminChecksumSource = 'https://files.phpmyadmin.net/phpMyAdmin/5.2.3/phpMyAdmin-5.2.3-all-languages.zip.sha256'
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($RuntimeRoot)) {
+    $RuntimeRoot = Join-Path $PSScriptRoot '.native-runtime'
+}
+
+$phpMyAdminVersion = '5.2.3'
+$phpMyAdminInstallRoot = Join-Path $RuntimeRoot "phpmyadmin-$phpMyAdminVersion"
 
 function Resolve-RequiredCommand {
     param([Parameter(Mandatory = $true)][string]$Name)
@@ -32,6 +44,165 @@ function Resolve-RequiredFile {
     return (Resolve-Path -LiteralPath $Path).Path
 }
 
+function Resolve-PhpExecutable {
+    if (-not [string]::IsNullOrWhiteSpace($PhpExecutable)) {
+        if (-not (Test-Path -LiteralPath $PhpExecutable -PathType Leaf)) {
+            throw "PHP executable was not found: $PhpExecutable"
+        }
+        return (Resolve-Path -LiteralPath $PhpExecutable).Path
+    }
+
+    return Resolve-RequiredCommand -Name 'php.exe'
+}
+
+function Test-PhpModule {
+    param(
+        [Parameter(Mandatory = $true)][string]$Executable,
+        [Parameter(Mandatory = $true)][string]$Module
+    )
+
+    $modules = @(& $Executable -m 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to inspect PHP modules with $Executable."
+    }
+    return [bool]($modules | Where-Object { $_.Trim() -ieq $Module })
+}
+
+function Assert-PhpMyAdminRequirements {
+    param([Parameter(Mandatory = $true)][string]$Executable)
+
+    $versionText = (& $Executable -r 'echo PHP_VERSION;' 2>&1 | Out-String).Trim()
+    $parsedVersion = New-Object Version
+    if ($LASTEXITCODE -ne 0 -or -not [Version]::TryParse($versionText, [ref]$parsedVersion)) {
+        throw "Unable to read the PHP version from $Executable."
+    }
+    if ($parsedVersion -lt [Version]'8.2.0') {
+        throw "The local LMS requires PHP 8.2 or newer; found $versionText."
+    }
+    if (-not (Test-PhpModule -Executable $Executable -Module 'mysqli')) {
+        throw 'The PHP mysqli extension is disabled. Enable extension=mysqli in php.ini before building the local web.'
+    }
+}
+
+function Copy-PhpMyAdminPackageSource {
+    param(
+        [Parameter(Mandatory = $true)][string]$Source,
+        [Parameter(Mandatory = $true)][string]$Destination
+    )
+
+    if ([Uri]::IsWellFormedUriString($Source, [UriKind]::Absolute) -and $Source -match '^https://') {
+        Invoke-WebRequest -UseBasicParsing -Uri $Source -OutFile $Destination
+        return
+    }
+    if (-not (Test-Path -LiteralPath $Source -PathType Leaf)) {
+        throw "phpMyAdmin package source was not found: $Source"
+    }
+    Copy-Item -LiteralPath $Source -Destination $Destination -Force
+}
+
+function Assert-PhpMyAdminInstallTargetIsSafe {
+    $resolvedRuntime = [IO.Path]::GetFullPath($RuntimeRoot).TrimEnd('\') + '\'
+    $resolvedInstall = [IO.Path]::GetFullPath($phpMyAdminInstallRoot)
+    if (-not $resolvedInstall.StartsWith($resolvedRuntime, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Unsafe phpMyAdmin install target: $resolvedInstall"
+    }
+}
+
+function Write-PhpMyAdminConfig {
+    param([Parameter(Mandatory = $true)][string]$DestinationRoot)
+
+    $randomBytes = New-Object byte[] 24
+    $randomGenerator = [Security.Cryptography.RandomNumberGenerator]::Create()
+    try {
+        $randomGenerator.GetBytes($randomBytes)
+    }
+    finally {
+        $randomGenerator.Dispose()
+    }
+    $blowfishSecret = [Convert]::ToBase64String($randomBytes)
+    $tempDirectory = (Join-Path $RuntimeRoot 'phpmyadmin-tmp').Replace('\', '/')
+    New-Item -ItemType Directory -Path $tempDirectory -Force | Out-Null
+
+    $config = @"
+<?php
+`$cfg['blowfish_secret'] = '$blowfishSecret';
+`$i = 0;
+++`$i;
+`$cfg['Servers'][`$i]['auth_type'] = 'cookie';
+`$cfg['Servers'][`$i]['host'] = '127.0.0.1';
+`$cfg['Servers'][`$i]['port'] = '3306';
+`$cfg['Servers'][`$i]['compress'] = false;
+`$cfg['Servers'][`$i]['AllowNoPassword'] = true;
+`$cfg['DefaultLang'] = 'vi';
+`$cfg['TempDir'] = '$tempDirectory';
+"@
+    Set-Content -LiteralPath (Join-Path $DestinationRoot 'config.inc.php') -Value $config -Encoding UTF8
+}
+
+function Assert-PhpMyAdminReady {
+    [void](Resolve-RequiredFile -Path (Join-Path $phpMyAdminInstallRoot 'index.php') -Description 'phpMyAdmin installation')
+    [void](Resolve-RequiredFile -Path (Join-Path $phpMyAdminInstallRoot 'config.inc.php') -Description 'phpMyAdmin configuration')
+}
+
+function Install-PhpMyAdmin {
+    param([Parameter(Mandatory = $true)][string]$Executable)
+
+    Assert-PhpMyAdminRequirements -Executable $Executable
+    $indexPath = Join-Path $phpMyAdminInstallRoot 'index.php'
+    if ((Test-Path -LiteralPath $indexPath -PathType Leaf) -and -not $ForcePhpMyAdmin) {
+        if (-not (Test-Path -LiteralPath (Join-Path $phpMyAdminInstallRoot 'config.inc.php') -PathType Leaf)) {
+            Write-PhpMyAdminConfig -DestinationRoot $phpMyAdminInstallRoot
+        }
+        Write-Output "phpMyAdmin $phpMyAdminVersion is ready: $phpMyAdminInstallRoot"
+        return
+    }
+
+    Assert-PhpMyAdminInstallTargetIsSafe
+    New-Item -ItemType Directory -Path $RuntimeRoot -Force | Out-Null
+    $workRoot = Join-Path $RuntimeRoot ("phpmyadmin-setup-{0}" -f [guid]::NewGuid().ToString('N'))
+    $archivePath = Join-Path $workRoot 'phpmyadmin.zip'
+    $checksumPath = Join-Path $workRoot 'phpmyadmin.zip.sha256'
+    $extractRoot = Join-Path $workRoot 'extract'
+
+    try {
+        New-Item -ItemType Directory -Path $workRoot,$extractRoot -Force | Out-Null
+        Write-Host 'Downloading phpMyAdmin package and SHA-256 checksum...' -ForegroundColor Cyan
+        Copy-PhpMyAdminPackageSource -Source $PhpMyAdminArchiveSource -Destination $archivePath
+        Copy-PhpMyAdminPackageSource -Source $PhpMyAdminChecksumSource -Destination $checksumPath
+
+        $checksumText = Get-Content -Raw -LiteralPath $checksumPath
+        $expectedMatch = [regex]::Match($checksumText, '(?i)\b[0-9a-f]{64}\b')
+        if (-not $expectedMatch.Success) {
+            throw 'The phpMyAdmin checksum file does not contain a SHA-256 hash.'
+        }
+        $expectedHash = $expectedMatch.Value.ToLowerInvariant()
+        $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $archivePath).Hash.ToLowerInvariant()
+        if ($actualHash -ne $expectedHash) {
+            throw "phpMyAdmin SHA-256 mismatch. Expected $expectedHash but received $actualHash."
+        }
+
+        Expand-Archive -LiteralPath $archivePath -DestinationPath $extractRoot -Force
+        $packageRoot = Get-ChildItem -LiteralPath $extractRoot -Directory |
+            Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName 'index.php') -PathType Leaf } |
+            Select-Object -First 1
+        if (-not $packageRoot) {
+            throw 'The verified archive does not contain a phpMyAdmin application root.'
+        }
+
+        Write-PhpMyAdminConfig -DestinationRoot $packageRoot.FullName
+        if (Test-Path -LiteralPath $phpMyAdminInstallRoot) {
+            Remove-Item -LiteralPath $phpMyAdminInstallRoot -Recurse -Force
+        }
+        Move-Item -LiteralPath $packageRoot.FullName -Destination $phpMyAdminInstallRoot
+        Write-Output "phpMyAdmin $phpMyAdminVersion installed: $phpMyAdminInstallRoot"
+    }
+    finally {
+        if (Test-Path -LiteralPath $workRoot) {
+            Remove-Item -LiteralPath $workRoot -Recurse -Force
+        }
+    }
+}
+
 function Invoke-BuildStep {
     param(
         [Parameter(Mandatory = $true)][string]$Label,
@@ -53,7 +224,7 @@ function Invoke-BuildStep {
     }
 }
 
-function Stop-FrontendDevServerForDependencyRepair {
+function Stop-FrontendDevServerForBuild {
     param([Parameter(Mandatory = $true)][string]$FrontendRoot)
 
     $listener = Get-NetTCPConnection -LocalAddress '127.0.0.1' -LocalPort 5173 -State Listen -ErrorAction SilentlyContinue |
@@ -65,10 +236,10 @@ function Stop-FrontendDevServerForDependencyRepair {
     $process = Get-CimInstance Win32_Process -Filter "ProcessId=$($listener.OwningProcess)" -ErrorAction SilentlyContinue
     $normalizedFrontendRoot = [IO.Path]::GetFullPath($FrontendRoot).TrimEnd('\')
     if (-not $process -or [string]$process.CommandLine -notmatch [regex]::Escape($normalizedFrontendRoot)) {
-        throw 'Port 5173 is occupied by an application outside this frontend workspace. Stop it before repairing dependencies.'
+        throw 'Port 5173 is occupied by an application outside this frontend workspace. Stop it before building.'
     }
 
-    Write-Host "Stopping workspace Vite process $($process.ProcessId) to repair locked dependencies..." -ForegroundColor Yellow
+    Write-Host "Stopping workspace Vite process $($process.ProcessId) before tests and build..." -ForegroundColor Yellow
     Stop-Process -Id $process.ProcessId -Force
     $deadline = [DateTime]::UtcNow.AddSeconds(10)
     do {
@@ -88,7 +259,14 @@ $artisan = Resolve-RequiredFile -Path (Join-Path $backendRoot 'artisan') -Descri
 [void](Resolve-RequiredFile -Path (Join-Path $frontendRoot 'package.json') -Description 'Frontend package.json')
 [void](Resolve-RequiredFile -Path (Join-Path $frontendRoot 'package-lock.json') -Description 'Frontend package-lock.json')
 
-$php = Resolve-RequiredCommand -Name 'php.exe'
+$php = Resolve-PhpExecutable
+
+if ($PreparePhpMyAdminOnly) {
+    Install-PhpMyAdmin -Executable $php
+    return
+}
+
+[void](Resolve-RequiredFile -Path (Join-Path $backendRoot '.env') -Description 'Backend .env. Copy BE\.env.example to BE\.env and configure MySQL first')
 $composer = Resolve-RequiredCommand -Name 'composer.bat'
 $npm = Resolve-RequiredCommand -Name 'npm.cmd'
 
@@ -96,11 +274,15 @@ Write-Output "Backend: $backendRoot"
 Write-Output "Frontend: $frontendRoot"
 
 if ($CheckOnly) {
+    Assert-PhpMyAdminRequirements -Executable $php
+    Assert-PhpMyAdminReady
     [void](Resolve-RequiredFile -Path (Join-Path $backendRoot 'vendor\autoload.php') -Description 'Composer dependencies')
     [void](Resolve-RequiredFile -Path (Join-Path $frontendRoot 'node_modules\vite\bin\vite.js') -Description 'Frontend dependencies')
     Write-Output 'Dependencies: ready'
     return
 }
+
+Install-PhpMyAdmin -Executable $php
 
 if (-not $SkipDependencies) {
     if (-not (Test-Path -LiteralPath (Join-Path $backendRoot 'vendor\autoload.php') -PathType Leaf)) {
@@ -111,7 +293,7 @@ if (-not $SkipDependencies) {
     }
 
     if (-not (Test-Path -LiteralPath (Join-Path $frontendRoot 'node_modules\vite\bin\vite.js') -PathType Leaf)) {
-        Stop-FrontendDevServerForDependencyRepair -FrontendRoot $frontendRoot
+        Stop-FrontendDevServerForBuild -FrontendRoot $frontendRoot
         Invoke-BuildStep -Label 'Install frontend dependencies' -WorkingDirectory $frontendRoot -Executable $npm -Arguments @('ci', '--no-audit', '--no-fund')
     }
     else {
@@ -122,6 +304,8 @@ if (-not $SkipDependencies) {
 if (-not $SkipMigrations) {
     Invoke-BuildStep -Label 'Run database migrations' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'migrate', '--force')
 }
+
+Stop-FrontendDevServerForBuild -FrontendRoot $frontendRoot
 
 if (-not $SkipTests) {
     Invoke-BuildStep -Label 'Run backend tests' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'test')
