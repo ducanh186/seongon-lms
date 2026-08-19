@@ -141,25 +141,43 @@ function Write-PhpMyAdminConfig {
 
 function Assert-PhpMyAdminReady {
     [void](Resolve-RequiredFile -Path (Join-Path $phpMyAdminInstallRoot 'index.php') -Description 'phpMyAdmin installation')
+    [void](Resolve-RequiredFile -Path (Join-Path $phpMyAdminInstallRoot 'vendor\autoload.php') -Description 'phpMyAdmin Composer autoloader')
+    [void](Resolve-RequiredFile -Path (Join-Path $phpMyAdminInstallRoot 'vendor\symfony\polyfill-php80\bootstrap.php') -Description 'phpMyAdmin Symfony polyfill')
     [void](Resolve-RequiredFile -Path (Join-Path $phpMyAdminInstallRoot 'config.inc.php') -Description 'phpMyAdmin configuration')
+}
+
+function Test-PhpMyAdminCoreReady {
+    $requiredFiles = @(
+        'index.php',
+        'vendor\autoload.php',
+        'vendor\symfony\polyfill-php80\bootstrap.php'
+    )
+    foreach ($relativePath in $requiredFiles) {
+        if (-not (Test-Path -LiteralPath (Join-Path $phpMyAdminInstallRoot $relativePath) -PathType Leaf)) {
+            return $false
+        }
+    }
+    return $true
 }
 
 function Install-PhpMyAdmin {
     param([Parameter(Mandatory = $true)][string]$Executable)
 
     Assert-PhpMyAdminRequirements -Executable $Executable
-    $indexPath = Join-Path $phpMyAdminInstallRoot 'index.php'
-    if ((Test-Path -LiteralPath $indexPath -PathType Leaf) -and -not $ForcePhpMyAdmin) {
+    if ((Test-PhpMyAdminCoreReady) -and -not $ForcePhpMyAdmin) {
         if (-not (Test-Path -LiteralPath (Join-Path $phpMyAdminInstallRoot 'config.inc.php') -PathType Leaf)) {
             Write-PhpMyAdminConfig -DestinationRoot $phpMyAdminInstallRoot
         }
+        Assert-PhpMyAdminReady
         Write-Output "phpMyAdmin $phpMyAdminVersion is ready: $phpMyAdminInstallRoot"
         return
     }
 
     Assert-PhpMyAdminInstallTargetIsSafe
     New-Item -ItemType Directory -Path $RuntimeRoot -Force | Out-Null
-    $workRoot = Join-Path $RuntimeRoot ("phpmyadmin-setup-{0}" -f [guid]::NewGuid().ToString('N'))
+    # Keep extraction outside the repository so nested vendor paths stay below
+    # the legacy Windows MAX_PATH limit used by Windows PowerShell 5.1.
+    $workRoot = Join-Path ([IO.Path]::GetTempPath()) ("seongon-pma-{0}" -f [guid]::NewGuid().ToString('N'))
     $archivePath = Join-Path $workRoot 'phpmyadmin.zip'
     $checksumPath = Join-Path $workRoot 'phpmyadmin.zip.sha256'
     $extractRoot = Join-Path $workRoot 'extract'
@@ -190,10 +208,13 @@ function Install-PhpMyAdmin {
         }
 
         Write-PhpMyAdminConfig -DestinationRoot $packageRoot.FullName
+        [void](Resolve-RequiredFile -Path (Join-Path $packageRoot.FullName 'vendor\autoload.php') -Description 'phpMyAdmin Composer autoloader in verified archive')
+        [void](Resolve-RequiredFile -Path (Join-Path $packageRoot.FullName 'vendor\symfony\polyfill-php80\bootstrap.php') -Description 'phpMyAdmin Symfony polyfill in verified archive')
         if (Test-Path -LiteralPath $phpMyAdminInstallRoot) {
             Remove-Item -LiteralPath $phpMyAdminInstallRoot -Recurse -Force
         }
         Move-Item -LiteralPath $packageRoot.FullName -Destination $phpMyAdminInstallRoot
+        Assert-PhpMyAdminReady
         Write-Output "phpMyAdmin $phpMyAdminVersion installed: $phpMyAdminInstallRoot"
     }
     finally {

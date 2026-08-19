@@ -7,6 +7,11 @@ function New-PhpMyAdminFixture {
     $packageRoot = Join-Path $Root 'phpMyAdmin-5.2.3-all-languages'
     New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null
     Set-Content -LiteralPath (Join-Path $packageRoot 'index.php') -Value '<?php echo "fixture";' -Encoding ASCII
+    $vendorRoot = Join-Path $packageRoot 'vendor'
+    $polyfillRoot = Join-Path $vendorRoot 'symfony\polyfill-php80'
+    New-Item -ItemType Directory -Path $polyfillRoot -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $vendorRoot 'autoload.php') -Value '<?php echo "autoload fixture";' -Encoding ASCII
+    Set-Content -LiteralPath (Join-Path $polyfillRoot 'bootstrap.php') -Value '<?php echo "polyfill fixture";' -Encoding ASCII
 
     $archivePath = Join-Path $Root 'phpMyAdmin-5.2.3-all-languages.zip'
     Compress-Archive -LiteralPath $packageRoot -DestinationPath $archivePath -Force
@@ -71,5 +76,25 @@ Describe 'build-local-web-windows phpMyAdmin preparation' {
         $LASTEXITCODE | Should Not Be 0
         ($output -join "`n") | Should Match 'SHA-256 mismatch'
         Test-Path -LiteralPath (Join-Path $runtimeRoot 'phpmyadmin-5.2.3') | Should Be $false
+    }
+
+    It 'replaces a partial phpMyAdmin installation whose vendor files are missing' {
+        $caseRoot = Join-Path $TestDrive 'partial-install'
+        $runtimeRoot = Join-Path $caseRoot 'runtime'
+        $installRoot = Join-Path $runtimeRoot 'phpmyadmin-5.2.3'
+        New-Item -ItemType Directory -Path $installRoot -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $installRoot 'index.php') -Value '<?php echo "partial";' -Encoding ASCII
+        $fixture = New-PhpMyAdminFixture -Root $caseRoot
+
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $scriptPath `
+            -PreparePhpMyAdminOnly `
+            -RuntimeRoot $runtimeRoot `
+            -PhpExecutable $fixture.Php `
+            -PhpMyAdminArchiveSource $fixture.Archive `
+            -PhpMyAdminChecksumSource $fixture.Checksum
+
+        $LASTEXITCODE | Should Be 0
+        Test-Path -LiteralPath (Join-Path $installRoot 'vendor\autoload.php') -PathType Leaf | Should Be $true
+        Test-Path -LiteralPath (Join-Path $installRoot 'vendor\symfony\polyfill-php80\bootstrap.php') -PathType Leaf | Should Be $true
     }
 }
