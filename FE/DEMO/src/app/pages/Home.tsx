@@ -67,7 +67,7 @@ export function Home() {
         {error && <Box sx={{ mt: 4 }}><RequestError message={error} onRetry={() => setReloadKey((value) => value + 1)} /></Box>}
         {categories?.length === 0 && <Box sx={{ mt: 4 }}><EmptyState title="Chưa có danh mục khóa học." /></Box>}
         {categories && categories.length > 0 && (
-          <Box component="nav" aria-label="Danh mục khóa học" sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 2, mt: 4 }}>
+          <Box component="nav" aria-label="Danh mục khóa học" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: `repeat(${categories.length}, minmax(0, 1fr))` }, gap: 2, mt: 4 }}>
             {categories.map((category) => (
               <Box
                 key={category.id}

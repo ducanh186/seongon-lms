@@ -7,7 +7,7 @@ const useAuth = vi.hoisted(() => vi.fn());
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
 describe('AdminShell', () => {
-  it('uses a full-width Admin header and grouped persistent left sidebar', () => {
+  it('uses a full-width Admin header and flat persistent left sidebar', () => {
     const onChange = vi.fn();
     const logout = vi.fn();
     useAuth.mockReturnValue({ user: { name: 'SEONGON Admin', role: 'admin' }, logout });
@@ -26,18 +26,15 @@ describe('AdminShell', () => {
     const navigation = screen.getByRole('navigation', { name: 'Quản trị' });
     expect(navigation).toHaveAttribute('data-admin-sidebar', 'true');
     expect(within(navigation).getAllByRole('button').map((button) => button.textContent)).toEqual([
-      'Tổng quan', 'Vai trò', 'Học viên', 'Giỏ hàng', 'Mục giỏ hàng', 'Đơn hàng',
-      'Danh mục', 'Gán danh mục', 'Khóa học', 'Bài học',
-      'Ghi danh', 'Tiến độ học tập',
-      'Bài kiểm tra', 'Câu hỏi', 'Đáp án', 'Kết quả bài kiểm tra',
-      'Chứng chỉ', 'Đánh giá', 'Tin tức',
+      'Tổng quan', 'Tài khoản', 'Đơn hàng',
+      'Danh mục', 'Khóa học', 'Tin tức',
     ]);
-    expect(within(navigation).getByRole('region', { name: 'Quản lý khóa học' })).toBeInTheDocument();
-    expect(within(navigation).getByRole('region', { name: 'Học tập' })).toBeInTheDocument();
+    expect(within(navigation).queryByText('Quản lý khóa học')).not.toBeInTheDocument();
+    expect(within(navigation).queryByText('Học tập')).not.toBeInTheDocument();
     expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('main')).toHaveStyle({ minWidth: 0 });
 
-    fireEvent.click(within(navigation).getByRole('button', { name: 'Học viên' }));
+    fireEvent.click(within(navigation).getByRole('button', { name: 'Tài khoản' }));
     expect(onChange).toHaveBeenCalledWith('users');
   });
 });

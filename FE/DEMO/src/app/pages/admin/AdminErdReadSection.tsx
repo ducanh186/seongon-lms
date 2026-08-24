@@ -30,7 +30,7 @@ type Props = {
 };
 
 const searchFilter: AdminReadFilter = { key: 'q', label: 'Tìm kiếm', kind: 'text' };
-const courseFilter: AdminReadFilter = { key: 'course_id', label: 'Course ID', kind: 'number' };
+const courseFilter: AdminReadFilter = { key: 'course_id', label: 'Mã khóa học', kind: 'number' };
 const examFilter: AdminReadFilter = { key: 'exam_id', label: 'Exam ID', kind: 'number' };
 
 const date = (value: string | null | undefined) => value ? new Date(value).toLocaleDateString('vi-VN') : '—';
@@ -126,8 +126,10 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           label="Danh sách đơn hàng"
           emptyTitle="Không có đơn hàng phù hợp."
           filters={[
-            searchFilter,
+            { key: 'order_id', label: 'Mã đơn hàng', kind: 'number' },
             courseFilter,
+            { key: 'course_title', label: 'Tên khóa học', kind: 'text' },
+            { key: 'student', label: 'Tài khoản học viên', kind: 'text' },
             {
               key: 'status',
               label: 'Trạng thái',
@@ -138,6 +140,7 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
                 { value: 'failed', label: 'Thất bại' },
               ],
             },
+            { key: 'created_on', label: 'Ngày tạo', kind: 'date' },
           ]}
           loader={adminRepositories.orders.list}
           getRowKey={(order) => order.id}

@@ -55,6 +55,17 @@ class AuthAndCatalogTest extends TestCase
             ->assertJsonPath('data.1.price', '100000.00');
     }
 
+    public function test_guest_catalog_can_sort_courses_from_oldest_to_newest(): void
+    {
+        $oldest = Course::factory()->create(['created_at' => '2026-01-01 00:00:00']);
+        $newest = Course::factory()->create(['created_at' => '2026-08-20 00:00:00']);
+
+        $this->getJson('/api/v1/courses?sort=oldest')
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $oldest->id)
+            ->assertJsonPath('data.1.id', $newest->id);
+    }
+
     public function test_guest_catalog_supports_free_courses_and_stable_pagination(): void
     {
         Course::factory()->count(13)->create(['price' => 0]);

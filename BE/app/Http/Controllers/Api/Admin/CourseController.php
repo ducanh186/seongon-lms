@@ -7,6 +7,7 @@ use App\Http\Resources\AdminCourseResource;
 use App\Models\Course;
 use App\Services\CourseService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CourseController extends Controller
 {
@@ -14,7 +15,16 @@ class CourseController extends Controller
 
     public function index(Request $request)
     {
-        return AdminCourseResource::collection($this->courses->paginateForAdmin($request->only(['q', 'status'])));
+        $filters = $request->validate([
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'course_id' => ['nullable', 'integer', 'min:1'],
+            'q' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in(['draft', 'published'])],
+            'price' => ['nullable', 'numeric', 'min:0'],
+            'published_on' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+
+        return AdminCourseResource::collection($this->courses->paginateForAdmin($filters));
     }
 
     public function show(Course $course)

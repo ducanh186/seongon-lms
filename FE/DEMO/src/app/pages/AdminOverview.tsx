@@ -32,7 +32,7 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
         ))}
       </Box>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(280px, 1fr)', gap: 3 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1.45fr) minmax(360px, 1fr)' }, gap: 2.5 }}>
         <Card variant="outlined" sx={{ borderRadius: 3, boxShadow: '0 12px 28px rgba(16,46,56,.05)' }}>
           <CardContent sx={{ p: 3 }}>
             <Typography component="h2" variant="h6" fontWeight={800}>Ghi danh 12 tháng gần nhất</Typography>

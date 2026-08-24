@@ -3,7 +3,7 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import { Avatar, Box, Button, Stack, Typography } from '@mui/material';
 import type { ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { ADMIN_NAVIGATION, type AdminSection } from '../admin/adminNavigation';
+import { getAdminNavigationItems, type AdminSection } from '../admin/adminNavigation';
 
 export type { AdminSection } from '../admin/adminNavigation';
 
@@ -59,16 +59,7 @@ export function AdminShell({ active, onChange, children }: AdminShellProps) {
             spacing={0.75}
             sx={{ position: 'sticky', top: 0, maxHeight: '100dvh', overflowY: 'auto', px: 2, py: 2.5 }}
           >
-            {ADMIN_NAVIGATION.map((group) => (
-              <Stack key={group.key} component="section" aria-label={group.label} spacing={0.25} sx={{ pb: 1.25 }}>
-                <Typography
-                  variant="overline"
-                  color="text.secondary"
-                  sx={{ px: 1.5, pt: 0.5, fontSize: '0.68rem', fontWeight: 850, letterSpacing: '0.08em' }}
-                >
-                  {group.label}
-                </Typography>
-                {group.items.map((item) => {
+            {getAdminNavigationItems().map((item) => {
                   const selected = active === item.section;
                   return (
                     <Button
@@ -91,8 +82,6 @@ export function AdminShell({ active, onChange, children }: AdminShellProps) {
                     </Button>
                   );
                 })}
-              </Stack>
-            ))}
           </Stack>
         </Box>
 

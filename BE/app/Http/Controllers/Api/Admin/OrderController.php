@@ -17,8 +17,12 @@ class OrderController extends Controller
     {
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:255'],
+            'order_id' => ['nullable', 'integer', 'min:1'],
             'status' => ['nullable', Rule::in(['pending', 'paid', 'failed'])],
             'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+            'course_title' => ['nullable', 'string', 'max:255'],
+            'student' => ['nullable', 'string', 'max:255'],
+            'created_on' => ['nullable', 'date_format:Y-m-d'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
         ]);
 

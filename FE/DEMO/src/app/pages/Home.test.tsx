@@ -75,7 +75,8 @@ describe('Home', () => {
 
     expect(await screen.findByRole('heading', { name: /Nền tảng học tập Marketing thực chiến/i })).toBeVisible();
     expect(screen.queryByText('Lộ trình bài học')).not.toBeInTheDocument();
-    expect(screen.getAllByText('Nội dung minh họa')).toHaveLength(3);
+    expect(screen.queryByText('Nội dung minh họa')).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Tin nhắn đánh giá của học viên' })).toBeInTheDocument();
     expect(screen.getAllByRole('article', { name: /Khóa học/ })).toHaveLength(8);
     expect(screen.getByRole('navigation', { name: 'Danh mục khóa học' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Khám phá khóa học Google Ads' })).toBeInTheDocument();

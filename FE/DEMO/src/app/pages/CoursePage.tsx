@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Alert,
+  Avatar,
   Box,
   Button,
   Card,
@@ -76,7 +77,6 @@ export function CoursePage() {
                 <Typography variant="body2" color="text.secondary">{course.rating?.toFixed(1) ?? 'Chưa có'} · {course.reviews_count ?? 0} đánh giá</Typography>
               </Stack>
               <Typography color="text.secondary" sx={{ mt: 3, whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>{course.description || 'Nội dung khóa học đang được cập nhật.'}</Typography>
-              {course.instructor_name && <Typography sx={{ mt: 2 }}><Typography component="span" fontWeight={700}>Giảng viên:</Typography> {course.instructor_name}</Typography>}
             </Box>
             <Box sx={{ bgcolor: '#E9F7F5', border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden' }}>
               <Box component="img" src={course.thumbnail ?? FALLBACK_COURSE_IMAGE} alt="" sx={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', display: 'block' }} />
@@ -108,6 +108,7 @@ export function CoursePage() {
                 ))}
               </Stack>
             </Box>
+            {course.instructor_name && <Card component="section" role="region" aria-label="Thông tin giảng viên" variant="outlined" sx={{ borderRadius: 2.5 }}><CardContent sx={{ p: { xs: 2.5, md: 3 } }}><Stack direction={{ xs: 'column', sm: 'row' }} spacing={2.5} alignItems={{ sm: 'center' }}><Avatar sx={{ width: 72, height: 72, bgcolor: 'primary.dark', fontSize: 28 }}>{course.instructor_name[0]}</Avatar><Box><Typography variant="overline" color="primary.dark" fontWeight={800}>Thông tin giảng viên</Typography><Typography component="h2" variant="h5" fontWeight={850}>{course.instructor_name}</Typography><Typography color="text.secondary" sx={{ mt: .75, lineHeight: 1.75 }}>{course.instructor_bio || 'Thông tin chuyên môn của giảng viên đang được cập nhật.'}</Typography></Box></Stack></CardContent></Card>}
           </Stack>
           <Card component="aside" aria-label="Thông tin đăng ký" variant="outlined" sx={{ position: { md: 'sticky' }, top: 96, borderRadius: 2.5 }}>
             <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>

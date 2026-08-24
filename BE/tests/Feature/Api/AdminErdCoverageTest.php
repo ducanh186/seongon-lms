@@ -100,6 +100,38 @@ class AdminErdCoverageTest extends TestCase
         $this->withToken($token)->getJson('/api/v1/admin/orders?status=unknown')->assertUnprocessable();
     }
 
+    public function test_admin_orders_supports_order_course_title_student_and_created_date_filters(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create(['email' => 'filtered.student@example.test']);
+        $course = Course::factory()->create(['title' => 'Filtered SEO Course']);
+        $order = Order::factory()->paid()->create([
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'created_at' => '2026-08-20 09:00:00',
+        ]);
+        Order::factory()->paid()->create([
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'created_at' => '2026-08-20 12:00:00',
+        ]);
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $query = http_build_query([
+            'order_id' => $order->id,
+            'course_id' => $course->id,
+            'course_title' => 'Filtered SEO',
+            'student' => 'filtered.student@example.test',
+            'status' => 'paid',
+            'created_on' => '2026-08-20',
+        ]);
+
+        $this->withToken($token)->getJson('/api/v1/admin/orders?'.$query)
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.id', $order->id);
+    }
+
     public function test_admin_reads_course_assignments_progress_questions_and_answers(): void
     {
         $admin = User::factory()->admin()->create();

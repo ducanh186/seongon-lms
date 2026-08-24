@@ -30,7 +30,6 @@ const BrandLogo = styled('img')({
   width: 224,
   height: 'auto',
   maxWidth: 'none',
-  transform: 'translate(-31px, -4px)',
 });
 
 export function GlobalHeader() {
@@ -94,7 +93,7 @@ export function GlobalHeader() {
             component={Link}
             to="/"
             aria-label="SEONGON Academy - Trang chủ"
-            sx={{ display: 'inline-flex', alignItems: 'center', width: 180, height: 56, overflow: 'hidden', flexShrink: 0 }}
+            sx={{ display: 'inline-flex', alignItems: 'center', width: 238, height: 64, overflow: 'visible', flexShrink: 0 }}
           >
             <BrandLogo src={logoSeongon} alt="" width={224} />
           </Box>

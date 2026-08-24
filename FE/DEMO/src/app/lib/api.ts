@@ -187,6 +187,8 @@ export const api = {
     apiRequest<Paginated<ApiUser>>(`/admin/users${queryString(filters)}`, { token }),
   updateUserStatus: (token: string, userId: number, status: 'active' | 'locked') =>
     apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/status`, { method: 'PATCH', token, body: { status } }),
+  updateUserRole: (token: string, userId: number, role: 'student' | 'admin') =>
+    apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/role`, { method: 'PATCH', token, body: { role } }),
   adminCategories: (token: string) => apiRequest<{ data: ApiCategory[] }>('/admin/categories', { token }),
   createCategory: (token: string, body: { name: string; description?: string }) =>
     apiRequest<{ data: ApiCategory }>('/admin/categories', { method: 'POST', token, body }),

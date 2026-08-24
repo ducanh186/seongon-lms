@@ -35,6 +35,7 @@ class CourseResource extends JsonResource
             'lessons' => LessonResource::collection($this->whenLoaded('lessons')),
             'has_quiz' => $this->when($this->relationLoaded('quiz'), fn () => $this->quiz !== null),
             'created_at' => $this->created_at,
+            'published_at' => $this->status === 'published' ? $this->updated_at : null,
             'updated_at' => $this->updated_at,
         ];
     }

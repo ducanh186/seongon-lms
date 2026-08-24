@@ -20,19 +20,12 @@ import { applicationRepositories } from '../data/repositories/applicationReposit
 import type { ApiCategory, ApiCourse, Paginated } from '../lib/contracts';
 import { layoutTokens } from '../theme';
 
-const SORT_OPTIONS = [
-  ['newest', 'Mới nhất'],
-  ['popular', 'Phổ biến'],
-  ['price_asc', 'Giá tăng dần'],
-  ['price_desc', 'Giá giảm dần'],
-] as const;
-
 type CatalogFilters = {
   q: string;
   category: string;
   level: string;
-  price: string;
-  sort: string;
+  priceSort: string;
+  dateSort: string;
 };
 
 export function CatalogPage() {
@@ -41,8 +34,8 @@ export function CatalogPage() {
     q: searchParams.get('q') ?? '',
     category: searchParams.get('category') ?? '',
     level: searchParams.get('level') ?? '',
-    price: searchParams.get('price') ?? '',
-    sort: searchParams.get('sort') ?? 'newest',
+    priceSort: searchParams.get('price_sort') ?? '',
+    dateSort: searchParams.get('date_sort') ?? 'newest',
   // Read the initial URL once. Subsequent changes are controlled by Apply/Pagination.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), []);
@@ -67,8 +60,8 @@ export function CatalogPage() {
       q: applied.q || undefined,
       category: applied.category || undefined,
       level: applied.level || undefined,
-      price: applied.price || undefined,
-      sort: applied.sort,
+      price_sort: applied.priceSort || undefined,
+      date_sort: applied.dateSort,
       page,
     })
       .then((result) => active && setCatalog(result))
@@ -82,8 +75,8 @@ export function CatalogPage() {
     if (filters.q) next.set('q', filters.q);
     if (filters.category) next.set('category', filters.category);
     if (filters.level) next.set('level', filters.level);
-    if (filters.price) next.set('price', filters.price);
-    if (filters.sort !== 'newest') next.set('sort', filters.sort);
+    if (filters.priceSort) next.set('price_sort', filters.priceSort);
+    if (filters.dateSort !== 'newest') next.set('date_sort', filters.dateSort);
     if (nextPage > 1) next.set('page', String(nextPage));
     setSearchParams(next);
   };
@@ -123,7 +116,6 @@ export function CatalogPage() {
             onSubmit={(event) => { event.preventDefault(); applyFilters(); }}
             sx={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 1.6fr) repeat(4, minmax(150px, 1fr)) auto', gap: 1.5, alignItems: 'center', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2.5 }}
           >
-            <TextField label="Tìm khóa học" placeholder="SEO, Content Marketing..." value={draft.q} onChange={(event) => setDraft((current) => ({ ...current, q: event.target.value }))} InputLabelProps={{ sx: { whiteSpace: 'nowrap' } }} />
             <FormControl>
               <InputLabel id="course-category-label" sx={{ whiteSpace: 'nowrap' }}>Danh mục</InputLabel>
               <Select labelId="course-category-label" label="Danh mục" value={draft.category} onChange={(event) => setDraft((current) => ({ ...current, category: event.target.value }))}>
@@ -131,6 +123,7 @@ export function CatalogPage() {
                 {categories.map((item) => <MenuItem key={item.id} value={item.slug}>{item.name}</MenuItem>)}
               </Select>
             </FormControl>
+            <TextField label="Tên khóa học" placeholder="SEO, Content Marketing..." value={draft.q} onChange={(event) => setDraft((current) => ({ ...current, q: event.target.value }))} InputLabelProps={{ sx: { whiteSpace: 'nowrap' } }} />
             <FormControl>
               <InputLabel id="course-level-label" sx={{ whiteSpace: 'nowrap' }}>Cấp độ</InputLabel>
               <Select labelId="course-level-label" label="Cấp độ" value={draft.level} onChange={(event) => setDraft((current) => ({ ...current, level: event.target.value }))}>
@@ -141,17 +134,18 @@ export function CatalogPage() {
               </Select>
             </FormControl>
             <FormControl>
-              <InputLabel id="course-price-label" sx={{ whiteSpace: 'nowrap' }}>Mức giá</InputLabel>
-              <Select labelId="course-price-label" label="Mức giá" value={draft.price} onChange={(event) => setDraft((current) => ({ ...current, price: event.target.value }))}>
-                <MenuItem value="">Tất cả mức giá</MenuItem>
-                <MenuItem value="free">Miễn phí</MenuItem>
-                <MenuItem value="paid">Có phí</MenuItem>
+              <InputLabel id="course-price-label" sx={{ whiteSpace: 'nowrap' }}>Sắp xếp theo giá</InputLabel>
+              <Select labelId="course-price-label" label="Sắp xếp theo giá" value={draft.priceSort} onChange={(event) => setDraft((current) => ({ ...current, priceSort: event.target.value }))}>
+                <MenuItem value="">Không sắp xếp theo giá</MenuItem>
+                <MenuItem value="asc">Giá thấp đến cao</MenuItem>
+                <MenuItem value="desc">Giá cao đến thấp</MenuItem>
               </Select>
             </FormControl>
             <FormControl>
-              <InputLabel id="course-sort-label" sx={{ whiteSpace: 'nowrap' }}>Sắp xếp</InputLabel>
-              <Select labelId="course-sort-label" label="Sắp xếp" value={draft.sort} onChange={(event) => setDraft((current) => ({ ...current, sort: event.target.value }))}>
-                {SORT_OPTIONS.map(([value, label]) => <MenuItem key={value} value={value}>{label}</MenuItem>)}
+              <InputLabel id="course-sort-label" sx={{ whiteSpace: 'nowrap' }}>Ngày xuất bản</InputLabel>
+              <Select labelId="course-sort-label" label="Ngày xuất bản" value={draft.dateSort} onChange={(event) => setDraft((current) => ({ ...current, dateSort: event.target.value }))}>
+                <MenuItem value="newest">Mới nhất</MenuItem>
+                <MenuItem value="oldest">Cũ nhất</MenuItem>
               </Select>
             </FormControl>
             <Button type="submit" variant="contained" sx={{ whiteSpace: 'nowrap' }}>Áp dụng bộ lọc</Button>

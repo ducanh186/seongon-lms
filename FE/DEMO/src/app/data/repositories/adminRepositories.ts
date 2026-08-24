@@ -32,6 +32,7 @@ export const adminRepositories = {
   users: {
     list: api.adminUsers,
     updateStatus: api.updateUserStatus,
+    updateRole: api.updateUserRole,
   },
   categories: {
     list: api.adminCategories,

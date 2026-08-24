@@ -56,8 +56,8 @@ describe('CoursePage', () => {
         description: 'Học SEO từ nền tảng đến thực hành.',
         thumbnail: null,
         price: '299000.00',
-        instructor_name: 'SEONGON',
-        instructor_bio: null,
+        instructor_name: 'Nguyễn Minh Anh',
+        instructor_bio: 'Chuyên gia SEO với kinh nghiệm triển khai dự án thực tế.',
         level: 'beginner',
         status: 'published',
         lessons_count: 1,
@@ -78,6 +78,9 @@ describe('CoursePage', () => {
 
     expect(await screen.findByRole('complementary', { name: 'Thông tin đăng ký' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'SEO Foundation' })).toBeInTheDocument();
+    const instructor = screen.getByRole('region', { name: 'Thông tin giảng viên' });
+    expect(instructor).toHaveTextContent('Nguyễn Minh Anh');
+    expect(instructor).toHaveTextContent('Chuyên gia SEO với kinh nghiệm triển khai dự án thực tế.');
     expect(course).toHaveBeenCalledWith('seo-foundation');
     expect(reviews).toHaveBeenCalledWith('seo-foundation');
   });

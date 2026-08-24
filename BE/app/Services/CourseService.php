@@ -50,6 +50,22 @@ class CourseService
             $query->where('title', 'like', "%{$search}%");
         }
 
+        if ($courseId = $filters['course_id'] ?? null) {
+            $query->whereKey($courseId);
+        }
+
+        if ($categoryId = $filters['category_id'] ?? null) {
+            $query->whereHas('categories', fn (Builder $categoryQuery) => $categoryQuery->whereKey($categoryId));
+        }
+
+        if (array_key_exists('price', $filters) && $filters['price'] !== null) {
+            $query->where('price', $filters['price']);
+        }
+
+        if ($publishedOn = $filters['published_on'] ?? null) {
+            $query->where('status', 'published')->whereDate('updated_at', $publishedOn);
+        }
+
         return $query->latest()->paginate(15)->withQueryString();
     }
 

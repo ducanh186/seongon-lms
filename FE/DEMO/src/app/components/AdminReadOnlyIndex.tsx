@@ -19,7 +19,7 @@ import { AdminDataTable, type AdminColumn } from './AdminDataTable';
 export type AdminReadFilter = {
   key: string;
   label: string;
-  kind: 'text' | 'number' | 'select';
+  kind: 'text' | 'number' | 'date' | 'select';
   options?: Array<{ value: string; label: string }>;
 };
 
@@ -99,8 +99,12 @@ export function AdminReadOnlyIndex<T>({
           data-admin-toolbar="true"
           sx={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr)) auto',
-            gap: 2,
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, minmax(0, 1fr)) auto',
+              xl: `repeat(${filters.length}, minmax(0, 1fr)) auto`,
+            },
+            gap: 1.25,
             alignItems: 'stretch',
             p: 2,
             bgcolor: 'background.paper',
@@ -128,8 +132,9 @@ export function AdminReadOnlyIndex<T>({
             <TextField
               key={filter.key}
               label={filter.label}
-              type={filter.kind === 'number' ? 'number' : 'text'}
+              type={filter.kind === 'number' ? 'number' : filter.kind === 'date' ? 'date' : 'text'}
               inputProps={filter.kind === 'number' ? { min: 1 } : undefined}
+              InputLabelProps={filter.kind === 'date' ? { shrink: true } : undefined}
               value={drafts[filter.key] ?? ''}
               onChange={(event) => setDrafts((current) => ({ ...current, [filter.key]: event.target.value }))}
               fullWidth

@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Chip, Container, Typography } from '@mui/material';
+import { Avatar, Box, Container, Stack, Typography } from '@mui/material';
 import { layoutTokens } from '../theme';
 import { SectionHeading } from './SectionHeading';
 
@@ -28,19 +28,16 @@ export function IllustrativeTestimonials() {
     <Box component="section" sx={{ bgcolor: '#E7F5F5', py: layoutTokens.sectionPadding }}>
       <Container maxWidth={false} sx={{ maxWidth: layoutTokens.contentMaxWidth, px: 3 }}>
         <SectionHeading title="Học viên nói gì về trải nghiệm học" description="Các tình huống minh họa cho trải nghiệm mà SEONGON Academy hướng tới." />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 3, mt: 4 }}>
+        <Box role="region" aria-label="Tin nhắn đánh giá của học viên" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'repeat(3, minmax(0, 1fr))' }, gap: 3, mt: 4 }}>
           {testimonials.map((item) => (
-            <Card component="article" key={item.name} aria-label={`Đánh giá minh họa của ${item.name}`} sx={{ overflow: 'hidden' }}>
-              <Box component="img" src={item.image} alt="" sx={{ width: '100%', height: 230, objectFit: 'cover', objectPosition: 'center 28%' }} />
-              <CardContent sx={{ p: 3 }}>
-                <Chip label="Nội dung minh họa" size="small" color="primary" variant="outlined" />
-                <Typography component="blockquote" sx={{ m: 0, mt: 2, lineHeight: 1.8 }}>
-                  “{item.quote}”
-                </Typography>
-                <Typography fontWeight={800} sx={{ mt: 2.5 }}>{item.name}</Typography>
+            <Stack component="article" key={item.name} aria-label={`Đánh giá của ${item.name}`} direction="row" spacing={1.5} alignItems="flex-end">
+              <Avatar src={item.image} alt="" sx={{ width: 48, height: 48, flexShrink: 0 }} />
+              <Box sx={{ position: 'relative', minWidth: 0, p: 2.5, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: '18px 18px 18px 5px', boxShadow: '0 10px 24px rgba(16,46,56,.07)' }}>
+                <Typography component="blockquote" sx={{ m: 0, lineHeight: 1.75 }}>“{item.quote}”</Typography>
+                <Typography fontWeight={800} sx={{ mt: 1.75 }}>{item.name}</Typography>
                 <Typography variant="body2" color="text.secondary">{item.context}</Typography>
-              </CardContent>
-            </Card>
+              </Box>
+            </Stack>
           ))}
         </Box>
       </Container>

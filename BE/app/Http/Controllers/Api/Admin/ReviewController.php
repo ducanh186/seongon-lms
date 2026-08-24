@@ -11,10 +11,19 @@ class ReviewController extends Controller
 {
     public function index(Request $request)
     {
+        $filters = $request->validate([
+            'status' => ['nullable', 'in:visible,hidden'],
+            'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+        ]);
+
         $query = Review::with(['user', 'course']);
 
-        if ($status = $request->query('status')) {
+        if ($status = $filters['status'] ?? null) {
             $query->where('status', $status);
+        }
+
+        if ($courseId = $filters['course_id'] ?? null) {
+            $query->where('course_id', $courseId);
         }
 
         return ReviewResource::collection($query->latest()->paginate(15)->withQueryString());

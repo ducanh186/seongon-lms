@@ -69,6 +69,7 @@ export interface ApiCourse {
   lessons?: ApiLesson[];
   has_quiz?: boolean;
   created_at: string;
+  published_at?: string | null;
   updated_at?: string;
 }
 

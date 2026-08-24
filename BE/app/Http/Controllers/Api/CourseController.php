@@ -51,12 +51,25 @@ class CourseController extends Controller
             $query->where('price', '<=', (float) $request->query('max_price'));
         }
 
-        match ($request->query('sort')) {
-            'price_asc' => $query->orderBy('price'),
-            'price_desc' => $query->orderByDesc('price'),
-            'popular' => $query->orderByDesc('reviews_count'),
-            default => $query->orderByDesc('created_at'),
-        };
+        if (in_array($request->query('price_sort'), ['asc', 'desc'], true) || $request->has('date_sort')) {
+            if ($request->query('price_sort') === 'asc') {
+                $query->orderBy('price');
+            } elseif ($request->query('price_sort') === 'desc') {
+                $query->orderByDesc('price');
+            }
+
+            $request->query('date_sort') === 'oldest'
+                ? $query->orderBy('created_at')
+                : $query->orderByDesc('created_at');
+        } else {
+            match ($request->query('sort')) {
+                'price_asc' => $query->orderBy('price'),
+                'price_desc' => $query->orderByDesc('price'),
+                'oldest' => $query->orderBy('created_at'),
+                'popular' => $query->orderByDesc('reviews_count'),
+                default => $query->orderByDesc('created_at'),
+            };
+        }
 
         return CourseResource::collection($query->paginate(12)->withQueryString());
     }

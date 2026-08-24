@@ -13,7 +13,16 @@ class EnrollmentService
      */
     public function paginateForAdmin(array $filters = []): LengthAwarePaginator
     {
-        $query = Enrollment::query()->with(['user', 'course', 'order']);
+        $query = Enrollment::query()
+            ->with([
+                'user',
+                'course' => fn ($courseQuery) => $courseQuery->withCount('lessons'),
+                'order',
+                'certificate',
+            ])
+            ->withCount([
+                'learningProgress as completed_lessons_count' => fn ($progressQuery) => $progressQuery->where('is_completed', true),
+            ]);
 
         if ($status = $filters['status'] ?? null) {
             $query->where('status', $status);
@@ -43,7 +52,16 @@ class EnrollmentService
 
     public function forAdmin(Enrollment $enrollment): Enrollment
     {
-        return $enrollment->load(['user', 'course', 'order']);
+        return $enrollment
+            ->load([
+                'user',
+                'course' => fn ($courseQuery) => $courseQuery->withCount('lessons'),
+                'order',
+                'certificate',
+            ])
+            ->loadCount([
+                'learningProgress as completed_lessons_count' => fn ($progressQuery) => $progressQuery->where('is_completed', true),
+            ]);
     }
 
     /**

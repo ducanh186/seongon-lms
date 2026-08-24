@@ -16,6 +16,7 @@ interface AdminDataTableProps<T> {
   minWidth?: number;
   stickyFirstColumn?: boolean;
   stickyLastColumn?: boolean;
+  onRowClick?: (row: T) => void;
 }
 
 export function AdminDataTable<T>({
@@ -26,6 +27,7 @@ export function AdminDataTable<T>({
   minWidth = 680,
   stickyFirstColumn = true,
   stickyLastColumn = false,
+  onRowClick,
 }: AdminDataTableProps<T>) {
   return (
     <TableContainer
@@ -83,7 +85,19 @@ export function AdminDataTable<T>({
         </TableHead>
         <TableBody>
           {rows.map((row) => (
-            <TableRow key={getRowKey(row)} hover>
+            <TableRow
+              key={getRowKey(row)}
+              hover
+              tabIndex={onRowClick ? 0 : undefined}
+              onClick={onRowClick ? () => onRowClick(row) : undefined}
+              onKeyDown={onRowClick ? (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  onRowClick(row);
+                }
+              } : undefined}
+              sx={onRowClick ? { cursor: 'pointer', '&:focus-visible': { outline: '3px solid', outlineColor: 'primary.main', outlineOffset: -3 } } : undefined}
+            >
               {columns.map((column) => (
                 <TableCell key={column.key} align={column.align}>
                   {column.render(row)}

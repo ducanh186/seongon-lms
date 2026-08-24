@@ -2,8 +2,11 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\LearningProgress;
+use App\Models\Lesson;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -107,5 +110,43 @@ class AdminCommerceReadTest extends TestCase
         $this->withToken($token)
             ->getJson('/api/v1/admin/enrollments?status=cancelled')
             ->assertUnprocessable();
+    }
+
+    public function test_course_enrollment_overview_includes_progress_and_issued_certificate(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        $lessons = Lesson::factory()->count(2)->create(['course_id' => $course->id]);
+        $enrollment = Enrollment::factory()->create([
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+        ]);
+
+        foreach ($lessons as $lesson) {
+            LearningProgress::query()->create([
+                'enrollment_id' => $enrollment->id,
+                'lesson_id' => $lesson->id,
+                'is_completed' => true,
+                'completed_at' => now(),
+            ]);
+        }
+
+        Certificate::query()->create([
+            'enrollment_id' => $enrollment->id,
+            'certificate_code' => 'SEONGON-COURSE-001',
+            'issued_at' => now(),
+            'pdf_path' => null,
+        ]);
+
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)
+            ->getJson("/api/v1/admin/enrollments?course_id={$course->id}")
+            ->assertOk()
+            ->assertJsonPath('data.0.progress.completed', 2)
+            ->assertJsonPath('data.0.progress.total', 2)
+            ->assertJsonPath('data.0.progress.percent', 100)
+            ->assertJsonPath('data.0.certificate.certificate_code', 'SEONGON-COURSE-001');
     }
 }

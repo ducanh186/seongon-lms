@@ -11,6 +11,7 @@ use App\Models\Exam;
 use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\Review;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -141,16 +142,60 @@ class AdminManagementTest extends TestCase
     public function test_admin_user_list_includes_each_students_enrollment_count(): void
     {
         $admin = User::factory()->admin()->create();
-        $student = User::factory()->create();
+        $student = User::factory()->create(['email' => 'enrolled-student@example.test']);
         $firstCourse = Course::factory()->create();
         $secondCourse = Course::factory()->create();
         Enrollment::factory()->create(['user_id' => $student->id, 'course_id' => $firstCourse->id]);
         Enrollment::factory()->create(['user_id' => $student->id, 'course_id' => $secondCourse->id]);
         $token = $admin->createToken('test')->plainTextToken;
 
-        $this->withToken($token)->getJson('/api/v1/admin/users')
+        $this->withToken($token)->getJson('/api/v1/admin/users?q=enrolled-student%40example.test')
             ->assertOk()
             ->assertJsonPath('data.0.enrollments_count', 2);
+    }
+
+    public function test_admin_account_list_includes_all_roles_and_can_update_a_users_role(): void
+    {
+        $admin = User::factory()->admin()->create(['email' => 'admin-list@example.test']);
+        $student = User::factory()->create(['email' => 'student-list@example.test']);
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/v1/admin/users')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonFragment(['email' => 'admin-list@example.test', 'role' => 'admin'])
+            ->assertJsonFragment(['email' => 'student-list@example.test', 'role' => 'student']);
+
+        $this->withToken($token)->patchJson("/api/v1/admin/users/{$student->id}/role", ['role' => 'admin'])
+            ->assertOk()
+            ->assertJsonPath('data.role', 'admin');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $student->id,
+            'role' => 'admin',
+            'role_id' => Role::query()->where('code', 'admin')->value('id'),
+        ]);
+    }
+
+    public function test_admin_course_list_supports_the_approved_management_filters(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $category = Category::factory()->create(['name' => 'SEO']);
+        $course = Course::factory()->create([
+            'category_id' => $category->id,
+            'title' => 'SEO Filter Target',
+            'price' => 499000,
+            'status' => 'published',
+            'updated_at' => '2026-08-20 10:00:00',
+        ]);
+        Course::factory()->create(['title' => 'Other course', 'price' => 499000]);
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/v1/admin/courses?category_id='.$category->id.'&course_id='.$course->id.'&q=Filter&status=published&price=499000&published_on=2026-08-20')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.id', $course->id)
+            ->assertJsonPath('data.0.published_at', '2026-08-20T10:00:00.000000Z');
     }
 
     public function test_admin_course_detail_includes_editable_quiz_data_without_changing_public_course_data(): void
@@ -252,6 +297,26 @@ class AdminManagementTest extends TestCase
         $this->withToken($token)->deleteJson("/api/v1/admin/reviews/{$review->id}")
             ->assertNoContent();
         $this->assertDatabaseMissing('reviews', ['id' => $review->id]);
+    }
+
+    public function test_admin_can_list_reviews_for_one_selected_course(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $matchingReview = Review::factory()->create(['course_id' => $course->id]);
+        Review::factory()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)
+            ->getJson("/api/v1/admin/reviews?course_id={$course->id}")
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.id', $matchingReview->id)
+            ->assertJsonPath('data.0.course_id', $course->id);
+
+        $this->withToken($token)
+            ->getJson('/api/v1/admin/reviews?course_id=999999')
+            ->assertUnprocessable();
     }
 
     public function test_admin_can_update_reorder_and_delete_course_content(): void

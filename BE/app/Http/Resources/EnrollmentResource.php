@@ -22,8 +22,24 @@ class EnrollmentResource extends JsonResource
             'course' => new CourseResource($this->whenLoaded('course')),
             'order' => new OrderResource($this->whenLoaded('order')),
             'certificate' => new CertificateResource($this->whenLoaded('certificate')),
-            // progress được controller gán khi cần.
-            'progress' => $this->when(isset($this->progress), fn () => $this->progress),
+            'progress' => $this->when(
+                isset($this->progress) || ($this->relationLoaded('course') && $this->hasAttribute('completed_lessons_count')),
+                function (): array {
+                    if (isset($this->progress)) {
+                        return $this->progress;
+                    }
+
+                    $completed = (int) $this->completed_lessons_count;
+                    $total = (int) ($this->course?->lessons_count ?? 0);
+
+                    return [
+                        'completed' => $completed,
+                        'total' => $total,
+                        'percent' => $total > 0 ? (int) round(($completed / $total) * 100) : 0,
+                        'can_take_exam' => $total > 0 && $completed >= $total,
+                    ];
+                },
+            ),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

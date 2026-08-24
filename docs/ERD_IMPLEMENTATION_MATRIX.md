@@ -17,13 +17,13 @@ Tài liệu này đối chiếu 15 bảng lõi đã được duyệt trong `docs
 
 | Đối tượng ERD | Database và quan hệ | Service | API | Admin | Public/Student | Trạng thái |
 |---|---|---|---|---|---|---|
-| **Roles** | `roles`; `Role::users`, `User::role` | `RoleService` đọc Admin | `GET /admin/roles` | Danh sách chỉ đọc, có `users_count` | Nền tảng phân quyền | `ĐẠT ADMIN` |
-| **Users** | `users`; liên kết Role, Orders, Enrollments | Chưa tách `UserService` riêng | Auth/Profile và `/admin/users` | Danh sách thật, lọc và khóa/mở tài khoản | Đăng nhập, hồ sơ | `ĐẠT ADMIN` |
-| **Carts** | `carts`; `Cart::user/items` | `CartService` | Student `/cart*`; Admin `/admin/carts` | Danh sách chỉ đọc, số item và tổng tiền hiện tại | Cart đăng nhập lấy DB làm nguồn chính | `ĐẠT ADMIN` |
-| **Cart_items** | `cart_items`; liên kết Cart, Course, User; unique `(cart_id, course_id)` | `CartService` | Student `/cart/items*`; Admin `/admin/cart-items` | Danh sách chỉ đọc | Header, Cart và Checkout dùng chung API state | `ĐẠT ADMIN` |
+| **Roles** | `roles`; `Role::users`, `User::role` | `RoleService` đọc Admin | `GET /admin/roles`; cập nhật qua User API | Quản lý ngay trong cột Role của bảng Tài khoản | Nền tảng phân quyền | `ĐẠT ADMIN` |
+| **Users** | `users`; liên kết Role, Orders, Enrollments | Chưa tách `UserService` riêng | Auth/Profile và `/admin/users` | Một bảng tài khoản thật, lọc, đổi Role và khóa/mở | Đăng nhập, hồ sơ | `ĐẠT ADMIN` |
+| **Carts** | `carts`; `Cart::user/items` | `CartService` | Student `/cart*`; Admin API vẫn quan sát được | Không chiếm mục sidebar riêng; kiểm tra qua DB/API | Cart đăng nhập lấy DB làm nguồn chính | `ĐẠT ADMIN` |
+| **Cart_items** | `cart_items`; liên kết Cart, Course, User; unique `(cart_id, course_id)` | `CartService` | Student `/cart/items*`; Admin API vẫn quan sát được | Không chiếm mục sidebar riêng; kiểm tra qua DB/API | Header, Cart và Checkout dùng chung API state | `ĐẠT ADMIN` |
 | **Orders** | `orders`; liên kết User, Course, Enrollment | `OrderService` | Tạo/thanh toán Student; `/admin/orders` | Danh sách chỉ đọc | Checkout một Course cho mỗi Order | `ĐẠT ADMIN` |
 | **Categories** | `categories`; quan hệ nhiều-nhiều Course qua pivot | Logic hiện trong controller | Public và `/admin/categories` | CRUD dữ liệu thật | Lọc Public Catalog | `ĐẠT ADMIN` |
-| **Course_categories** | `course_categories`; liên kết Course và Category | `CourseService::sync` và đọc Admin | `/admin/course-categories`; ghi qua Course API | Danh sách pivot chỉ đọc; Course dùng multi-select | Catalog đọc quan hệ pivot | `ĐẠT ADMIN` |
+| **Course_categories** | `course_categories`; liên kết Course và Category | `CourseService::sync` và đọc Admin | `/admin/course-categories`; ghi qua Course API | Quản lý trong form Course bằng multi-select, không có trang pivot riêng | Catalog đọc quan hệ pivot | `ĐẠT ADMIN` |
 | **Courses** | `courses`; Categories, Lessons, Exam, Enrollments | `CourseService` tạo, sửa, publish, đọc | Public và `/admin/courses` | Bảng 13 trường thật/tổng hợp và trình sửa nội dung lồng | Catalog và Course Detail | `ĐẠT ADMIN` |
 | **Enrollments** | `enrollments`; User, Course, Order, Progress, Attempts | `EnrollmentService` | `/my/courses*`; `/admin/enrollments` | Danh sách chỉ đọc | Quyền truy cập khóa học | `ĐẠT ADMIN` |
 | **Exams** | `exams`; Course, Questions, Attempts | `ExamGradingService`, `LearningOperationsService` | API Student; `/admin/exams`; write lồng trong Course | Danh sách thật và trình sửa Course lồng | Làm và chấm bài kiểm tra | `ĐẠT ADMIN` |
@@ -41,15 +41,11 @@ Mẫu WooCommerce/WordPress chỉ được dùng để tham khảo cách tổ ch
 SEONGON ADMIN
 ├─ Dashboard
 ├─ Tài khoản
-│  ├─ Vai trò
-│  └─ Học viên
+│  └─ Tài khoản (có cột Vai trò)
 ├─ Thương mại
-│  ├─ Giỏ hàng
-│  ├─ Mục giỏ hàng
 │  └─ Đơn hàng
 ├─ Quản lý khóa học
 │  ├─ Danh mục
-│  ├─ Gán danh mục
 │  ├─ Khóa học
 │  └─ Bài học
 ├─ Học tập
@@ -68,7 +64,7 @@ SEONGON ADMIN
 
 Các màn hình dùng chung `AdminShell`, sidebar cố định theo nhóm, `AdminDataTable` và trạng thái đang tải/rỗng/lỗi. Đối tượng có thể chỉnh sửa dùng editor hiện có; dữ liệu giao dịch và lịch sử dùng danh sách chỉ đọc có filter và pagination.
 
-Các màn hình chủ động chỉ đọc gồm: **Carts, Cart_items, Orders, Enrollments, Learning_progress, Attempts**.
+Các màn hình chủ động chỉ đọc gồm: **Orders, Enrollments, Learning_progress, Attempts**. `Carts`, `Cart_items` và `Course_categories` vẫn có API/DB để đối chiếu ERD nhưng được quản lý qua luồng nghiệp vụ tương ứng, không chiếm mục sidebar riêng.
 
 ## 4. Luồng dữ liệu chính
 
@@ -88,6 +84,8 @@ AdminPage
 
 `course_categories` là quan hệ nhiều-nhiều có thẩm quyền. `courses.category_id` chỉ mirror Category đầu để tương thích writer cũ trong thời gian chuyển tiếp.
 
+ERD không có `courses.published_at`. Cột "Ngày xuất bản" ở Admin trả `updated_at` khi Course đang `published`, và trả `null` khi Course là draft; đây là giá trị dẫn xuất, không phải cột database mới.
+
 ### 4.2. Giỏ hàng và thanh toán
 
 ```text
@@ -103,6 +101,8 @@ Student UI
 ```
 
 ERD không có `order_items`, vì vậy một Cart có thể chứa nhiều Courses nhưng mỗi Order vẫn đại diện cho một Course.
+
+Form tạo đơn dùng `users.name`, `users.email` và `users.phone`. Không thêm địa chỉ giao hàng, mã bưu điện hoặc coupon vì khóa học được cung cấp trực tuyến và approved ERD không có nơi lưu các trường thương mại vật lý này.
 
 ### 4.3. Học tập và kiểm tra
 

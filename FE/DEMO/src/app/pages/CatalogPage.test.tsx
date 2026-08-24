@@ -83,22 +83,22 @@ describe('CatalogPage', () => {
     const filterForm = await screen.findByRole('form', { name: 'Bộ lọc khóa học' });
     await user.click(screen.getByRole('combobox', { name: 'Cấp độ' }));
     await user.click(screen.getByRole('option', { name: 'Nâng cao' }));
-    await user.click(screen.getByRole('combobox', { name: 'Mức giá' }));
-    await user.click(screen.getByRole('option', { name: 'Có phí' }));
-    await user.click(screen.getByRole('combobox', { name: 'Sắp xếp' }));
-    await user.click(screen.getByRole('option', { name: 'Giá giảm dần' }));
+    await user.click(screen.getByRole('combobox', { name: 'Sắp xếp theo giá' }));
+    await user.click(screen.getByRole('option', { name: 'Giá cao đến thấp' }));
+    await user.click(screen.getByRole('combobox', { name: 'Ngày xuất bản' }));
+    await user.click(screen.getByRole('option', { name: 'Cũ nhất' }));
     await user.click(screen.getByRole('button', { name: 'Áp dụng bộ lọc' }));
 
     expect(filterForm).toBeInTheDocument();
     expect(api.courses).toHaveBeenLastCalledWith(expect.objectContaining({
       level: 'advanced',
-      price: 'paid',
-      sort: 'price_desc',
+      price_sort: 'desc',
+      date_sort: 'oldest',
       page: 1,
     }));
     expect(screen.getByTestId('current-search')).toHaveTextContent('level=advanced');
-    expect(screen.getByTestId('current-search')).toHaveTextContent('price=paid');
-    expect(screen.getByTestId('current-search')).toHaveTextContent('sort=price_desc');
+    expect(screen.getByTestId('current-search')).toHaveTextContent('price_sort=desc');
+    expect(screen.getByTestId('current-search')).toHaveTextContent('date_sort=oldest');
     expect(screen.getByTestId('current-search')).not.toHaveTextContent('page=2');
   });
 });

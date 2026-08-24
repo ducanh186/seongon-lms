@@ -125,14 +125,14 @@ describe('AdminErdReadSection', () => {
 
     render(<AdminErdReadSection section="orders" token="admin-token" onOpenCourse={vi.fn()} />);
     await waitFor(() => expect(ordersList).toHaveBeenCalledTimes(1));
-    await actor.type(screen.getByLabelText('Tìm kiếm'), 'SEO');
+    await actor.type(screen.getByLabelText('Tên khóa học'), 'SEO');
 
     expect(ordersList).toHaveBeenCalledTimes(1);
     await actor.click(screen.getByRole('button', { name: 'Áp dụng' }));
-    await waitFor(() => expect(ordersList).toHaveBeenLastCalledWith('admin-token', expect.objectContaining({ q: 'SEO', page: 1 })));
+    await waitFor(() => expect(ordersList).toHaveBeenLastCalledWith('admin-token', expect.objectContaining({ course_title: 'SEO', page: 1 })));
 
     await actor.click(screen.getByRole('button', { name: 'Go to page 2' }));
-    await waitFor(() => expect(ordersList).toHaveBeenLastCalledWith('admin-token', expect.objectContaining({ q: 'SEO', page: 2 })));
+    await waitFor(() => expect(ordersList).toHaveBeenLastCalledWith('admin-token', expect.objectContaining({ course_title: 'SEO', page: 2 })));
   });
 
   it('opens the existing parent Course editor from Questions and stays read-only', async () => {

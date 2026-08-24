@@ -97,6 +97,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('users', [AdminUserController::class, 'index']);
             Route::patch('users/{user}/status', [AdminUserController::class, 'updateStatus']);
+            Route::patch('users/{user}/role', [AdminUserController::class, 'updateRole']);
 
             Route::get('categories', [AdminCategoryController::class, 'index']);
             Route::post('categories', [AdminCategoryController::class, 'store']);

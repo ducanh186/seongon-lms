@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, Button, Card, CardContent, Chip, Container, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, CardContent, Chip, Container, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
 import { Link, useNavigate, useParams } from 'react-router';
 import { ApiError } from '../lib/api';
 import { applicationRepositories } from '../data/repositories/applicationRepositories';
@@ -10,7 +10,7 @@ import { PageSkeleton } from '../components/AsyncState';
 
 export function CheckoutPage() {
   const { slug = '' } = useParams();
-  const { token } = useAuth();
+  const { token, user, refreshUser } = useAuth();
   const { refresh } = useCart();
   const navigate = useNavigate();
   const [course, setCourse] = useState<ApiCourse | null>(null);
@@ -18,6 +18,13 @@ export function CheckoutPage() {
   const [method, setMethod] = useState<'card' | 'qr'>('qr');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [name, setName] = useState(user?.name ?? '');
+  const [phone, setPhone] = useState(user?.phone ?? '');
+
+  useEffect(() => {
+    setName(user?.name ?? '');
+    setPhone(user?.phone ?? '');
+  }, [user]);
 
   useEffect(() => {
     applicationRepositories.catalog.getCourse(slug).then(({ data }) => setCourse(data)).catch((reason) => setError(reason instanceof ApiError ? reason.message : 'Không thể tải khóa học.'));
@@ -27,6 +34,12 @@ export function CheckoutPage() {
     if (!token || !course) return;
     setSubmitting(true); setError(null);
     try {
+      await applicationRepositories.profile.update(token, {
+        name: name.trim(),
+        phone: phone.trim(),
+        avatar: user?.avatar ?? null,
+      });
+      await refreshUser();
       const result = await applicationRepositories.checkout.createOrder(token, course.id);
       setOrder(result.data);
     } catch (reason) {
@@ -62,10 +75,15 @@ export function CheckoutPage() {
               <Stack spacing={2.5} sx={{ mt: 4 }}>
                 {error && <Alert severity="error">{error}</Alert>}
                 {!order ? (
-                  <Box sx={{ p: 2.5, border: '1px solid', borderColor: 'divider', borderRadius: 2.5, bgcolor: 'background.default' }}>
-                    <Typography component="h2" variant="h6" fontWeight={800}>Tạo đơn đăng ký</Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: .75, mb: 2.5 }}>Đơn sẽ được tạo cho khóa học đang chọn với giá hiển thị trong phần tóm tắt.</Typography>
-                    <Button size="large" variant="contained" disabled={submitting} aria-busy={submitting} onClick={() => void createOrder()}>{submitting ? 'Đang tạo đơn...' : 'Tạo đơn đăng ký'}</Button>
+                  <Box component="form" onSubmit={(event) => { event.preventDefault(); void createOrder(); }} sx={{ p: 2.5, border: '1px solid', borderColor: 'divider', borderRadius: 2.5, bgcolor: 'background.default' }}>
+                    <Typography component="h2" variant="h6" fontWeight={800}>Thông tin đăng ký</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: .75 }}>Thông tin được lấy từ tài khoản học viên và lưu lại trước khi tạo đơn.</Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 2, mt: 2.5 }}>
+                      <TextField required label="Họ và tên" value={name} onChange={(event) => setName(event.target.value)} />
+                      <TextField label="Email" value={user?.email ?? ''} disabled />
+                      <TextField required label="Số điện thoại" value={phone} onChange={(event) => setPhone(event.target.value)} inputProps={{ inputMode: 'tel' }} sx={{ gridColumn: { sm: '1 / -1' } }} />
+                    </Box>
+                    <Button type="submit" size="large" variant="contained" disabled={submitting} aria-busy={submitting} sx={{ mt: 2.5 }}>{submitting ? 'Đang tạo đơn...' : 'Lưu thông tin và tạo đơn'}</Button>
                   </Box>
                 ) : (
                   <Box sx={{ p: 2.5, border: '1px solid', borderColor: 'divider', borderRadius: 2.5 }}>
