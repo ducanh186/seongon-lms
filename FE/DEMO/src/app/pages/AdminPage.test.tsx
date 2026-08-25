@@ -178,6 +178,7 @@ describe('AdminPage', () => {
     render(<AdminPage />);
 
     expect(await screen.findByText('Tổng quan vận hành')).toBeInTheDocument();
+    expect(screen.queryByText('Theo dõi nhanh hoạt động học tập và hiệu quả nội dung.')).not.toBeInTheDocument();
     expect(adminStats).toHaveBeenCalledTimes(1);
     expect(adminUsers).not.toHaveBeenCalled();
     expect(adminCategories).not.toHaveBeenCalled();
@@ -260,6 +261,7 @@ describe('AdminPage', () => {
     const row = within(table).getByRole('row', { name: /SEO Foundation/ });
     expect(within(row).getAllByRole('cell')).toHaveLength(13);
     expect(within(table).getAllByRole('columnheader')).toHaveLength(13);
+    expect(within(table).getByRole('columnheader', { name: 'Cập nhật' })).toHaveStyle({ paddingLeft: '12px', paddingRight: '12px' });
     expect(row).toHaveTextContent('SEO, Analytics');
     expect(row).toHaveTextContent('SEONGON');
     expect(row).toHaveTextContent('Đã cấu hình');
@@ -366,9 +368,12 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Tài khoản' }));
-    expect(screen.getByRole('region', { name: 'Bộ lọc tài khoản' })).toHaveAttribute('data-admin-toolbar', 'true');
+    const userToolbar = screen.getByRole('region', { name: 'Bộ lọc tài khoản' });
+    expect(userToolbar).toHaveAttribute('data-admin-toolbar', 'true');
+    expect(within(userToolbar).getByRole('button', { name: 'Áp dụng' })).toHaveStyle({ minWidth: '112px' });
 
     const table = await screen.findByRole('table', { name: 'Danh sách tài khoản' });
+    expect(table).toHaveStyle({ minWidth: '1200px' });
     expect(within(table).getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'Học viên',
       'Email',
@@ -391,6 +396,8 @@ describe('AdminPage', () => {
       'Khóa',
     ]);
     expect(within(row).getByRole('button', { name: 'Khóa' })).toBeInTheDocument();
+    expect(within(row).getByText('Đang hoạt động').closest('.MuiChip-root')).toHaveStyle({ minWidth: '116px' });
+    expect(within(table).getByRole('columnheader', { name: 'Thao tác' })).not.toHaveStyle({ position: 'sticky' });
   });
 
   it('waits for Apply before requesting Student filters and renders the applied result', async () => {
@@ -583,6 +590,7 @@ describe('AdminPage', () => {
     expect(screen.getByText('Tin đã xuất bản')).toBeInTheDocument();
     expect(screen.getByText('Bản nháp')).toBeInTheDocument();
     expect(screen.getByText('Đang xuất bản')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Chuyển về nháp' })).toHaveStyle({ whiteSpace: 'nowrap', minWidth: '132px' });
     expect(screen.getByRole('img', { name: 'Tin đã xuất bản' })).toHaveAttribute('src', 'https://example.test/news.png');
     expect(within(screen.getByRole('table', { name: 'Danh sách tin tức' })).getByRole('columnheader', { name: 'Cập nhật' })).toBeInTheDocument();
 

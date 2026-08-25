@@ -168,7 +168,7 @@ const blankQuestionOptions: QuestionOptionDraft[] = [
 ];
 
 const adminSectionCopy: Record<AdminSection, { title: string; description: string }> = {
-  overview: { title: 'Tổng quan vận hành', description: 'Theo dõi nhanh hoạt động học tập và hiệu quả nội dung.' },
+  overview: { title: 'Tổng quan vận hành', description: '' },
   roles: { title: 'Quản lý vai trò', description: 'Đối chiếu vai trò hệ thống và số tài khoản đang sử dụng từng vai trò.' },
   users: { title: 'Quản lý tài khoản', description: 'Quản lý tài khoản Admin và Học viên, vai trò, ghi danh và trạng thái truy cập.' },
   carts: { title: 'Quản lý giỏ hàng', description: 'Theo dõi giỏ hàng hiện tại của học viên từ dữ liệu trong carts.' },
@@ -971,29 +971,28 @@ export function AdminPage() {
           {tab === 'overview' && stats && <AdminOverview stats={stats} />}
 
           {tab === 'users' && <Stack spacing={2}>
-            <Stack component="section" role="region" aria-label="Bộ lọc tài khoản" data-admin-toolbar="true" direction="row" spacing={2} alignItems="stretch" sx={{ p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+            <Box component="section" role="region" aria-label="Bộ lọc tài khoản" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(240px, 1.2fr) minmax(210px, .8fr) 112px' }, gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
               <TextField label="Tìm tài khoản" value={userQuery} onChange={(event) => setUserQuery(event.target.value)} fullWidth />
               <FormControl fullWidth><InputLabel id="student-status">Trạng thái</InputLabel><Select labelId="student-status" label="Trạng thái" value={userStatus} onChange={(event) => setUserStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="active">Đang hoạt động</MenuItem><MenuItem value="locked">Đã khóa</MenuItem></Select></FormControl>
-              <Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, page: 1 })} sx={{ whiteSpace: 'nowrap' }}>Áp dụng</Button>
-            </Stack>
+              <Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, page: 1 })} sx={{ minWidth: 112, px: 2.5, whiteSpace: 'nowrap' }}>Áp dụng</Button>
+            </Box>
             <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
               {users?.data.length ? <AdminDataTable<ApiUser>
                 label="Danh sách tài khoản"
                 rows={users.data}
                 getRowKey={(user) => user.id}
                 columns={[
-                  { key: 'student', header: 'Học viên', render: (user) => <Typography fontWeight={750} sx={{ minWidth: 180 }}>{user.name}</Typography> },
-                  { key: 'email', header: 'Email', render: (user) => <Typography variant="body2" sx={{ minWidth: 200, overflowWrap: 'anywhere' }}>{user.email}</Typography> },
-                  { key: 'phone', header: 'SĐT', render: (user) => user.phone || '—' },
-                  { key: 'enrollments', header: 'Khóa đã đăng ký', align: 'center', render: (user) => user.enrollments_count ?? 0 },
-                  { key: 'createdAt', header: 'Ngày tạo', render: (user) => new Date(user.created_at).toLocaleDateString('vi-VN') },
-                  { key: 'role', header: 'Vai trò', render: (user) => <Select size="small" aria-label={`Vai trò của ${user.name}`} value={user.role} onChange={(event) => token && void runMutation(() => adminRepositories.users.updateRole(token, user.id, event.target.value as 'student' | 'admin'), 'Đã cập nhật vai trò tài khoản.')}><MenuItem value="student">Học viên</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem></Select> },
-                  { key: 'status', header: 'Trạng thái', render: (user) => <StatusChip status={user.status} /> },
-                  { key: 'actions', header: 'Thao tác', align: 'right', render: (user) => <Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => adminRepositories.users.updateStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button> },
+                  { key: 'student', header: 'Học viên', render: (user) => <Typography fontWeight={750} sx={{ minWidth: 160 }}>{user.name}</Typography> },
+                  { key: 'email', header: 'Email', render: (user) => <Typography variant="body2" sx={{ minWidth: 190, overflowWrap: 'anywhere' }}>{user.email}</Typography> },
+                  { key: 'phone', header: 'SĐT', render: (user) => <Box sx={{ minWidth: 64 }}>{user.phone || '—'}</Box> },
+                  { key: 'enrollments', header: 'Khóa đã đăng ký', align: 'center', render: (user) => <Box sx={{ minWidth: 112 }}>{user.enrollments_count ?? 0}</Box> },
+                  { key: 'createdAt', header: 'Ngày tạo', render: (user) => <Typography sx={{ minWidth: 100, whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN')}</Typography> },
+                  { key: 'role', header: 'Vai trò', render: (user) => <Select size="small" aria-label={`Vai trò của ${user.name}`} value={user.role} onChange={(event) => token && void runMutation(() => adminRepositories.users.updateRole(token, user.id, event.target.value as 'student' | 'admin'), 'Đã cập nhật vai trò tài khoản.')} sx={{ minWidth: 142 }}><MenuItem value="student">Học viên</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem></Select> },
+                  { key: 'status', header: 'Trạng thái', render: (user) => <Box sx={{ minWidth: 116 }}><StatusChip status={user.status} /></Box> },
+                  { key: 'actions', header: 'Thao tác', align: 'right', render: (user) => <Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => adminRepositories.users.updateStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')} sx={{ minWidth: 88 }}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button> },
                 ] satisfies AdminColumn<ApiUser>[]}
-                minWidth={1080}
+                minWidth={1200}
                 stickyFirstColumn
-                stickyLastColumn
               /> : <EmptyState title="Không có người dùng phù hợp." />}
             </CardContent></Card>
             {users && users.meta.last_page > 1 && <Pagination count={users.meta.last_page} page={appliedUserFilters.page} onChange={(_, page) => setAppliedUserFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
@@ -1028,6 +1027,7 @@ export function AdminPage() {
                   getRowKey={(course) => course.id}
                   columns={courseColumns}
                   minWidth={1280}
+                  cellPaddingX={1.5}
                   stickyFirstColumn
                   onRowClick={(course) => void selectContent(course.id)}
                 /> : <EmptyState title="Không có khóa học phù hợp." />}
@@ -1148,7 +1148,7 @@ export function AdminPage() {
                     { key: 'status', header: 'Trạng thái', render: (newsPost) => <StatusChip status={newsPost.status} /> },
                     { key: 'published', header: 'Ngày xuất bản', render: (newsPost) => newsPost.published_at ? new Date(newsPost.published_at).toLocaleDateString('vi-VN') : '—' },
                     { key: 'updated', header: 'Cập nhật', render: (newsPost) => new Date(newsPost.updated_at).toLocaleDateString('vi-VN') },
-                    { key: 'actions', header: 'Thao tác', align: 'right', render: (newsPost) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" onClick={() => beginNewsEdit(newsPost)}>Sửa</Button><Button size="small" variant="outlined" onClick={() => changeNewsStatus(newsPost)}>{newsPost.status === 'draft' ? 'Xuất bản' : 'Chuyển về nháp'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa tin tức', newsPost.title, () => adminRepositories.news.remove(token, newsPost.id), 'Đã xóa tin tức.')}>Xóa</Button></Stack> },
+                    { key: 'actions', header: 'Thao tác', align: 'right', render: (newsPost) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" onClick={() => beginNewsEdit(newsPost)}>Sửa</Button><Button size="small" variant="outlined" onClick={() => changeNewsStatus(newsPost)} sx={{ minWidth: 132, whiteSpace: 'nowrap', flexShrink: 0 }}>{newsPost.status === 'draft' ? 'Xuất bản' : 'Chuyển về nháp'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa tin tức', newsPost.title, () => adminRepositories.news.remove(token, newsPost.id), 'Đã xóa tin tức.')}>Xóa</Button></Stack> },
                   ] satisfies AdminColumn<ApiNewsPost>[]}
                 /> : <EmptyState title="Không có tin tức phù hợp." />}
               </CardContent>

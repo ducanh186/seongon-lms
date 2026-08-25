@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, LinearProgress, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Card, CardContent, LinearProgress, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import type { ApiAdminStats } from '../lib/contracts';
 
 function formatMonth(value: string) {
@@ -32,7 +32,7 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
         ))}
       </Box>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1.45fr) minmax(360px, 1fr)' }, gap: 2.5 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) 320px' }, alignItems: 'start', gap: 2.5 }}>
         <Card variant="outlined" sx={{ borderRadius: 3, boxShadow: '0 12px 28px rgba(16,46,56,.05)' }}>
           <CardContent sx={{ p: 3 }}>
             <Typography component="h2" variant="h6" fontWeight={800}>Ghi danh 12 tháng gần nhất</Typography>
@@ -40,11 +40,11 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
             {stats.monthly_enrollments.length === 0 ? (
               <Typography color="text.secondary" sx={{ mt: 3 }}>Chưa có dữ liệu ghi danh theo tháng.</Typography>
             ) : (
-              <Box role="img" aria-label="Biểu đồ ghi danh theo tháng" sx={{ display: 'grid', gridTemplateColumns: `repeat(${stats.monthly_enrollments.length}, minmax(48px, 1fr))`, alignItems: 'end', gap: 1.5, minHeight: 240, mt: 3 }}>
+              <Box role="img" aria-label="Biểu đồ ghi danh theo tháng" sx={{ display: 'grid', gridTemplateColumns: `repeat(${stats.monthly_enrollments.length}, minmax(40px, 1fr))`, alignItems: 'end', gap: 1, minHeight: 190, mt: 2 }}>
                 {stats.monthly_enrollments.map((item) => (
                   <Stack key={item.month} alignItems="center" justifyContent="flex-end" spacing={1} sx={{ position: 'relative', height: '100%' }}>
                     <Typography variant="caption" fontWeight={800}>{item.total}</Typography>
-                    <Box sx={{ width: '70%', maxWidth: 42, minWidth: 18, height: `${Math.max(8, item.total / maxMonthly * 150)}px`, bgcolor: 'primary.main', borderRadius: '5px 5px 0 0' }} />
+                    <Box sx={{ width: '64%', maxWidth: 34, minWidth: 16, height: `${Math.max(8, item.total / maxMonthly * 110)}px`, bgcolor: 'primary.main', borderRadius: '5px 5px 0 0' }} />
                     <Typography variant="caption" color="text.secondary" sx={{ writingMode: 'horizontal-tb', whiteSpace: 'nowrap' }}>{formatMonth(item.month)}</Typography>
                     <Box component="span" data-visually-hidden="true" sx={{ position: 'absolute', inset: 0, width: 1, maxWidth: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' }}>{item.month}: {item.total} lượt ghi danh</Box>
                   </Stack>
@@ -54,29 +54,31 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
           </CardContent>
         </Card>
 
-        <Card variant="outlined" sx={{ borderRadius: 3, bgcolor: '#EAF7F7', borderColor: 'rgba(0,137,148,.2)' }}>
-          <CardContent sx={{ p: 3 }}>
+        <Card data-testid="completion-rate-card" variant="outlined" sx={{ width: '100%', alignSelf: 'start', borderRadius: 3, bgcolor: '#EAF7F7', borderColor: 'rgba(0,137,148,.2)' }}>
+          <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
             <Typography component="h2" variant="h6" fontWeight={800}>Tỷ lệ hoàn thành</Typography>
-            <Typography variant="h2" fontWeight={850} color="primary.dark" sx={{ mt: 3, letterSpacing: '-.04em' }}>{stats.completion_rate}%</Typography>
-            <LinearProgress aria-label="Tỷ lệ hoàn thành khóa học" variant="determinate" value={Math.min(100, stats.completion_rate)} sx={{ mt: 2, height: 10, borderRadius: 5, bgcolor: 'rgba(0,137,148,.14)' }} />
-            <Typography color="text.secondary" sx={{ mt: 2 }}>{stats.certificates} chứng chỉ trên {stats.enrollments} lượt ghi danh.</Typography>
+            <Typography variant="h3" fontWeight={850} color="primary.dark" sx={{ mt: 1.5, letterSpacing: '-.04em' }}>{stats.completion_rate}%</Typography>
+            <LinearProgress aria-label="Tỷ lệ hoàn thành khóa học" variant="determinate" value={Math.min(100, stats.completion_rate)} sx={{ mt: 1.5, height: 8, borderRadius: 4, bgcolor: 'rgba(0,137,148,.14)' }} />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>{stats.certificates} chứng chỉ trên {stats.enrollments} lượt ghi danh.</Typography>
           </CardContent>
         </Card>
       </Box>
 
-      <Card variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          <Box sx={{ p: 3, pb: 2 }}>
+      <Card variant="outlined" sx={{ minWidth: 0, maxWidth: '100%', borderRadius: 3, overflow: 'hidden' }}>
+        <CardContent sx={{ minWidth: 0, p: 0, '&:last-child': { pb: 0 } }}>
+          <Box sx={{ width: '100%', maxWidth: 960, mx: 'auto', p: 3, pb: 2 }}>
             <Typography component="h2" variant="h6" fontWeight={800}>Khóa học phổ biến</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>Xếp hạng theo tổng lượt ghi danh thực tế.</Typography>
           </Box>
           {stats.popular_courses.length === 0 ? (
             <Typography color="text.secondary" sx={{ p: 3, pt: 1 }}>Chưa có khóa học được ghi danh.</Typography>
           ) : (
-            <Table aria-label="Khóa học phổ biến">
-              <TableHead><TableRow sx={{ bgcolor: 'grey.50' }}><TableCell sx={{ width: 80, fontWeight: 800 }}>Hạng</TableCell><TableCell sx={{ fontWeight: 800 }}>Khóa học</TableCell><TableCell align="right" sx={{ fontWeight: 800 }}>Ghi danh</TableCell></TableRow></TableHead>
-              <TableBody>{stats.popular_courses.map((course, index) => <TableRow key={course.id} hover><TableCell><Typography color="primary.dark" fontWeight={850}>{String(index + 1).padStart(2, '0')}</Typography></TableCell><TableCell><Typography fontWeight={700}>{course.title}</Typography></TableCell><TableCell align="right"><Typography fontWeight={800}>{course.enrollments_count}</Typography></TableCell></TableRow>)}</TableBody>
-            </Table>
+            <TableContainer data-testid="popular-courses-table-container" sx={{ width: '100%', maxWidth: 960, mx: 'auto', overflowX: 'auto' }}>
+              <Table aria-label="Khóa học phổ biến" sx={{ width: '100%', tableLayout: 'fixed' }}>
+                <TableHead><TableRow sx={{ bgcolor: 'grey.50' }}><TableCell align="center" sx={{ width: 72, fontWeight: 800 }}>Hạng</TableCell><TableCell sx={{ fontWeight: 800 }}>Khóa học</TableCell><TableCell align="center" sx={{ width: 96, fontWeight: 800 }}>Ghi danh</TableCell></TableRow></TableHead>
+                <TableBody>{stats.popular_courses.map((course, index) => <TableRow key={course.id} hover><TableCell align="center"><Typography color="primary.dark" fontWeight={850}>{String(index + 1).padStart(2, '0')}</Typography></TableCell><TableCell><Typography fontWeight={700} sx={{ overflowWrap: 'anywhere' }}>{course.title}</Typography></TableCell><TableCell align="center"><Typography fontWeight={800}>{course.enrollments_count}</Typography></TableCell></TableRow>)}</TableBody>
+              </Table>
+            </TableContainer>
           )}
         </CardContent>
       </Card>

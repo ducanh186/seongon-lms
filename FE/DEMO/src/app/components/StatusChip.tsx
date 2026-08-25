@@ -11,5 +11,5 @@ const states = {
 
 export function StatusChip({ status }: { status: keyof typeof states }) {
   const state = states[status];
-  return <Chip size="small" label={state.label} color={state.color} variant={state.color === 'default' ? 'outlined' : 'filled'} sx={{ borderRadius: '8px', fontWeight: 700 }} />;
+  return <Chip size="small" label={state.label} color={state.color} variant={state.color === 'default' ? 'outlined' : 'filled'} sx={{ minWidth: status === 'active' ? 116 : undefined, borderRadius: '8px', fontWeight: 700, '& .MuiChip-label': { whiteSpace: 'nowrap' } }} />;
 }
