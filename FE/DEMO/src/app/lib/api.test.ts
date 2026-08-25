@@ -78,12 +78,13 @@ describe('apiRequest', () => {
   });
 
   it('downloads a certificate Blob with the supplied bearer token', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response('pdf-bytes', {
-        status: 200,
-        headers: { 'Content-Type': 'application/pdf' },
-      }),
-    );
+    const certificateBlob = new Blob(['pdf-bytes'], { type: 'application/pdf' });
+    const responseBlob = vi.fn().mockResolvedValue(certificateBlob);
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      blob: responseBlob,
+    });
     vi.stubGlobal('fetch', fetchMock);
 
     const certificate = await api.downloadCertificate('student-token', 42);
@@ -93,8 +94,9 @@ describe('apiRequest', () => {
       `${apiBaseUrl}/my/courses/42/certificate`,
       { headers: { Authorization: 'Bearer student-token' } },
     );
+    expect(responseBlob).toHaveBeenCalledOnce();
+    expect(certificate).toBe(certificateBlob);
     expect(certificate.type).toBe('application/pdf');
-    expect(await certificate.text()).toBe('pdf-bytes');
   });
 
   it('maps a rejected certificate download into an ApiError', async () => {
