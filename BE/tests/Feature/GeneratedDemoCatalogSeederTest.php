@@ -81,6 +81,28 @@ class GeneratedDemoCatalogSeederTest extends TestCase
         ));
     }
 
+    public function test_enrollments_are_uneven_enough_for_a_popular_course_ranking(): void
+    {
+        // A flat spread made "Khóa học phổ biến" show 9 / 9 / 9 / 9 / 9, so the
+        // ranking told the reviewer nothing. The top course must clearly lead.
+        $this->seed(GeneratedDemoCatalogSeeder::class);
+
+        $topFive = Course::query()
+            ->withCount('enrollments')
+            ->orderByDesc('enrollments_count')
+            ->limit(5)
+            ->pluck('enrollments_count')
+            ->all();
+
+        $this->assertCount(5, $topFive);
+        $this->assertGreaterThan(
+            $topFive[4] * 2,
+            $topFive[0],
+            'Top course should draw at least twice the fifth-ranked course.',
+        );
+        $this->assertGreaterThan(3, count(array_unique($topFive)), 'Ranking needs distinct counts.');
+    }
+
     public function test_it_uses_topic_relevant_youtube_videos_instead_of_placeholder_animation(): void
     {
         $this->seed(GeneratedDemoCatalogSeeder::class);

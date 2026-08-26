@@ -31,9 +31,13 @@ Tài liệu này chuyển các yêu cầu trong `feedback_cleaned.md`, `raw_feed
 | 14 | `attempts` | Kết quả bài kiểm tra | Chỉ đọc | `GET /api/v1/admin/attempts` | [ ] |
 | 15 | `lessons` | Bài học | Danh sách và trình sửa lồng | `GET /api/v1/admin/lessons` | [ ] |
 
-## 3. Bảng khóa học không sơ sài
+## 3. Khóa học: List gọn, Detail đầy đủ
 
-- [ ] Bảng có đủ: ID, tên khóa học, nhiều danh mục, cấp độ, giảng viên, học phí, số bài học, tình trạng bài kiểm tra, số ghi danh, điểm đánh giá, trạng thái, ngày cập nhật và thao tác.
+Phản hồi mới (Video 1, vấn đề B) yêu cầu bỏ **Cấp độ, Giảng viên, Bài học, Bài kiểm tra, Đánh giá** khỏi List View vì bảng "chi chít quá", và chuyển chúng sang Course Detail. Mục này thay cho yêu cầu 13 cột trước đây.
+
+- [ ] List có đúng 8 cột: ID, tên khóa học, danh mục, học phí, số ghi danh, trạng thái, ngày cập nhật, thao tác.
+- [ ] List **không** hiển thị cấp độ, giảng viên, số bài học, tình trạng bài kiểm tra, điểm đánh giá.
+- [ ] Course Detail hiển thị đủ những trường đã bỏ khỏi List, kèm thống kê ghi danh và metadata ngày tạo/cập nhật.
 - [ ] Mọi giá trị là cột thật, quan hệ thật hoặc số liệu tổng hợp; không tạo cột DB chỉ để hiển thị.
 - [ ] Course create/edit chọn được nhiều Categories và ghi quan hệ vào `course_categories`.
 - [ ] Course Detail mở được Lessons → Exam → Questions → Answers → Enrollments.
@@ -47,6 +51,13 @@ Tài liệu này chuyển các yêu cầu trong `feedback_cleaned.md`, `raw_feed
 - [ ] Phân trang đọc `meta` từ backend.
 - [ ] Dữ liệu giao dịch/lịch sử (`carts`, `cart_items`, `orders`, `enrollments`, `learning_progress`, `attempts`) không có nút xóa tùy tiện.
 - [ ] Tên học viên là dữ liệu thật hoặc tên demo tiếng Việt hợp lý; không dùng `Học viên Demo 001` hay A/B/C.
+- [ ] Cột chữ căn trái, cột số căn giữa, cột **Thao tác căn trái** (không căn phải).
+- [ ] Header bảng cỡ nhỏ viết hoa; bảng vừa màn hình desktop, không phải kéo ngang khi ít cột.
+- [ ] Tiêu đề + bộ lọc + bảng nằm trong **một card**, bộ lọc là dải trên cùng chứ không phải khung viền lồng trong khung.
+- [ ] Rê chuột qua dòng **không** đổi nền xám; chỉ dòng bấm được mới có phản hồi nhạt.
+- [ ] Ô nhập mã (`Mã đơn hàng`, `Mã khóa học`) **không** có nút tăng/giảm; gõ chữ vào không làm hỏng bộ lọc.
+- [ ] Bảng Học viên theo FR-ADM-02: **không** có cột Vai trò (chỉ khóa/mở khóa).
+- [ ] Bảng Đơn hàng **không** hiển thị `Mã giao dịch` — `transaction_ref` là khóa idempotency nội bộ, không thuộc ERD.
 
 ## 5. Đối chiếu bằng phpMyAdmin
 

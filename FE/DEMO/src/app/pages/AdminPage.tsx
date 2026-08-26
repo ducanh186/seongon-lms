@@ -268,6 +268,7 @@ export function AdminPage() {
   // Only the id is ever read; keeping the whole row here retained a full course
   // payload and created a two-field invariant with the anchor.
   const [courseActionCourseId, setCourseActionCourseId] = useState<number | null>(null);
+  const [detailActionAnchor, setDetailActionAnchor] = useState<HTMLElement | null>(null);
   const [courseStep, setCourseStep] = useState(0);
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
   const [lessonForm, setLessonForm] = useState<LessonDraft>(blankLesson);
@@ -982,7 +983,6 @@ export function AdminPage() {
                 { key: 'phone', header: 'SĐT', render: (user) => user.phone || '—' },
                 { key: 'enrollments', header: 'Khóa đã đăng ký', align: 'center', render: (user) => user.enrollments_count ?? 0 },
                 { key: 'createdAt', header: 'Ngày tạo', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN')}</Typography> },
-                { key: 'role', header: 'Vai trò', render: (user) => <Select size="small" aria-label={`Vai trò của ${user.name}`} value={user.role} onChange={(event) => token && void runMutation(() => adminRepositories.users.updateRole(token, user.id, event.target.value as 'student' | 'admin'), 'Đã cập nhật vai trò tài khoản.')} sx={{ minWidth: 132 }}><MenuItem value="student">Học viên</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem></Select> },
                 { key: 'status', header: 'Trạng thái', render: (user) => <StatusChip status={user.status} /> },
                 { key: 'actions', header: 'Thao tác', render: (user) => <Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => adminRepositories.users.updateStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')} sx={{ minWidth: 88, whiteSpace: 'nowrap' }}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button> },
               ] satisfies AdminColumn<ApiUser>[]}
@@ -1041,11 +1041,21 @@ export function AdminPage() {
                     <Typography component="h2" variant="h5" fontWeight={850}>{selectedCourse.title}</Typography>
                     <Typography color="text.secondary" sx={{ mt: 0.5 }}>Mã khóa học #{selectedCourse.id} · {selectedCourse.status === 'published' ? 'Đã xuất bản' : 'Bản nháp'}</Typography>
                   </Box>
+                  {/* One back link, one primary action, and every state change
+                      behind a single Thao tác menu — four differently-styled
+                      buttons on one bar was what the reviewer rejected. */}
                   <Button onClick={() => { setSelectedCourse(null); setEditingCourse(null); setIsCourseEditorOpen(false); }}>Quay lại danh sách</Button>
-                  <Button variant="outlined" onClick={() => beginCourseEdit(selectedCourse)}>Sửa khóa học</Button>
-                  <Button variant="outlined" onClick={() => token && void runMutation(() => adminRepositories.courses.publish(token, selectedCourse.id, selectedCourse.status === 'published' ? 'draft' : 'published'), 'Đã cập nhật trạng thái xuất bản.', true)}>{selectedCourse.status === 'published' ? 'Ẩn khóa học' : 'Xuất bản khóa học'}</Button>
-                  <Button color="error" onClick={() => token && requestConfirmation('Xóa khóa học', selectedCourse.title, async () => { await adminRepositories.courses.remove(token, selectedCourse.id); setSelectedCourse(null); }, 'Đã xóa khóa học.')}>Xóa khóa học</Button>
+                  <Button variant="contained" onClick={() => beginCourseEdit(selectedCourse)}>Sửa khóa học</Button>
+                  <Button variant="outlined" aria-haspopup="menu" onClick={(event) => setDetailActionAnchor(event.currentTarget)}>Thao tác</Button>
                 </Stack>
+                <Menu anchorEl={detailActionAnchor} open={Boolean(detailActionAnchor)} onClose={() => setDetailActionAnchor(null)}>
+                  <MenuItem onClick={() => { setDetailActionAnchor(null); if (token) void runMutation(() => adminRepositories.courses.publish(token, selectedCourse.id, selectedCourse.status === 'published' ? 'draft' : 'published'), 'Đã cập nhật trạng thái xuất bản.', true); }}>
+                    {selectedCourse.status === 'published' ? 'Ẩn khóa học' : 'Xuất bản khóa học'}
+                  </MenuItem>
+                  <MenuItem onClick={() => { setDetailActionAnchor(null); if (token) requestConfirmation('Xóa khóa học', selectedCourse.title, async () => { await adminRepositories.courses.remove(token, selectedCourse.id); setSelectedCourse(null); }, 'Đã xóa khóa học.'); }}>
+                    Xóa khóa học
+                  </MenuItem>
+                </Menu>
               </CardContent>
             </Card>}
 

@@ -191,8 +191,23 @@ class GeneratedDemoCatalogSeeder extends Seeder
         foreach ($students->values() as $studentIndex => $student) {
             $enrollmentCount = 3 + ($studentIndex % 6);
 
+            $total = $courses->count();
+            $taken = [];
+
             foreach (range(0, $enrollmentCount - 1) as $slot) {
-                $course = $courses[($studentIndex * 7 + $slot * 13) % $courses->count()];
+                // Front-loaded on purpose: squaring a uniform rank concentrates
+                // picks on the first courses, so "Khóa học phổ biến" produces a
+                // real ranking instead of every course tying on the same count.
+                $rank = ($studentIndex * 31 + $slot * 17) % $total;
+                $index = intdiv($rank * $rank, $total);
+
+                // UNIQUE(user_id, course_id): walk forward to the next free slot.
+                while (isset($taken[$index])) {
+                    $index = ($index + 1) % $total;
+                }
+                $taken[$index] = true;
+
+                $course = $courses[$index];
                 $order = Order::query()->create([
                     'user_id' => $student->id,
                     'course_id' => $course->id,

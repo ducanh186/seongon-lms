@@ -97,7 +97,7 @@ describe('AdminErdReadSection', () => {
     ['roles', 'Danh sách vai trò', 'student'],
     ['carts', 'Danh sách giỏ hàng', '399.000 đ'],
     ['cartItems', 'Danh sách mục giỏ hàng', 'SEO Technical'],
-    ['orders', 'Danh sách đơn hàng', 'MOCK-001'],
+    ['orders', 'Danh sách đơn hàng', '399.000 đ'],
     ['courseCategories', 'Danh sách gán danh mục', 'SEO'],
     ['learningProgress', 'Danh sách tiến độ học tập', 'Phân tích Search Console'],
     ['questions', 'Danh sách câu hỏi', 'SEO Technical là gì?'],
@@ -114,6 +114,26 @@ describe('AdminErdReadSection', () => {
       expect(within(table).queryByRole('button', { name: /xóa/i })).not.toBeInTheDocument();
     },
   );
+
+  it('shows only ERD-backed Order columns and hides the internal transaction reference', async () => {
+    mockRows();
+
+    render(<AdminErdReadSection section="orders" token="admin-token" onOpenCourse={vi.fn()} />);
+
+    const table = await screen.findByRole('table', { name: 'Danh sách đơn hàng' });
+    expect(within(table).getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
+      'Mã đơn hàng',
+      'Học viên',
+      'Mã khóa học',
+      'Khóa học',
+      'Tổng tiền',
+      'Trạng thái',
+      'Ngày tạo',
+    ]);
+    // orders.transaction_ref is a payment idempotency key, not a column on the
+    // approved ERD — the reviewer read it as a second, conflicting order code.
+    expect(within(table).queryByText('MOCK-001')).not.toBeInTheDocument();
+  });
 
   it('applies filters only after confirmation and paginates server data', async () => {
     mockRows();

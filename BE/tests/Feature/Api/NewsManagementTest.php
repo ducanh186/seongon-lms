@@ -84,6 +84,38 @@ class NewsManagementTest extends TestCase
         $this->withToken($token)->getJson('/api/v1/admin/news')->assertForbidden();
     }
 
+    public function test_admin_can_resave_a_post_whose_thumbnail_is_a_root_relative_path(): void
+    {
+        // Seeded posts store site-relative image paths. The API used to return a
+        // value its own update rule rejected, so every seeded post was un-editable.
+        $admin = User::factory()->admin()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+        $post = NewsPost::factory()->published()->create([
+            'thumbnail' => '/images/news/seo-ai.svg',
+        ]);
+
+        $this->withToken($token)
+            ->putJson("/api/v1/admin/news/{$post->id}", $this->validPayload([
+                'title' => 'Updated title',
+                'thumbnail' => $post->thumbnail,
+                'status' => 'published',
+            ]))
+            ->assertOk()
+            ->assertJsonPath('data.thumbnail', '/images/news/seo-ai.svg')
+            ->assertJsonPath('data.title', 'Updated title');
+    }
+
+    public function test_admin_news_rejects_a_thumbnail_that_is_neither_url_nor_relative_path(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)
+            ->postJson('/api/v1/admin/news', $this->validPayload(['thumbnail' => 'javascript:alert(1)']))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('thumbnail');
+    }
+
     public function test_admin_news_list_filters_by_search_query_and_status(): void
     {
         $admin = User::factory()->admin()->create();

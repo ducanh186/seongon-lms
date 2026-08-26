@@ -276,6 +276,16 @@ describe('AdminPage', () => {
     // unscoped global Ghi danh list.
     expect(adminEnrollments).toHaveBeenCalledWith('admin-token', { course_id: 10, page: 1 });
 
+    // Reviewer called the four differently-styled header buttons "kỳ cục": the
+    // detail keeps one back link plus one primary action, and folds the state
+    // changes into a single Thao tác menu.
+    expect(screen.queryByRole('button', { name: 'Xóa khóa học' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Ẩn khóa học' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Thao tác' }));
+    expect(screen.getByRole('menuitem', { name: /Ẩn khóa học|Xuất bản khóa học/ })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Xóa khóa học' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+
     await user.click(screen.getByRole('button', { name: 'Sửa khóa học' }));
     expect(screen.getByRole('region', { name: 'Chỉnh sửa khóa học SEO Foundation' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Quay lại chi tiết' })).toBeInTheDocument();
@@ -411,10 +421,12 @@ describe('AdminPage', () => {
       'SĐT',
       'Khóa đã đăng ký',
       'Ngày tạo',
-      'Vai trò',
       'Trạng thái',
       'Thao tác',
     ]);
+    // FR-ADM-02 lists name, email, phone, enrolled count, created date, status
+    // and actions — role is not part of the Students screen.
+    expect(within(table).queryByRole('columnheader', { name: 'Vai trò' })).not.toBeInTheDocument();
     // Reviewer rejected right-aligned action columns; text columns align left.
     expect(within(table).getByRole('columnheader', { name: 'Thao tác' }).className).not.toMatch(/alignRight/);
     const row = within(table).getByRole('row', { name: /Nguyễn Văn A/ });
@@ -424,7 +436,6 @@ describe('AdminPage', () => {
       '—',
       '2',
       '11/8/2026',
-      'Học viên',
       'Đang hoạt động',
       'Khóa',
     ]);
@@ -506,7 +517,9 @@ describe('AdminPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
     await user.click(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ }));
-    await user.click(await screen.findByRole('button', { name: 'Xóa khóa học' }));
+    // Destructive actions now live in the detail's Thao tác menu.
+    await user.click(await screen.findByRole('button', { name: 'Thao tác' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Xóa khóa học' }));
 
     expect(screen.getByRole('dialog', { name: 'Xóa khóa học SEO Foundation?' })).toBeInTheDocument();
     expect(deleteCourse).not.toHaveBeenCalled();

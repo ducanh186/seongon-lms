@@ -154,7 +154,6 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
             { key: 'course', header: 'Khóa học', render: (order) => order.course.title },
             { key: 'total', header: 'Tổng tiền', align: 'right', render: (order) => money(order.total_amount) },
             { key: 'status', header: 'Trạng thái', render: (order) => <Chip size="small" label={{ pending: 'Chờ thanh toán', paid: 'Đã thanh toán', failed: 'Thất bại' }[order.status]} color={order.status === 'paid' ? 'primary' : 'default'} /> },
-            { key: 'reference', header: 'Mã giao dịch', render: (order) => order.transaction_ref || '—' },
             { key: 'created', header: 'Ngày tạo', render: (order) => date(order.created_at) },
           ] satisfies AdminColumn<ApiAdminOrder>[]}
         />

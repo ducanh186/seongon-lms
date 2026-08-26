@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NewsPostResource;
 use App\Models\NewsPost;
+use Closure;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
@@ -89,7 +90,21 @@ class NewsController extends Controller
             'category' => ['required', 'string', 'max:100'],
             'excerpt' => ['required', 'string', 'max:500'],
             'content' => ['required', 'string'],
-            'thumbnail' => ['nullable', 'url', 'max:2048'],
+            // Seeded and uploaded images are stored as site-relative paths such as
+            // /images/news/seo-ai.svg. Requiring an absolute URL made every such
+            // post impossible to re-save, because the API rejected the very value
+            // it had just returned. Protocol-relative and non-http schemes stay out.
+            'thumbnail' => ['nullable', 'string', 'max:2048', function (string $attribute, mixed $value, Closure $fail): void {
+                if (str_starts_with($value, '/') && ! str_starts_with($value, '//')) {
+                    return;
+                }
+
+                if (preg_match('#^https?://#i', $value) === 1 && filter_var($value, FILTER_VALIDATE_URL) !== false) {
+                    return;
+                }
+
+                $fail('Ảnh thumbnail phải là URL http(s) hoặc đường dẫn bắt đầu bằng "/".');
+            }],
             'status' => ['required', 'in:draft,published'],
         ]);
     }
