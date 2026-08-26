@@ -770,7 +770,7 @@ export function AdminPage() {
     { key: 'enrollments', header: 'Ghi danh', align: 'center', render: (course) => course.enrollments_count ?? 0 },
     { key: 'status', header: 'Trạng thái', render: (course) => <StatusChip status={course.status} /> },
     { key: 'updated_at', header: 'Cập nhật', render: (course) => course.updated_at ? new Date(course.updated_at).toLocaleDateString('vi-VN') : '—' },
-    { key: 'actions', header: 'Thao tác', align: 'right', render: (course) => <Button size="small" variant="outlined" aria-label={`Mở thao tác cho ${course.title}`} onClick={(event) => { event.stopPropagation(); setCourseActionAnchor(event.currentTarget); setCourseActionCourseId(course.id); }}>Thao tác</Button> },
+    { key: 'actions', header: 'Thao tác', render: (course) => <Button size="small" variant="outlined" aria-label={`Mở thao tác cho ${course.title}`} onClick={(event) => { event.stopPropagation(); setCourseActionAnchor(event.currentTarget); setCourseActionCourseId(course.id); }}>Thao tác</Button> },
   ];
 
   const courseBasicEditor = (
@@ -872,7 +872,7 @@ export function AdminPage() {
                   { key: 'duration', header: 'Thời lượng', render: (lesson) => lesson.duration ? `${Math.ceil(lesson.duration / 60)} phút` : '—' },
                   { key: 'progress', header: 'Đã bắt đầu', align: 'center', render: (lesson) => lesson.learning_progress_count },
                   { key: 'updated', header: 'Cập nhật', render: (lesson) => new Date(lesson.updated_at).toLocaleDateString('vi-VN') },
-                  { key: 'actions', header: 'Thao tác', align: 'right', render: (lesson) => <Button size="small" onClick={() => void selectContent(lesson.course_id)} aria-label="Mở nội dung khóa học">Mở nội dung</Button> },
+                  { key: 'actions', header: 'Thao tác', render: (lesson) => <Button size="small" onClick={() => void selectContent(lesson.course_id)} aria-label="Mở nội dung khóa học">Mở nội dung</Button> },
                 ] satisfies AdminColumn<ApiAdminLesson>[]}
               /> : <EmptyState title="Không có bài học phù hợp." />}
             </CardContent></Card>}
@@ -894,7 +894,7 @@ export function AdminPage() {
                   { key: 'questions', header: 'Câu hỏi', align: 'center', render: (exam) => exam.questions_count },
                   { key: 'attempts', header: 'Lượt làm', align: 'center', render: (exam) => exam.attempts_count },
                   { key: 'updated', header: 'Cập nhật', render: (exam) => new Date(exam.updated_at).toLocaleDateString('vi-VN') },
-                  { key: 'actions', header: 'Thao tác', align: 'right', render: (exam) => <Button size="small" onClick={() => void selectContent(exam.course_id)} aria-label="Mở nội dung khóa học">Mở nội dung</Button> },
+                  { key: 'actions', header: 'Thao tác', render: (exam) => <Button size="small" onClick={() => void selectContent(exam.course_id)} aria-label="Mở nội dung khóa học">Mở nội dung</Button> },
                 ] satisfies AdminColumn<ApiAdminExam>[]}
               /> : <EmptyState title="Không có bài kiểm tra phù hợp." />}
             </CardContent></Card>}
@@ -964,9 +964,9 @@ export function AdminPage() {
           {tab === 'overview' && stats && <AdminOverview stats={stats} />}
 
           {tab === 'users' && <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-            <Stack spacing={2} sx={{ p: 2.5 }}>
+            <Stack spacing={2} sx={{ p: 2.5, bgcolor: 'background.default', borderBottom: '1px solid', borderColor: 'divider' }}>
               <Typography component="h2" variant="h6" fontWeight={800}>Danh sách tài khoản</Typography>
-              <Box component="section" role="region" aria-label="Bộ lọc tài khoản" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1.2fr) minmax(0, .8fr) auto' }, gap: 1.25, alignItems: 'stretch', p: 1.75, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider', borderRadius: 2.5 }}>
+              <Box component="section" role="region" aria-label="Bộ lọc tài khoản" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1.2fr) minmax(0, .8fr) auto' }, gap: 1.25, alignItems: 'stretch' }}>
                 <TextField label="Tìm tài khoản" value={userQuery} onChange={(event) => setUserQuery(event.target.value)} fullWidth />
                 <FormControl fullWidth><InputLabel id="student-status">Trạng thái</InputLabel><Select labelId="student-status" label="Trạng thái" value={userStatus} onChange={(event) => setUserStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="active">Đang hoạt động</MenuItem><MenuItem value="locked">Đã khóa</MenuItem></Select></FormControl>
                 <Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, page: 1 })} sx={{ minWidth: 112, px: 2.5, whiteSpace: 'nowrap' }}>Áp dụng</Button>
@@ -984,7 +984,7 @@ export function AdminPage() {
                 { key: 'createdAt', header: 'Ngày tạo', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN')}</Typography> },
                 { key: 'role', header: 'Vai trò', render: (user) => <Select size="small" aria-label={`Vai trò của ${user.name}`} value={user.role} onChange={(event) => token && void runMutation(() => adminRepositories.users.updateRole(token, user.id, event.target.value as 'student' | 'admin'), 'Đã cập nhật vai trò tài khoản.')} sx={{ minWidth: 132 }}><MenuItem value="student">Học viên</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem></Select> },
                 { key: 'status', header: 'Trạng thái', render: (user) => <StatusChip status={user.status} /> },
-                { key: 'actions', header: 'Thao tác', align: 'right', render: (user) => <Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => adminRepositories.users.updateStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')} sx={{ minWidth: 88, whiteSpace: 'nowrap' }}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button> },
+                { key: 'actions', header: 'Thao tác', render: (user) => <Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => adminRepositories.users.updateStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')} sx={{ minWidth: 88, whiteSpace: 'nowrap' }}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button> },
               ] satisfies AdminColumn<ApiUser>[]}
               minWidth={980}
               stickyFirstColumn
@@ -1186,7 +1186,7 @@ export function AdminPage() {
                     { key: 'status', header: 'Trạng thái', render: (newsPost) => <StatusChip status={newsPost.status} /> },
                     { key: 'published', header: 'Ngày xuất bản', render: (newsPost) => newsPost.published_at ? new Date(newsPost.published_at).toLocaleDateString('vi-VN') : '—' },
                     { key: 'updated', header: 'Cập nhật', render: (newsPost) => new Date(newsPost.updated_at).toLocaleDateString('vi-VN') },
-                    { key: 'actions', header: 'Thao tác', align: 'right', render: (newsPost) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" onClick={() => beginNewsEdit(newsPost)}>Sửa</Button><Button size="small" variant="outlined" onClick={() => changeNewsStatus(newsPost)} sx={{ minWidth: 132, whiteSpace: 'nowrap', flexShrink: 0 }}>{newsPost.status === 'draft' ? 'Xuất bản' : 'Chuyển về nháp'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa tin tức', newsPost.title, () => adminRepositories.news.remove(token, newsPost.id), 'Đã xóa tin tức.')}>Xóa</Button></Stack> },
+                    { key: 'actions', header: 'Thao tác', render: (newsPost) => <Stack direction="row" spacing={0.5}><Button size="small" onClick={() => beginNewsEdit(newsPost)}>Sửa</Button><Button size="small" variant="outlined" onClick={() => changeNewsStatus(newsPost)} sx={{ minWidth: 132, whiteSpace: 'nowrap', flexShrink: 0 }}>{newsPost.status === 'draft' ? 'Xuất bản' : 'Chuyển về nháp'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa tin tức', newsPost.title, () => adminRepositories.news.remove(token, newsPost.id), 'Đã xóa tin tức.')}>Xóa</Button></Stack> },
                   ] satisfies AdminColumn<ApiNewsPost>[]}
                 /> : <EmptyState title="Không có tin tức phù hợp." />}
               </CardContent>
@@ -1232,7 +1232,7 @@ export function AdminPage() {
                   { key: 'rating', header: 'Điểm', align: 'center', render: (review) => `${review.rating}/5` },
                   { key: 'comment', header: 'Nhận xét', render: (review) => <Typography variant="body2" sx={{ minWidth: 220, maxWidth: 360, overflowWrap: 'anywhere' }}>{review.comment || 'Không có nhận xét'}</Typography> },
                   { key: 'status', header: 'Trạng thái', render: (review) => <StatusChip status={review.status} /> },
-                  { key: 'actions', header: 'Thao tác', align: 'right', render: (review) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" variant="outlined" onClick={() => token && void runMutation(() => adminRepositories.reviews.updateStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'), 'Đã cập nhật trạng thái đánh giá.')}>{review.status === 'visible' ? 'Ẩn' : 'Hiện'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, () => adminRepositories.reviews.remove(token, review.id), 'Đã xóa đánh giá.')}>Xóa</Button></Stack> },
+                  { key: 'actions', header: 'Thao tác', render: (review) => <Stack direction="row" spacing={0.5}><Button size="small" variant="outlined" onClick={() => token && void runMutation(() => adminRepositories.reviews.updateStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'), 'Đã cập nhật trạng thái đánh giá.')}>{review.status === 'visible' ? 'Ẩn' : 'Hiện'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, () => adminRepositories.reviews.remove(token, review.id), 'Đã xóa đánh giá.')}>Xóa</Button></Stack> },
                 ] satisfies AdminColumn<ApiReview>[]}
               /> : <EmptyState title="Không có đánh giá phù hợp." />}
             </CardContent></Card>

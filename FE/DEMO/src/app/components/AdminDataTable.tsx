@@ -54,7 +54,20 @@ export function AdminDataTable<T>({
         aria-label={label}
         sx={{
           minWidth,
-          '& th': { whiteSpace: 'nowrap', fontWeight: 800, bgcolor: 'grey.50' },
+          // Density copied from the prototype's .data-table: small uppercase
+          // headers keep wide tables inside the viewport without scrolling.
+          '& th': {
+            whiteSpace: 'nowrap',
+            bgcolor: 'grey.50',
+            fontSize: 12,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '.04em',
+            color: 'text.secondary',
+            py: 1.5,
+            px: 2,
+          },
+          '& td': { fontSize: 14, py: 1.75, px: 2 },
           ...(stickyFirstColumn && {
             '& th:first-of-type, & td:first-of-type': {
               position: 'sticky',

@@ -398,6 +398,9 @@ describe('AdminPage', () => {
     const userToolbar = screen.getByRole('region', { name: 'Bộ lọc tài khoản' });
     expect(userToolbar).toHaveAttribute('data-admin-toolbar', 'true');
     expect(within(userToolbar).getByRole('button', { name: 'Áp dụng' })).toHaveStyle({ minWidth: '112px' });
+    // The toolbar is a band at the top of the one card — the band carries the
+    // divider, so no second bordered panel is nested inside the card.
+    expect(userToolbar.parentElement).toHaveStyle({ borderBottomStyle: 'solid' });
 
     const table = await screen.findByRole('table', { name: 'Danh sách tài khoản' });
     // Narrow enough to fit a normal desktop without horizontal scrolling.
@@ -412,6 +415,8 @@ describe('AdminPage', () => {
       'Trạng thái',
       'Thao tác',
     ]);
+    // Reviewer rejected right-aligned action columns; text columns align left.
+    expect(within(table).getByRole('columnheader', { name: 'Thao tác' }).className).not.toMatch(/alignRight/);
     const row = within(table).getByRole('row', { name: /Nguyễn Văn A/ });
     expect(within(row).getAllByRole('cell').map((cell) => cell.textContent?.replace(/\u200b/g, ''))).toEqual([
       'Nguyễn Văn A',

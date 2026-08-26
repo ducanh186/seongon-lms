@@ -114,7 +114,11 @@ export function AdminReadOnlyIndex<T>({
   return (
     <Card sx={{ borderRadius: 3, minWidth: 0 }}>
       <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-        <Stack spacing={2} sx={{ minWidth: 0, p: 2.5, pb: filters.length > 0 || error || loading ? 2.5 : 0 }}>
+        {/* Title + filters form the card's top band, joined to the table by a
+            single divider — the prototype's .table-toolbar + .data-table pattern.
+            The band keeps its own surface, so the filter bar still reads as a
+            distinct area without nesting a second border inside the card. */}
+        <Stack spacing={2} sx={{ minWidth: 0, p: 2.5, bgcolor: 'background.default', borderBottom: '1px solid', borderColor: 'divider' }}>
           <Typography component="h2" variant="h6" fontWeight={800}>{label}</Typography>
           {filters.length > 0 && (
             <Box
@@ -131,13 +135,6 @@ export function AdminReadOnlyIndex<T>({
                 },
                 gap: 1.25,
                 alignItems: 'stretch',
-                // Inside the card, but still a distinct surface: the acceptance
-                // checklist requires the filter bar to read as its own panel.
-                p: 1.75,
-                bgcolor: 'background.default',
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 2.5,
               }}
             >
               {filters.map((filter) => filter.kind === 'select' ? (
@@ -178,9 +175,14 @@ export function AdminReadOnlyIndex<T>({
         </Box>
       )}
 
-          {error && <RequestError message={error} onRetry={() => void load()} />}
-          {loading && <PageSkeleton rows={4} />}
         </Stack>
+
+        {(error || loading) && (
+          <Box sx={{ p: 2.5 }}>
+            {error && <RequestError message={error} onRetry={() => void load()} />}
+            {loading && <PageSkeleton rows={4} />}
+          </Box>
+        )}
 
         {!loading && !error && (
           data?.data.length ? (
@@ -192,7 +194,7 @@ export function AdminReadOnlyIndex<T>({
               minWidth={minWidth}
             />
           ) : (
-            <Box sx={{ p: 2.5, pt: 0 }}><EmptyState title={emptyTitle} /></Box>
+            <Box sx={{ p: 2.5 }}><EmptyState title={emptyTitle} /></Box>
           )
         )}
 

@@ -26,4 +26,22 @@ describe('AdminDataTable', () => {
     expect(actionHeader).toHaveStyle({ position: 'sticky', right: '0px' });
     expect(actionCell).toHaveStyle({ position: 'sticky', right: '0px' });
   });
+
+  it('renders compact uppercase headers so wide tables fit without horizontal scroll', () => {
+    render(
+      <AdminDataTable
+        label="Density table"
+        rows={[{ id: 1, name: 'Course A' }]}
+        getRowKey={(row) => row.id}
+        columns={[{ key: 'name', header: 'Khóa học', render: (row) => row.name }]}
+      />,
+    );
+
+    const table = screen.getByRole('table', { name: 'Density table' });
+    expect(within(table).getByRole('columnheader', { name: 'Khóa học' })).toHaveStyle({
+      fontSize: '12px',
+      textTransform: 'uppercase',
+    });
+    expect(within(table).getByRole('cell', { name: 'Course A' })).toHaveStyle({ fontSize: '14px' });
+  });
 });
