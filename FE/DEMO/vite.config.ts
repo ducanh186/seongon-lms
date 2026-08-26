@@ -46,6 +46,12 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     maxWorkers: 1,
+    // The admin screens render large MUI trees; with maxWorkers: 1 the heaviest
+    // specs sit close to the 5s default and tip over on a loaded or slower
+    // machine. Infra/build-local-web-windows.ps1 runs this suite on the client's
+    // own machine, where a spurious red blocks the whole build.
+    testTimeout: 20000,
+    hookTimeout: 20000,
     exclude: [...configDefaults.exclude, '**/node_modules.incomplete-*/**'],
   },
 })

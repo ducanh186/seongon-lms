@@ -89,16 +89,20 @@ export function AdminDataTable<T>({
           {rows.map((row) => (
             <TableRow
               key={getRowKey(row)}
-              hover
               tabIndex={onRowClick ? 0 : undefined}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
               onKeyDown={onRowClick ? (event) => {
+                // Row-level Enter/Space must not swallow keystrokes aimed at a
+                // control inside the row (e.g. the "Thao tác" menu button).
+                if (event.target !== event.currentTarget) return;
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault();
                   onRowClick(row);
                 }
               } : undefined}
-              sx={onRowClick ? { cursor: 'pointer', '&:focus-visible': { outline: '3px solid', outlineColor: 'primary.main', outlineOffset: -3 } } : undefined}
+              // Feedback asked for the gray hover to go, not for clickable rows to
+              // lose all feedback: interactive rows get a faint primary tint instead.
+              sx={onRowClick ? { cursor: 'pointer', '&:hover': { bgcolor: 'rgba(0,137,148,.06)' }, '&:focus-visible': { outline: '3px solid', outlineColor: 'primary.main', outlineOffset: -3 } } : undefined}
             >
               {columns.map((column) => (
                 <TableCell key={column.key} align={column.align} sx={cellPaddingX !== undefined ? { px: cellPaddingX } : undefined}>

@@ -1,9 +1,10 @@
 import { Box, Card, CardContent, LinearProgress, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import type { ApiAdminStats } from '../lib/contracts';
 
+// Full year on purpose: `09/25` reads as a day/month date to reviewers.
 function formatMonth(value: string) {
   const [year, month] = value.split('-');
-  return `${month}/${year.slice(-2)}`;
+  return `${month}/${year}`;
 }
 
 export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
@@ -17,9 +18,6 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
 
   return (
     <Stack spacing={3}>
-      <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'flex-end' }}>
-        Dữ liệu trực tiếp từ hệ thống
-      </Typography>
       <Box
         data-testid="admin-kpi-strip"
         sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}
@@ -45,7 +43,7 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
                   <Stack key={item.month} alignItems="center" justifyContent="flex-end" spacing={1} sx={{ position: 'relative', height: '100%' }}>
                     <Typography variant="caption" fontWeight={800}>{item.total}</Typography>
                     <Box sx={{ width: '64%', maxWidth: 34, minWidth: 16, height: `${Math.max(8, item.total / maxMonthly * 110)}px`, bgcolor: 'primary.main', borderRadius: '5px 5px 0 0' }} />
-                    <Typography variant="caption" color="text.secondary" sx={{ writingMode: 'horizontal-tb', whiteSpace: 'nowrap' }}>{formatMonth(item.month)}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ writingMode: 'horizontal-tb', whiteSpace: 'nowrap', fontSize: 11 }}>{formatMonth(item.month)}</Typography>
                     <Box component="span" data-visually-hidden="true" sx={{ position: 'absolute', inset: 0, width: 1, maxWidth: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' }}>{item.month}: {item.total} lượt ghi danh</Box>
                   </Stack>
                 ))}
@@ -76,7 +74,7 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
             <TableContainer data-testid="popular-courses-table-container" sx={{ width: '100%', maxWidth: 960, mx: 'auto', overflowX: 'auto' }}>
               <Table aria-label="Khóa học phổ biến" sx={{ width: '100%', tableLayout: 'fixed' }}>
                 <TableHead><TableRow sx={{ bgcolor: 'grey.50' }}><TableCell align="center" sx={{ width: 72, fontWeight: 800 }}>Hạng</TableCell><TableCell sx={{ fontWeight: 800 }}>Khóa học</TableCell><TableCell align="center" sx={{ width: 96, fontWeight: 800 }}>Ghi danh</TableCell></TableRow></TableHead>
-                <TableBody>{stats.popular_courses.map((course, index) => <TableRow key={course.id} hover><TableCell align="center"><Typography color="primary.dark" fontWeight={850}>{String(index + 1).padStart(2, '0')}</Typography></TableCell><TableCell><Typography fontWeight={700} sx={{ overflowWrap: 'anywhere' }}>{course.title}</Typography></TableCell><TableCell align="center"><Typography fontWeight={800}>{course.enrollments_count}</Typography></TableCell></TableRow>)}</TableBody>
+                <TableBody>{stats.popular_courses.map((course, index) => <TableRow key={course.id}><TableCell align="center"><Typography color="primary.dark" fontWeight={850}>{String(index + 1).padStart(2, '0')}</Typography></TableCell><TableCell><Typography fontWeight={700} sx={{ overflowWrap: 'anywhere' }}>{course.title}</Typography></TableCell><TableCell align="center"><Typography fontWeight={800}>{course.enrollments_count}</Typography></TableCell></TableRow>)}</TableBody>
               </Table>
             </TableContainer>
           )}

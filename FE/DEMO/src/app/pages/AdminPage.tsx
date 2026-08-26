@@ -1,4 +1,4 @@
-import { FormEvent, type SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Box,
@@ -11,6 +11,7 @@ import {
   FormControl,
   FormControlLabel,
   InputLabel,
+  Menu,
   MenuItem,
   Pagination,
   Radio,
@@ -20,8 +21,6 @@ import {
   Step,
   StepButton,
   Stepper,
-  Tab,
-  Tabs,
   TextField,
   Typography,
 } from '@mui/material';
@@ -68,8 +67,6 @@ type NewsDraft = {
 };
 
 type QuestionOptionDraft = { content: string; is_correct: boolean };
-type CourseWorkspaceTab = 'content' | 'enrollments' | 'reviews';
-
 type PendingConfirmation = {
   title: string;
   recordName: string;
@@ -264,10 +261,13 @@ export function AdminPage() {
   const [courseForm, setCourseForm] = useState<CourseDraft>(blankCourse);
   const [isCourseEditorOpen, setIsCourseEditorOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<ApiAdminCourse | null>(null);
+  // Course Detail must reach Enrollments (acceptance checklist §3.4) with the
+  // per-course progress and certificate columns the global section lacks.
   const [courseEnrollments, setCourseEnrollments] = useState<Paginated<ApiEnrollment> | null>(null);
-  const [courseReviews, setCourseReviews] = useState<Paginated<ApiReview> | null>(null);
-  const [courseReviewPage, setCourseReviewPage] = useState(1);
-  const [courseWorkspaceTab, setCourseWorkspaceTab] = useState<CourseWorkspaceTab>('content');
+  const [courseActionAnchor, setCourseActionAnchor] = useState<HTMLElement | null>(null);
+  // Only the id is ever read; keeping the whole row here retained a full course
+  // payload and created a two-field invariant with the anchor.
+  const [courseActionCourseId, setCourseActionCourseId] = useState<number | null>(null);
   const [courseStep, setCourseStep] = useState(0);
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
   const [lessonForm, setLessonForm] = useState<LessonDraft>(blankLesson);
@@ -456,30 +456,18 @@ export function AdminPage() {
     void load(tab);
   }, [load, tab]);
 
-  const loadCourseEnrollments = useCallback(async (courseId: number, page = 1) => {
+  const loadCourseDetail = useCallback(async (courseId: number) => {
     if (!token) return;
-    const response = await adminRepositories.enrollments.list(token, { course_id: courseId, page });
-    setCourseEnrollments(response);
-  }, [token]);
-
-  const loadCourseReviews = useCallback(async (courseId: number, page = 1) => {
-    if (!token) return;
-    const response = await adminRepositories.reviews.list(token, { course_id: courseId, page });
-    setCourseReviews(response);
-    setCourseReviewPage(page);
-  }, [token]);
-
-  const loadCourseDetail = useCallback(async (courseId: number, enrollmentPage = 1) => {
-    if (!token) return;
-    const [response] = await Promise.all([
-      adminRepositories.courses.get(token, courseId),
-      loadCourseEnrollments(courseId, enrollmentPage),
-    ]);
+    const response = await adminRepositories.courses.get(token, courseId);
     setSelectedCourse(response.data);
+    setCourseEnrollments(null);
+    adminRepositories.enrollments
+      .list(token, { course_id: courseId, page: 1 })
+      .then((enrollments) => setCourseEnrollments(enrollments))
+      .catch(() => setCourseEnrollments(null));
     setEditingCourse(response.data);
     setCourseCategoryIds(response.data.categories?.map((category) => category.id) ?? [response.data.category_id]);
     setCourseForm(courseDraftFrom(response.data));
-    setIsCourseEditorOpen(true);
     setQuizTitle(response.data.quiz?.title ?? 'Bài kiểm tra cuối khóa');
     setQuizPassScore(String(response.data.quiz?.pass_score ?? 75));
     setQuizMaxAttempts(String(response.data.quiz?.max_attempts ?? 3));
@@ -494,15 +482,14 @@ export function AdminPage() {
       setQuestionContent('');
       setQuestionOptions(blankQuestionOptions);
     }
-  }, [loadCourseEnrollments, token]);
+    return response.data;
+  }, [token]);
 
   const selectContent = async (courseId: number) => {
     setError(null);
     try {
-      setCourseWorkspaceTab('content');
       setCourseStep(0);
-      setCourseReviews(null);
-      setCourseReviewPage(1);
+      setIsCourseEditorOpen(false);
       await loadCourseDetail(courseId);
       setTab('courses');
     } catch (reason) {
@@ -512,15 +499,28 @@ export function AdminPage() {
 
   const refreshSelectedCourse = async () => {
     if (selectedCourse) {
-      await loadCourseDetail(selectedCourse.id, courseEnrollments?.meta.current_page ?? 1);
+      await loadCourseDetail(selectedCourse.id);
     }
   };
 
-  const changeCourseWorkspaceTab = (_event: SyntheticEvent, nextTab: CourseWorkspaceTab) => {
-    setCourseWorkspaceTab(nextTab);
-    if (nextTab === 'reviews' && selectedCourse) {
-      void loadCourseReviews(selectedCourse.id, courseReviewPage);
+  const editContent = async (courseId: number) => {
+    setError(null);
+    try {
+      setCourseStep(0);
+      // loadCourseDetail already hydrates editingCourse, courseCategoryIds and
+      // courseForm — only the editor-mode switches are left to do here.
+      const course = await loadCourseDetail(courseId);
+      if (!course) return;
+      setIsCourseEditorOpen(true);
+      setTab('courses');
+    } catch (reason) {
+      setError(getErrorMessage(reason, 'Không thể mở trình chỉnh sửa khóa học.'));
     }
+  };
+
+  const closeCourseActionMenu = () => {
+    setCourseActionAnchor(null);
+    setCourseActionCourseId(null);
   };
 
   const runMutation = async (work: () => Promise<unknown>, successMessage: string, refreshContent = false): Promise<boolean> => {
@@ -574,7 +574,6 @@ export function AdminPage() {
       delete loadedKeyBySection.current.courses;
       await loadCourseDetail(response.data.id);
       await load('courses', true);
-      setCourseWorkspaceTab('content');
       if (advanceToLessons) setCourseStep(1);
       return true;
     } catch (reason) {
@@ -593,7 +592,6 @@ export function AdminPage() {
     setCourseCategoryIds(course.categories?.map((category) => category.id) ?? [course.category_id]);
     setCourseForm(courseDraftFrom(course));
     setIsCourseEditorOpen(true);
-    setCourseWorkspaceTab('content');
     setCourseStep(0);
     setTab('courses');
   };
@@ -765,19 +763,14 @@ export function AdminPage() {
   };
 
   const courseColumns: AdminColumn<ApiCourse>[] = [
-    { key: 'id', header: 'ID', align: 'right', render: (course) => course.id },
+    { key: 'id', header: 'ID', align: 'center', render: (course) => course.id },
     { key: 'course', header: 'Khóa học', render: (course) => <Typography fontWeight={750} sx={{ minWidth: 210 }}>{course.title}</Typography> },
     { key: 'categories', header: 'Danh mục', render: (course) => course.categories?.map((category) => category.name).join(', ') || course.category?.name || '—' },
-    { key: 'level', header: 'Cấp độ', render: (course) => ({ beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao' }[course.level ?? 'beginner']) },
-    { key: 'instructor', header: 'Giảng viên', render: (course) => course.instructor_name || '—' },
     { key: 'price', header: 'Học phí', align: 'right', render: (course) => `${Number(course.price).toLocaleString('vi-VN')} đ` },
-    { key: 'lessons', header: 'Bài học', align: 'center', render: (course) => course.lessons_count ?? 0 },
-    { key: 'exam', header: 'Bài kiểm tra', render: (course) => course.exam_exists ? 'Đã cấu hình' : 'Chưa có' },
     { key: 'enrollments', header: 'Ghi danh', align: 'center', render: (course) => course.enrollments_count ?? 0 },
-    { key: 'rating', header: 'Đánh giá', align: 'center', render: (course) => course.rating == null ? '—' : `${course.rating}/5` },
     { key: 'status', header: 'Trạng thái', render: (course) => <StatusChip status={course.status} /> },
-    { key: 'published_at', header: 'Ngày xuất bản', render: (course) => course.published_at ? new Date(course.published_at).toLocaleDateString('vi-VN') : '—' },
     { key: 'updated_at', header: 'Cập nhật', render: (course) => course.updated_at ? new Date(course.updated_at).toLocaleDateString('vi-VN') : '—' },
+    { key: 'actions', header: 'Thao tác', align: 'right', render: (course) => <Button size="small" variant="outlined" aria-label={`Mở thao tác cho ${course.title}`} onClick={(event) => { event.stopPropagation(); setCourseActionAnchor(event.currentTarget); setCourseActionCourseId(course.id); }}>Thao tác</Button> },
   ];
 
   const courseBasicEditor = (
@@ -830,7 +823,7 @@ export function AdminPage() {
 
   return (
     <Box sx={{ minHeight: '100dvh' }}>
-      <AdminShell active={tab} onChange={setTab}>
+      <AdminShell active={tab} onChange={(section) => { setNotice(null); setError(null); setTab(section); }}>
         <Stack spacing={3}>
           <AdminSectionHeader title={adminSectionCopy[tab].title} description={adminSectionCopy[tab].description} />
           {notice && <Alert severity="success" onClose={() => setNotice(null)}>{notice}</Alert>}
@@ -849,7 +842,7 @@ export function AdminPage() {
           {isOperationSection(tab) && <Stack spacing={2}>
             <Box component="section" role="region" aria-label={`Bộ lọc ${adminSectionCopy[tab].title.toLowerCase()}`} data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: operationStatusOptions[tab] ? 'minmax(240px, 1fr) minmax(150px, .45fr) minmax(180px, .55fr) auto' : 'minmax(240px, 1fr) minmax(150px, .45fr) auto', gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
               <TextField label="Tìm kiếm" value={operationDrafts[tab].q} onChange={(event) => updateOperationDraft(tab, { q: event.target.value })} fullWidth />
-              <TextField label="Course ID" type="number" inputProps={{ min: 1 }} value={operationDrafts[tab].courseId} onChange={(event) => updateOperationDraft(tab, { courseId: event.target.value })} fullWidth />
+              <TextField label="Mã khóa học" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} value={operationDrafts[tab].courseId} onChange={(event) => updateOperationDraft(tab, { courseId: event.target.value.replace(/[^0-9]/g, '') })} fullWidth />
               {operationStatusOptions[tab] && <FormControl fullWidth>
                 <InputLabel id={`${tab}-status-filter`}>Trạng thái</InputLabel>
                 <Select labelId={`${tab}-status-filter`} label="Trạng thái" value={operationDrafts[tab].status} onChange={(event) => updateOperationDraft(tab, { status: event.target.value })}>
@@ -871,7 +864,7 @@ export function AdminPage() {
                 stickyFirstColumn
                 stickyLastColumn
                 columns={[
-                  { key: 'id', header: 'ID', align: 'right', render: (lesson) => lesson.id },
+                  { key: 'id', header: 'ID', align: 'center', render: (lesson) => lesson.id },
                   { key: 'lesson', header: 'Bài học', render: (lesson) => <Typography fontWeight={750} sx={{ minWidth: 220 }}>{lesson.title}</Typography> },
                   { key: 'course', header: 'Khóa học', render: (lesson) => lesson.course.title },
                   { key: 'categories', header: 'Danh mục', render: (lesson) => lesson.course.categories?.map((category) => category.name).join(', ') || lesson.course.category?.name || '—' },
@@ -893,7 +886,7 @@ export function AdminPage() {
                 stickyFirstColumn
                 stickyLastColumn
                 columns={[
-                  { key: 'id', header: 'ID', align: 'right', render: (exam) => exam.id },
+                  { key: 'id', header: 'ID', align: 'center', render: (exam) => exam.id },
                   { key: 'exam', header: 'Bài kiểm tra', render: (exam) => <Typography fontWeight={750} sx={{ minWidth: 210 }}>{exam.title}</Typography> },
                   { key: 'course', header: 'Khóa học', render: (exam) => exam.course.title },
                   { key: 'passScore', header: 'Điểm đạt', align: 'center', render: (exam) => exam.pass_score },
@@ -913,13 +906,13 @@ export function AdminPage() {
                 getRowKey={(enrollment) => enrollment.id}
                 minWidth={1180}
                 columns={[
-                  { key: 'id', header: 'ID', align: 'right', render: (enrollment) => enrollment.id },
+                  { key: 'id', header: 'ID', align: 'center', render: (enrollment) => enrollment.id },
                   { key: 'student', header: 'Học viên', render: (enrollment) => <Box sx={{ minWidth: 190 }}><Typography fontWeight={750}>{enrollment.user?.name ?? `#${enrollment.user_id}`}</Typography><Typography variant="body2" color="text.secondary">{enrollment.user?.email ?? '—'}</Typography></Box> },
                   { key: 'course', header: 'Khóa học', render: (enrollment) => enrollment.course?.title ?? `#${enrollment.course_id}` },
                   { key: 'status', header: 'Trạng thái', render: (enrollment) => enrollment.status === 'active' ? 'Đang học' : 'Hết hạn' },
                   { key: 'enrolled', header: 'Ghi danh', render: (enrollment) => new Date(enrollment.enrolled_at).toLocaleDateString('vi-VN') },
                   { key: 'expires', header: 'Hết hạn', render: (enrollment) => new Date(enrollment.expires_at).toLocaleDateString('vi-VN') },
-                  { key: 'order', header: 'Order ID', align: 'right', render: (enrollment) => enrollment.order_id ?? '—' },
+                  { key: 'order', header: 'Mã đơn hàng', align: 'center', render: (enrollment) => enrollment.order_id ?? '—' },
                   { key: 'updated', header: 'Cập nhật', render: (enrollment) => enrollment.updated_at ? new Date(enrollment.updated_at).toLocaleDateString('vi-VN') : '—' },
                 ] satisfies AdminColumn<ApiEnrollment>[]}
               /> : <EmptyState title="Không có ghi danh phù hợp." />}
@@ -932,7 +925,7 @@ export function AdminPage() {
                 getRowKey={(attempt) => attempt.id}
                 minWidth={1320}
                 columns={[
-                  { key: 'id', header: 'ID', align: 'right', render: (attempt) => attempt.id },
+                  { key: 'id', header: 'ID', align: 'center', render: (attempt) => attempt.id },
                   { key: 'student', header: 'Học viên', render: (attempt) => attempt.user.name },
                   { key: 'course', header: 'Khóa học', render: (attempt) => attempt.course.title },
                   { key: 'exam', header: 'Bài kiểm tra', render: (attempt) => attempt.exam.title },
@@ -952,7 +945,7 @@ export function AdminPage() {
                 getRowKey={(record) => record.enrollment_id}
                 minWidth={1450}
                 columns={[
-                  { key: 'enrollment', header: 'Enrollment ID', align: 'right', render: (record) => record.enrollment_id },
+                  { key: 'enrollment', header: 'Mã ghi danh', align: 'center', render: (record) => record.enrollment_id },
                   { key: 'student', header: 'Học viên', render: (record) => <Box sx={{ minWidth: 180 }}><Typography fontWeight={750}>{record.user.name}</Typography><Typography variant="body2" color="text.secondary">{record.user.email}</Typography></Box> },
                   { key: 'course', header: 'Khóa học', render: (record) => record.course.title },
                   { key: 'lessons', header: 'Bài học hoàn thành', align: 'center', render: (record) => `${record.completed_lessons}/${record.total_lessons}` },
@@ -970,33 +963,34 @@ export function AdminPage() {
 
           {tab === 'overview' && stats && <AdminOverview stats={stats} />}
 
-          {tab === 'users' && <Stack spacing={2}>
-            <Box component="section" role="region" aria-label="Bộ lọc tài khoản" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(240px, 1.2fr) minmax(210px, .8fr) 112px' }, gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
-              <TextField label="Tìm tài khoản" value={userQuery} onChange={(event) => setUserQuery(event.target.value)} fullWidth />
-              <FormControl fullWidth><InputLabel id="student-status">Trạng thái</InputLabel><Select labelId="student-status" label="Trạng thái" value={userStatus} onChange={(event) => setUserStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="active">Đang hoạt động</MenuItem><MenuItem value="locked">Đã khóa</MenuItem></Select></FormControl>
-              <Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, page: 1 })} sx={{ minWidth: 112, px: 2.5, whiteSpace: 'nowrap' }}>Áp dụng</Button>
-            </Box>
-            <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-              {users?.data.length ? <AdminDataTable<ApiUser>
-                label="Danh sách tài khoản"
-                rows={users.data}
-                getRowKey={(user) => user.id}
-                columns={[
-                  { key: 'student', header: 'Học viên', render: (user) => <Typography fontWeight={750} sx={{ minWidth: 160 }}>{user.name}</Typography> },
-                  { key: 'email', header: 'Email', render: (user) => <Typography variant="body2" sx={{ minWidth: 190, overflowWrap: 'anywhere' }}>{user.email}</Typography> },
-                  { key: 'phone', header: 'SĐT', render: (user) => <Box sx={{ minWidth: 64 }}>{user.phone || '—'}</Box> },
-                  { key: 'enrollments', header: 'Khóa đã đăng ký', align: 'center', render: (user) => <Box sx={{ minWidth: 112 }}>{user.enrollments_count ?? 0}</Box> },
-                  { key: 'createdAt', header: 'Ngày tạo', render: (user) => <Typography sx={{ minWidth: 100, whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN')}</Typography> },
-                  { key: 'role', header: 'Vai trò', render: (user) => <Select size="small" aria-label={`Vai trò của ${user.name}`} value={user.role} onChange={(event) => token && void runMutation(() => adminRepositories.users.updateRole(token, user.id, event.target.value as 'student' | 'admin'), 'Đã cập nhật vai trò tài khoản.')} sx={{ minWidth: 142 }}><MenuItem value="student">Học viên</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem></Select> },
-                  { key: 'status', header: 'Trạng thái', render: (user) => <Box sx={{ minWidth: 116 }}><StatusChip status={user.status} /></Box> },
-                  { key: 'actions', header: 'Thao tác', align: 'right', render: (user) => <Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => adminRepositories.users.updateStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')} sx={{ minWidth: 88 }}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button> },
-                ] satisfies AdminColumn<ApiUser>[]}
-                minWidth={1200}
-                stickyFirstColumn
-              /> : <EmptyState title="Không có người dùng phù hợp." />}
-            </CardContent></Card>
-            {users && users.meta.last_page > 1 && <Pagination count={users.meta.last_page} page={appliedUserFilters.page} onChange={(_, page) => setAppliedUserFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
-          </Stack>}
+          {tab === 'users' && <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+            <Stack spacing={2} sx={{ p: 2.5 }}>
+              <Typography component="h2" variant="h6" fontWeight={800}>Danh sách tài khoản</Typography>
+              <Box component="section" role="region" aria-label="Bộ lọc tài khoản" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1.2fr) minmax(0, .8fr) auto' }, gap: 1.25, alignItems: 'stretch', p: 1.75, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider', borderRadius: 2.5 }}>
+                <TextField label="Tìm tài khoản" value={userQuery} onChange={(event) => setUserQuery(event.target.value)} fullWidth />
+                <FormControl fullWidth><InputLabel id="student-status">Trạng thái</InputLabel><Select labelId="student-status" label="Trạng thái" value={userStatus} onChange={(event) => setUserStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="active">Đang hoạt động</MenuItem><MenuItem value="locked">Đã khóa</MenuItem></Select></FormControl>
+                <Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, page: 1 })} sx={{ minWidth: 112, px: 2.5, whiteSpace: 'nowrap' }}>Áp dụng</Button>
+              </Box>
+            </Stack>
+            {users?.data.length ? <AdminDataTable<ApiUser>
+              label="Danh sách tài khoản"
+              rows={users.data}
+              getRowKey={(user) => user.id}
+              columns={[
+                { key: 'student', header: 'Học viên', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
+                { key: 'email', header: 'Email', render: (user) => <Typography variant="body2" sx={{ overflowWrap: 'anywhere' }}>{user.email}</Typography> },
+                { key: 'phone', header: 'SĐT', render: (user) => user.phone || '—' },
+                { key: 'enrollments', header: 'Khóa đã đăng ký', align: 'center', render: (user) => user.enrollments_count ?? 0 },
+                { key: 'createdAt', header: 'Ngày tạo', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN')}</Typography> },
+                { key: 'role', header: 'Vai trò', render: (user) => <Select size="small" aria-label={`Vai trò của ${user.name}`} value={user.role} onChange={(event) => token && void runMutation(() => adminRepositories.users.updateRole(token, user.id, event.target.value as 'student' | 'admin'), 'Đã cập nhật vai trò tài khoản.')} sx={{ minWidth: 132 }}><MenuItem value="student">Học viên</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem></Select> },
+                { key: 'status', header: 'Trạng thái', render: (user) => <StatusChip status={user.status} /> },
+                { key: 'actions', header: 'Thao tác', align: 'right', render: (user) => <Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => token && void runMutation(() => adminRepositories.users.updateStatus(token, user.id, user.status === 'active' ? 'locked' : 'active'), 'Đã cập nhật trạng thái tài khoản.')} sx={{ minWidth: 88, whiteSpace: 'nowrap' }}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button> },
+              ] satisfies AdminColumn<ApiUser>[]}
+              minWidth={980}
+              stickyFirstColumn
+            /> : <Box sx={{ p: 2.5, pt: 0 }}><EmptyState title="Không có người dùng phù hợp." /></Box>}
+            {users && users.meta.last_page > 1 && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><Pagination count={users.meta.last_page} page={appliedUserFilters.page} onChange={(_, page) => setAppliedUserFilters((filters) => ({ ...filters, page }))} color="primary" /></Box>}
+          </CardContent></Card>}
 
           {tab === 'categories' && <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(260px, .6fr) 1fr' }, gap: 3 }}>
             <Card component="form" onSubmit={submitCategory} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingCategory ? 'Sửa danh mục' : 'Tạo danh mục'}</Typography><TextField required label="Tên danh mục" value={categoryName} onChange={(event) => setCategoryName(event.target.value)} /><TextField label="Mô tả" multiline minRows={3} value={categoryDescription} onChange={(event) => setCategoryDescription(event.target.value)} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingCategory ? 'Cập nhật' : 'Lưu danh mục'}</Button>{editingCategory && <Button onClick={() => { setEditingCategory(null); setCategoryName(''); setCategoryDescription(''); }}>Hủy</Button>}</Stack></Stack></CardContent></Card>
@@ -1004,10 +998,10 @@ export function AdminPage() {
           </Box>}
 
           {tab === 'courses' && !selectedCourse && <Stack spacing={2}>
-            <Button variant="outlined" onClick={() => { setEditingCourse(null); setSelectedCourse(null); setCourseCategoryIds([]); setCourseForm(blankCourse); setCourseWorkspaceTab('content'); setCourseStep(0); setIsCourseEditorOpen(true); }} sx={{ alignSelf: 'flex-end', whiteSpace: 'nowrap' }}>Tạo khóa học mới</Button>
-            <Box component="section" role="region" aria-label="Bộ lọc khóa học" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'repeat(3, minmax(0, 1fr)) auto', xl: 'repeat(6, minmax(0, 1fr)) auto' }, gap: 1.25, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+            <Button variant="outlined" onClick={() => { setEditingCourse(null); setSelectedCourse(null); setCourseCategoryIds([]); setCourseForm(blankCourse); setCourseStep(0); setIsCourseEditorOpen(true); }} sx={{ alignSelf: 'flex-end', whiteSpace: 'nowrap' }}>Tạo khóa học mới</Button>
+            <Box component="section" role="region" aria-label="Bộ lọc khóa học" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr)) auto', lg: 'minmax(0, .85fr) minmax(0, .62fr) minmax(0, 1.25fr) minmax(0, .85fr) minmax(0, .62fr) minmax(0, .8fr) auto' }, gap: 1.25, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
               <FormControl fullWidth><InputLabel id="course-category-filter">Lọc theo danh mục</InputLabel><Select labelId="course-category-filter" label="Lọc theo danh mục" value={courseFilters.categoryId} onChange={(event) => setCourseFilters((current) => ({ ...current, categoryId: event.target.value }))}><MenuItem value="">Tất cả</MenuItem>{categories.map((category) => <MenuItem key={category.id} value={String(category.id)}>{category.name}</MenuItem>)}</Select></FormControl>
-              <TextField label="Mã khóa học" type="number" inputProps={{ min: 1 }} value={courseFilters.courseId} onChange={(event) => setCourseFilters((current) => ({ ...current, courseId: event.target.value }))} />
+              <TextField label="Mã khóa học" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} value={courseFilters.courseId} onChange={(event) => setCourseFilters((current) => ({ ...current, courseId: event.target.value.replace(/[^0-9]/g, '') }))} />
               <TextField label="Tên khóa học" value={courseFilters.q} onChange={(event) => setCourseFilters((current) => ({ ...current, q: event.target.value }))} />
               <FormControl fullWidth><InputLabel id="course-status-filter">Trạng thái</InputLabel><Select labelId="course-status-filter" label="Trạng thái" value={courseFilters.status} onChange={(event) => setCourseFilters((current) => ({ ...current, status: event.target.value }))}><MenuItem value="">Tất cả</MenuItem><MenuItem value="draft">Bản nháp</MenuItem><MenuItem value="published">Xuất bản</MenuItem></Select></FormControl>
               <TextField label="Giá" type="number" inputProps={{ min: 0 }} value={courseFilters.price} onChange={(event) => setCourseFilters((current) => ({ ...current, price: event.target.value }))} />
@@ -1026,37 +1020,118 @@ export function AdminPage() {
                   rows={courses.data}
                   getRowKey={(course) => course.id}
                   columns={courseColumns}
-                  minWidth={1280}
+                  minWidth={860}
                   cellPaddingX={1.5}
                   stickyFirstColumn
                   onRowClick={(course) => void selectContent(course.id)}
                 /> : <EmptyState title="Không có khóa học phù hợp." />}
               </CardContent></Card>
+            <Menu anchorEl={courseActionAnchor} open={Boolean(courseActionAnchor && courseActionCourseId)} onClose={closeCourseActionMenu}>
+              <MenuItem onClick={() => { const courseId = courseActionCourseId; closeCourseActionMenu(); if (courseId) void selectContent(courseId); }}>Xem chi tiết</MenuItem>
+              <MenuItem onClick={() => { const courseId = courseActionCourseId; closeCourseActionMenu(); if (courseId) void editContent(courseId); }}>Sửa khóa học</MenuItem>
+            </Menu>
             {courses && courses.meta.last_page > 1 && <Pagination count={courses.meta.last_page} page={appliedCourseFilters.page} onChange={(_, page) => setAppliedCourseFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
 
           {tab === 'courses' && selectedCourse && <Stack spacing={3} sx={{ minWidth: 0 }}>
-            <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
+            {!isCourseEditorOpen && <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
               <CardContent sx={{ pb: 1.5 }}>
                 <Stack direction={{ xs: 'column', lg: 'row' }} spacing={1.25} alignItems={{ lg: 'center' }}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography component="h2" variant="h5" fontWeight={850}>{selectedCourse.title}</Typography>
                     <Typography color="text.secondary" sx={{ mt: 0.5 }}>Mã khóa học #{selectedCourse.id} · {selectedCourse.status === 'published' ? 'Đã xuất bản' : 'Bản nháp'}</Typography>
                   </Box>
-                  <Button onClick={() => { setSelectedCourse(null); setCourseEnrollments(null); setCourseReviews(null); setEditingCourse(null); setIsCourseEditorOpen(false); }}>Quay lại danh sách</Button>
+                  <Button onClick={() => { setSelectedCourse(null); setEditingCourse(null); setIsCourseEditorOpen(false); }}>Quay lại danh sách</Button>
                   <Button variant="outlined" onClick={() => beginCourseEdit(selectedCourse)}>Sửa khóa học</Button>
                   <Button variant="outlined" onClick={() => token && void runMutation(() => adminRepositories.courses.publish(token, selectedCourse.id, selectedCourse.status === 'published' ? 'draft' : 'published'), 'Đã cập nhật trạng thái xuất bản.', true)}>{selectedCourse.status === 'published' ? 'Ẩn khóa học' : 'Xuất bản khóa học'}</Button>
-                  <Button color="error" onClick={() => token && requestConfirmation('Xóa khóa học', selectedCourse.title, async () => { await adminRepositories.courses.remove(token, selectedCourse.id); setSelectedCourse(null); setCourseEnrollments(null); setCourseReviews(null); }, 'Đã xóa khóa học.')}>Xóa khóa học</Button>
+                  <Button color="error" onClick={() => token && requestConfirmation('Xóa khóa học', selectedCourse.title, async () => { await adminRepositories.courses.remove(token, selectedCourse.id); setSelectedCourse(null); }, 'Đã xóa khóa học.')}>Xóa khóa học</Button>
                 </Stack>
               </CardContent>
-              <Tabs value={courseWorkspaceTab} onChange={changeCourseWorkspaceTab} variant="scrollable" scrollButtons="auto" aria-label={`Quản lý ${selectedCourse.title}`} sx={{ px: 2, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'grey.50' }}>
-                <Tab value="content" label="Nội dung khóa học" />
-                <Tab value="enrollments" label="Học viên ghi danh" />
-                <Tab value="reviews" label="Đánh giá" />
-              </Tabs>
-            </Card>
+            </Card>}
 
-            {courseWorkspaceTab === 'content' && <Stack role="tabpanel" aria-label="Nội dung khóa học" spacing={3}>
+            {isCourseEditorOpen && <Card component="section" role="region" aria-label={`Chỉnh sửa khóa học ${selectedCourse.title}`} sx={{ borderRadius: 3 }}>
+              <CardContent>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography component="h2" variant="h5" fontWeight={850}>Chỉnh sửa {selectedCourse.title}</Typography>
+                    <Typography color="text.secondary" sx={{ mt: 0.5 }}>Hoàn thiện thông tin, bài học và bài kiểm tra theo quy trình 3 bước.</Typography>
+                  </Box>
+                  <Button variant="outlined" onClick={() => setIsCourseEditorOpen(false)}>Quay lại chi tiết</Button>
+                </Stack>
+              </CardContent>
+            </Card>}
+
+            {!isCourseEditorOpen && <Stack component="section" role="region" aria-label={`Thông tin khóa học ${selectedCourse.title}`} spacing={3}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
+                {[
+                  { key: 'lessons', label: 'Bài học', value: selectedCourse.lessons_count ?? 0 },
+                  { key: 'questions', label: 'Câu hỏi', value: selectedCourse.questions_count ?? 0 },
+                  { key: 'enrollments', label: 'Học viên ghi danh', value: selectedCourse.enrollments_count ?? 0 },
+                  { key: 'rating', label: 'Điểm đánh giá', value: selectedCourse.rating == null ? '—' : `${selectedCourse.rating}/5`, helper: `${selectedCourse.reviews_count ?? 0} đánh giá` },
+                ].map((metric) => <Card key={metric.key} data-course-metric={metric.key} variant="outlined" sx={{ borderRadius: 3 }}><CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}><Typography variant="body2" color="text.secondary" fontWeight={700}>{metric.label}</Typography><Typography variant="h4" fontWeight={850} color="primary.main" sx={{ mt: 0.75 }}>{metric.value}</Typography>{metric.helper && <Typography variant="caption" color="text.secondary">{metric.helper}</Typography>}</CardContent></Card>)}
+              </Box>
+
+              <Card variant="outlined" sx={{ borderRadius: 3 }}>
+                <CardContent sx={{ p: { xs: 2.5, md: 3 }, '&:last-child': { pb: { xs: 2.5, md: 3 } } }}>
+                  <Typography component="h2" variant="h6" fontWeight={850}>Thông tin khóa học</Typography>
+                  <Typography color="text.secondary" sx={{ mt: 1, whiteSpace: 'pre-wrap' }}>{selectedCourse.description || 'Chưa có mô tả.'}</Typography>
+                  <Divider sx={{ my: 2.5 }} />
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' }, gap: 2.5 }}>
+                    {[
+                      ['Danh mục', selectedCourse.categories?.map((category) => category.name).join(', ') || selectedCourse.category?.name || '—'],
+                      ['Cấp độ', ({ beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao' }[selectedCourse.level ?? 'beginner'])],
+                      ['Học phí', `${Number(selectedCourse.price).toLocaleString('vi-VN')} đ`],
+                      ['Giảng viên', selectedCourse.instructor_name || '—'],
+                      ['Bài kiểm tra', selectedCourse.exam_exists ? 'Đã cấu hình' : 'Chưa có'],
+                      ['Ngày tạo', selectedCourse.created_at ? new Date(selectedCourse.created_at).toLocaleDateString('vi-VN') : '—'],
+                      ['Ngày cập nhật', selectedCourse.updated_at ? new Date(selectedCourse.updated_at).toLocaleDateString('vi-VN') : '—'],
+                      ['Ngày xuất bản', selectedCourse.published_at ? new Date(selectedCourse.published_at).toLocaleDateString('vi-VN') : 'Chưa xuất bản'],
+                    ].map(([label, value]) => <Box key={label}><Typography variant="caption" color="text.secondary" fontWeight={700}>{label}</Typography><Typography fontWeight={700} sx={{ mt: 0.25 }}>{value}</Typography></Box>)}
+                  </Box>
+                </CardContent>
+              </Card>
+
+              <Card variant="outlined" sx={{ borderRadius: 3 }}>
+                <CardContent sx={{ p: { xs: 2.5, md: 3 }, '&:last-child': { pb: { xs: 2.5, md: 3 } } }}>
+                  <Typography component="h2" variant="h6" fontWeight={850}>Bài kiểm tra cuối khóa</Typography>
+                  {selectedCourse.quiz ? (
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(4, minmax(0, 1fr))' }, gap: 2.5, mt: 2 }}>
+                      {[
+                        ['Tiêu đề', selectedCourse.quiz.title],
+                        ['Điểm đạt', `${selectedCourse.quiz.pass_score}%`],
+                        ['Số lần làm tối đa', String(selectedCourse.quiz.max_attempts)],
+                        ['Số câu hỏi', String(selectedCourse.quiz.questions.length)],
+                      ].map(([label, value]) => <Box key={label}><Typography variant="caption" color="text.secondary" fontWeight={700}>{label}</Typography><Typography fontWeight={700} sx={{ mt: 0.25 }}>{value}</Typography></Box>)}
+                    </Box>
+                  ) : <Typography color="text.secondary" sx={{ mt: 1 }}>Khóa học chưa cấu hình bài kiểm tra.</Typography>}
+                </CardContent>
+              </Card>
+
+              <Card variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+                  <Box sx={{ p: { xs: 2.5, md: 3 }, pb: 2 }}>
+                    <Typography component="h2" variant="h6" fontWeight={850}>Học viên ghi danh</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>Tiến độ học và tình trạng chứng chỉ của từng học viên trong khóa này.</Typography>
+                  </Box>
+                  {courseEnrollments?.data.length ? <AdminDataTable<ApiEnrollment>
+                    label={`Học viên ghi danh khóa ${selectedCourse.title}`}
+                    rows={courseEnrollments.data}
+                    getRowKey={(enrollment) => enrollment.id}
+                    minWidth={860}
+                    columns={[
+                      { key: 'student', header: 'Học viên', render: (enrollment) => <Typography fontWeight={750}>{enrollment.user?.name ?? '—'}</Typography> },
+                      { key: 'email', header: 'Email', render: (enrollment) => <Typography variant="body2" sx={{ overflowWrap: 'anywhere' }}>{enrollment.user?.email ?? '—'}</Typography> },
+                      { key: 'enrolled', header: 'Ngày ghi danh', render: (enrollment) => <Typography sx={{ whiteSpace: 'nowrap' }}>{new Date(enrollment.enrolled_at).toLocaleDateString('vi-VN')}</Typography> },
+                      { key: 'progress', header: 'Trạng thái học', align: 'center', render: (enrollment) => enrollment.progress ? `${enrollment.progress.percent}%` : '—' },
+                      { key: 'certificate', header: 'Chứng chỉ', render: (enrollment) => enrollment.certificate?.certificate_code ?? '—' },
+                      { key: 'status', header: 'Trạng thái', render: (enrollment) => <StatusChip status={enrollment.status} /> },
+                    ] satisfies AdminColumn<ApiEnrollment>[]}
+                  /> : <Box sx={{ px: { xs: 2.5, md: 3 }, pb: 3 }}><EmptyState title={courseEnrollments ? 'Chưa có học viên ghi danh khóa này.' : 'Đang tải danh sách ghi danh...'} /></Box>}
+                </CardContent>
+              </Card>
+            </Stack>}
+
+            {isCourseEditorOpen && <Stack aria-label="Chỉnh sửa nội dung khóa học" spacing={3}>
               <Stepper nonLinear activeStep={courseStep} sx={{ px: { xs: 0, md: 4 }, py: 1 }}>
                 {['Thông tin cơ bản', 'Bài học & tài liệu', 'Bài kiểm tra'].map((label, index) => <Step key={label} completed={courseStep > index}><StepButton onClick={() => setCourseStep(index)} aria-current={courseStep === index ? 'step' : undefined}>{label}</StepButton></Step>)}
               </Stepper>
@@ -1076,47 +1151,10 @@ export function AdminPage() {
               </Stack>}
             </Stack>}
 
-            {courseWorkspaceTab === 'enrollments' && <Card role="tabpanel" aria-label="Học viên ghi danh" sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-              {courseEnrollments?.data.length ? <AdminDataTable<ApiEnrollment>
-                label={`Học viên ghi danh của ${selectedCourse.title}`}
-                rows={courseEnrollments.data}
-                getRowKey={(enrollment) => enrollment.id}
-                minWidth={980}
-                columns={[
-                  { key: 'number', header: 'STT', align: 'right', render: (enrollment) => ((courseEnrollments.meta.current_page - 1) * courseEnrollments.meta.per_page) + courseEnrollments.data.findIndex((item) => item.id === enrollment.id) + 1 },
-                  { key: 'studentId', header: 'Student ID', align: 'right', render: (enrollment) => enrollment.user_id ?? enrollment.user?.id ?? '—' },
-                  { key: 'account', header: 'Tài khoản', render: (enrollment) => enrollment.user?.email ?? '—' },
-                  { key: 'name', header: 'Học viên', render: (enrollment) => <Typography fontWeight={750}>{enrollment.user?.name ?? `Học viên #${enrollment.user_id}`}</Typography> },
-                  { key: 'order', header: 'Order ID', align: 'right', render: (enrollment) => enrollment.order_id ?? '—' },
-                  { key: 'learningStatus', header: 'Trạng thái học', render: (enrollment) => enrollment.progress?.percent === 100 ? 'Hoàn thành' : 'Đang học' },
-                  { key: 'certificate', header: 'Chứng chỉ', render: (enrollment) => enrollment.progress?.percent === 100 && enrollment.certificate ? enrollment.certificate.certificate_code : '—' },
-                ] satisfies AdminColumn<ApiEnrollment>[]}
-              /> : <EmptyState title="Khóa học chưa có học viên ghi danh." />}
-              {courseEnrollments && courseEnrollments.meta.last_page > 1 && <Pagination count={courseEnrollments.meta.last_page} page={courseEnrollments.meta.current_page} onChange={(_, page) => void loadCourseEnrollments(selectedCourse.id, page)} color="primary" sx={{ m: 2 }} />}
-            </CardContent></Card>}
-
-            {courseWorkspaceTab === 'reviews' && <Card role="tabpanel" aria-label="Đánh giá" sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-              {courseReviews?.data.length ? <AdminDataTable<ApiReview>
-                label={`Đánh giá của ${selectedCourse.title}`}
-                rows={courseReviews.data}
-                getRowKey={(review) => review.id}
-                minWidth={900}
-                stickyLastColumn
-                columns={[
-                  { key: 'student', header: 'Học viên', render: (review) => <Typography fontWeight={750}>{review.user.name}</Typography> },
-                  { key: 'rating', header: 'Điểm', align: 'center', render: (review) => `${review.rating}/5` },
-                  { key: 'comment', header: 'Nhận xét', render: (review) => <Typography variant="body2" sx={{ minWidth: 260, maxWidth: 420, overflowWrap: 'anywhere' }}>{review.comment || 'Không có nhận xét'}</Typography> },
-                  { key: 'submitted', header: 'Ngày gửi', render: (review) => new Date(review.created_at).toLocaleDateString('vi-VN') },
-                  { key: 'status', header: 'Trạng thái', render: (review) => <StatusChip status={review.status} /> },
-                  { key: 'actions', header: 'Thao tác', align: 'right', render: (review) => <Stack direction="row" spacing={0.5} justifyContent="flex-end"><Button size="small" variant="outlined" onClick={() => token && void runMutation(async () => { await adminRepositories.reviews.updateStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'); await loadCourseReviews(selectedCourse.id, courseReviewPage); }, 'Đã cập nhật trạng thái đánh giá.')}>{review.status === 'visible' ? 'Ẩn' : 'Hiện'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, async () => { await adminRepositories.reviews.remove(token, review.id); await loadCourseReviews(selectedCourse.id, courseReviewPage); }, 'Đã xóa đánh giá.')}>Xóa đánh giá</Button></Stack> },
-                ] satisfies AdminColumn<ApiReview>[]}
-              /> : <EmptyState title="Khóa học chưa có đánh giá." />}
-              {courseReviews && courseReviews.meta.last_page > 1 && <Pagination count={courseReviews.meta.last_page} page={courseReviewPage} onChange={(_, page) => void loadCourseReviews(selectedCourse.id, page)} color="primary" sx={{ m: 2 }} />}
-            </CardContent></Card>}
           </Stack>}
 
           {tab === 'news' && <Stack spacing={2}>
-            <Box component="section" role="region" aria-label="Bộ lọc tin tức" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(240px, 1.1fr) minmax(180px, .8fr) minmax(180px, .8fr) auto auto' }, gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+            {!isNewsEditorOpen && <Box component="section" role="region" aria-label="Bộ lọc tin tức" data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(240px, 1.1fr) minmax(180px, .8fr) minmax(180px, .8fr) auto auto' }, gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
               <TextField label="Tìm tin tức" value={newsQuery} onChange={(event) => setNewsQuery(event.target.value)} fullWidth />
               <FormControl fullWidth>
                 <InputLabel id="news-status-filter">Trạng thái tin tức</InputLabel>
@@ -1135,8 +1173,8 @@ export function AdminPage() {
               </FormControl>
               <Button variant="contained" onClick={applyNewsFilters} sx={{ whiteSpace: 'nowrap' }}>Áp dụng</Button>
               <Button variant="outlined" onClick={() => { setEditingNews(null); setNewsForm(blankNews); setIsNewsEditorOpen(true); }} sx={{ whiteSpace: 'nowrap', minWidth: 132 }}>Tạo tin tức mới</Button>
-            </Box>
-            <Card sx={{ borderRadius: 3, minWidth: 0 }}>
+            </Box>}
+            {!isNewsEditorOpen && <Card sx={{ borderRadius: 3, minWidth: 0 }}>
               <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
                 {news?.data.length ? <AdminDataTable<ApiNewsPost>
                   label="Danh sách tin tức"
@@ -1152,12 +1190,15 @@ export function AdminPage() {
                   ] satisfies AdminColumn<ApiNewsPost>[]}
                 /> : <EmptyState title="Không có tin tức phù hợp." />}
               </CardContent>
-            </Card>
-            {news && news.meta.last_page > 1 && <Pagination count={news.meta.last_page} page={appliedNewsFilters.page} onChange={(_, page) => setAppliedNewsFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
+            </Card>}
+            {!isNewsEditorOpen && news && news.meta.last_page > 1 && <Pagination count={news.meta.last_page} page={appliedNewsFilters.page} onChange={(_, page) => setAppliedNewsFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
             {isNewsEditorOpen && <Card component="form" onSubmit={submitNews} sx={{ borderRadius: 3 }}>
               <CardContent>
                 <Stack spacing={2}>
-                  <Typography component="h2" variant="h6" fontWeight={800}>{editingNews ? 'Sửa tin tức' : 'Tạo tin tức'}</Typography>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
+                    <Typography component="h2" variant="h6" fontWeight={800} sx={{ flexGrow: 1 }}>{editingNews ? 'Sửa tin tức' : 'Tạo tin tức'}</Typography>
+                    <Button onClick={() => { setEditingNews(null); setNewsForm(blankNews); setIsNewsEditorOpen(false); }}>Quay lại danh sách</Button>
+                  </Stack>
                   <TextField id="news-title" required label="Tiêu đề" value={newsForm.title} onChange={(event) => setNewsForm({ ...newsForm, title: event.target.value })} />
                   <TextField id="news-category" required label="Danh mục" value={newsForm.category} onChange={(event) => setNewsForm({ ...newsForm, category: event.target.value })} />
                   <TextField id="news-excerpt" required label="Tóm tắt" multiline minRows={2} value={newsForm.excerpt} onChange={(event) => setNewsForm({ ...newsForm, excerpt: event.target.value })} />

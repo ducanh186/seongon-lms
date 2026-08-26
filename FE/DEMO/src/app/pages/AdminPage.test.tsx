@@ -247,35 +247,43 @@ describe('AdminPage', () => {
       'ID',
       'Khóa học',
       'Danh mục',
-      'Cấp độ',
-      'Giảng viên',
       'Học phí',
-      'Bài học',
-      'Bài kiểm tra',
       'Ghi danh',
-      'Đánh giá',
       'Trạng thái',
-      'Ngày xuất bản',
       'Cập nhật',
+      'Thao tác',
     ]);
     const row = within(table).getByRole('row', { name: /SEO Foundation/ });
-    expect(within(row).getAllByRole('cell')).toHaveLength(13);
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(13);
+    expect(within(row).getAllByRole('cell')).toHaveLength(8);
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(8);
     expect(within(table).getByRole('columnheader', { name: 'Cập nhật' })).toHaveStyle({ paddingLeft: '12px', paddingRight: '12px' });
     expect(row).toHaveTextContent('SEO, Analytics');
-    expect(row).toHaveTextContent('SEONGON');
-    expect(row).toHaveTextContent('Đã cấu hình');
-    expect(row).toHaveTextContent('4.5/5');
-    await user.click(row);
-    expect(await screen.findByRole('tab', { name: 'Nội dung khóa học' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tab', { name: 'Học viên ghi danh' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Đánh giá' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Thông tin cơ bản' })).toHaveAttribute('aria-current', 'step');
-    expect(screen.getByRole('button', { name: 'Bài học & tài liệu' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Bài kiểm tra' })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /Tiêu đề/ })).toHaveValue('SEO Foundation');
+    expect(within(row).getByRole('button', { name: 'Mở thao tác cho SEO Foundation' })).toBeInTheDocument();
+    expect(row).not.toHaveTextContent('SEONGON');
+    await user.click(within(row).getByRole('button', { name: 'Mở thao tác cho SEO Foundation' }));
+    expect(screen.getByRole('menuitem', { name: 'Xem chi tiết' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Sửa khóa học' })).toBeInTheDocument();
+    await user.click(screen.getByRole('menuitem', { name: 'Xem chi tiết' }));
+    const detail = await screen.findByRole('region', { name: 'Thông tin khóa học SEO Foundation' });
+    expect(within(detail).getByText('2', { selector: '[data-course-metric="lessons"] *' })).toBeInTheDocument();
+    expect(within(detail).getByText('3', { selector: '[data-course-metric="questions"] *' })).toBeInTheDocument();
+    expect(within(detail).getByText('4', { selector: '[data-course-metric="enrollments"] *' })).toBeInTheDocument();
+    expect(within(detail).getByText('4.5/5', { selector: '[data-course-metric="rating"] *' })).toBeInTheDocument();
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: /Tiêu đề/ })).not.toBeInTheDocument();
     expect(adminCourse).toHaveBeenCalledWith('admin-token', 10);
+    // Course Detail loads enrollments scoped to this course only — never the
+    // unscoped global Ghi danh list.
+    expect(adminEnrollments).toHaveBeenCalledWith('admin-token', { course_id: 10, page: 1 });
 
+    await user.click(screen.getByRole('button', { name: 'Sửa khóa học' }));
+    expect(screen.getByRole('region', { name: 'Chỉnh sửa khóa học SEO Foundation' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Quay lại chi tiết' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Xóa khóa học' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Thông tin cơ bản' })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('textbox', { name: /Tiêu đề/ })).toHaveValue('SEO Foundation');
+
+    await user.click(screen.getByRole('button', { name: 'Quay lại chi tiết' }));
     await user.click(screen.getByRole('button', { name: 'Quay lại danh sách' }));
     await user.click(screen.getByRole('button', { name: 'Tạo khóa học mới' }));
     expect(await screen.findByRole('heading', { name: 'Tạo khóa học' })).toBeInTheDocument();
@@ -306,6 +314,25 @@ describe('AdminPage', () => {
       expect.objectContaining({ category_ids: [1, 2] }),
       10,
     ));
+    expect(await screen.findByText('Đã cập nhật khóa học.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Tin tức' }));
+    expect(screen.queryByText('Đã cập nhật khóa học.')).not.toBeInTheDocument();
+  });
+
+  it('opens the Course editor directly from the list action menu', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    const row = within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ });
+    await user.click(within(row).getByRole('button', { name: 'Mở thao tác cho SEO Foundation' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Sửa khóa học' }));
+
+    expect(await screen.findByRole('region', { name: 'Chỉnh sửa khóa học SEO Foundation' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Tiêu đề/ })).toHaveValue('SEO Foundation');
+    expect(adminCourse).toHaveBeenCalledWith('admin-token', 10);
   });
 
   it('creates a Course with multiple selected Categories', async () => {
@@ -373,7 +400,8 @@ describe('AdminPage', () => {
     expect(within(userToolbar).getByRole('button', { name: 'Áp dụng' })).toHaveStyle({ minWidth: '112px' });
 
     const table = await screen.findByRole('table', { name: 'Danh sách tài khoản' });
-    expect(table).toHaveStyle({ minWidth: '1200px' });
+    // Narrow enough to fit a normal desktop without horizontal scrolling.
+    expect(table).toHaveStyle({ minWidth: '980px' });
     expect(within(table).getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'Học viên',
       'Email',
@@ -483,7 +511,7 @@ describe('AdminPage', () => {
     expect(deleteCourse).toHaveBeenCalledWith('admin-token', 10);
   });
 
-  it('loads Course-scoped tabs and existing quiz questions without losing context', async () => {
+  it('opens existing quiz questions only after entering the Course editor', async () => {
     mockAdminData();
     render(<AdminPage />);
     const user = userEvent.setup();
@@ -491,35 +519,33 @@ describe('AdminPage', () => {
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
     await user.click(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ }));
 
+    expect(screen.queryByDisplayValue('Câu hỏi hiện có')).not.toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
     await user.click(await screen.findByRole('button', { name: 'Bài kiểm tra' }));
 
     expect(await screen.findByDisplayValue('Câu hỏi hiện có')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Đáp án đúng')).toBeInTheDocument();
     expect(adminCourse).toHaveBeenCalledWith('admin-token', 10);
+    // Course Detail loads enrollments scoped to this course only — never the
+    // unscoped global Ghi danh list.
     expect(adminEnrollments).toHaveBeenCalledWith('admin-token', { course_id: 10, page: 1 });
-
-    await user.click(screen.getByRole('tab', { name: 'Học viên ghi danh' }));
-    const enrollmentTable = await screen.findByRole('table', { name: 'Học viên ghi danh của SEO Foundation' });
-    expect(enrollmentTable).toHaveTextContent('learner@example.test');
-    expect(enrollmentTable).toHaveTextContent('Hoàn thành');
-    expect(enrollmentTable).toHaveTextContent('SEONGON-2026-ABC');
   });
 
-  it('keeps an unsaved Question draft when switching Course tabs', async () => {
+  it('keeps an unsaved Question draft while moving through Course editor steps', async () => {
     mockAdminData();
     render(<AdminPage />);
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
     await user.click(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ }));
+    await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
     await user.click(await screen.findByRole('button', { name: 'Bài kiểm tra' }));
     const question = await screen.findByDisplayValue('Câu hỏi hiện có');
     await user.clear(question);
     await user.type(question, 'Câu hỏi chưa lưu');
 
-    await user.click(screen.getByRole('tab', { name: 'Học viên ghi danh' }));
-    await screen.findByRole('table', { name: 'Học viên ghi danh của SEO Foundation' });
-    await user.click(screen.getByRole('tab', { name: 'Nội dung khóa học' }));
+    await user.click(screen.getByRole('button', { name: 'Thông tin cơ bản' }));
+    await user.click(screen.getByRole('button', { name: 'Bài kiểm tra' }));
 
     expect(screen.getByDisplayValue('Câu hỏi chưa lưu')).toBeInTheDocument();
     expect(adminCourse).toHaveBeenCalledTimes(1);
@@ -532,13 +558,14 @@ describe('AdminPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
     await user.click(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ }));
+    await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
     await user.click(await screen.findByRole('button', { name: 'Bài học & tài liệu' }));
     await user.click(await screen.findByRole('button', { name: 'Di chuyển bài học 1 xuống' }));
 
     expect(reorderLessons).toHaveBeenCalledWith('admin-token', 10, [9, 7]);
   });
 
-  it('loads and moderates reviews for the selected Course only after opening its Reviews tab', async () => {
+  it('shows the selected Course review aggregate without loading a separate Reviews workspace', async () => {
     mockAdminData();
     render(<AdminPage />);
     const user = userEvent.setup();
@@ -547,16 +574,10 @@ describe('AdminPage', () => {
     await user.click(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ }));
 
     expect(adminReviews).not.toHaveBeenCalled();
-    await user.click(screen.getByRole('tab', { name: 'Đánh giá' }));
-
-    expect(await screen.findByRole('table', { name: 'Đánh giá của SEO Foundation' })).toHaveTextContent('Nội dung thực tế và dễ áp dụng.');
-    expect(adminReviews).toHaveBeenCalledWith('admin-token', { course_id: 10, page: 1 });
-
-    await user.click(screen.getByRole('button', { name: 'Xóa đánh giá' }));
-    expect(screen.getByRole('dialog', { name: 'Xóa đánh giá Học viên SEO, 5/5?' })).toBeInTheDocument();
+    const detail = await screen.findByRole('region', { name: 'Thông tin khóa học SEO Foundation' });
+    expect(within(detail).getByText('2 đánh giá')).toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Đánh giá' })).not.toBeInTheDocument();
     expect(deleteReview).not.toHaveBeenCalled();
-    await user.click(screen.getByRole('button', { name: 'Xác nhận xóa' }));
-    await waitFor(() => expect(deleteReview).toHaveBeenCalledWith('admin-token', 81));
   });
 
   it('keeps unsaved basic information while moving through the three Course steps', async () => {
@@ -566,6 +587,7 @@ describe('AdminPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
     await user.click(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ }));
+    await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
     const title = screen.getByRole('textbox', { name: /Tiêu đề/ });
     await user.clear(title);
     await user.type(title, 'SEO Foundation đang sửa');

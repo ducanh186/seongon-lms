@@ -33,7 +33,7 @@ describe('AdminOverview', () => {
     expect(enrollmentChart).toHaveTextContent('2026-07: 12 lượt ghi danh');
     expect(enrollmentChart).toHaveStyle({ minHeight: '190px' });
     expect(screen.getByText('2026-07: 12 lượt ghi danh')).toHaveAttribute('data-visually-hidden', 'true');
-    expect(screen.getByText('07/26')).toHaveStyle({ writingMode: 'horizontal-tb' });
+    expect(screen.getByText('07/2026')).toHaveStyle({ writingMode: 'horizontal-tb' });
     const popularCoursesTable = screen.getByRole('table', { name: 'Khóa học phổ biến' });
     expect(popularCoursesTable).toHaveTextContent('SEO thực chiến');
     expect(popularCoursesTable).toHaveTextContent('01');
@@ -41,8 +41,16 @@ describe('AdminOverview', () => {
     expect(screen.getByTestId('popular-courses-table-container')).toHaveStyle({ maxWidth: '960px', marginLeft: 'auto', marginRight: 'auto', overflowX: 'auto' });
     expect(screen.getByText('25%')).toBeInTheDocument();
     expect(screen.getByTestId('completion-rate-card')).toHaveStyle({ alignSelf: 'start', width: '100%' });
-    expect(screen.getByText('Dữ liệu trực tiếp từ hệ thống')).toBeInTheDocument();
+    expect(screen.queryByText('Dữ liệu trực tiếp từ hệ thống')).not.toBeInTheDocument();
     expect(screen.queryByText(/ERD_PENDING/)).not.toBeInTheDocument();
+  });
+
+  it('does not apply a gray hover background to popular course rows', () => {
+    render(<AdminOverview stats={stats} />);
+
+    const rows = screen.getByRole('table', { name: 'Khóa học phổ biến' }).querySelectorAll('tbody tr');
+    expect(rows).toHaveLength(2);
+    rows.forEach((row) => expect(row.className).not.toMatch(/MuiTableRow-hover/));
   });
 
   it('renders explicit empty states for zero series and rankings', () => {

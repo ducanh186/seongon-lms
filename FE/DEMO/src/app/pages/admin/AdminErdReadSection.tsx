@@ -31,10 +31,13 @@ type Props = {
 
 const searchFilter: AdminReadFilter = { key: 'q', label: 'Tìm kiếm', kind: 'text' };
 const courseFilter: AdminReadFilter = { key: 'course_id', label: 'Mã khóa học', kind: 'number' };
-const examFilter: AdminReadFilter = { key: 'exam_id', label: 'Exam ID', kind: 'number' };
+const examFilter: AdminReadFilter = { key: 'exam_id', label: 'Mã bài kiểm tra', kind: 'number' };
 
 const date = (value: string | null | undefined) => value ? new Date(value).toLocaleDateString('vi-VN') : '—';
-const money = (value: string | number) => Number(value).toLocaleString('vi-VN') + ' đ';
+// Currency must never wrap between the amount and the đ symbol.
+const money = (value: string | number) => (
+  <Typography component="span" sx={{ whiteSpace: 'nowrap' }}>{Number(value).toLocaleString('vi-VN')} đ</Typography>
+);
 
 const identity = (name: string, email: string) => (
   <Stack spacing={0.25} sx={{ minWidth: 180 }}>
@@ -56,7 +59,7 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           loader={adminRepositories.roles.list}
           getRowKey={(role) => role.id}
           columns={[
-            { key: 'id', header: 'ID', align: 'right', render: (role) => role.id },
+            { key: 'id', header: 'ID', align: 'center', render: (role) => role.id },
             { key: 'code', header: 'Mã', render: (role) => role.code },
             { key: 'name', header: 'Vai trò', render: (role) => <Typography fontWeight={750}>{role.name}</Typography> },
             { key: 'description', header: 'Mô tả', render: (role) => role.description || '—' },
@@ -88,7 +91,7 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           loader={adminRepositories.carts.list}
           getRowKey={(cart) => cart.id}
           columns={[
-            { key: 'id', header: 'Cart ID', align: 'right', render: (cart) => cart.id },
+            { key: 'id', header: 'Mã giỏ hàng', align: 'center', render: (cart) => cart.id },
             { key: 'student', header: 'Học viên', render: (cart) => identity(cart.user.name, cart.user.email) },
             { key: 'items', header: 'Số mục', align: 'center', render: (cart) => cart.items_count },
             { key: 'total', header: 'Giá trị hiện tại', align: 'right', render: (cart) => money(cart.current_total) },
@@ -108,8 +111,8 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           loader={adminRepositories.cartItems.list}
           getRowKey={(item) => item.id}
           columns={[
-            { key: 'id', header: 'Item ID', align: 'right', render: (item) => item.id },
-            { key: 'cart', header: 'Cart ID', align: 'right', render: (item) => item.cart_id },
+            { key: 'id', header: 'Mã mục', align: 'center', render: (item) => item.id },
+            { key: 'cart', header: 'Mã giỏ hàng', align: 'center', render: (item) => item.cart_id },
             { key: 'student', header: 'Học viên', render: (item) => identity(item.user.name, item.user.email) },
             { key: 'course', header: 'Khóa học', render: (item) => <Typography fontWeight={750}>{item.course.title}</Typography> },
             { key: 'price', header: 'Giá hiện tại', align: 'right', render: (item) => money(item.course.price) },
@@ -145,8 +148,9 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           loader={adminRepositories.orders.list}
           getRowKey={(order) => order.id}
           columns={[
-            { key: 'id', header: 'Order ID', align: 'right', render: (order) => order.id },
+            { key: 'id', header: 'Mã đơn hàng', align: 'center', render: (order) => order.id },
             { key: 'student', header: 'Học viên', render: (order) => identity(order.user.name, order.user.email) },
+            { key: 'courseId', header: 'Mã khóa học', align: 'center', render: (order) => order.course.id },
             { key: 'course', header: 'Khóa học', render: (order) => order.course.title },
             { key: 'total', header: 'Tổng tiền', align: 'right', render: (order) => money(order.total_amount) },
             { key: 'status', header: 'Trạng thái', render: (order) => <Chip size="small" label={{ pending: 'Chờ thanh toán', paid: 'Đã thanh toán', failed: 'Thất bại' }[order.status]} color={order.status === 'paid' ? 'primary' : 'default'} /> },
@@ -163,14 +167,14 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           token={token}
           label="Danh sách gán danh mục"
           emptyTitle="Không có quan hệ danh mục phù hợp."
-          filters={[courseFilter, { key: 'category_id', label: 'Category ID', kind: 'number' }]}
+          filters={[courseFilter, { key: 'category_id', label: 'Mã danh mục', kind: 'number' }]}
           loader={adminRepositories.courseCategories.list}
           getRowKey={(assignment) => assignment.id}
           columns={[
-            { key: 'id', header: 'Pivot ID', align: 'right', render: (assignment) => assignment.id },
-            { key: 'courseId', header: 'Course ID', align: 'right', render: (assignment) => assignment.course_id },
+            { key: 'id', header: 'Mã gán', align: 'center', render: (assignment) => assignment.id },
+            { key: 'courseId', header: 'Mã khóa học', align: 'center', render: (assignment) => assignment.course_id },
             { key: 'course', header: 'Khóa học', render: (assignment) => <Typography fontWeight={750}>{assignment.course.title}</Typography> },
-            { key: 'categoryId', header: 'Category ID', align: 'right', render: (assignment) => assignment.category_id },
+            { key: 'categoryId', header: 'Mã danh mục', align: 'center', render: (assignment) => assignment.category_id },
             { key: 'category', header: 'Danh mục', render: (assignment) => assignment.category.name },
             { key: 'created', header: 'Ngày gán', render: (assignment) => date(assignment.created_at) },
           ] satisfies AdminColumn<ApiAdminCourseCategory>[]}
@@ -200,7 +204,7 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           loader={adminRepositories.learningProgress.list}
           getRowKey={(progress) => progress.id}
           columns={[
-            { key: 'id', header: 'Progress ID', align: 'right', render: (progress) => progress.id },
+            { key: 'id', header: 'Mã tiến độ', align: 'center', render: (progress) => progress.id },
             { key: 'student', header: 'Học viên', render: (progress) => identity(progress.user.name, progress.user.email) },
             { key: 'course', header: 'Khóa học', render: (progress) => progress.course.title },
             { key: 'lesson', header: 'Bài học', render: (progress) => <Typography fontWeight={750}>{progress.lesson.title}</Typography> },
@@ -222,7 +226,7 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           getRowKey={(question) => question.id}
           minWidth={1100}
           columns={[
-            { key: 'id', header: 'Question ID', align: 'right', render: (question) => question.id },
+            { key: 'id', header: 'Mã câu hỏi', align: 'center', render: (question) => question.id },
             { key: 'course', header: 'Khóa học', render: (question) => question.course.title },
             { key: 'exam', header: 'Bài kiểm tra', render: (question) => question.exam.title },
             { key: 'content', header: 'Câu hỏi', render: (question) => <Typography fontWeight={750} sx={{ minWidth: 260 }}>{question.content}</Typography> },
@@ -259,7 +263,7 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           getRowKey={(answer) => answer.id}
           minWidth={1200}
           columns={[
-            { key: 'id', header: 'Answer ID', align: 'right', render: (answer) => answer.id },
+            { key: 'id', header: 'Mã đáp án', align: 'center', render: (answer) => answer.id },
             { key: 'course', header: 'Khóa học', render: (answer) => answer.course.title },
             { key: 'exam', header: 'Bài kiểm tra', render: (answer) => answer.exam.title },
             { key: 'question', header: 'Câu hỏi', render: (answer) => <Typography sx={{ minWidth: 240 }}>{answer.question.content}</Typography> },

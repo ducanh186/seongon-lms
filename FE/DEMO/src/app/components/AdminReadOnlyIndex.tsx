@@ -11,6 +11,7 @@ import {
   Select,
   Stack,
   TextField,
+  Typography,
 } from '@mui/material';
 import type { Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from './AsyncState';
@@ -82,47 +83,73 @@ export function AdminReadOnlyIndex<T>({
     const next: Record<string, string | number | undefined> = { page: 1 };
     for (const filter of filters) {
       const value = drafts[filter.key]?.trim() ?? '';
-      next[filter.key] = value === ''
-        ? undefined
-        : numberKeys.has(filter.key) ? Number(value) : value;
+      if (value === '') {
+        next[filter.key] = undefined;
+        continue;
+      }
+      if (numberKeys.has(filter.key)) {
+        // Identifier controls are plain text inputs (no spinner), so anything can
+        // be typed. Number('abc') is NaN, which would serialise as `?id=NaN` and
+        // make the API 422 the whole section — drop it instead.
+        const parsed = Number(value);
+        next[filter.key] = Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+        continue;
+      }
+      next[filter.key] = value;
     }
     setApplied(next);
   };
 
+  // Identifiers and dates need far less room than names: sizing every control
+  // at 1fr is what pushed the filter bar onto three rows.
+  const weightFor = (kind: AdminReadFilter['kind']) =>
+    kind === 'number' ? 0.62 : kind === 'date' ? 0.8 : kind === 'select' ? 0.85 : 1.25;
+  const weights = filters.map((filter) => weightFor(filter.kind));
+  // CSS grid scales rather than distributes when the fr factors sum below 1, which
+  // would leave dead space (e.g. a lone `number` filter using 62% of the row).
+  const weightSum = weights.reduce((total, weight) => total + weight, 0);
+  const scale = weightSum > 0 && weightSum < 1 ? 1 / weightSum : 1;
+  const oneRowTemplate = `${weights.map((weight) => `minmax(0, ${(weight * scale).toFixed(3)}fr)`).join(' ')} auto`;
+
   return (
-    <Stack spacing={2} sx={{ minWidth: 0 }}>
-      {filters.length > 0 && (
-        <Box
-          component="section"
-          role="region"
-          aria-label={'Bộ lọc ' + label.toLowerCase()}
-          data-admin-toolbar="true"
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: {
-              xs: '1fr',
-              md: 'repeat(2, minmax(0, 1fr)) auto',
-              xl: `repeat(${filters.length}, minmax(0, 1fr)) auto`,
-            },
-            gap: 1.25,
-            alignItems: 'stretch',
-            p: 2,
-            bgcolor: 'background.paper',
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 3,
-          }}
-        >
-          {filters.map((filter) => filter.kind === 'select' ? (
-            <FormControl key={filter.key} fullWidth>
-              <InputLabel id={filter.key + '-filter-label'}>{filter.label}</InputLabel>
-              <Select
-                labelId={filter.key + '-filter-label'}
-                label={filter.label}
-                value={drafts[filter.key] ?? ''}
-                onChange={(event) => setDrafts((current) => ({ ...current, [filter.key]: event.target.value }))}
-              >
-                <MenuItem value="">Tất cả</MenuItem>
+    <Card sx={{ borderRadius: 3, minWidth: 0 }}>
+      <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+        <Stack spacing={2} sx={{ minWidth: 0, p: 2.5, pb: filters.length > 0 || error || loading ? 2.5 : 0 }}>
+          <Typography component="h2" variant="h6" fontWeight={800}>{label}</Typography>
+          {filters.length > 0 && (
+            <Box
+              component="section"
+              role="region"
+              aria-label={'Bộ lọc ' + label.toLowerCase()}
+              data-admin-toolbar="true"
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  md: 'repeat(2, minmax(0, 1fr)) auto',
+                  lg: oneRowTemplate,
+                },
+                gap: 1.25,
+                alignItems: 'stretch',
+                // Inside the card, but still a distinct surface: the acceptance
+                // checklist requires the filter bar to read as its own panel.
+                p: 1.75,
+                bgcolor: 'background.default',
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2.5,
+              }}
+            >
+              {filters.map((filter) => filter.kind === 'select' ? (
+                <FormControl key={filter.key} fullWidth>
+                  <InputLabel id={filter.key + '-filter-label'}>{filter.label}</InputLabel>
+                  <Select
+                    labelId={filter.key + '-filter-label'}
+                    label={filter.label}
+                    value={drafts[filter.key] ?? ''}
+                    onChange={(event) => setDrafts((current) => ({ ...current, [filter.key]: event.target.value }))}
+                  >
+                    <MenuItem value="">Tất cả</MenuItem>
                 {filter.options?.map((option) => (
                   <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
                 ))}
@@ -132,11 +159,18 @@ export function AdminReadOnlyIndex<T>({
             <TextField
               key={filter.key}
               label={filter.label}
-              type={filter.kind === 'number' ? 'number' : filter.kind === 'date' ? 'date' : 'text'}
-              inputProps={filter.kind === 'number' ? { min: 1 } : undefined}
+              // `number` filters are identifiers, not quantities: a spinner on an
+              // ID reads as "increment this record", so keep a text control with
+              // a numeric keypad hint instead.
+              type={filter.kind === 'date' ? 'date' : 'text'}
+              inputProps={filter.kind === 'number' ? { inputMode: 'numeric', pattern: '[0-9]*' } : undefined}
               InputLabelProps={filter.kind === 'date' ? { shrink: true } : undefined}
               value={drafts[filter.key] ?? ''}
-              onChange={(event) => setDrafts((current) => ({ ...current, [filter.key]: event.target.value }))}
+              onChange={(event) => {
+                const raw = event.target.value;
+                const value = filter.kind === 'number' ? raw.replace(/[^0-9]/g, '') : raw;
+                setDrafts((current) => ({ ...current, [filter.key]: value }));
+              }}
               fullWidth
             />
           ))}
@@ -144,35 +178,35 @@ export function AdminReadOnlyIndex<T>({
         </Box>
       )}
 
-      {error && <RequestError message={error} onRetry={() => void load()} />}
-      {loading && <PageSkeleton rows={4} />}
-      {!loading && !error && (
-        <Card sx={{ minWidth: 0 }}>
-          <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-            {data?.data.length ? (
-              <AdminDataTable<T>
-                label={label}
-                rows={data.data}
-                columns={columns}
-                getRowKey={getRowKey}
-                minWidth={minWidth}
-              />
-            ) : (
-              <EmptyState title={emptyTitle} />
-            )}
-          </CardContent>
-        </Card>
-      )}
+          {error && <RequestError message={error} onRetry={() => void load()} />}
+          {loading && <PageSkeleton rows={4} />}
+        </Stack>
 
-      {data && data.meta.last_page > 1 && (
-        <Pagination
-          count={data.meta.last_page}
-          page={Number(applied.page ?? 1)}
-          onChange={(_, page) => setApplied((current) => ({ ...current, page }))}
-          color="primary"
-          sx={{ alignSelf: 'center' }}
-        />
-      )}
-    </Stack>
+        {!loading && !error && (
+          data?.data.length ? (
+            <AdminDataTable<T>
+              label={label}
+              rows={data.data}
+              columns={columns}
+              getRowKey={getRowKey}
+              minWidth={minWidth}
+            />
+          ) : (
+            <Box sx={{ p: 2.5, pt: 0 }}><EmptyState title={emptyTitle} /></Box>
+          )
+        )}
+
+        {data && data.meta.last_page > 1 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+            <Pagination
+              count={data.meta.last_page}
+              page={Number(applied.page ?? 1)}
+              onChange={(_, page) => setApplied((current) => ({ ...current, page }))}
+              color="primary"
+            />
+          </Box>
+        )}
+      </CardContent>
+    </Card>
   );
 }
