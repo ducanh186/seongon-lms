@@ -16,6 +16,7 @@ import {
 import type { Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from './AsyncState';
 import { AdminDataTable, type AdminColumn } from './AdminDataTable';
+import { AdminFilterToolbar } from './AdminFilterToolbar';
 
 export type AdminReadFilter = {
   key: string;
@@ -36,6 +37,7 @@ export type AdminReadOnlyIndexProps<T> = {
   columns: AdminColumn<T>[];
   getRowKey: (row: T) => string | number;
   minWidth?: number;
+  fixedLayout?: boolean;
 };
 
 function initialDrafts(filters: AdminReadFilter[]): Record<string, string> {
@@ -51,6 +53,7 @@ export function AdminReadOnlyIndex<T>({
   columns,
   getRowKey,
   minWidth = 920,
+  fixedLayout = false,
 }: AdminReadOnlyIndexProps<T>) {
   const [drafts, setDrafts] = useState<Record<string, string>>(() => initialDrafts(filters));
   const [applied, setApplied] = useState<Record<string, string | number | undefined>>({ page: 1 });
@@ -100,17 +103,6 @@ export function AdminReadOnlyIndex<T>({
     setApplied(next);
   };
 
-  // Identifiers and dates need far less room than names: sizing every control
-  // at 1fr is what pushed the filter bar onto three rows.
-  const weightFor = (kind: AdminReadFilter['kind']) =>
-    kind === 'number' ? 0.62 : kind === 'date' ? 0.8 : kind === 'select' ? 0.85 : 1.25;
-  const weights = filters.map((filter) => weightFor(filter.kind));
-  // CSS grid scales rather than distributes when the fr factors sum below 1, which
-  // would leave dead space (e.g. a lone `number` filter using 62% of the row).
-  const weightSum = weights.reduce((total, weight) => total + weight, 0);
-  const scale = weightSum > 0 && weightSum < 1 ? 1 / weightSum : 1;
-  const oneRowTemplate = `${weights.map((weight) => `minmax(0, ${(weight * scale).toFixed(3)}fr)`).join(' ')} auto`;
-
   return (
     <Card sx={{ borderRadius: 3, minWidth: 0 }}>
       <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
@@ -118,24 +110,12 @@ export function AdminReadOnlyIndex<T>({
             single divider — the prototype's .table-toolbar + .data-table pattern.
             The band keeps its own surface, so the filter bar still reads as a
             distinct area without nesting a second border inside the card. */}
-        <Stack spacing={2} sx={{ minWidth: 0, p: 2.5, bgcolor: 'background.default', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Stack spacing={2} sx={{ minWidth: 0, p: 2.5, bgcolor: '#F8FBFC', borderBottom: '1px solid', borderColor: 'divider' }}>
           <Typography component="h2" variant="h6" fontWeight={800}>{label}</Typography>
           {filters.length > 0 && (
-            <Box
-              component="section"
-              role="region"
-              aria-label={'Bộ lọc ' + label.toLowerCase()}
-              data-admin-toolbar="true"
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: {
-                  xs: '1fr',
-                  md: 'repeat(2, minmax(0, 1fr)) auto',
-                  lg: oneRowTemplate,
-                },
-                gap: 1.25,
-                alignItems: 'stretch',
-              }}
+            <AdminFilterToolbar
+              label={'Bộ lọc ' + label.toLowerCase()}
+              action={<Button variant="contained" onClick={applyFilters}>Áp dụng</Button>}
             >
               {filters.map((filter) => filter.kind === 'select' ? (
                 <FormControl key={filter.key} fullWidth>
@@ -171,8 +151,7 @@ export function AdminReadOnlyIndex<T>({
               fullWidth
             />
           ))}
-          <Button variant="contained" onClick={applyFilters}>Áp dụng</Button>
-        </Box>
+        </AdminFilterToolbar>
       )}
 
         </Stack>
@@ -192,6 +171,7 @@ export function AdminReadOnlyIndex<T>({
               columns={columns}
               getRowKey={getRowKey}
               minWidth={minWidth}
+              fixedLayout={fixedLayout}
             />
           ) : (
             <Box sx={{ p: 2.5 }}><EmptyState title={emptyTitle} /></Box>

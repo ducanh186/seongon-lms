@@ -5,6 +5,7 @@ export type AdminColumn<T> = {
   key: string;
   header: string;
   align?: 'left' | 'center' | 'right';
+  width?: number;
   render: (row: T) => ReactNode;
 };
 
@@ -14,6 +15,7 @@ interface AdminDataTableProps<T> {
   rows: T[];
   getRowKey: (row: T) => string | number;
   minWidth?: number;
+  fixedLayout?: boolean;
   cellPaddingX?: number;
   stickyFirstColumn?: boolean;
   stickyLastColumn?: boolean;
@@ -26,6 +28,7 @@ export function AdminDataTable<T>({
   rows,
   getRowKey,
   minWidth = 680,
+  fixedLayout = false,
   cellPaddingX,
   stickyFirstColumn = true,
   stickyLastColumn = false,
@@ -54,6 +57,8 @@ export function AdminDataTable<T>({
         aria-label={label}
         sx={{
           minWidth,
+          width: '100%',
+          tableLayout: fixedLayout ? 'fixed' : 'auto',
           // Density copied from the prototype's .data-table: small uppercase
           // headers keep wide tables inside the viewport without scrolling.
           '& th': {
@@ -67,7 +72,11 @@ export function AdminDataTable<T>({
             py: 1.5,
             px: 2,
           },
-          '& td': { fontSize: 14, py: 1.75, px: 2 },
+          '& td': { fontSize: 14, py: 1.75, px: 2, overflowWrap: 'anywhere' },
+          ...(fixedLayout && {
+            '& th, & td': { px: cellPaddingX ?? 1.25 },
+            '& td .MuiTypography-root': { fontSize: 14 },
+          }),
           ...(stickyFirstColumn && {
             '& th:first-of-type, & td:first-of-type': {
               position: 'sticky',
@@ -92,7 +101,7 @@ export function AdminDataTable<T>({
         <TableHead>
           <TableRow>
             {columns.map((column) => (
-              <TableCell key={column.key} align={column.align} scope="col" sx={cellPaddingX !== undefined ? { px: cellPaddingX } : undefined}>
+              <TableCell key={column.key} align={column.align} scope="col" sx={{ width: column.width, ...(cellPaddingX !== undefined ? { px: cellPaddingX } : {}) }}>
                 {column.header}
               </TableCell>
             ))}

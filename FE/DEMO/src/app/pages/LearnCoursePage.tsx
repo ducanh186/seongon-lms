@@ -21,7 +21,7 @@ import {
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { useParams } from 'react-router';
-import { ApiError } from '../lib/api';
+import { ApiError, resolveMaterialUrl } from '../lib/api';
 import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiEnrollment, ApiLesson, ApiProgress, ApiQuiz } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
@@ -200,6 +200,11 @@ export function LearnCoursePage() {
               <Alert severity="info">Bài học này chưa có video.</Alert>
             )}
             {activeLesson?.description && <Typography color="text.secondary">{activeLesson.description}</Typography>}
+            {resolveMaterialUrl(activeLesson?.material_url) && (
+              <Button component="a" href={resolveMaterialUrl(activeLesson?.material_url)} target="_blank" rel="noopener noreferrer" variant="outlined" sx={{ alignSelf: 'flex-start' }}>
+                Mở tài liệu PDF
+              </Button>
+            )}
             {activeLesson && (
               <Button
                 variant={activeLesson.is_completed ? 'outlined' : 'contained'}

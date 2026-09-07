@@ -14,6 +14,8 @@ use App\Models\Review;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminManagementTest extends TestCase
@@ -278,11 +280,65 @@ class AdminManagementTest extends TestCase
             ],
         ])->assertCreated()->assertJsonCount(2, 'options');
 
-        $this->withToken($token)->patchJson("/api/v1/admin/users/{$student->id}/status", ['status' => 'locked'])
+        $this->withToken($token)->patchJson("/api/v1/admin/users/{$student->id}/status", [
+            'status' => 'locked',
+            'reason' => 'Khóa tài khoản thử nghiệm.',
+        ])
             ->assertOk()->assertJsonPath('data.status', 'locked');
 
         $this->withToken($token)->getJson('/api/v1/admin/dashboard/stats')
             ->assertOk()->assertJsonPath('students', 1)->assertJsonPath('courses', 1);
+    }
+
+    public function test_admin_status_change_is_recorded_and_can_be_read_for_one_user(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create(['status' => 'active']);
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->patchJson("/api/v1/admin/users/{$student->id}/status", [
+            'status' => 'locked',
+            'reason' => 'Vi phạm quy định lớp học.',
+        ])->assertOk()->assertJsonPath('data.status', 'locked');
+
+        $this->assertDatabaseHas('user_records', [
+            'user_id' => $student->id,
+            'old_status' => 'active',
+            'new_status' => 'locked',
+            'reason' => 'Vi phạm quy định lớp học.',
+        ]);
+
+        $this->withToken($token)->getJson("/api/v1/admin/users/{$student->id}/records")
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.old_status', 'active')
+            ->assertJsonPath('data.0.new_status', 'locked')
+            ->assertJsonPath('data.0.reason', 'Vi phạm quy định lớp học.');
+    }
+
+    public function test_admin_can_upload_a_pdf_material_when_creating_a_lesson(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $response = $this->withToken($token)->post("/api/v1/admin/courses/{$course->id}/lessons", [
+            'title' => 'Bài học có tài liệu',
+            'video_url' => 'https://www.youtube.com/embed/example',
+            'material' => UploadedFile::fake()->create('tai-lieu.pdf', 128, 'application/pdf'),
+        ]);
+
+        $response->assertCreated();
+        $materialUrl = $response->json('data.material_url');
+
+        $this->assertIsString($materialUrl);
+        $this->assertStringStartsWith('/storage/lesson-materials/', $materialUrl);
+        $this->assertDatabaseHas('lessons', [
+            'id' => $response->json('data.id'),
+            'material_url' => $materialUrl,
+        ]);
+        Storage::disk('public')->assertExists(str_replace('/storage/', '', $materialUrl));
     }
 
     public function test_admin_can_moderate_a_review(): void

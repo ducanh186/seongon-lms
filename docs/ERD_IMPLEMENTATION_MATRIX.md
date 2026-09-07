@@ -1,180 +1,62 @@
-# Ma trận triển khai ERD
+# Ma trận triển khai ERD mới
 
-Tài liệu này đối chiếu 15 bảng lõi đã được duyệt trong `docs/ERD_P1.png` với database, Eloquent, Service, API, màn hình Admin và luồng Public/Student thực tế.
+Nguồn đối chiếu hiện hành là `docs/ERD_P1.png`. Ảnh ERD mới thay thế baseline 15 bảng trước đây và bổ sung `User_records`, `Catalogs`, `News_catalogs`, `News`, `Lessons.material_url` cùng các trường nghiệp vụ trên `Enrollments`.
 
-## 1. Cách đọc trạng thái
+## Trạng thái
 
 | Trạng thái | Ý nghĩa |
 |---|---|
-| `CHƯA CÓ` | Chưa có bảng hoặc chưa có luồng sử dụng. |
-| `MỘT PHẦN` | Chức năng đã chạy nhưng còn tên/cột compatibility hoặc còn contract phase. |
-| `ĐẠT ADMIN` | Đã có bảng, quan hệ, API và màn hình Admin dùng dữ liệu thật. |
-| `HOÀN TẤT` | Đã hoàn thành toàn bộ migration, runtime và contract cuối; không còn compatibility cũ. |
+| `ĐÃ DÙNG` | Database, model/API và luồng hiện tại đã sử dụng. |
+| `MỘT PHẦN` | Có chức năng tương ứng nhưng còn storage/contract compatibility. |
+| `CHƯA MAP` | ERD có đối tượng nhưng implementation chưa chuyển sang cấu trúc đó. |
+| `CẦN CHỐT` | Tên cột hoặc quan hệ trên ERD chưa đủ rõ; không tự tạo migration. |
 
-**Trạng thái hiện tại:** cả 15 đối tượng đều đã đạt phạm vi Admin. Schema vẫn ở giai đoạn expand/migrate an toàn; D4, D5, cột compatibility và contract phase cuối chưa được loại bỏ.
+## Ma trận đối chiếu
 
-## 2. Ma trận 15 đối tượng lõi
+| Đối tượng ERD | Mapping hiện tại | Trạng thái |
+|---|---|---|
+| `Roles` | `roles`, `users.role_id`; Admin đổi vai trò tài khoản | `ĐÃ DÙNG` |
+| `Users` | `users`; Auth, hồ sơ, tài khoản Admin | `ĐÃ DÙNG` |
+| `User_records` | Lưu `user_id`, trạng thái cũ/mới, lý do và thời điểm mỗi lần Admin khóa/mở tài khoản; có API và hộp thoại lịch sử | `ĐÃ DÙNG` |
+| `Carts` | Giỏ hàng theo User | `ĐÃ DÙNG` |
+| `Cart_items` | Các Course trong Cart | `ĐÃ DÙNG` |
+| `Orders` | Một Order gắn một Course theo contract hiện tại | `ĐÃ DÙNG` |
+| `Categories` | Danh mục Course | `ĐÃ DÙNG` |
+| `Course_categories` | Quan hệ nhiều-nhiều Course–Category | `ĐÃ DÙNG` |
+| `Courses` | CRUD, `status = draft | published`, giao diện quản lý theo Course | `ĐÃ DÙNG` |
+| `Lessons` | Nội dung, video và `material_url`; Admin có thể tải PDF tối đa 10 MB | `ĐÃ DÙNG` |
+| `Exams` | Bài kiểm tra thuộc Course | `ĐÃ DÙNG` |
+| `Questions` | Câu hỏi thuộc Exam | `ĐÃ DÙNG` |
+| `Answers` | Đáp án thuộc Question | `ĐÃ DÙNG` |
+| `Enrollments` | Liên kết User–Course–Order; tiến độ học | `MỘT PHẦN` |
+| `Learning_progress` | Tiến độ theo Enrollment và Lesson | `ĐÃ DÙNG` |
+| `Attempts` | Kết quả làm Exam theo Enrollment | `ĐÃ DÙNG` |
+| `Catalogs` | Chức năng tin tức hiện vẫn dùng category trong `news_posts` | `CHƯA MAP` |
+| `News` | Chức năng hiện vẫn dùng bảng compatibility `news_posts` | `MỘT PHẦN` |
+| `News_catalogs` | Tên cột quan hệ trong ảnh chưa khớp ngữ nghĩa News–Catalog | `CẦN CHỐT` |
 
-| Đối tượng ERD | Database và quan hệ | Service | API | Admin | Public/Student | Trạng thái |
-|---|---|---|---|---|---|---|
-| **Roles** | `roles`; `Role::users`, `User::role` | `RoleService` đọc Admin | `GET /admin/roles`; cập nhật qua User API | Quản lý ngay trong cột Role của bảng Tài khoản | Nền tảng phân quyền | `ĐẠT ADMIN` |
-| **Users** | `users`; liên kết Role, Orders, Enrollments | Chưa tách `UserService` riêng | Auth/Profile và `/admin/users` | Một bảng tài khoản thật, lọc, đổi Role và khóa/mở | Đăng nhập, hồ sơ | `ĐẠT ADMIN` |
-| **Carts** | `carts`; `Cart::user/items` | `CartService` | Student `/cart*`; Admin API vẫn quan sát được | Không chiếm mục sidebar riêng; kiểm tra qua DB/API | Cart đăng nhập lấy DB làm nguồn chính | `ĐẠT ADMIN` |
-| **Cart_items** | `cart_items`; liên kết Cart, Course, User; unique `(cart_id, course_id)` | `CartService` | Student `/cart/items*`; Admin API vẫn quan sát được | Không chiếm mục sidebar riêng; kiểm tra qua DB/API | Header, Cart và Checkout dùng chung API state | `ĐẠT ADMIN` |
-| **Orders** | `orders`; liên kết User, Course, Enrollment | `OrderService` | Tạo/thanh toán Student; `/admin/orders` | Danh sách chỉ đọc | Checkout một Course cho mỗi Order | `ĐẠT ADMIN` |
-| **Categories** | `categories`; quan hệ nhiều-nhiều Course qua pivot | Logic hiện trong controller | Public và `/admin/categories` | CRUD dữ liệu thật | Lọc Public Catalog | `ĐẠT ADMIN` |
-| **Course_categories** | `course_categories`; liên kết Course và Category | `CourseService::sync` và đọc Admin | `/admin/course-categories`; ghi qua Course API | Quản lý trong form Course bằng multi-select, không có trang pivot riêng | Catalog đọc quan hệ pivot | `ĐẠT ADMIN` |
-| **Courses** | `courses`; Categories, Lessons, Exam, Enrollments | `CourseService` tạo, sửa, publish, đọc | Public và `/admin/courses` | Bảng 13 trường thật/tổng hợp và trình sửa nội dung lồng | Catalog và Course Detail | `ĐẠT ADMIN` |
-| **Enrollments** | `enrollments`; User, Course, Order, Progress, Attempts | `EnrollmentService` | `/my/courses*`; `/admin/enrollments` | Danh sách chỉ đọc | Quyền truy cập khóa học | `ĐẠT ADMIN` |
-| **Exams** | `exams`; Course, Questions, Attempts | `ExamGradingService`, `LearningOperationsService` | API Student; `/admin/exams`; write lồng trong Course | Danh sách thật và trình sửa Course lồng | Làm và chấm bài kiểm tra | `ĐẠT ADMIN` |
-| **Questions** | `questions`; Exam, Answers | `LearningOperationsService` đọc Admin | `/admin/questions`; write lồng theo Exam | Danh sách thật và mở trình sửa Exam | Hiển thị câu hỏi | `ĐẠT ADMIN` |
-| **Answers** | `answers`; liên kết Question | `LearningOperationsService` đọc Admin | `/admin/answers`; payload lồng theo Question | Danh sách thật, thể hiện đáp án đúng/sai | Lựa chọn trả lời | `ĐẠT ADMIN` |
-| **Learning_progress** | `learning_progress`; Enrollment, Lesson | `ProgressService`, `LearningOperationsService` | Hoàn thành Lesson; `/admin/learning-progress` | Danh sách chỉ đọc | Theo dõi tiến độ học | `ĐẠT ADMIN` |
-| **Attempts** | `attempts`; Enrollment, Exam | `ExamGradingService`, `LearningOperationsService` | Submit/result; `/admin/attempts` | Danh sách kết quả chỉ đọc | Lịch sử làm Exam | `ĐẠT ADMIN` |
-| **Lessons** | `lessons`; Course, Learning progress | `LearningOperationsService` đọc Admin | Student Lessons; `/admin/lessons`; write lồng | Danh sách thật và trình sửa Course lồng | Không gian học tập | `ĐẠT ADMIN` |
+## Các thay đổi đã triển khai theo transcript
 
-## 3. Kiến trúc thông tin Admin
+- Admin xem lịch sử khóa/mở của từng tài khoản và bắt buộc nhập lý do khi đổi trạng thái.
+- Trang Course dùng hành động trực tiếp `Xem chi tiết` và `Sửa khóa học`; không phụ thuộc hover hoặc menu ẩn.
+- Chi tiết Course hiển thị trực tiếp `Sửa khóa học`, đổi trạng thái xuất bản và `Xóa khóa học`.
+- Đánh giá được hiển thị trong Course đang chọn; vẫn reuse storage `reviews` để giữ compatibility.
+- Trình sửa Lesson nhận tài liệu PDF và lưu URL vào `Lessons.material_url`.
+- Bộ lọc Course nằm cùng card với bảng, có độ rộng cân bằng; nút tạo Course được nhấn mạnh.
+- Cột tổng tiền dùng số tabular, không xuống dòng và căn phải.
 
-Mẫu WooCommerce/WordPress chỉ được dùng để tham khảo cách tổ chức Admin và tương tác CRUD. Domain chính vẫn là Course, không đổi thành Product.
+## Compatibility đang được giữ
 
-```text
-SEONGON ADMIN
-├─ Dashboard
-├─ Tài khoản
-│  └─ Tài khoản (có cột Vai trò)
-├─ Thương mại
-│  └─ Đơn hàng
-├─ Quản lý khóa học
-│  ├─ Danh mục
-│  ├─ Khóa học
-│  └─ Bài học
-├─ Học tập
-│  ├─ Ghi danh
-│  └─ Tiến độ học tập
-├─ Kiểm tra
-│  ├─ Bài kiểm tra
-│  ├─ Câu hỏi
-│  ├─ Đáp án
-│  └─ Kết quả bài kiểm tra
-└─ Mở rộng
-   ├─ Chứng chỉ
-   ├─ Đánh giá
-   └─ Tin tức
-```
+- `users.status` là snapshot trạng thái hiện tại dùng cho Auth; `User_records` là lịch sử bất biến. Ảnh ERD mới chưa thể hiện rõ snapshot này.
+- `reviews` và `certificates` vẫn được giữ để không phá dữ liệu/API hiện có, dù ERD mới đưa thông tin đánh giá/chứng chỉ vào `Enrollments`.
+- `news_posts` vẫn hoạt động cho đến khi quan hệ `News`–`Catalogs` được xác nhận.
+- Các alias/bảng chuyển tiếp của Exam và Learning progress chỉ được xóa trong một contract migration riêng sau khi kiểm tra dữ liệu.
 
-Các màn hình dùng chung `AdminShell`, sidebar cố định theo nhóm, `AdminDataTable` và trạng thái đang tải/rỗng/lỗi. Đối tượng có thể chỉnh sửa dùng editor hiện có; dữ liệu giao dịch và lịch sử dùng danh sách chỉ đọc có filter và pagination.
+## Câu hỏi bắt buộc chốt với mentor
 
-Các màn hình chủ động chỉ đọc gồm: **Orders, Enrollments, Learning_progress, Attempts**. `Carts`, `Cart_items` và `Course_categories` vẫn có API/DB để đối chiếu ERD nhưng được quản lý qua luồng nghiệp vụ tương ứng, không chiếm mục sidebar riêng.
+1. `News_catalogs` có phải dùng `news_id` và `catalog_id` không? Ảnh hiện thể hiện tên cột không khớp quan hệ này.
+2. Có giữ `users.status` làm trạng thái hiện tại, đồng thời dùng `User_records` làm audit log không?
+3. Có migration dữ liệu từ `reviews`/`certificates` sang các trường tương ứng trên `Enrollments`, rồi mới contract bảng cũ không?
+4. Các trường `title`, `pass_score`, `max_attempts`, `total_questions`, `duration_minutes` trên `Enrollments` là snapshot tại thời điểm ghi danh hay phải đọc trực tiếp từ Course/Exam?
 
-## 4. Luồng dữ liệu chính
-
-### 4.1. Khóa học và nhiều danh mục
-
-```text
-AdminPage
-→ adminRepositories
-→ Admin Course API
-→ CourseController
-→ CourseService
-→ Eloquent
-→ courses + course_categories
-→ Public Course API
-→ Public Catalog
-```
-
-`course_categories` là quan hệ nhiều-nhiều có thẩm quyền. `courses.category_id` chỉ mirror Category đầu để tương thích writer cũ trong thời gian chuyển tiếp.
-
-ERD không có `courses.published_at`. Cột "Ngày xuất bản" ở Admin trả `updated_at` khi Course đang `published`, và trả `null` khi Course là draft; đây là giá trị dẫn xuất, không phải cột database mới.
-
-### 4.2. Giỏ hàng và thanh toán
-
-```text
-Student UI
-→ Cart API
-→ CartController
-→ CartService
-→ carts + cart_items
-→ Order/payment
-→ orders
-→ enrollments
-→ xóa cart_items đã mua
-```
-
-ERD không có `order_items`, vì vậy một Cart có thể chứa nhiều Courses nhưng mỗi Order vẫn đại diện cho một Course.
-
-Form tạo đơn dùng `users.name`, `users.email` và `users.phone`. Không thêm địa chỉ giao hàng, mã bưu điện hoặc coupon vì khóa học được cung cấp trực tuyến và approved ERD không có nơi lưu các trường thương mại vật lý này.
-
-### 4.3. Học tập và kiểm tra
-
-```text
-Enrollment
-├─ Learning_progress → Lesson
-└─ Attempt → Exam → Question → Answer
-```
-
-## 5. Trạng thái expand → migrate → contract
-
-### 5.1. Vai trò và người dùng
-
-- Đã thêm `roles` và `users.role_id`.
-- Đã backfill Role cho Users hiện có.
-- Cột `users.role` cũ vẫn còn để tương thích.
-- Contract sau cùng mới được phép xóa cột cũ khi toàn bộ reader/writer đã chuyển sang `role_id`.
-
-### 5.2. Khóa học và danh mục
-
-- Đã thêm và backfill `course_categories`.
-- Course create/edit ghi nhiều Category bằng `categories()->sync()`.
-- Public Catalog và Admin đọc Categories từ pivot.
-- `courses.category_id` vẫn mirror Category đầu; chưa xóa ở milestone này.
-
-### 5.3. Bài kiểm tra, câu hỏi và đáp án
-
-- `quizzes` đã chuyển tên thành `exams`.
-- `question_options` đã chuyển tên thành `answers`.
-- `quiz_attempts` đã chuyển thành `attempts` và dùng `exam_id`, `attempt_number`.
-- Các alias compatibility chỉ được xóa trong contract phase riêng.
-
-### 5.4. Tiến độ học tập
-
-- `learning_progress` là bảng đích theo ERD.
-- `lesson_progress` còn tồn tại tạm thời để tương thích rollout.
-- Reader Admin đọc trực tiếp `learning_progress`.
-- Chỉ xóa bảng cũ sau verification window và catch-up backfill cuối.
-
-### 5.5. Đơn hàng và ghi danh
-
-- `Enrollment` tiếp tục là chủ sở hữu quyền học giữa User và Course.
-- `enrollments.order_id` cho phép null để hỗ trợ Admin grant mà không tạo Order 0 đồng giả.
-- `enrollments.user_id` được giữ theo quyết định kiến trúc hiện tại.
-- Không tạo bảng `order_items` ngoài ERD.
-
-## 6. Quy tắc dữ liệu hiển thị ở Admin
-
-Mọi giá trị hiển thị phải thuộc một trong ba nhóm:
-
-1. Cột thật của bảng.
-2. Quan hệ thật từ Eloquent/ERD.
-3. Aggregate tính từ database như `COUNT`, `AVG`, `EXISTS`.
-
-Không thêm cột database chỉ để làm đẹp bảng Admin. Transaction/history không có thao tác xóa tùy tiện.
-
-## 7. Bảng ngoài ERD lõi
-
-Các bảng sau được giữ vì chức năng hiện có nhưng không được tính vào 15 bảng lõi:
-
-- `reviews`: đánh giá khóa học.
-- `news_posts`: tin tức và kiến thức.
-- `certificates`: chứng chỉ.
-- Các bảng Laravel infrastructure: migrations, cache, jobs, sessions, tokens và bảng hỗ trợ khác.
-- `lesson_progress`: compatibility tạm thời trong giai đoạn chuyển tiếp.
-
-Vì vậy phpMyAdmin có nhiều hơn 15 bảng là đúng. Yêu cầu nghiệm thu là 15 bảng lõi phải tồn tại, quan hệ đúng và có bề mặt quản trị tương ứng; không phải toàn database chỉ được có đúng 15 bảng.
-
-## 8. Điều kiện để chuyển sang `HOÀN TẤT`
-
-- Tất cả writer cũ đã dừng ghi vào cột/bảng compatibility.
-- Catch-up backfill cuối đã chạy và được kiểm tra.
-- Toàn bộ test backend/frontend và manual test đều xanh.
-- Có deployment contract riêng để xóa legacy identifiers.
-- Không thay đổi 15 bảng ERD đã được duyệt và không phát minh bảng core mới.
+Không tạo thêm schema hoặc tự đổi quan hệ cho bốn điểm trên trước khi có câu trả lời.

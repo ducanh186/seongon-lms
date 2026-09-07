@@ -31,6 +31,7 @@ export const adminRepositories = {
   },
   users: {
     list: api.adminUsers,
+    records: api.adminUserRecords,
     updateStatus: api.updateUserStatus,
     updateRole: api.updateUserRole,
   },

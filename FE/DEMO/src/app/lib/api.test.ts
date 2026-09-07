@@ -1,7 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ApiError, api, apiRequest } from './api';
+import { ApiError, api, apiRequest, resolveMaterialUrl } from './api';
 
 describe('apiRequest', () => {
+  it('resolves stored PDF paths against the API host, not the frontend host', () => {
+    const origin = new URL(import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1', window.location.origin).origin;
+    expect(resolveMaterialUrl('/storage/lesson-materials/guide.pdf')).toBe(`${origin}/storage/lesson-materials/guide.pdf`);
+    expect(resolveMaterialUrl('https://cdn.example.test/guide.pdf')).toBe('https://cdn.example.test/guide.pdf');
+    expect(resolveMaterialUrl('javascript:alert(1)')).toBeUndefined();
+  });
   afterEach(() => {
     vi.unstubAllGlobals();
   });
@@ -97,6 +103,47 @@ describe('apiRequest', () => {
     expect(responseBlob).toHaveBeenCalledOnce();
     expect(certificate).toBe(certificateBlob);
     expect(certificate.type).toBe('application/pdf');
+  });
+
+  it('sends lesson material as FormData without forcing a JSON content type', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: { id: 9, material_url: '/storage/lesson-materials/guide.pdf' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const body = new FormData();
+    body.append('title', 'Lesson with PDF');
+    body.append('material', new File(['pdf'], 'guide.pdf', { type: 'application/pdf' }));
+
+    await api.saveLesson('admin-token', body, 41);
+
+    const [url, request] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toMatch(/\/admin\/courses\/41\/lessons$/);
+    expect(request.body).toBe(body);
+    expect((request.headers as Headers).get('Content-Type')).toBeNull();
+    expect((request.headers as Headers).get('Authorization')).toBe('Bearer admin-token');
+  });
+
+  it('uses Laravel method spoofing when updating a Lesson with multipart data', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: { id: 9, material_url: '/storage/lesson-materials/guide.pdf' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const body = new FormData();
+    body.append('title', 'Updated Lesson');
+    body.append('material', new File(['pdf'], 'guide.pdf', { type: 'application/pdf' }));
+
+    await api.saveLesson('admin-token', body, 41, 9);
+
+    const [url, request] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toMatch(/\/admin\/lessons\/9$/);
+    expect(request.method).toBe('POST');
+    expect((request.body as FormData).get('_method')).toBe('PUT');
   });
 
   it('maps a rejected certificate download into an ApiError', async () => {

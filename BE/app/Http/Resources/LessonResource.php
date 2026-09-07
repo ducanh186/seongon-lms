@@ -14,6 +14,7 @@ class LessonResource extends JsonResource
             'course_id' => $this->course_id,
             'title' => $this->title,
             'video_url' => $this->video_url,
+            'material_url' => $this->material_url,
             'description' => $this->description,
             'duration' => $this->duration,
             'position' => $this->position,

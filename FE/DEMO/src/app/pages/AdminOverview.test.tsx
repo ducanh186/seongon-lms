@@ -22,6 +22,13 @@ const stats: ApiAdminStats = {
 };
 
 describe('AdminOverview', () => {
+  it('fills the dashboard summary with real published and draft course counts', () => {
+    render(<AdminOverview stats={stats} />);
+    const summary = screen.getByRole('region', { name: 'Trạng thái khóa học' });
+    expect(summary).toHaveTextContent('9 / 12');
+    expect(summary).toHaveTextContent('3 bản nháp');
+  });
+
   it('renders real KPI, accessible monthly values, and popular course ranking', () => {
     render(<AdminOverview stats={stats} />);
 

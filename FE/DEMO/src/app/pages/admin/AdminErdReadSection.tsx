@@ -127,6 +127,8 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           key={section}
           token={token}
           label="Danh sách đơn hàng"
+          minWidth={0}
+          fixedLayout
           emptyTitle="Không có đơn hàng phù hợp."
           filters={[
             { key: 'order_id', label: 'Mã đơn hàng', kind: 'number' },
@@ -148,13 +150,13 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
           loader={adminRepositories.orders.list}
           getRowKey={(order) => order.id}
           columns={[
-            { key: 'id', header: 'Mã đơn hàng', align: 'center', render: (order) => order.id },
-            { key: 'student', header: 'Học viên', render: (order) => identity(order.user.name, order.user.email) },
-            { key: 'courseId', header: 'Mã khóa học', align: 'center', render: (order) => order.course.id },
+            { key: 'id', header: 'Mã đơn hàng', width: 108, align: 'center', render: (order) => order.id },
+            { key: 'student', header: 'Học viên', width: 195, render: (order) => identity(order.user.name, order.user.email) },
+            { key: 'courseId', header: 'Mã khóa học', width: 106, align: 'center', render: (order) => order.course.id },
             { key: 'course', header: 'Khóa học', render: (order) => order.course.title },
-            { key: 'total', header: 'Tổng tiền', align: 'right', render: (order) => money(order.total_amount) },
-            { key: 'status', header: 'Trạng thái', render: (order) => <Chip size="small" label={{ pending: 'Chờ thanh toán', paid: 'Đã thanh toán', failed: 'Thất bại' }[order.status]} color={order.status === 'paid' ? 'primary' : 'default'} /> },
-            { key: 'created', header: 'Ngày tạo', render: (order) => date(order.created_at) },
+            { key: 'total', header: 'Tổng tiền', width: 120, align: 'center', render: (order) => <Typography sx={{ whiteSpace: 'nowrap', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{Number(order.total_amount).toLocaleString('vi-VN')} đ</Typography> },
+            { key: 'status', header: 'Trạng thái', width: 132, render: (order) => <Chip size="small" label={{ pending: 'Chờ thanh toán', paid: 'Đã thanh toán', failed: 'Thất bại' }[order.status]} color={order.status === 'paid' ? 'primary' : 'default'} /> },
+            { key: 'created', header: 'Ngày tạo', width: 112, render: (order) => <Typography sx={{ whiteSpace: 'nowrap' }}>{date(order.created_at)}</Typography> },
           ] satisfies AdminColumn<ApiAdminOrder>[]}
         />
       );

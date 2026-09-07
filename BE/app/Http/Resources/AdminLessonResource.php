@@ -16,6 +16,7 @@ class AdminLessonResource extends JsonResource
             'position' => $this->position,
             'duration' => $this->duration,
             'video_url' => $this->video_url,
+            'material_url' => $this->material_url,
             'learning_progress_count' => $this->learning_progress_count,
             'course' => new CourseResource($this->whenLoaded('course')),
             'created_at' => $this->created_at,

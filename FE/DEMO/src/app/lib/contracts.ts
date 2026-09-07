@@ -27,6 +27,15 @@ export interface ApiUser {
   enrollments_count?: number;
 }
 
+export interface ApiUserRecord {
+  id: number;
+  user_id: number;
+  old_status: 'active' | 'locked';
+  new_status: 'active' | 'locked';
+  reason: string;
+  created_at: string;
+}
+
 export interface ApiCategory {
   id: number;
   name: string;
@@ -40,6 +49,7 @@ export interface ApiLesson {
   course_id: number;
   title: string;
   video_url: string;
+  material_url: string | null;
   description: string | null;
   duration: number | null;
   position: number;

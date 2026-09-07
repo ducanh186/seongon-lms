@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\UserRecordResource;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -46,11 +48,27 @@ class UserController extends Controller
     {
         $data = $request->validate([
             'status' => ['required', 'in:active,locked'],
+            'reason' => ['required', 'string', 'max:1000'],
         ]);
 
-        $user->status = $data['status'];
-        $user->save();
+        if ($user->status !== $data['status']) {
+            DB::transaction(function () use ($data, $user): void {
+                $oldStatus = $user->status;
+                $user->status = $data['status'];
+                $user->save();
+                $user->statusRecords()->create([
+                    'old_status' => $oldStatus,
+                    'new_status' => $data['status'],
+                    'reason' => $data['reason'],
+                ]);
+            });
+        }
 
         return new UserResource($user);
+    }
+
+    public function records(User $user)
+    {
+        return UserRecordResource::collection($user->statusRecords()->latest('created_at')->latest('id')->get());
     }
 }

@@ -96,6 +96,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('news', AdminNewsController::class);
 
             Route::get('users', [AdminUserController::class, 'index']);
+            Route::get('users/{user}/records', [AdminUserController::class, 'records']);
             Route::patch('users/{user}/status', [AdminUserController::class, 'updateStatus']);
             Route::patch('users/{user}/role', [AdminUserController::class, 'updateRole']);
 

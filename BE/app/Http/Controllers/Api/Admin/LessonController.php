@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Services\LearningOperationsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class LessonController extends Controller
 {
@@ -32,7 +33,10 @@ class LessonController extends Controller
             'description' => ['nullable', 'string'],
             'duration' => ['nullable', 'integer', 'min:0'],
             'position' => ['nullable', 'integer', 'min:0'],
+            'material' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
         ]);
+
+        $this->storeMaterial($request, $data);
 
         $data['sort_order'] = $data['position'] ?? (int) $course->lessons()->max('position') + 1;
         unset($data['position']);
@@ -50,7 +54,13 @@ class LessonController extends Controller
             'description' => ['nullable', 'string'],
             'duration' => ['nullable', 'integer', 'min:0'],
             'position' => ['nullable', 'integer', 'min:0'],
+            'material' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
         ]);
+
+        if ($request->hasFile('material')) {
+            $this->deleteStoredMaterial($lesson->material_url);
+        }
+        $this->storeMaterial($request, $data);
 
         if (array_key_exists('position', $data)) {
             $data['sort_order'] = $data['position'];
@@ -64,6 +74,7 @@ class LessonController extends Controller
 
     public function destroy(Lesson $lesson)
     {
+        $this->deleteStoredMaterial($lesson->material_url);
         $lesson->delete();
 
         return response()->noContent();
@@ -84,5 +95,26 @@ class LessonController extends Controller
         }
 
         return LessonResource::collection($course->lessons()->get());
+    }
+
+    private function storeMaterial(Request $request, array &$data): void
+    {
+        unset($data['material']);
+
+        if (! $request->hasFile('material')) {
+            return;
+        }
+
+        $path = $request->file('material')->store('lesson-materials', 'public');
+        $data['material_url'] = '/storage/'.$path;
+    }
+
+    private function deleteStoredMaterial(?string $materialUrl): void
+    {
+        if (! $materialUrl || ! str_starts_with($materialUrl, '/storage/lesson-materials/')) {
+            return;
+        }
+
+        Storage::disk('public')->delete(str_replace('/storage/', '', $materialUrl));
     }
 }

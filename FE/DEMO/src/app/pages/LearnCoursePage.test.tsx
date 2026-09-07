@@ -38,6 +38,14 @@ function useViewport(width: number) {
 }
 
 describe('LearnCoursePage', () => {
+  it('offers the active lesson PDF on the backend host', async () => {
+    myCourses.mockResolvedValue(enrollmentResponse);
+    lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học PDF', material_url: '/storage/lesson-materials/guide.pdf', video_url: '', description: null, duration: null, position: 1, is_completed: false }] });
+    progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, can_take_exam: false });
+    renderPage();
+    const origin = new URL(import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1', window.location.origin).origin;
+    expect(await screen.findByRole('link', { name: 'Mở tài liệu PDF' })).toHaveAttribute('href', `${origin}/storage/lesson-materials/guide.pdf`);
+  });
   beforeEach(() => useViewport(1024));
 
   afterEach(() => {

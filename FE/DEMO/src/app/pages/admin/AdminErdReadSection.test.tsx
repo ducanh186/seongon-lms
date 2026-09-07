@@ -88,6 +88,14 @@ function mockRows() {
 }
 
 describe('AdminErdReadSection', () => {
+  it('centers order totals without wrapping the currency unit', async () => {
+    mockRows();
+    render(<AdminErdReadSection section="orders" token="admin-token" />);
+    const total = await screen.findByText('399.000 đ');
+    expect(total).toHaveStyle({ whiteSpace: 'nowrap', textAlign: 'center' });
+    expect(total.closest('td')).toHaveStyle({ textAlign: 'center' });
+  });
+
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();

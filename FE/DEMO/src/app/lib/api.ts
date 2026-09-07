@@ -30,10 +30,23 @@ import type {
   ApiQuizAttempt,
   ApiReview,
   ApiUser,
+  ApiUserRecord,
   Paginated,
 } from './contracts';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '');
+
+/** Stored public files belong to Laravel, which may use a separate origin. */
+export function resolveMaterialUrl(value: string | null | undefined): string | undefined {
+  if (!value) return undefined;
+  try {
+    const apiUrl = new URL(API_BASE_URL, window.location.origin);
+    const url = new URL(value, apiUrl.origin);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export class ApiError extends Error {
   constructor(
@@ -57,7 +70,9 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   const headers = new Headers(suppliedHeaders);
   headers.set('Accept', 'application/json');
 
-  if (body !== undefined) {
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
+
+  if (body !== undefined && !isFormData) {
     headers.set('Content-Type', 'application/json');
   }
 
@@ -68,7 +83,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...requestOptions,
     headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
   });
   const contentType = response.headers.get('content-type') ?? '';
   const payload = contentType.includes('application/json') ? await response.json() : null;
@@ -185,8 +200,10 @@ export const api = {
   deleteNews: (token: string, newsId: number) => apiRequest<void>(`/admin/news/${newsId}`, { method: 'DELETE', token }),
   adminUsers: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiUser>>(`/admin/users${queryString(filters)}`, { token }),
-  updateUserStatus: (token: string, userId: number, status: 'active' | 'locked') =>
-    apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/status`, { method: 'PATCH', token, body: { status } }),
+  adminUserRecords: (token: string, userId: number) =>
+    apiRequest<{ data: ApiUserRecord[] }>(`/admin/users/${userId}/records`, { token }),
+  updateUserStatus: (token: string, userId: number, status: 'active' | 'locked', reason: string) =>
+    apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/status`, { method: 'PATCH', token, body: { status, reason } }),
   updateUserRole: (token: string, userId: number, role: 'student' | 'admin') =>
     apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/role`, { method: 'PATCH', token, body: { role } }),
   adminCategories: (token: string) => apiRequest<{ data: ApiCategory[] }>('/admin/categories', { token }),
@@ -217,12 +234,18 @@ export const api = {
   publishCourse: (token: string, courseId: number, status: 'draft' | 'published') =>
     apiRequest<{ data: ApiCourse }>(`/admin/courses/${courseId}/publish`, { method: 'PATCH', token, body: { status } }),
   deleteCourse: (token: string, courseId: number) => apiRequest<void>(`/admin/courses/${courseId}`, { method: 'DELETE', token }),
-  saveLesson: (token: string, body: Record<string, unknown>, courseId?: number, lessonId?: number) =>
-    apiRequest<{ data: ApiLesson }>(lessonId ? `/admin/lessons/${lessonId}` : `/admin/courses/${courseId}/lessons`, {
-      method: lessonId ? 'PUT' : 'POST',
+  saveLesson: (token: string, body: Record<string, unknown> | FormData, courseId?: number, lessonId?: number) => {
+    const isMultipartUpdate = Boolean(lessonId) && typeof FormData !== 'undefined' && body instanceof FormData;
+    if (isMultipartUpdate && !body.has('_method')) {
+      body.append('_method', 'PUT');
+    }
+
+    return apiRequest<{ data: ApiLesson }>(lessonId ? `/admin/lessons/${lessonId}` : `/admin/courses/${courseId}/lessons`, {
+      method: lessonId && !isMultipartUpdate ? 'PUT' : 'POST',
       token,
       body,
-    }),
+    });
+  },
   deleteLesson: (token: string, lessonId: number) => apiRequest<void>(`/admin/lessons/${lessonId}`, { method: 'DELETE', token }),
   reorderLessons: (token: string, courseId: number, order: number[]) =>
     apiRequest<{ data: ApiLesson[] }>(`/admin/courses/${courseId}/lessons/reorder`, {
