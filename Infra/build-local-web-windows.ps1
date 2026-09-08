@@ -5,6 +5,7 @@ param(
     [switch]$SkipTests,
     [switch]$SkipDependencies,
     [switch]$SkipMigrations,
+    [switch]$SkipSeed,
     [switch]$PreparePhpMyAdminOnly,
     [switch]$ForcePhpMyAdmin,
     [string]$RuntimeRoot,
@@ -324,6 +325,13 @@ if (-not $SkipDependencies) {
 
 if (-not $SkipMigrations) {
     Invoke-BuildStep -Label 'Run database migrations' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'migrate', '--force')
+}
+
+if (-not $SkipSeed) {
+    # Seed the complete demo dataset only on an empty database, then always
+    # synchronize additive demo data introduced by later application releases.
+    Invoke-BuildStep -Label 'Seed demo data when database is empty' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'app:seed-demo-once')
+    Invoke-BuildStep -Label 'Synchronize demo account history' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'db:seed', '--class=DemoUserHistorySeeder', '--force')
 }
 
 Stop-FrontendDevServerForBuild -FrontendRoot $frontendRoot

@@ -88,6 +88,29 @@ function mockRows() {
 }
 
 describe('AdminErdReadSection', () => {
+  it('opens the selected order details with relational data and missing payment values', async () => {
+    mockRows();
+    ordersList.mockResolvedValue({ data: [
+      { id: 31, user_id: 5, course_id: 10, total_amount: '399000', amount: '399000', status: 'pending', payment_method: null, paid_at: null, transaction_ref: null, user, course, created_at: '2026-08-15T00:00:00Z', updated_at: '2026-08-15T00:00:00Z' },
+    ], meta });
+    const actor = userEvent.setup();
+    render(<AdminErdReadSection section="orders" token="admin-token" onOpenCourse={vi.fn()} />);
+    const row = within(await screen.findByRole('table', { name: 'Danh sách đơn hàng' })).getByRole('row', { name: /SEO Technical/ });
+    row.focus();
+    await actor.keyboard('{Enter}');
+    const dialog = await screen.findByRole('dialog', { name: 'Chi tiết đơn hàng #31' });
+    expect(within(dialog).getByText('Nguyễn Văn An')).toBeInTheDocument();
+    expect(within(dialog).getByText('an@example.test')).toBeInTheDocument();
+    expect(within(dialog).getByText('SEO Technical')).toBeInTheDocument();
+    expect(within(dialog).getByText('10')).toBeInTheDocument();
+    expect(within(dialog).getByText('399.000 đ')).toBeInTheDocument();
+    expect(within(dialog).getAllByText('—')).toHaveLength(2);
+    await actor.click(within(dialog).getByRole('button', { name: 'Đóng' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await actor.click(row);
+    expect(await screen.findByRole('dialog', { name: 'Chi tiết đơn hàng #31' })).toBeInTheDocument();
+  });
+
   it('centers order totals without wrapping the currency unit', async () => {
     mockRows();
     render(<AdminErdReadSection section="orders" token="admin-token" />);

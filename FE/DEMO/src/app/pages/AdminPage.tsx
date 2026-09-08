@@ -10,7 +10,9 @@ import {
   Divider,
   FormControl,
   FormControlLabel,
+  IconButton,
   InputLabel,
+  Menu,
   MenuItem,
   Pagination,
   Radio,
@@ -20,9 +22,13 @@ import {
   Step,
   StepButton,
   Stepper,
+  Tab,
+  Tabs,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { ApiError, resolveMaterialUrl } from '../lib/api';
 import type { ApiAdminAttempt, ApiAdminCertificateStatus, ApiAdminCourse, ApiAdminExam, ApiAdminLesson, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiNewsList, ApiNewsPost, ApiReview, ApiUser, ApiUserRecord, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
@@ -227,6 +233,9 @@ export function AdminPage() {
   const [stats, setStats] = useState<ApiAdminStats | null>(null);
   const [users, setUsers] = useState<Paginated<ApiUser> | null>(null);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [categoryTab, setCategoryTab] = useState<'courses' | 'news'>('courses');
+  const [newsCategoryNames, setNewsCategoryNames] = useState<string[] | null>(null);
+  const [newsCategoryError, setNewsCategoryError] = useState('');
   const [courses, setCourses] = useState<Paginated<ApiCourse> | null>(null);
   const [adminLessons, setAdminLessons] = useState<Paginated<ApiAdminLesson> | null>(null);
   const [adminExams, setAdminExams] = useState<Paginated<ApiAdminExam> | null>(null);
@@ -280,6 +289,21 @@ export function AdminPage() {
   const [newsForm, setNewsForm] = useState<NewsDraft>(blankNews);
   const [pendingConfirmation, setPendingConfirmation] = useState<PendingConfirmation | null>(null);
   const [historyUser, setHistoryUser] = useState<ApiUser | null>(null);
+  const [userMenu, setUserMenu] = useState<{ anchor: HTMLElement; user: ApiUser } | null>(null);
+  const [courseMenu, setCourseMenu] = useState<{ anchor: HTMLElement; course: ApiCourse } | null>(null);
+
+  useEffect(() => {
+    if (tab !== 'categories' || categoryTab !== 'news' || !token) return;
+    let cancelled = false;
+    setNewsCategoryNames(null);
+    setNewsCategoryError('');
+    void adminRepositories.news.list(token, { page: 1 }).then((response) => {
+      if (!cancelled) setNewsCategoryNames(response.categories ?? []);
+    }).catch((reason) => {
+      if (!cancelled) setNewsCategoryError(getErrorMessage(reason, 'Không thể tải danh mục tin tức.'));
+    });
+    return () => { cancelled = true; };
+  }, [tab, categoryTab, token]);
   const [userRecords, setUserRecords] = useState<ApiUserRecord[] | null>(null);
   const [statusUser, setStatusUser] = useState<ApiUser | null>(null);
   const [statusReason, setStatusReason] = useState('');
@@ -804,12 +828,21 @@ export function AdminPage() {
   const courseColumns: AdminColumn<ApiCourse>[] = [
     { key: 'id', header: 'ID', width: 46, align: 'center', render: (course) => course.id },
     { key: 'course', header: 'Khóa học', render: (course) => <Typography fontWeight={750}>{course.title}</Typography> },
-    { key: 'categories', header: 'Danh mục', width: 112, render: (course) => course.categories?.map((category) => category.name).join(', ') || course.category?.name || '—' },
+    { key: 'categories', header: 'Danh mục', width: 140, render: (course) => course.categories?.map((category) => category.name).join(', ') || course.category?.name || '—' },
     { key: 'price', header: 'Học phí', width: 108, align: 'center', render: (course) => <Typography sx={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{Number(course.price).toLocaleString('vi-VN')} đ</Typography> },
     { key: 'enrollments', header: 'Ghi danh', width: 84, align: 'center', render: (course) => course.enrollments_count ?? 0 },
     { key: 'status', header: 'Trạng thái', width: 136, render: (course) => <StatusChip status={course.status} /> },
-    { key: 'updated_at', header: 'Cập nhật', width: 96, render: (course) => course.updated_at ? new Date(course.updated_at).toLocaleDateString('vi-VN') : '—' },
-    { key: 'actions', header: 'Thao tác', width: 138, render: (course) => <Stack spacing={0.5} alignItems="flex-start"><Button size="small" variant="outlined" onClick={() => void selectContent(course.id)} sx={{ whiteSpace: 'nowrap' }}>Xem chi tiết</Button><Button size="small" onClick={() => void editContent(course.id)} sx={{ whiteSpace: 'nowrap' }}>Sửa khóa học</Button></Stack> },
+    { key: 'updated_at', header: 'Cập nhật', width: 104, render: (course) => <Typography sx={{ whiteSpace: 'nowrap' }}>{course.updated_at ? new Date(course.updated_at).toLocaleDateString('vi-VN') : '—'}</Typography> },
+    { key: 'actions', header: 'Thao tác', width: 88, align: 'center', render: (course) => <IconButton
+      id={`course-actions-${course.id}`}
+      aria-label={`Thao tác ${course.title}`}
+      aria-haspopup="menu"
+      aria-expanded={courseMenu?.course.id === course.id}
+      aria-controls={courseMenu?.course.id === course.id ? 'course-actions-menu' : undefined}
+      onClick={(event) => setCourseMenu({ anchor: event.currentTarget, course })}
+      color="primary"
+      sx={{ width: 36, height: 36, border: 1, borderColor: 'divider', borderRadius: 1 }}
+    ><MenuRoundedIcon fontSize="small" /></IconButton> },
   ];
 
   const courseBasicEditor = (
@@ -1010,30 +1043,63 @@ export function AdminPage() {
                 <FormControl fullWidth><InputLabel id="student-status">Trạng thái</InputLabel><Select labelId="student-status" label="Trạng thái" value={userStatus} onChange={(event) => setUserStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="active">Đang hoạt động</MenuItem><MenuItem value="locked">Đã khóa</MenuItem></Select></FormControl>
               </AdminFilterToolbar>
             </Stack>
-            {users?.data.length ? <AdminDataTable<ApiUser>
+            {users?.data.length ? <Box sx={{ maxWidth: 880, mx: 'auto', width: '100%' }}><AdminDataTable<ApiUser>
               label="Danh sách tài khoản"
               rows={users.data}
               getRowKey={(user) => user.id}
               columns={[
-                { key: 'student', header: 'Học viên', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
-                { key: 'email', header: 'Email', width: 198, render: (user) => <Typography variant="body2" sx={{ overflowWrap: 'anywhere' }}>{user.email}</Typography> },
-                { key: 'phone', header: 'SĐT', width: 104, render: (user) => user.phone || '—' },
-                { key: 'enrollments', header: 'Khóa đã đăng ký', width: 140, align: 'center', render: (user) => user.enrollments_count ?? 0 },
-                { key: 'createdAt', header: 'Ngày tạo', width: 98, render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN')}</Typography> },
-                { key: 'status', header: 'Trạng thái', width: 154, render: (user) => <StatusChip status={user.status} /> },
-                { key: 'actions', header: 'Thao tác', width: 108, render: (user) => <Stack spacing={0.5} alignItems="flex-start"><Button size="small" onClick={() => void openUserHistory(user)} sx={{ whiteSpace: 'nowrap' }}>Lịch sử</Button><Button size="small" variant="outlined" color={user.status === 'active' ? 'error' : 'primary'} onClick={() => { setStatusUser(user); setStatusReason(''); }} sx={{ minWidth: 88, whiteSpace: 'nowrap' }}>{user.status === 'active' ? 'Khóa' : 'Kích hoạt'}</Button></Stack> },
+                { key: 'student', header: 'Học viên', width: 240, render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
+                { key: 'email', header: 'Email', render: (user) => <Tooltip title={user.email} describeChild><Typography variant="body2" noWrap tabIndex={0}>{user.email}</Typography></Tooltip> },
+                { key: 'phone', header: 'Số điện thoại', width: 160, render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.phone?.trim() || '—'}</Typography> },
+                { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (user) => <IconButton
+                  id={`user-actions-${user.id}`}
+                  aria-label={`Thao tác ${user.name}`}
+                  aria-haspopup="menu"
+                  aria-expanded={userMenu?.user.id === user.id}
+                  aria-controls={userMenu?.user.id === user.id ? 'user-actions-menu' : undefined}
+                  color="primary"
+                  size="small"
+                  onClick={(event) => setUserMenu({ anchor: event.currentTarget, user })}
+                  sx={{ width: 36, height: 36, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
+                ><MenuRoundedIcon fontSize="small" /></IconButton> },
               ] satisfies AdminColumn<ApiUser>[]}
               minWidth={0}
               fixedLayout
+              cellPaddingX={2}
               stickyFirstColumn
-            /> : <Box sx={{ p: 2.5, pt: 0 }}><EmptyState title="Không có người dùng phù hợp." /></Box>}
+            /></Box> : <Box sx={{ p: 2.5, pt: 0 }}><EmptyState title="Không có người dùng phù hợp." /></Box>}
+            <Menu
+              id="user-actions-menu"
+              disableScrollLock
+              anchorEl={userMenu?.anchor ?? null}
+              open={Boolean(userMenu)}
+              onClose={() => setUserMenu(null)}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              slotProps={{ list: { 'aria-labelledby': userMenu ? `user-actions-${userMenu.user.id}` : undefined }, paper: { sx: { mt: 0.5, minWidth: 192 } } }}
+            >
+              <MenuItem onClick={() => { if (!userMenu) return; void openUserHistory(userMenu.user); setUserMenu(null); }}>Xem lịch sử</MenuItem>
+              <MenuItem onClick={() => { if (!userMenu) return; setStatusUser(userMenu.user); setStatusReason(''); setUserMenu(null); }} sx={{ color: userMenu?.user.status === 'active' ? 'error.main' : 'primary.main' }}>
+                {userMenu?.user.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
+              </MenuItem>
+            </Menu>
             {users && users.meta.last_page > 1 && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><Pagination count={users.meta.last_page} page={appliedUserFilters.page} onChange={(_, page) => setAppliedUserFilters((filters) => ({ ...filters, page }))} color="primary" /></Box>}
           </CardContent></Card>}
 
-          {tab === 'categories' && <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(260px, .6fr) 1fr' }, gap: 3 }}>
+          {tab === 'categories' && <Stack spacing={3}>
+            <Tabs value={categoryTab} onChange={(_, value) => setCategoryTab(value)} aria-label="Loại danh mục">
+              <Tab id="course-categories-tab" aria-controls="course-categories-panel" value="courses" label="Danh mục khóa học" />
+              <Tab id="news-categories-tab" aria-controls="news-categories-panel" value="news" label="Danh mục tin tức" />
+            </Tabs>
+            {categoryTab === 'courses' && <Box role="tabpanel" id="course-categories-panel" aria-labelledby="course-categories-tab" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(260px, .6fr) 1fr' }, gap: 3 }}>
             <Card component="form" onSubmit={submitCategory} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingCategory ? 'Sửa danh mục' : 'Tạo danh mục'}</Typography><TextField required label="Tên danh mục" value={categoryName} onChange={(event) => setCategoryName(event.target.value)} /><TextField label="Mô tả" multiline minRows={3} value={categoryDescription} onChange={(event) => setCategoryDescription(event.target.value)} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingCategory ? 'Cập nhật' : 'Lưu danh mục'}</Button>{editingCategory && <Button onClick={() => { setEditingCategory(null); setCategoryName(''); setCategoryDescription(''); }}>Hủy</Button>}</Stack></Stack></CardContent></Card>
             <Card sx={{ borderRadius: 3 }}><CardContent><Stack divider={<Divider flexItem />}>{categories.map((category) => <Stack key={category.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{category.name}</Typography><Typography variant="body2" color="text.secondary">{category.description || 'Chưa có mô tả'}</Typography></Box><Button size="small" onClick={() => { setEditingCategory(category); setCategoryName(category.name); setCategoryDescription(category.description ?? ''); }}>Sửa</Button><Button color="error" size="small" onClick={() => token && requestConfirmation('Xóa danh mục', category.name, () => adminRepositories.categories.remove(token, category.id), 'Đã xóa danh mục.')}>Xóa</Button></Stack>)}{categories.length === 0 && <EmptyState title="Chưa có danh mục." />}</Stack></CardContent></Card>
-          </Box>}
+            </Box>}
+            {categoryTab === 'news' && <Card role="tabpanel" id="news-categories-panel" aria-labelledby="news-categories-tab"><CardContent><Stack spacing={2}>
+              <Alert severity="info">Danh mục đang được sử dụng trong bài viết. Để đổi danh mục của một bài viết, vào Tin tức và chỉnh sửa bài viết đó. Quản lý danh mục độc lập chưa được hỗ trợ.</Alert>
+              {newsCategoryError ? <Alert severity="error">{newsCategoryError}</Alert> : newsCategoryNames === null ? <Typography role="status">Đang tải danh mục tin tức…</Typography> : newsCategoryNames.length ? <Stack component="ul" divider={<Divider component="li" />} sx={{ m: 0, pl: 3 }}>{newsCategoryNames.map((name) => <Typography component="li" key={name} sx={{ py: 1.25 }}>{name}</Typography>)}</Stack> : <EmptyState title="Chưa có danh mục tin tức." />}
+            </Stack></CardContent></Card>}
+          </Stack>}
 
           {tab === 'courses' && !selectedCourse && <Stack spacing={2}>
             {isCourseEditorOpen && <Stack spacing={2}>
@@ -1057,7 +1123,7 @@ export function AdminPage() {
                   <TextField fullWidth label="Ngày xuất bản" type="date" InputLabelProps={{ shrink: true }} value={courseFilters.publishedOn} onChange={(event) => setCourseFilters((current) => ({ ...current, publishedOn: event.target.value }))} />
                 </AdminFilterToolbar>
               </Stack>
-              {courses?.data.length ? <AdminDataTable<ApiCourse>
+              {courses?.data.length ? <Box sx={{ maxWidth: 1120, mx: 'auto', width: '100%' }}><AdminDataTable<ApiCourse>
                 label="Danh sách khóa học"
                 rows={courses.data}
                 getRowKey={(course) => course.id}
@@ -1065,7 +1131,20 @@ export function AdminPage() {
                 minWidth={0}
                 fixedLayout
                 stickyFirstColumn
-              /> : <EmptyState title="Không có khóa học phù hợp." />}
+              /></Box> : <EmptyState title="Không có khóa học phù hợp." />}
+              <Menu
+                id="course-actions-menu"
+                anchorEl={courseMenu?.anchor ?? null}
+                open={Boolean(courseMenu)}
+                onClose={() => setCourseMenu(null)}
+                disableScrollLock
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                slotProps={{ list: { 'aria-labelledby': courseMenu ? `course-actions-${courseMenu.course.id}` : undefined }, paper: { sx: { mt: 0.5, minWidth: 192 } } }}
+              >
+                <MenuItem onClick={() => { if (!courseMenu) return; void selectContent(courseMenu.course.id); setCourseMenu(null); }}>Xem chi tiết</MenuItem>
+                <MenuItem onClick={() => { if (!courseMenu) return; void editContent(courseMenu.course.id); setCourseMenu(null); }}>Sửa khóa học</MenuItem>
+              </Menu>
             </CardContent></Card>
             {courses && courses.meta.last_page > 1 && <Pagination count={courses.meta.last_page} page={appliedCourseFilters.page} onChange={(_, page) => setAppliedCourseFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}

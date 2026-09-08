@@ -1,4 +1,5 @@
-import { Button, Chip, Stack, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
 import type {
   ApiAdminAnswerIndex,
   ApiAdminCart,
@@ -47,6 +48,7 @@ const identity = (name: string, email: string) => (
 );
 
 export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
+  const [selectedOrder, setSelectedOrder] = useState<ApiAdminOrder | null>(null);
   switch (section) {
     case 'roles':
       return (
@@ -123,6 +125,7 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
 
     case 'orders':
       return (
+        <>
         <AdminReadOnlyIndex<ApiAdminOrder>
           key={section}
           token={token}
@@ -144,11 +147,13 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
                 { value: 'paid', label: 'Đã thanh toán' },
                 { value: 'failed', label: 'Thất bại' },
               ],
+              disableScrollLock: true,
             },
             { key: 'created_on', label: 'Ngày tạo', kind: 'date' },
           ]}
           loader={adminRepositories.orders.list}
           getRowKey={(order) => order.id}
+          onRowClick={setSelectedOrder}
           columns={[
             { key: 'id', header: 'Mã đơn hàng', width: 108, align: 'center', render: (order) => order.id },
             { key: 'student', header: 'Học viên', width: 195, render: (order) => identity(order.user.name, order.user.email) },
@@ -159,6 +164,25 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
             { key: 'created', header: 'Ngày tạo', width: 112, render: (order) => <Typography sx={{ whiteSpace: 'nowrap' }}>{date(order.created_at)}</Typography> },
           ] satisfies AdminColumn<ApiAdminOrder>[]}
         />
+        <Dialog open={Boolean(selectedOrder)} onClose={() => setSelectedOrder(null)} aria-labelledby="order-detail-title" maxWidth="sm" fullWidth>
+          <DialogTitle id="order-detail-title">Chi tiết đơn hàng #{selectedOrder?.id}</DialogTitle>
+          {selectedOrder && <DialogContent><Box component="dl" sx={{ m: 0, display: 'grid', gridTemplateColumns: '180px minmax(0, 1fr)', gap: 2 }}>
+            {[
+              ['Mã đơn hàng', selectedOrder.id],
+              ['Học viên', selectedOrder.user?.name ?? '—'],
+              ['Email học viên', selectedOrder.user?.email ?? '—'],
+              ['Khóa học', selectedOrder.course?.title ?? '—'],
+              ['Mã khóa học', selectedOrder.course?.id ?? selectedOrder.course_id ?? '—'],
+              ['Tổng tiền', selectedOrder.total_amount == null ? '—' : money(selectedOrder.total_amount)],
+              ['Phương thức thanh toán', selectedOrder.payment_method ? ({ card: 'Thẻ', qr: 'Mã QR' }[selectedOrder.payment_method] ?? selectedOrder.payment_method) : '—'],
+              ['Trạng thái', { pending: 'Chờ thanh toán', paid: 'Đã thanh toán', failed: 'Thất bại' }[selectedOrder.status]],
+              ['Thời gian thanh toán', selectedOrder.paid_at ? new Date(selectedOrder.paid_at).toLocaleString('vi-VN') : '—'],
+              ['Ngày tạo đơn', selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleString('vi-VN') : '—'],
+            ].map(([label, value]) => <Box key={String(label)} sx={{ display: 'contents' }}><Typography component="dt" color="text.secondary">{label}</Typography><Box component="dd" sx={{ m: 0, overflowWrap: 'anywhere' }}>{value}</Box></Box>)}
+          </Box></DialogContent>}
+          <DialogActions><Button onClick={() => setSelectedOrder(null)}>Đóng</Button></DialogActions>
+        </Dialog>
+        </>
       );
 
     case 'courseCategories':

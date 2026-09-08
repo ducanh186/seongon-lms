@@ -35,6 +35,15 @@ throw "Unexpected PHP arguments: $($PhpArgs -join ' ')"
 }
 
 Describe 'build-local-web-windows phpMyAdmin preparation' {
+    It 'runs safe demo seed synchronization by default and supports opting out' {
+        $script = Get-Content -Raw -LiteralPath $scriptPath
+
+        $script | Should Match '\[switch\]\$SkipSeed'
+        $script | Should Match 'app:seed-demo-once'
+        $script | Should Match "db:seed', '--class=DemoUserHistorySeeder', '--force"
+        $script | Should Match 'if \(-not \$SkipSeed\)'
+    }
+
     It 'installs a verified phpMyAdmin package and generates local cookie configuration' {
         $caseRoot = Join-Path $TestDrive 'valid'
         $runtimeRoot = Join-Path $caseRoot 'runtime'

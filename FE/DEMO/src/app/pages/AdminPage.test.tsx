@@ -37,6 +37,11 @@ vi.mock('../lib/api', async (importOriginal) => ({
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
+async function openCourseDetails(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: 'Thao tác SEO Foundation' }));
+  await user.click(screen.getByRole('menuitem', { name: 'Xem chi tiết' }));
+}
+
 const course = {
   id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: 'Course description', thumbnail: null,
   price: '299000', instructor_name: 'SEONGON', instructor_bio: null, level: 'beginner' as const, status: 'draft' as const,
@@ -188,6 +193,21 @@ describe('AdminPage', () => {
     expect(within(card as HTMLElement).getByRole('button', { name: 'Tạo tin tức mới' })).toBeInTheDocument();
   });
 
+  it('separates course categories from existing news category values without inventing CRUD', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Danh mục', exact: true }));
+    expect(screen.getByRole('button', { name: 'Lưu danh mục' })).toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: 'Danh mục tin tức' }));
+    const panel = screen.getByRole('tabpanel', { name: 'Danh mục tin tức' });
+    expect(await within(panel).findByText('Marketing')).toBeInTheDocument();
+    expect(within(panel).getByText('SEO')).toBeInTheDocument();
+    expect(within(panel).queryByRole('button', { name: /Lưu|Xóa|Sửa/ })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: 'Danh mục khóa học' }));
+    expect(screen.getByRole('button', { name: 'Lưu danh mục' })).toBeInTheDocument();
+  });
+
   it('keeps course currency on one line and centered with enrollment totals', async () => {
     mockAdminData();
     render(<MemoryRouter><AdminPage /></MemoryRouter>);
@@ -289,11 +309,11 @@ describe('AdminPage', () => {
     expect(within(table).getAllByRole('columnheader')).toHaveLength(8);
     expect(table).toHaveStyle({ tableLayout: 'fixed', width: '100%' });
     expect(row).toHaveTextContent('SEO, Analytics');
-    expect(within(row).getByRole('button', { name: 'Xem chi tiết' })).toBeInTheDocument();
-    expect(within(row).getByRole('button', { name: 'Sửa khóa học' })).toBeInTheDocument();
-    expect(within(row).queryByRole('button', { name: /Thao tác/ })).not.toBeInTheDocument();
+    expect(within(row).getByRole('button', { name: 'Thao tác SEO Foundation' })).toBeInTheDocument();
     expect(row).not.toHaveTextContent('SEONGON');
-    await user.click(within(row).getByRole('button', { name: 'Xem chi tiết' }));
+    await user.click(within(row).getByRole('button', { name: 'Thao tác SEO Foundation' }));
+    expect(screen.getAllByRole('menu')).toHaveLength(1);
+    await user.click(screen.getByRole('menuitem', { name: 'Xem chi tiết' }));
     const detail = await screen.findByRole('region', { name: 'Thông tin khóa học SEO Foundation' });
     expect(within(detail).getByText('2', { selector: '[data-course-metric="lessons"] *' })).toBeInTheDocument();
     expect(within(detail).getByText('3', { selector: '[data-course-metric="questions"] *' })).toBeInTheDocument();
@@ -330,8 +350,8 @@ describe('AdminPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
     const row = within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ });
-    await user.click(row);
-    await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
+    await user.click(within(row).getByRole('button', { name: 'Thao tác SEO Foundation' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Sửa khóa học' }));
 
     expect(await screen.findByRole('heading', { name: 'Sửa khóa học' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Danh mục' })).toHaveTextContent('SEO, Analytics');
@@ -361,7 +381,11 @@ describe('AdminPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
     const row = within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ });
-    await user.click(within(row).getByRole('button', { name: 'Sửa khóa học' }));
+    await user.click(within(row).getByRole('button', { name: 'Thao tác SEO Foundation' }));
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
+    await user.click(within(row).getByRole('button', { name: 'Thao tác SEO Foundation' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Sửa khóa học' }));
 
     expect(await screen.findByRole('region', { name: 'Chỉnh sửa khóa học SEO Foundation' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /Tiêu đề/ })).toHaveValue('SEO Foundation');
@@ -398,8 +422,8 @@ describe('AdminPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
     const row = within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ });
-    await user.click(row);
-    await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
+    await user.click(within(row).getByRole('button', { name: 'Thao tác SEO Foundation' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Sửa khóa học' }));
     await user.click(screen.getByRole('button', { name: 'Cập nhật' }));
 
     await waitFor(() => expect(saveCourse).toHaveBeenCalled());
@@ -408,7 +432,7 @@ describe('AdminPage', () => {
     expect(screen.getByRole('combobox', { name: 'Danh mục' })).toHaveTextContent('SEO, Analytics');
   });
 
-  it('renders the seven Student columns in order with enrollment, date, phone fallback, and lock action', async () => {
+  it('renders four compact Student columns with phone fallback and a row menu', async () => {
     mockAdminData();
     adminUsers.mockResolvedValue({
       data: [{
@@ -441,14 +465,10 @@ describe('AdminPage', () => {
     expect(within(table).getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'Học viên',
       'Email',
-      'SĐT',
-      'Khóa đã đăng ký',
-      'Ngày tạo',
-      'Trạng thái',
+      'Số điện thoại',
       'Thao tác',
     ]);
-    // FR-ADM-02 lists name, email, phone, enrolled count, created date, status
-    // and actions — role is not part of the Students screen.
+    // The compact list keeps only identity, contact information and actions.
     expect(within(table).queryByRole('columnheader', { name: 'Vai trò' })).not.toBeInTheDocument();
     // Reviewer rejected right-aligned action columns; text columns align left.
     expect(within(table).getByRole('columnheader', { name: 'Thao tác' }).className).not.toMatch(/alignRight/);
@@ -457,14 +477,13 @@ describe('AdminPage', () => {
       'Nguyễn Văn A',
       'student@example.test',
       '—',
-      '2',
-      '11/8/2026',
-      'Đang hoạt động',
-      'Lịch sửKhóa',
+      '',
     ]);
-    expect(within(row).getByRole('button', { name: 'Lịch sử' })).toBeInTheDocument();
-    expect(within(row).getByRole('button', { name: 'Khóa' })).toBeInTheDocument();
-    expect(within(row).getByText('Đang hoạt động').closest('.MuiChip-root')).toHaveStyle({ minWidth: '116px' });
+    await user.click(within(row).getByRole('button', { name: 'Thao tác Nguyễn Văn A' }));
+    expect(screen.getByRole('menuitem', { name: 'Xem lịch sử' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Khóa tài khoản' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
     expect(within(table).getByRole('columnheader', { name: 'Thao tác' })).not.toHaveStyle({ position: 'sticky' });
   });
 
@@ -482,7 +501,8 @@ describe('AdminPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Tài khoản' }));
     const row = within(await screen.findByRole('table', { name: 'Danh sách tài khoản' })).getByRole('row', { name: /Nguyễn Văn A/ });
-    await user.click(within(row).getByRole('button', { name: 'Lịch sử' }));
+    await user.click(within(row).getByRole('button', { name: 'Thao tác Nguyễn Văn A' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Xem lịch sử' }));
 
     expect(adminUserRecords).toHaveBeenCalledWith('admin-token', 2);
     expect(await screen.findByRole('heading', { name: 'Lịch sử tài khoản Nguyễn Văn A' })).toBeInTheDocument();
@@ -490,12 +510,53 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('button', { name: 'Đóng' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
-    await user.click(screen.getByRole('button', { name: 'Khóa' }));
+    await user.click(within(row).getByRole('button', { name: 'Thao tác Nguyễn Văn A' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Khóa tài khoản' }));
     expect(screen.getByRole('button', { name: 'Xác nhận khóa' })).toBeDisabled();
     await user.type(screen.getByRole('textbox', { name: 'Lý do thay đổi trạng thái' }), 'Tài khoản vi phạm nội quy.');
     await user.click(screen.getByRole('button', { name: 'Xác nhận khóa' }));
 
     await waitFor(() => expect(updateUserStatus).toHaveBeenCalledWith('admin-token', 2, 'locked', 'Tài khoản vi phạm nội quy.'));
+  });
+
+  it('keeps phone data and dispatches the single menu to the selected account after dismissal', async () => {
+    mockAdminData();
+    adminUsers.mockResolvedValue({
+      data: [
+        { id: 2, name: 'Nguyễn Văn A', email: 'student@example.test', role: 'student', phone: '0912 345 678', avatar: null, status: 'active', created_at: '2026-08-11T00:00:00Z' },
+        { id: 3, name: 'Trần Thị B', email: 'long.student.email.address@example.test', role: 'student', phone: '', avatar: null, status: 'locked', created_at: '2026-08-11T00:00:00Z' },
+      ],
+      meta: { current_page: 1, last_page: 1, per_page: 15, total: 2 },
+    });
+    render(<AdminPage />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Tài khoản' }));
+    const table = await screen.findByRole('table', { name: 'Danh sách tài khoản' });
+    expect(within(table).getByText('0912 345 678')).toBeInTheDocument();
+    expect(within(table).getByRole('row', { name: /Trần Thị B/ })).toHaveTextContent('—');
+    const first = within(table).getByRole('button', { name: 'Thao tác Nguyễn Văn A' });
+    const second = within(table).getByRole('button', { name: 'Thao tác Trần Thị B' });
+    await user.click(first);
+    expect(screen.getAllByRole('menu')).toHaveLength(1);
+    expect(screen.getByRole('menu')).toHaveAttribute('aria-labelledby', first.id);
+    // Clicking the MUI backdrop is an outside click, not a menu action.
+    await user.click(document.querySelector('.MuiMenu-root .MuiBackdrop-root')!);
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
+    expect(first).toHaveFocus();
+    await user.click(second);
+    expect(screen.getAllByRole('menu')).toHaveLength(1);
+    expect(screen.getByRole('menu')).toHaveAttribute('aria-labelledby', second.id);
+    expect(screen.queryByRole('menuitem', { name: 'Khóa tài khoản' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('menuitem', { name: 'Xem lịch sử' }));
+    expect(await screen.findByRole('heading', { name: 'Lịch sử tài khoản Trần Thị B' })).toBeInTheDocument();
+    expect(adminUserRecords).toHaveBeenLastCalledWith('admin-token', 3);
+    await user.click(screen.getByRole('button', { name: 'Đóng' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await user.click(second);
+    await user.click(screen.getByRole('menuitem', { name: 'Mở khóa tài khoản' }));
+    expect(screen.getByRole('heading', { name: 'Kích hoạt tài khoản Trần Thị B' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Xác nhận kích hoạt' })).toBeDisabled();
+    expect(updateUserStatus).not.toHaveBeenCalled();
   });
 
   it('waits for Apply before requesting Student filters and renders the applied result', async () => {
@@ -570,7 +631,7 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
-    await user.click(within(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ })).getByRole('button', { name: 'Xem chi tiết' }));
+    await openCourseDetails(user);
     await user.click(await screen.findByRole('button', { name: 'Xóa khóa học' }));
 
     expect(screen.getByRole('dialog', { name: 'Xóa khóa học SEO Foundation?' })).toBeInTheDocument();
@@ -587,7 +648,7 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
-    await user.click(within(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ })).getByRole('button', { name: 'Xem chi tiết' }));
+    await openCourseDetails(user);
 
     expect(screen.queryByDisplayValue('Câu hỏi hiện có')).not.toBeInTheDocument();
     await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
@@ -607,7 +668,7 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
-    await user.click(within(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ })).getByRole('button', { name: 'Xem chi tiết' }));
+    await openCourseDetails(user);
     await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
     await user.click(await screen.findByRole('button', { name: 'Bài kiểm tra' }));
     const question = await screen.findByDisplayValue('Câu hỏi hiện có');
@@ -627,7 +688,7 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
-    await user.click(within(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ })).getByRole('button', { name: 'Xem chi tiết' }));
+    await openCourseDetails(user);
     await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
     await user.click(await screen.findByRole('button', { name: 'Bài học & tài liệu' }));
     await user.click(await screen.findByRole('button', { name: 'Di chuyển bài học 1 xuống' }));
@@ -641,7 +702,7 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
-    await user.click(within(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ })).getByRole('button', { name: 'Xem chi tiết' }));
+    await openCourseDetails(user);
 
     const detail = await screen.findByRole('region', { name: 'Thông tin khóa học SEO Foundation' });
     expect(within(detail).getByText('2 đánh giá')).toBeInTheDocument();
@@ -658,7 +719,7 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
-    await user.click(within(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ })).getByRole('button', { name: 'Xem chi tiết' }));
+    await openCourseDetails(user);
     await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
     await user.click(screen.getByRole('button', { name: 'Bài học & tài liệu' }));
 
@@ -671,7 +732,7 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
-    await user.click(within(within(screen.getByRole('table', { name: 'Danh sách khóa học' })).getByRole('row', { name: /SEO Foundation/ })).getByRole('button', { name: 'Xem chi tiết' }));
+    await openCourseDetails(user);
     await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
     const title = screen.getByRole('textbox', { name: /Tiêu đề/ });
     await user.clear(title);

@@ -23,6 +23,7 @@ export type AdminReadFilter = {
   label: string;
   kind: 'text' | 'number' | 'date' | 'select';
   options?: Array<{ value: string; label: string }>;
+  disableScrollLock?: boolean;
 };
 
 export type AdminReadOnlyIndexProps<T> = {
@@ -38,6 +39,7 @@ export type AdminReadOnlyIndexProps<T> = {
   getRowKey: (row: T) => string | number;
   minWidth?: number;
   fixedLayout?: boolean;
+  onRowClick?: (row: T) => void;
 };
 
 function initialDrafts(filters: AdminReadFilter[]): Record<string, string> {
@@ -54,6 +56,7 @@ export function AdminReadOnlyIndex<T>({
   getRowKey,
   minWidth = 920,
   fixedLayout = false,
+  onRowClick,
 }: AdminReadOnlyIndexProps<T>) {
   const [drafts, setDrafts] = useState<Record<string, string>>(() => initialDrafts(filters));
   const [applied, setApplied] = useState<Record<string, string | number | undefined>>({ page: 1 });
@@ -124,6 +127,7 @@ export function AdminReadOnlyIndex<T>({
                     labelId={filter.key + '-filter-label'}
                     label={filter.label}
                     value={drafts[filter.key] ?? ''}
+                    MenuProps={{ disableScrollLock: filter.disableScrollLock }}
                     onChange={(event) => setDrafts((current) => ({ ...current, [filter.key]: event.target.value }))}
                   >
                     <MenuItem value="">Tất cả</MenuItem>
@@ -172,6 +176,7 @@ export function AdminReadOnlyIndex<T>({
               getRowKey={getRowKey}
               minWidth={minWidth}
               fixedLayout={fixedLayout}
+              onRowClick={onRowClick}
             />
           ) : (
             <Box sx={{ p: 2.5 }}><EmptyState title={emptyTitle} /></Box>
