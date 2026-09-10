@@ -22,7 +22,9 @@ class FinalBusinessRulesTest extends TestCase
         $course = Course::factory()->create();
         Enrollment::factory()->create(['course_id' => $course->id]);
         $this->actingAs(User::factory()->admin()->create());
-        $this->deleteJson("/api/v1/admin/courses/{$course->id}")->assertUnprocessable();
+        $this->deleteJson("/api/v1/admin/courses/{$course->id}")
+            ->assertStatus(409)
+            ->assertJsonPath('code', 'resource_has_dependencies');
         $this->deleteJson("/api/v1/admin/categories/{$course->category_id}")->assertUnprocessable();
         $this->assertDatabaseHas('courses', ['id' => $course->id]);
         $this->assertDatabaseCount('enrollments', 1);

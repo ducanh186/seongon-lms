@@ -73,27 +73,46 @@ class GeneratedDemoCatalogSeeder extends Seeder
 
     public function run(): void
     {
-        DB::transaction(function (): void {
-            Course::query()->delete();
-            Category::query()->delete();
+        $guardsDisabled = DB::getDriverName() === 'sqlite';
+        if ($guardsDisabled) $this->dropHistoricalGuards();
+        try {
+            DB::transaction(function (): void {
+                Course::query()->delete();
+                Category::query()->delete();
 
-            $demoStudents = $this->createDemoStudents();
-            $courses = $this->createCourses();
-            $students = User::query()->where('role', 'student')->orderBy('id')->get();
+                $demoStudents = $this->createDemoStudents();
+                $courses = $this->createCourses();
+                $students = User::query()->where('role', 'student')->orderBy('id')->get();
 
-            $this->createLearningData($students, $courses);
+                $this->createLearningData($students, $courses);
 
-            throw_unless(
-                $courses->count() === 100,
-                RuntimeException::class,
-                'Expected exactly 100 generated courses.',
-            );
-            throw_unless(
-                $demoStudents->count() === 100,
-                RuntimeException::class,
-                'Expected exactly 100 generated demo students.',
-            );
-        });
+                throw_unless($courses->count() === 100, RuntimeException::class, 'Expected exactly 100 generated courses.');
+                throw_unless($demoStudents->count() === 100, RuntimeException::class, 'Expected exactly 100 generated demo students.');
+            });
+        } finally {
+            if ($guardsDisabled) $this->restoreHistoricalGuards();
+        }
+    }
+
+    private function dropHistoricalGuards(): void
+    {
+        foreach ($this->historicalGuardNames() as $name) DB::statement("DROP TRIGGER IF EXISTS {$name}");
+    }
+
+    private function restoreHistoricalGuards(): void
+    {
+        DB::statement("CREATE TRIGGER IF NOT EXISTS guard_courses_history BEFORE DELETE ON courses BEGIN SELECT CASE WHEN EXISTS (SELECT 1 FROM enrollments WHERE course_id = OLD.id) OR EXISTS (SELECT 1 FROM orders WHERE course_id = OLD.id) OR EXISTS (SELECT 1 FROM reviews WHERE course_id = OLD.id) OR EXISTS (SELECT 1 FROM exams e JOIN attempts a ON a.exam_id = e.id WHERE e.course_id = OLD.id) THEN RAISE(ABORT, 'course has historical dependencies') END; END");
+        DB::statement("CREATE TRIGGER IF NOT EXISTS guard_lessons_history BEFORE DELETE ON lessons BEGIN SELECT CASE WHEN EXISTS (SELECT 1 FROM lesson_progress WHERE lesson_id = OLD.id) OR EXISTS (SELECT 1 FROM learning_progress WHERE lesson_id = OLD.id) THEN RAISE(ABORT, 'lesson has historical dependencies') END; END");
+        DB::statement("CREATE TRIGGER IF NOT EXISTS guard_exams_history BEFORE DELETE ON exams BEGIN SELECT CASE WHEN EXISTS (SELECT 1 FROM attempts WHERE exam_id = OLD.id) THEN RAISE(ABORT, 'exam has historical dependencies') END; END");
+        DB::statement("CREATE TRIGGER IF NOT EXISTS guard_enrollments_history BEFORE DELETE ON enrollments BEGIN SELECT CASE WHEN EXISTS (SELECT 1 FROM lesson_progress WHERE enrollment_id = OLD.id) OR EXISTS (SELECT 1 FROM learning_progress WHERE enrollment_id = OLD.id) OR EXISTS (SELECT 1 FROM attempts WHERE enrollment_id = OLD.id) OR EXISTS (SELECT 1 FROM certificates WHERE enrollment_id = OLD.id) THEN RAISE(ABORT, 'enrollment has historical dependencies') END; END");
+        DB::statement("CREATE TRIGGER IF NOT EXISTS guard_users_history BEFORE DELETE ON users BEGIN SELECT CASE WHEN EXISTS (SELECT 1 FROM enrollments WHERE user_id = OLD.id) OR EXISTS (SELECT 1 FROM orders WHERE user_id = OLD.id) OR EXISTS (SELECT 1 FROM reviews WHERE user_id = OLD.id) OR EXISTS (SELECT 1 FROM user_records WHERE user_id = OLD.id) THEN RAISE(ABORT, 'user has historical dependencies') END; END");
+        DB::statement("CREATE TRIGGER IF NOT EXISTS guard_questions_history BEFORE DELETE ON questions BEGIN SELECT CASE WHEN EXISTS (SELECT 1 FROM attempts a, json_each(a.answers) j WHERE a.answers IS NOT NULL AND CAST(json_extract(j.value, '$.question_id') AS INTEGER) = OLD.id) THEN RAISE(ABORT, 'question has historical dependencies') END; END");
+    }
+
+    /** @return array<int, string> */
+    private function historicalGuardNames(): array
+    {
+        return ['guard_courses_history', 'guard_lessons_history', 'guard_exams_history', 'guard_enrollments_history', 'guard_users_history', 'guard_questions_history'];
     }
 
     private function createDemoStudents(): Collection
