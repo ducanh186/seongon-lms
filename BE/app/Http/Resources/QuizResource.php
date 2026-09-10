@@ -18,6 +18,7 @@ class QuizResource extends JsonResource
             'title' => $this->title,
             'pass_score' => $this->pass_score,
             'max_attempts' => $this->max_attempts,
+            'duration_minutes' => $this->duration_minutes,
             'questions' => $this->whenLoaded('questions', fn () => $this->questions->map(fn ($q) => [
                 'id' => $q->id,
                 'content' => $q->content,

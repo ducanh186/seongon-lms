@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm ci --prefix FE/DEMO",
+  "buildCommand": "npm run build --prefix FE/DEMO",
+  "outputDirectory": "FE/DEMO/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

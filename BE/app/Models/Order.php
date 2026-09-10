@@ -20,6 +20,9 @@ class Order extends Model
         'payment_method',
         'transaction_ref',
         'paid_at',
+        'payment_session',
+        'payment_started_at',
+        'payment_expires_at',
     ];
 
     protected function casts(): array
@@ -28,6 +31,9 @@ class Order extends Model
             'amount' => 'decimal:2',
             'total_amount' => 'decimal:2',
             'paid_at' => 'datetime',
+            'payment_session' => 'array',
+            'payment_started_at' => 'datetime',
+            'payment_expires_at' => 'datetime',
         ];
     }
 
@@ -40,6 +46,21 @@ class Order extends Model
                 $order->amount = $order->total_amount;
             }
         });
+    }
+
+    public function getPaymentStatusAttribute(): string
+    {
+        if ($this->status === 'paid') {
+            return 'paid';
+        }
+        if ($this->status === 'failed') {
+            return 'cancelled';
+        }
+        if ($this->payment_expires_at?->isPast()) {
+            return 'expired';
+        }
+
+        return $this->payment_started_at !== null || $this->transaction_ref !== null ? 'pending' : 'draft';
     }
 
     public function user(): BelongsTo

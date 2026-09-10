@@ -19,7 +19,7 @@ class SeedDemoOnceCommandTest extends TestCase
 
         $this->assertDatabaseHas('users', ['email' => 'admin@seongon.vn']);
         $this->assertDatabaseHas('users', ['email' => 'student@seongon.vn']);
-        $this->assertSame(116, User::query()->where('role', 'student')->count());
+        $this->assertSame(117, User::query()->where('role', 'student')->count());
         $this->assertSame(0, DB::table('users')->whereNull('role_id')->count());
         $this->assertDatabaseHas('users', [
             'email' => 'admin@seongon.vn',

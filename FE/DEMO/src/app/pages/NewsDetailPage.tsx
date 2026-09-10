@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, Chip, Container, Stack, Typography } from '@mui/material';
 import { Link, useParams } from 'react-router';
 import { PageSkeleton, RequestError } from '../components/AsyncState';
-import { ApiError } from '../lib/api';
+import { ApiError, resolveMaterialUrl } from '../lib/api';
 import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiNewsPost } from '../lib/contracts';
+import { sanitizeRichText } from '../lib/sanitizeRichText';
 
 export function NewsDetailPage() {
   const { slug = '' } = useParams();
@@ -35,15 +36,13 @@ export function NewsDetailPage() {
         <Stack spacing={3}>
           <Button component={Link} to="/news" sx={{ alignSelf: 'flex-start' }}>Quay lại tin tức</Button>
           <Card variant="outlined" sx={{ borderRadius: 2.5 }}>
-            {post.thumbnail && <Box component="img" src={post.thumbnail} alt="" sx={{ display: 'block', width: '100%', maxHeight: 420, objectFit: 'cover' }} />}
+            {post.thumbnail && <Box component="img" src={resolveMaterialUrl(post.thumbnail) ?? post.thumbnail} alt="" sx={{ display: 'block', width: '100%', maxHeight: 420, objectFit: 'cover' }} />}
             <CardContent sx={{ p: { xs: 2.5, md: 4 } }}>
               <Stack spacing={2}>
                 <Chip label={post.category} color="primary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
                 <Typography component="h1" variant="h3" fontWeight={800}>{post.title}</Typography>
                 <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>{post.excerpt}</Typography>
-                <Typography sx={{ whiteSpace: 'pre-line', lineHeight: 1.8 }}>
-                  {post.content}
-                </Typography>
+                <Box sx={{ lineHeight: 1.8, '& img': { display: 'block', maxWidth: '100%', height: 'auto', my: 2 }, '& h2, & h3': { mt: 3, mb: 1 } }} dangerouslySetInnerHTML={{ __html: sanitizeRichText(post.content, (url) => resolveMaterialUrl(url) ?? url) }} />
               </Stack>
             </CardContent>
           </Card>

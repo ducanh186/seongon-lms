@@ -7,12 +7,17 @@ use App\Http\Resources\AdminQuestionIndexResource;
 use App\Models\Exam;
 use App\Models\Question;
 use App\Services\LearningOperationsService;
+use App\Services\ProtectedDeletionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class QuestionController extends Controller
 {
-    public function __construct(private readonly LearningOperationsService $operations) {}
+    public function __construct(
+        private readonly LearningOperationsService $operations,
+        private readonly ProtectedDeletionService $deletion,
+    ) {}
 
     public function index(Request $request)
     {
@@ -43,6 +48,7 @@ class QuestionController extends Controller
 
     public function update(Request $request, Question $question)
     {
+        $this->deletion->assertQuestionMutable($question);
         $data = $this->validateData($request);
 
         DB::transaction(function () use ($question, $data) {
@@ -56,6 +62,7 @@ class QuestionController extends Controller
 
     public function destroy(Question $question)
     {
+        $this->deletion->assertQuestionMutable($question);
         $question->delete();
 
         return response()->noContent();
@@ -66,11 +73,19 @@ class QuestionController extends Controller
      */
     private function validateData(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'content' => ['required', 'string'],
             'options' => ['required', 'array', 'min:2'],
             'options.*.content' => ['required', 'string', 'max:500'],
             'options.*.is_correct' => ['required', 'boolean'],
         ]);
+
+        if (collect($data['options'])->where('is_correct', true)->count() !== 1) {
+            throw ValidationException::withMessages([
+                'options' => ['Mỗi câu hỏi phải có đúng một đáp án đúng.'],
+            ]);
+        }
+
+        return $data;
     }
 }

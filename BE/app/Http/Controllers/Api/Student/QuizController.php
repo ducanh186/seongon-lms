@@ -8,6 +8,7 @@ use App\Http\Resources\QuizAttemptResource;
 use App\Http\Resources\QuizResource;
 use App\Models\Attempt;
 use App\Models\Course;
+use App\Services\AttemptLifecycleService;
 use App\Services\ExamGradingService;
 use App\Services\ProgressService;
 use App\Support\InteractsWithEnrollment;
@@ -17,9 +18,15 @@ class QuizController extends Controller
 {
     use InteractsWithEnrollment;
 
-    public function show(Request $request, Course $course)
+    public function show(Request $request, Course $course, ProgressService $progress)
     {
-        $this->resolveActiveEnrollment($request->user(), $course);
+        $enrollment = $this->resolveActiveEnrollment($request->user(), $course);
+        $summary = $progress->summary($enrollment);
+        abort_unless(
+            $summary['can_take_exam'],
+            403,
+            'Bạn phải hoàn thành 100% bài học trước khi làm bài thi.',
+        );
 
         $exam = $course->exam()->with('questions.answers')->firstOrFail();
 
@@ -31,6 +38,7 @@ class QuizController extends Controller
         Course $course,
         ProgressService $progress,
         ExamGradingService $grading,
+        AttemptLifecycleService $attempts,
     ) {
         $enrollment = $this->resolveActiveEnrollment($request->user(), $course);
         $exam = $course->exam()->firstOrFail();
@@ -42,17 +50,15 @@ class QuizController extends Controller
             'Bạn phải hoàn thành 100% bài học trước khi làm bài thi.',
         );
 
-        if ($grading->attemptsUsed($enrollment, $exam) >= $exam->max_attempts) {
-            return response()->json(['message' => 'Bạn đã hết số lần làm bài.'], 422);
-        }
-
         $data = $request->validate([
             'answers' => ['required', 'array', 'min:1'],
             'answers.*.question_id' => ['required', 'integer'],
             'answers.*.option_id' => ['nullable', 'integer'],
         ]);
 
-        $attempt = $grading->grade($enrollment, $exam, $data['answers']);
+        $attempt = $attempts->startOrResume($enrollment, $exam);
+        $attempt = $attempts->saveAnswers($attempt, $data['answers']);
+        $attempt = $attempts->finalize($attempt);
 
         return response()->json([
             'attempt' => new QuizAttemptResource($attempt),
@@ -64,11 +70,79 @@ class QuizController extends Controller
         ]);
     }
 
+    public function start(
+        Request $request,
+        Course $course,
+        ProgressService $progress,
+        AttemptLifecycleService $attempts,
+    ) {
+        $enrollment = $this->resolveActiveEnrollment($request->user(), $course);
+        abort_unless(
+            $progress->summary($enrollment)['can_take_exam'],
+            403,
+            'Bạn phải hoàn thành 100% bài học trước khi làm bài thi.',
+        );
+        $exam = $course->exam()->firstOrFail();
+        $attempt = $attempts->startOrResume($enrollment, $exam);
+
+        return $this->lifecycleResponse($attempt);
+    }
+
+    public function saveAnswers(Request $request, Attempt $attempt, AttemptLifecycleService $attempts)
+    {
+        $this->assertAttemptOwner($request, $attempt);
+        $data = $request->validate([
+            'answers' => ['present', 'array'],
+            'answers.*.question_id' => ['required', 'integer'],
+            'answers.*.option_id' => ['nullable', 'integer'],
+        ]);
+        $attempt = $attempts->saveAnswers($attempt, $data['answers']);
+        if ($attempt->status !== 'in_progress') {
+            return response()->json([
+                'message' => 'Thời gian làm bài đã hết. Bài đã được tự động nộp.',
+                'attempt' => new QuizAttemptResource($attempt),
+                'server_now' => now(),
+            ], 409);
+        }
+
+        return $this->lifecycleResponse($attempt);
+    }
+
+    public function finalize(Request $request, Attempt $attempt, AttemptLifecycleService $attempts)
+    {
+        $this->assertAttemptOwner($request, $attempt);
+        $attempt = $attempts->finalize($attempt);
+
+        return response()->json([
+            'attempt' => new QuizAttemptResource($attempt),
+            'passed' => $attempt->passed,
+            'score' => $attempt->score,
+            'certificate' => $attempt->passed
+                ? new CertificateResource($attempt->enrollment->certificate()->first())
+                : null,
+            'server_now' => now(),
+        ]);
+    }
+
     public function showAttempt(Request $request, Attempt $attempt)
     {
         $attempt->loadMissing('enrollment');
         abort_if($attempt->enrollment->user_id !== $request->user()->id, 403);
 
         return new QuizAttemptResource($attempt);
+    }
+
+    private function assertAttemptOwner(Request $request, Attempt $attempt): void
+    {
+        $attempt->loadMissing('enrollment');
+        abort_if($attempt->enrollment->user_id !== $request->user()->id, 403);
+    }
+
+    private function lifecycleResponse(Attempt $attempt)
+    {
+        return response()->json([
+            'attempt' => new QuizAttemptResource($attempt),
+            'server_now' => now(),
+        ]);
     }
 }

@@ -1,4 +1,6 @@
-import { Box, Card, CardContent, LinearProgress, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Box, Button, Card, CardContent, LinearProgress, Menu, MenuItem, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import type { ApiAdminStats } from '../lib/contracts';
 
 // Full year on purpose: `09/25` reads as a day/month date to reviewers.
@@ -7,7 +9,10 @@ function formatMonth(value: string) {
   return `${month}/${year}`;
 }
 
-export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
+type AdminReportType = 'enrollments' | 'revenue';
+
+export function AdminOverview({ stats, onExportReport }: { stats: ApiAdminStats; onExportReport?: (report: AdminReportType) => void }) {
+  const [reportAnchor, setReportAnchor] = useState<HTMLElement | null>(null);
   const maxMonthly = Math.max(1, ...stats.monthly_enrollments.map((item) => item.total));
   const kpis = [
     ['Học viên', stats.students.toLocaleString('vi-VN')],
@@ -18,6 +23,21 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
 
   return (
     <Stack spacing={3}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button
+          variant="contained"
+          endIcon={<KeyboardArrowDownRoundedIcon />}
+          aria-haspopup="menu"
+          aria-expanded={Boolean(reportAnchor)}
+          onClick={(event) => setReportAnchor(event.currentTarget)}
+        >
+          Xuất báo cáo
+        </Button>
+        <Menu anchorEl={reportAnchor} open={Boolean(reportAnchor)} onClose={() => setReportAnchor(null)}>
+          <MenuItem onClick={() => { setReportAnchor(null); onExportReport?.('enrollments'); }}>Báo cáo ghi danh</MenuItem>
+          <MenuItem onClick={() => { setReportAnchor(null); onExportReport?.('revenue'); }}>Báo cáo doanh thu</MenuItem>
+        </Menu>
+      </Box>
       <Box
         data-testid="admin-kpi-strip"
         sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}
@@ -33,7 +53,7 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) 280px' }, alignItems: 'start', gap: 2.5 }}>
         <Card variant="outlined" sx={{ minWidth: 0, borderRadius: 3, boxShadow: '0 12px 28px rgba(16,46,56,.05)' }}>
           <CardContent sx={{ p: 3 }}>
-            <Typography component="h2" variant="h6" fontWeight={800}>Ghi danh 12 tháng gần nhất</Typography>
+            <Typography component="h2" variant="h6" fontWeight={800}>Ghi danh 6 tháng gần nhất</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>Số lượt học viên bắt đầu khóa học theo từng tháng.</Typography>
             {stats.monthly_enrollments.length === 0 ? (
               <Typography color="text.secondary" sx={{ mt: 3 }}>Chưa có dữ liệu ghi danh theo tháng.</Typography>
@@ -65,7 +85,7 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
           <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
             <Typography component="h2" variant="subtitle1" fontWeight={800}>Khóa học đã xuất bản</Typography>
             <Typography variant="h5" color="primary.dark" fontWeight={850}>{stats.published_courses} / {stats.courses}</Typography>
-            <Typography variant="body2" color="text.secondary">{Math.max(0, stats.courses - stats.published_courses)} bản nháp</Typography>
+            <Typography variant="body2" color="text.secondary">{stats.draft_courses} bản nháp</Typography>
           </CardContent>
         </Card>
         </Stack>

@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -86,7 +87,13 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
             'avatar' => ['nullable', 'string', 'max:2048'],
+            'avatar_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
         ]);
+
+        if ($request->hasFile('avatar_file')) {
+            $data['avatar'] = Storage::url($request->file('avatar_file')->store('profile-avatars', 'public'));
+        }
+        unset($data['avatar_file']);
 
         $request->user()->update($data);
 

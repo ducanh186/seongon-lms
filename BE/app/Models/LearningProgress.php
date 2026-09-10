@@ -13,13 +13,26 @@ class LearningProgress extends Model
 
     protected $table = 'lesson_progress';
 
-    protected $fillable = ['enrollment_id', 'lesson_id', 'is_completed', 'completed_at'];
+    protected $attributes = ['is_completed' => false];
+
+    protected $fillable = [
+        'enrollment_id',
+        'lesson_id',
+        'is_completed',
+        'completed_at',
+        'resume_position_seconds',
+        'furthest_position_seconds',
+        'video_duration_seconds',
+    ];
 
     protected function casts(): array
     {
         return [
             'is_completed' => 'boolean',
             'completed_at' => 'datetime',
+            'resume_position_seconds' => 'integer',
+            'furthest_position_seconds' => 'integer',
+            'video_duration_seconds' => 'integer',
         ];
     }
 
@@ -34,6 +47,9 @@ class LearningProgress extends Model
                 [
                     'is_completed' => $progress->is_completed,
                     'completed_at' => $progress->completed_at,
+                    'resume_position_seconds' => $progress->resume_position_seconds,
+                    'furthest_position_seconds' => $progress->furthest_position_seconds,
+                    'video_duration_seconds' => $progress->video_duration_seconds,
                     'created_at' => $progress->created_at,
                     'updated_at' => $progress->updated_at,
                 ],

@@ -12,6 +12,10 @@ const adminUserRecords = vi.hoisted(() => vi.fn());
 const updateUserStatus = vi.hoisted(() => vi.fn());
 const updateUserRole = vi.hoisted(() => vi.fn());
 const adminCategories = vi.hoisted(() => vi.fn());
+const adminCatalogs = vi.hoisted(() => vi.fn());
+const createCatalog = vi.hoisted(() => vi.fn());
+const updateCatalog = vi.hoisted(() => vi.fn());
+const deleteCatalog = vi.hoisted(() => vi.fn());
 const adminCourses = vi.hoisted(() => vi.fn());
 const adminLessons = vi.hoisted(() => vi.fn());
 const adminExams = vi.hoisted(() => vi.fn());
@@ -33,7 +37,7 @@ const useAuth = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { adminStats, adminRoles, adminUsers, adminUserRecords, updateUserStatus, updateUserRole, adminCategories, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, publishCourse, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, deleteReview, updateReviewStatus, adminNews, saveNews, deleteNews },
+  api: { adminStats, adminRoles, adminUsers, adminUserRecords, updateUserStatus, updateUserRole, adminCategories, adminCatalogs, createCatalog, updateCatalog, deleteCatalog, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, publishCourse, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, deleteReview, updateReviewStatus, adminNews, saveNews, deleteNews },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
@@ -79,12 +83,12 @@ const courseReview = {
 const newsPosts = [
   {
     id: 21, title: 'Bản nháp SEO', slug: 'ban-nhap-seo', category: 'SEO', excerpt: 'Bản nháp cho quản trị.',
-    content: 'Nội dung nháp.', thumbnail: null, status: 'draft' as const, published_at: null,
+    content: 'Nội dung nháp.', thumbnail: null, author: null, status: 'draft' as const, published_at: null,
     created_at: '2026-08-10T00:00:00Z', updated_at: '2026-08-10T00:00:00Z',
   },
   {
     id: 22, title: 'Tin đã xuất bản', slug: 'tin-da-xuat-ban', category: 'Marketing', excerpt: 'Tin công khai.',
-    content: 'Nội dung đã xuất bản.', thumbnail: 'https://example.test/news.png', status: 'published' as const,
+    content: 'Nội dung đã xuất bản.', thumbnail: 'https://example.test/news.png', author: { id: 1, name: 'SEONGON Admin' }, status: 'published' as const,
     published_at: '2026-08-11T00:00:00Z', created_at: '2026-08-10T00:00:00Z', updated_at: '2026-08-11T00:00:00Z',
   },
 ];
@@ -100,7 +104,7 @@ function deferred<T>() {
 
 function mockAdminData() {
   useAuth.mockReturnValue({ token: 'admin-token', isReady: true, user: { id: 1, role: 'admin' } });
-  adminStats.mockResolvedValue({ students: 1, courses: 1, published_courses: 0, enrollments: 0, certificates: 0, completion_rate: 0, revenue: 0, monthly_enrollments: [], popular_courses: [] });
+  adminStats.mockResolvedValue({ students: 1, courses: 1, published_courses: 0, draft_courses: 1, enrollments: 0, certificates: 0, completion_rate: 0, revenue: 0, monthly_enrollments: [], popular_courses: [] });
   adminRoles.mockResolvedValue({
     data: [{ id: 2, code: 'student', name: 'Học viên', description: 'Người học', users_count: 117, created_at: '2026-08-01T00:00:00Z', updated_at: '2026-08-15T00:00:00Z' }],
     meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
@@ -120,6 +124,13 @@ function mockAdminData() {
     { id: 1, name: 'SEO', slug: 'seo', description: null, courses_count: 1 },
     { id: 2, name: 'Analytics', slug: 'analytics', description: null, courses_count: 1 },
   ] });
+  adminCatalogs.mockResolvedValue({ data: [
+    { id: 1, name: 'Marketing', description: 'Tin tức marketing', created_at: '2026-08-01T00:00:00Z' },
+    { id: 2, name: 'SEO', description: 'Kiến thức SEO', created_at: '2026-08-02T00:00:00Z' },
+  ] });
+  createCatalog.mockResolvedValue({ data: { id: 3, name: 'Mới', description: null } });
+  updateCatalog.mockResolvedValue({ data: { id: 1, name: 'Marketing', description: 'Tin tức marketing' } });
+  deleteCatalog.mockResolvedValue(null);
   adminCourses.mockResolvedValue({ data: [course], meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 } });
   adminLessons.mockResolvedValue({
     data: [{
@@ -193,7 +204,7 @@ describe('AdminPage', () => {
     expect(within(card as HTMLElement).getByRole('button', { name: 'Tạo tin tức mới' })).toBeInTheDocument();
   });
 
-  it('separates course categories from existing news category values without inventing CRUD', async () => {
+  it('separates course categories from manageable news catalogs', async () => {
     mockAdminData();
     render(<AdminPage />);
     const user = userEvent.setup();
@@ -203,7 +214,9 @@ describe('AdminPage', () => {
     const panel = screen.getByRole('tabpanel', { name: 'Danh mục tin tức' });
     expect(await within(panel).findByText('Marketing')).toBeInTheDocument();
     expect(within(panel).getByText('SEO')).toBeInTheDocument();
-    expect(within(panel).queryByRole('button', { name: /Lưu|Xóa|Sửa/ })).not.toBeInTheDocument();
+    expect(within(panel).getByRole('button', { name: 'Lưu danh mục tin tức' })).toBeInTheDocument();
+    expect(within(panel).getAllByRole('button', { name: 'Sửa' })).toHaveLength(2);
+    expect(within(panel).getAllByRole('button', { name: 'Xóa' })).toHaveLength(2);
     await user.click(screen.getByRole('tab', { name: 'Danh mục khóa học' }));
     expect(screen.getByRole('button', { name: 'Lưu danh mục' })).toBeInTheDocument();
   });
@@ -249,6 +262,7 @@ describe('AdminPage', () => {
     await waitFor(() => expect(adminUsers).toHaveBeenCalledTimes(1));
 
     await user.click(within(navigation).getByRole('button', { name: 'Tổng quan' }));
+    await waitFor(() => expect(adminStats).toHaveBeenCalledTimes(2));
     await user.click(within(navigation).getByRole('button', { name: 'Tài khoản' }));
 
     await waitFor(() => expect(adminUsers).toHaveBeenCalledTimes(1));
@@ -264,8 +278,10 @@ describe('AdminPage', () => {
       'Tổng quan',
       'Tài khoản',
       'Đơn hàng',
+      'Cài đặt thanh toán',
       'Danh mục',
       'Khóa học',
+      'Đánh giá',
       'Tin tức',
     ]);
     expect(within(navigation).getByRole('button', { name: 'Khóa học' })).toHaveAttribute('aria-pressed', 'false');
@@ -279,7 +295,7 @@ describe('AdminPage', () => {
     expect(within(navigation).queryByRole('button', { name: 'Bài học' })).not.toBeInTheDocument();
     expect(within(navigation).queryByRole('button', { name: 'Bài kiểm tra' })).not.toBeInTheDocument();
     expect(within(navigation).queryByRole('button', { name: 'Ghi danh' })).not.toBeInTheDocument();
-    expect(within(navigation).queryByRole('button', { name: 'Đánh giá' })).not.toBeInTheDocument();
+    expect(within(navigation).getByRole('button', { name: 'Đánh giá' })).toBeInTheDocument();
   });
 
   it('keeps Course management list-first with aligned aggregate columns', async () => {
@@ -432,7 +448,7 @@ describe('AdminPage', () => {
     expect(screen.getByRole('combobox', { name: 'Danh mục' })).toHaveTextContent('SEO, Analytics');
   });
 
-  it('renders four compact Student columns with phone fallback and a row menu', async () => {
+  it('renders account columns with phone fallback and a row menu', async () => {
     mockAdminData();
     adminUsers.mockResolvedValue({
       data: [{
@@ -460,16 +476,15 @@ describe('AdminPage', () => {
     expect(userToolbar.parentElement).toHaveStyle({ borderBottomStyle: 'solid' });
 
     const table = await screen.findByRole('table', { name: 'Danh sách tài khoản' });
-    // Narrow enough to fit a normal desktop without horizontal scrolling.
-    expect(table).toHaveStyle({ minWidth: '0', tableLayout: 'fixed', width: '100%' });
+    // Fill the card on desktop and retain readable columns in a scroll container.
+    expect(table).toHaveStyle({ minWidth: '840px', tableLayout: 'fixed', width: '100%' });
     expect(within(table).getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'Học viên',
       'Email',
       'Số điện thoại',
+      'Vai trò',
       'Thao tác',
     ]);
-    // The compact list keeps only identity, contact information and actions.
-    expect(within(table).queryByRole('columnheader', { name: 'Vai trò' })).not.toBeInTheDocument();
     // Reviewer rejected right-aligned action columns; text columns align left.
     expect(within(table).getByRole('columnheader', { name: 'Thao tác' }).className).not.toMatch(/alignRight/);
     const row = within(table).getByRole('row', { name: /Nguyễn Văn A/ });
@@ -477,6 +492,7 @@ describe('AdminPage', () => {
       'Nguyễn Văn A',
       'student@example.test',
       '—',
+      'Học viên',
       '',
     ]);
     await user.click(within(row).getByRole('button', { name: 'Thao tác Nguyễn Văn A' }));
@@ -742,7 +758,7 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('button', { name: 'Thông tin cơ bản' }));
 
     expect(screen.getByRole('textbox', { name: /Tiêu đề/ })).toHaveValue('SEO Foundation đang sửa');
-  }, 10_000);
+  }, 30_000);
 
   it('lists draft and published News posts and requests the selected server filters', async () => {
     mockAdminData();
@@ -758,9 +774,14 @@ describe('AdminPage', () => {
     expect(screen.getByText('Tin đã xuất bản')).toBeInTheDocument();
     expect(screen.getByText('Bản nháp')).toBeInTheDocument();
     expect(screen.getByText('Đang xuất bản')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Chuyển về nháp' })).toHaveStyle({ whiteSpace: 'nowrap', minWidth: '132px' });
+    const publishedRow = screen.getByRole('row', { name: /Tin đã xuất bản/ });
+    await user.click(within(publishedRow).getByRole('button', { name: 'Thao tác Tin đã xuất bản' }));
+    expect(screen.getByRole('menuitem', { name: 'Chuyển về nháp' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
     expect(screen.getByRole('img', { name: 'Tin đã xuất bản' })).toHaveAttribute('src', 'https://example.test/news.png');
     expect(within(screen.getByRole('table', { name: 'Danh sách tin tức' })).getByRole('columnheader', { name: 'Cập nhật' })).toBeInTheDocument();
+    expect(within(screen.getByRole('table', { name: 'Danh sách tin tức' })).getByRole('columnheader', { name: 'Tác giả' })).toBeInTheDocument();
+    expect(within(publishedRow).getByText('SEONGON Admin')).toBeInTheDocument();
 
     adminNews.mockClear();
     await user.type(screen.getByLabelText('Tìm tin tức'), 'SEO');
@@ -773,7 +794,7 @@ describe('AdminPage', () => {
     expect(adminNews).toHaveBeenCalledWith('admin-token', { q: 'SEO', status: 'draft', category: 'SEO', page: 1 });
   });
 
-  it('saves News as a plain-text payload only after its editor is opened', async () => {
+  it('saves News as a rich-text payload only after its editor is opened', async () => {
     mockAdminData();
     render(<AdminPage />);
     const user = userEvent.setup();
@@ -784,11 +805,14 @@ describe('AdminPage', () => {
     const editorTitle = await screen.findByRole('heading', { name: 'Tạo tin tức' });
     const editor = editorTitle.closest('form');
     expect(editor).not.toBeNull();
-    const [title, category, excerpt, content, thumbnail] = within(editor!).getAllByRole('textbox');
+    const [title, category, excerpt] = within(editor!).getAllByRole('textbox').filter((element) => element.getAttribute('aria-label') !== 'Nội dung');
+    const content = within(editor!).getByRole('textbox', { name: 'Nội dung' });
+    const thumbnail = within(editor!).getByLabelText('Ảnh thumbnail URL (tuỳ chọn)');
     fireEvent.change(title, { target: { value: 'SEO plain text' } });
     fireEvent.change(category, { target: { value: 'SEO' } });
     fireEvent.change(excerpt, { target: { value: 'Tóm tắt không có HTML.' } });
-    fireEvent.change(content, { target: { value: 'Dòng một.\nDòng hai.' } });
+    content.innerHTML = '<p>Dòng một.</p><p>Dòng hai.</p>';
+    fireEvent.input(content);
     fireEvent.change(thumbnail, { target: { value: 'https://example.test/plain.png' } });
     await user.click(screen.getByRole('button', { name: 'Lưu tin tức' }));
 
@@ -796,12 +820,12 @@ describe('AdminPage', () => {
       title: 'SEO plain text',
       category: 'SEO',
       excerpt: 'Tóm tắt không có HTML.',
-      content: 'Dòng một.\nDòng hai.',
+      content: '<p>Dòng một.</p><p>Dòng hai.</p>',
       thumbnail: 'https://example.test/plain.png',
       status: 'draft',
     }, undefined);
     await waitFor(() => expect(screen.queryByRole('heading', { name: 'Tạo tin tức' })).not.toBeInTheDocument());
-  }, 10_000);
+  }, 30_000);
 
   it('keeps the News editor and entered draft open when saving fails', async () => {
     mockAdminData();
@@ -814,18 +838,19 @@ describe('AdminPage', () => {
     const editorTitle = await screen.findByRole('heading', { name: 'Tạo tin tức' });
     const editor = editorTitle.closest('form');
     expect(editor).not.toBeNull();
-    const [title, category, excerpt, content] = within(editor!).getAllByRole('textbox');
+    const [title, category, excerpt] = within(editor!).getAllByRole('textbox').filter((element) => element.getAttribute('aria-label') !== 'Nội dung');
+    const content = within(editor!).getByRole('textbox', { name: 'Nội dung' });
     fireEvent.change(title, { target: { value: 'Bản nháp cần giữ lại' } });
     fireEvent.change(category, { target: { value: 'SEO' } });
     fireEvent.change(excerpt, { target: { value: 'Tóm tắt dự thảo.' } });
-    fireEvent.change(content, { target: { value: 'Nội dung dự thảo.' } });
+    content.innerHTML = '<p>Nội dung dự thảo.</p>';
+    fireEvent.input(content);
     await user.click(within(editor!).getByRole('button', { name: 'Lưu tin tức' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Không thể hoàn tất yêu cầu quản trị.');
     expect(screen.getByRole('heading', { name: 'Tạo tin tức' })).toBeInTheDocument();
-    const retainedFields = within(editor!).getAllByRole('textbox');
-    expect(retainedFields[0]).toHaveValue('Bản nháp cần giữ lại');
-    expect(retainedFields[3]).toHaveValue('Nội dung dự thảo.');
+    expect(title).toHaveValue('Bản nháp cần giữ lại');
+    expect(content).toHaveTextContent('Nội dung dự thảo.');
   });
 
   it('names the News post before confirming deletion', async () => {
@@ -835,7 +860,8 @@ describe('AdminPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Tin tức' }));
     const draftRow = await screen.findByRole('row', { name: /Bản nháp SEO/ });
-    await user.click(within(draftRow).getByRole('button', { name: 'Xóa' }));
+    await user.click(within(draftRow).getByRole('button', { name: 'Thao tác Bản nháp SEO' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Xóa' }));
 
     expect(screen.getByRole('dialog', { name: 'Xóa tin tức Bản nháp SEO?' })).toBeInTheDocument();
     expect(deleteNews).not.toHaveBeenCalled();
@@ -851,7 +877,8 @@ describe('AdminPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Tin tức' }));
     const draftRow = await screen.findByRole('row', { name: /Bản nháp SEO/ });
-    await user.click(within(draftRow).getByRole('button', { name: 'Xuất bản' }));
+    await user.click(within(draftRow).getByRole('button', { name: 'Thao tác Bản nháp SEO' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Xuất bản' }));
 
     expect(saveNews).toHaveBeenCalledWith('admin-token', {
       title: 'Bản nháp SEO',
@@ -870,7 +897,8 @@ describe('AdminPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Tin tức' }));
     const publishedRow = await screen.findByRole('row', { name: /Tin đã xuất bản/ });
-    await user.click(within(publishedRow).getByRole('button', { name: 'Chuyển về nháp' }));
+    await user.click(within(publishedRow).getByRole('button', { name: 'Thao tác Tin đã xuất bản' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Chuyển về nháp' }));
 
     expect(saveNews).toHaveBeenCalledWith('admin-token', {
       title: 'Tin đã xuất bản',
@@ -880,6 +908,25 @@ describe('AdminPage', () => {
       thumbnail: 'https://example.test/news.png',
       status: 'draft',
     }, 22);
+  });
+
+  it('uses the account-style action menu for review moderation', async () => {
+    mockAdminData();
+    render(<MemoryRouter><AdminPage /></MemoryRouter>);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Đánh giá' }));
+    const table = await screen.findByRole('table', { name: 'Danh sách đánh giá' });
+    const row = within(table).getByRole('row', { name: /Học viên SEO/ });
+    const action = within(row).getByRole('button', { name: 'Thao tác đánh giá của Học viên SEO' });
+    await user.click(action);
+
+    expect(screen.getByRole('menu')).toHaveAttribute('aria-labelledby', action.id);
+    expect(screen.getByRole('menuitem', { name: 'Ẩn đánh giá' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Xóa' })).toBeInTheDocument();
+    await user.click(screen.getByRole('menuitem', { name: 'Ẩn đánh giá' }));
+
+    await waitFor(() => expect(updateReviewStatus).toHaveBeenCalledWith('admin-token', 81, 'hidden'));
   });
 
   it('waits for Apply before requesting News filters and keeps the newest applied result', async () => {

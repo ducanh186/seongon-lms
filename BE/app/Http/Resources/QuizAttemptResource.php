@@ -24,12 +24,22 @@ class QuizAttemptResource extends JsonResource
             'attempt_no' => $this->attempt_number,
             'correct_count' => $this->correct_count,
             'wrong_count' => $this->wrong_count,
+            'status' => $this->status,
+            'started_at' => $this->started_at,
+            'expires_at' => $this->expires_at,
+            'finished_at' => $this->finished_at,
             'submitted_at' => $this->submitted_at,
-            'answers' => collect($this->answers ?? [])->map(fn (array $answer) => [
-                'question_id' => $answer['question_id'],
-                'selected_option_id' => $answer['selected_answer_id'] ?? null,
-                'is_correct' => $answer['is_correct'],
-            ])->values(),
+            'answers' => collect($this->answers ?? [])->map(function (array $answer) {
+                $result = [
+                    'question_id' => $answer['question_id'],
+                    'selected_option_id' => $answer['selected_answer_id'] ?? null,
+                ];
+                if (array_key_exists('is_correct', $answer)) {
+                    $result['is_correct'] = $answer['is_correct'];
+                }
+
+                return $result;
+            })->values(),
         ];
     }
 }

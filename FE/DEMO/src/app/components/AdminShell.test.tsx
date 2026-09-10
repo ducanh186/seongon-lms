@@ -42,7 +42,7 @@ describe('AdminShell', () => {
     expect(within(banner).getByText('SEONGON ACADEMY')).toBeInTheDocument();
     expect(within(banner).getByText('Admin Portal')).toBeInTheDocument();
     expect(within(banner).getByText('SEONGON Admin')).toBeInTheDocument();
-    expect(within(banner).getByRole('link', { name: 'Xem site public' })).toHaveAttribute('href', '/');
+    expect(within(banner).getByRole('link', { name: 'Xem homepage' })).toHaveAttribute('href', '/');
     fireEvent.click(within(banner).getByRole('button', { name: 'Đăng xuất' }));
     expect(logout).toHaveBeenCalledOnce();
 
@@ -50,8 +50,8 @@ describe('AdminShell', () => {
     expect(navigation).toHaveAttribute('data-admin-sidebar', 'true');
     expect(navigation).toHaveStyle({ maxHeight: 'calc(100dvh - 124px)', overflowY: 'auto' });
     expect(within(navigation).getAllByRole('button').map((button) => button.textContent)).toEqual([
-      'Tổng quan', 'Tài khoản', 'Đơn hàng',
-      'Danh mục', 'Khóa học', 'Tin tức',
+      'Tổng quan', 'Tài khoản', 'Đơn hàng', 'Cài đặt thanh toán',
+      'Danh mục', 'Khóa học', 'Đánh giá', 'Tin tức',
     ]);
     expect(within(navigation).queryByText('Quản lý khóa học')).not.toBeInTheDocument();
     expect(within(navigation).queryByText('Học tập')).not.toBeInTheDocument();
@@ -70,6 +70,8 @@ describe('AdminShell', () => {
 
     fireEvent.click(within(navigation).getByRole('button', { name: 'Tài khoản' }));
     expect(onChange).toHaveBeenCalledWith('users');
+    fireEvent.click(within(navigation).getByRole('button', { name: 'Đánh giá' }));
+    expect(onChange).toHaveBeenCalledWith('reviews');
   });
 
   it('automatically starts with the sidebar collapsed on a compact viewport', () => {

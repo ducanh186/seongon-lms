@@ -37,6 +37,8 @@ class OrderController extends Controller
         CartService $carts,
     ) {
         abort_if($order->user_id !== $request->user()->id, 403);
+        abort_unless(app()->environment(['local', 'testing']), 403);
+        abort_if($order->payment_session !== null, 422, 'Hãy xác nhận qua phiên thanh toán hiện tại.');
 
         $data = $request->validate([
             'payment_method' => ['required', 'in:card,qr'],

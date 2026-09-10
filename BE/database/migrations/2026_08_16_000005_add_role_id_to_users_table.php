@@ -24,6 +24,7 @@ return new class extends Migration
      */
     private const CANONICAL_ROLES = [
         ['code' => 'admin', 'name' => 'Quản trị viên', 'description' => 'Quản trị hệ thống và nội dung đào tạo.'],
+        ['code' => 'teacher', 'name' => 'Giáo viên', 'description' => 'Giảng viên và người quản lý nội dung bài học.'],
         ['code' => 'student', 'name' => 'Học viên', 'description' => 'Người mua và tham gia khóa học.'],
     ];
 

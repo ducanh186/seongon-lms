@@ -8,6 +8,7 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
+import RateReviewRoundedIcon from '@mui/icons-material/RateReviewRounded';
 import { Avatar, Box, Button, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
@@ -33,6 +34,8 @@ function getNavigationIcon(section: AdminSection) {
       return <SchoolRoundedIcon fontSize="small" />;
     case 'news':
       return <ArticleRoundedIcon fontSize="small" />;
+    case 'reviews':
+      return <RateReviewRoundedIcon fontSize="small" />;
     default:
       return <DashboardRoundedIcon fontSize="small" />;
   }
@@ -57,7 +60,7 @@ export function AdminShell({ active, onChange, children }: AdminShellProps) {
           </Box>
           <Box sx={{ flexGrow: 1 }} />
           <Button component="a" href="/" color="inherit" startIcon={<ExitToAppRoundedIcon />} sx={{ mr: 2, whiteSpace: 'nowrap' }}>
-            Xem site public
+            Xem homepage
           </Button>
           <Button color="inherit" startIcon={<LogoutRoundedIcon />} onClick={() => void logout()} sx={{ mr: 2, whiteSpace: 'nowrap' }}>
             Đăng xuất

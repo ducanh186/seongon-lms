@@ -29,6 +29,7 @@ import {
   Typography,
 } from '@mui/material';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { ApiError, resolveMaterialUrl } from '../lib/api';
 import type { ApiAdminAttempt, ApiAdminCertificateStatus, ApiAdminCourse, ApiAdminExam, ApiAdminLesson, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiNewsList, ApiNewsPost, ApiReview, ApiUser, ApiUserRecord, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
@@ -39,6 +40,9 @@ import { AdminDataTable, type AdminColumn } from '../components/AdminDataTable';
 import { AdminFilterToolbar } from '../components/AdminFilterToolbar';
 import { AdminShell, type AdminSection } from '../components/AdminShell';
 import { AdminOverview } from './AdminOverview';
+import { RichTextEditor } from '../components/RichTextEditor';
+import { PaymentSettingsPanel } from './admin/PaymentSettingsPanel';
+import { NewsCatalogManager } from './admin/NewsCatalogManager';
 import { AdminErdReadSection, type AdminErdReadSectionKey } from './admin/AdminErdReadSection';
 import { adminRepositories } from '../data/repositories/adminRepositories';
 import { DashboardService } from '../application/services/DashboardService';
@@ -91,6 +95,7 @@ type AppliedNewsFilters = {
 type AppliedAdminFilters = {
   q: string;
   status: string;
+  role: string;
   page: number;
 };
 
@@ -172,8 +177,9 @@ const blankQuestionOptions: QuestionOptionDraft[] = [
 
 const adminSectionCopy: Record<AdminSection, { title: string; description: string }> = {
   overview: { title: 'Tổng quan vận hành', description: '' },
+  paymentSettings: { title: 'Cài đặt thanh toán', description: 'Quản lý phương thức thanh toán và tài khoản nhận tiền.' },
   roles: { title: 'Quản lý vai trò', description: 'Đối chiếu vai trò hệ thống và số tài khoản đang sử dụng từng vai trò.' },
-  users: { title: 'Quản lý tài khoản', description: 'Quản lý tài khoản Admin và Học viên, vai trò, ghi danh và trạng thái truy cập.' },
+  users: { title: 'Quản lý tài khoản', description: 'Quản lý tài khoản Admin, Giáo viên và Học viên, vai trò, ghi danh và trạng thái truy cập.' },
   carts: { title: 'Quản lý giỏ hàng', description: 'Theo dõi giỏ hàng hiện tại của học viên từ dữ liệu trong carts.' },
   cartItems: { title: 'Mục giỏ hàng', description: 'Đối chiếu từng khóa học đang nằm trong cart_items.' },
   orders: { title: 'Quản lý đơn hàng', description: 'Theo dõi đơn hàng, trạng thái thanh toán và quan hệ học viên - khóa học.' },
@@ -234,8 +240,6 @@ export function AdminPage() {
   const [users, setUsers] = useState<Paginated<ApiUser> | null>(null);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [categoryTab, setCategoryTab] = useState<'courses' | 'news'>('courses');
-  const [newsCategoryNames, setNewsCategoryNames] = useState<string[] | null>(null);
-  const [newsCategoryError, setNewsCategoryError] = useState('');
   const [courses, setCourses] = useState<Paginated<ApiCourse> | null>(null);
   const [adminLessons, setAdminLessons] = useState<Paginated<ApiAdminLesson> | null>(null);
   const [adminExams, setAdminExams] = useState<Paginated<ApiAdminExam> | null>(null);
@@ -250,7 +254,8 @@ export function AdminPage() {
 
   const [userQuery, setUserQuery] = useState('');
   const [userStatus, setUserStatus] = useState('');
-  const [appliedUserFilters, setAppliedUserFilters] = useState<AppliedAdminFilters>({ q: '', status: '', page: 1 });
+  const [appliedUserFilters, setAppliedUserFilters] = useState<AppliedAdminFilters>({ q: '', status: '', role: '', page: 1 });
+  const [userRole, setUserRole] = useState('');
   const [courseFilters, setCourseFilters] = useState<CourseAdminFilters>(blankCourseFilters);
   const [appliedCourseFilters, setAppliedCourseFilters] = useState<CourseAdminFilters>(blankCourseFilters);
   const [reviewStatus, setReviewStatus] = useState('');
@@ -289,21 +294,12 @@ export function AdminPage() {
   const [newsForm, setNewsForm] = useState<NewsDraft>(blankNews);
   const [pendingConfirmation, setPendingConfirmation] = useState<PendingConfirmation | null>(null);
   const [historyUser, setHistoryUser] = useState<ApiUser | null>(null);
+  const [detailUser, setDetailUser] = useState<ApiUser | null>(null);
   const [userMenu, setUserMenu] = useState<{ anchor: HTMLElement; user: ApiUser } | null>(null);
   const [courseMenu, setCourseMenu] = useState<{ anchor: HTMLElement; course: ApiCourse } | null>(null);
+  const [newsMenu, setNewsMenu] = useState<{ anchor: HTMLElement; newsPost: ApiNewsPost } | null>(null);
+  const [reviewMenu, setReviewMenu] = useState<{ anchor: HTMLElement; review: ApiReview } | null>(null);
 
-  useEffect(() => {
-    if (tab !== 'categories' || categoryTab !== 'news' || !token) return;
-    let cancelled = false;
-    setNewsCategoryNames(null);
-    setNewsCategoryError('');
-    void adminRepositories.news.list(token, { page: 1 }).then((response) => {
-      if (!cancelled) setNewsCategoryNames(response.categories ?? []);
-    }).catch((reason) => {
-      if (!cancelled) setNewsCategoryError(getErrorMessage(reason, 'Không thể tải danh mục tin tức.'));
-    });
-    return () => { cancelled = true; };
-  }, [tab, categoryTab, token]);
   const [userRecords, setUserRecords] = useState<ApiUserRecord[] | null>(null);
   const [statusUser, setStatusUser] = useState<ApiUser | null>(null);
   const [statusReason, setStatusReason] = useState('');
@@ -313,7 +309,7 @@ export function AdminPage() {
   const cacheKeyFor = useCallback((section: AdminSection) => {
     switch (section) {
       case 'users':
-        return `${section}:${appliedUserFilters.q}:${appliedUserFilters.status}:${appliedUserFilters.page}`;
+        return `${section}:${appliedUserFilters.q}:${appliedUserFilters.status}:${appliedUserFilters.role}:${appliedUserFilters.page}`;
       case 'courses':
         return `${section}:${Object.values(appliedCourseFilters).join(':')}`;
       case 'reviews':
@@ -331,7 +327,7 @@ export function AdminPage() {
     if (!token) return;
     const requestId = ++loadRequestId.current;
     const cacheKey = cacheKeyFor(section);
-    if (!force && loadedKeyBySection.current[section] === cacheKey) {
+    if (section !== 'overview' && !force && loadedKeyBySection.current[section] === cacheKey) {
       setLoading(false);
       setError(null);
       return;
@@ -350,6 +346,7 @@ export function AdminPage() {
           const nextUsers = await adminRepositories.users.list(token, {
             q: appliedUserFilters.q || undefined,
             status: appliedUserFilters.status || undefined,
+            ...(appliedUserFilters.role ? { role: appliedUserFilters.role } : {}),
             page: appliedUserFilters.page,
           });
           if (requestId !== loadRequestId.current) return;
@@ -481,6 +478,15 @@ export function AdminPage() {
 
     void load(tab);
   }, [load, tab]);
+
+  useEffect(() => {
+    // Menus are anchored to table buttons; discard their anchors when the
+    // active Admin tab changes so a detached menu cannot reopen later.
+    setUserMenu(null);
+    setCourseMenu(null);
+    setNewsMenu(null);
+    setReviewMenu(null);
+  }, [tab]);
 
   const loadCourseDetail = useCallback(async (courseId: number) => {
     if (!token) return;
@@ -664,6 +670,26 @@ export function AdminPage() {
     setAppliedNewsFilters({ q: newsQuery, status: newsStatus, category: newsCategory, page: 1 });
   };
 
+  const uploadNewsImage = async (file: File): Promise<string> => {
+    if (!token) throw new Error('Phiên đăng nhập đã hết hạn.');
+    return (await adminRepositories.news.uploadImage(token, file)).url;
+  };
+
+  const exportReport = async (report: 'enrollments' | 'revenue') => {
+    if (!token) return;
+    try {
+      const blob = await adminRepositories.dashboard.downloadReport(token, report);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = report === 'enrollments' ? 'bao-cao-ghi-danh.csv' : 'bao-cao-doanh-thu.csv';
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (reason) {
+      setError(getErrorMessage(reason, 'Không thể xuất báo cáo.'));
+    }
+  };
+
   const submitLesson = (event: FormEvent) => {
     event.preventDefault();
     if (!token || !selectedCourse) return;
@@ -698,6 +724,19 @@ export function AdminPage() {
   const openUserHistory = async (user: ApiUser) => {
     if (!token) return;
     setHistoryUser(user);
+    setUserRecords(null);
+    try {
+      const response = await adminRepositories.users.records(token, user.id);
+      setUserRecords(response.data);
+    } catch (reason) {
+      setError(getErrorMessage(reason, 'Không thể tải lịch sử tài khoản.'));
+      setUserRecords([]);
+    }
+  };
+
+  const openUserDetail = async (user: ApiUser) => {
+    if (!token) return;
+    setDetailUser(user);
     setUserRecords(null);
     try {
       const response = await adminRepositories.users.records(token, user.id);
@@ -911,6 +950,8 @@ export function AdminPage() {
             />
           )}
 
+          {token && tab === 'paymentSettings' && <PaymentSettingsPanel token={token} />}
+
           {isOperationSection(tab) && <Stack spacing={2}>
             <Box component="section" role="region" aria-label={`Bộ lọc ${adminSectionCopy[tab].title.toLowerCase()}`} data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: operationStatusOptions[tab] ? 'minmax(240px, 1fr) minmax(150px, .45fr) minmax(180px, .55fr) auto' : 'minmax(240px, 1fr) minmax(150px, .45fr) auto', gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
               <TextField label="Tìm kiếm" value={operationDrafts[tab].q} onChange={(event) => updateOperationDraft(tab, { q: event.target.value })} fullWidth />
@@ -1033,24 +1074,26 @@ export function AdminPage() {
             {operationPages[tab] && operationPages[tab]!.meta.last_page > 1 && <Pagination count={operationPages[tab]!.meta.last_page} page={operationFilters[tab].page} onChange={(_, page) => changeOperationPage(tab, page)} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
 
-          {tab === 'overview' && stats && <AdminOverview stats={stats} />}
+          {tab === 'overview' && stats && <AdminOverview stats={stats} onExportReport={(report) => void exportReport(report)} />}
 
-          {tab === 'users' && <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+          {tab === 'users' && !detailUser && <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
             <Stack spacing={2} sx={{ p: 2.5, bgcolor: '#F8FBFC', borderBottom: '1px solid', borderColor: 'divider' }}>
               <Typography component="h2" variant="h6" fontWeight={800}>Danh sách tài khoản</Typography>
-              <AdminFilterToolbar label="Bộ lọc tài khoản" action={<Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, page: 1 })}>Áp dụng</Button>}>
+              <AdminFilterToolbar label="Bộ lọc tài khoản" action={<Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, role: userRole, page: 1 })}>Áp dụng</Button>}>
                 <TextField label="Tìm tài khoản" value={userQuery} onChange={(event) => setUserQuery(event.target.value)} fullWidth />
                 <FormControl fullWidth><InputLabel id="student-status">Trạng thái</InputLabel><Select labelId="student-status" label="Trạng thái" value={userStatus} onChange={(event) => setUserStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="active">Đang hoạt động</MenuItem><MenuItem value="locked">Đã khóa</MenuItem></Select></FormControl>
+                <FormControl fullWidth><InputLabel id="user-role-filter">Vai trò</InputLabel><Select labelId="user-role-filter" label="Vai trò" value={userRole} onChange={(event) => setUserRole(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem><MenuItem value="teacher">Giáo viên</MenuItem><MenuItem value="student">Học viên</MenuItem></Select></FormControl>
               </AdminFilterToolbar>
             </Stack>
-            {users?.data.length ? <Box sx={{ maxWidth: 880, mx: 'auto', width: '100%' }}><AdminDataTable<ApiUser>
+            {users?.data.length ? <Box sx={{ width: '100%', minWidth: 0 }}><AdminDataTable<ApiUser>
               label="Danh sách tài khoản"
               rows={users.data}
               getRowKey={(user) => user.id}
               columns={[
-                { key: 'student', header: 'Học viên', width: 240, render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
+                { key: 'student', header: 'Học viên', width: '26%', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
                 { key: 'email', header: 'Email', render: (user) => <Tooltip title={user.email} describeChild><Typography variant="body2" noWrap tabIndex={0}>{user.email}</Typography></Tooltip> },
                 { key: 'phone', header: 'Số điện thoại', width: 160, render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.phone?.trim() || '—'}</Typography> },
+                { key: 'role', header: 'Vai trò', width: 132, render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : user.role === 'teacher' ? 'Giáo viên' : 'Học viên'}</Typography> },
                 { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (user) => <IconButton
                   id={`user-actions-${user.id}`}
                   aria-label={`Thao tác ${user.name}`}
@@ -1061,11 +1104,11 @@ export function AdminPage() {
                   size="small"
                   onClick={(event) => setUserMenu({ anchor: event.currentTarget, user })}
                   sx={{ width: 36, height: 36, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
-                ><MenuRoundedIcon fontSize="small" /></IconButton> },
+                ><MoreVertIcon fontSize="small" /></IconButton> },
               ] satisfies AdminColumn<ApiUser>[]}
-              minWidth={0}
+              minWidth={840}
               fixedLayout
-              cellPaddingX={2}
+              cellPaddingX={2.5}
               stickyFirstColumn
             /></Box> : <Box sx={{ p: 2.5, pt: 0 }}><EmptyState title="Không có người dùng phù hợp." /></Box>}
             <Menu
@@ -1078,6 +1121,7 @@ export function AdminPage() {
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
               slotProps={{ list: { 'aria-labelledby': userMenu ? `user-actions-${userMenu.user.id}` : undefined }, paper: { sx: { mt: 0.5, minWidth: 192 } } }}
             >
+              <MenuItem onClick={() => { if (!userMenu) return; void openUserDetail(userMenu.user); setUserMenu(null); }}>Xem chi tiết</MenuItem>
               <MenuItem onClick={() => { if (!userMenu) return; void openUserHistory(userMenu.user); setUserMenu(null); }}>Xem lịch sử</MenuItem>
               <MenuItem onClick={() => { if (!userMenu) return; setStatusUser(userMenu.user); setStatusReason(''); setUserMenu(null); }} sx={{ color: userMenu?.user.status === 'active' ? 'error.main' : 'primary.main' }}>
                 {userMenu?.user.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
@@ -1085,6 +1129,34 @@ export function AdminPage() {
             </Menu>
             {users && users.meta.last_page > 1 && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><Pagination count={users.meta.last_page} page={appliedUserFilters.page} onChange={(_, page) => setAppliedUserFilters((filters) => ({ ...filters, page }))} color="primary" /></Box>}
           </CardContent></Card>}
+          {tab === 'users' && detailUser && <Card sx={{ borderRadius: 3, minWidth: 0 }}>
+            <CardContent>
+              <Stack spacing={2}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" gap={2}>
+                  <Box><Typography component="h2" variant="h5" fontWeight={800}>Chi tiết tài khoản</Typography><Typography color="text.secondary">Thông tin tài khoản và lịch sử thay đổi trạng thái.</Typography></Box>
+                  <Button onClick={() => { setDetailUser(null); setUserRecords(null); }} sx={{ whiteSpace: 'nowrap' }}>Quay lại danh sách</Button>
+                </Stack>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
+                  {[
+                    ['Họ tên', detailUser.name],
+                    ['Email', detailUser.email],
+                    ['Số điện thoại', detailUser.phone?.trim() || '—'],
+                    ['Vai trò', detailUser.role === 'admin' ? 'Quản trị viên' : detailUser.role === 'teacher' ? 'Giáo viên' : 'Học viên'],
+                    ['Trạng thái', detailUser.status === 'active' ? 'Đang hoạt động' : 'Đã khóa'],
+                    ['Khóa đã đăng ký', String(detailUser.enrollments_count ?? 0)],
+                    ['Ngày tạo', new Date(detailUser.created_at).toLocaleString('vi-VN')],
+                  ].map(([label, value]) => <Box key={label} sx={{ p: 2, bgcolor: '#F8FBFC', borderRadius: 2 }}><Typography variant="caption" color="text.secondary">{label}</Typography><Typography fontWeight={700}>{value}</Typography></Box>)}
+                </Box>
+                <Divider />
+                <Typography variant="h6" fontWeight={800}>Lịch sử trạng thái</Typography>
+                <Stack divider={<Divider flexItem />}>
+                  {userRecords?.map((record) => <Box key={record.id} sx={{ py: 1.25 }}><Typography fontWeight={700}>{record.old_status === 'active' ? 'Đang hoạt động' : 'Đã khóa'} → {record.new_status === 'active' ? 'Đang hoạt động' : 'Đã khóa'}</Typography><Typography variant="body2">{record.reason}</Typography><Typography variant="caption" color="text.secondary">{new Date(record.created_at).toLocaleString('vi-VN')}</Typography></Box>)}
+                  {userRecords === null && <Typography color="text.secondary">Đang tải lịch sử...</Typography>}
+                  {userRecords?.length === 0 && <Typography color="text.secondary">Tài khoản chưa có lịch sử thay đổi trạng thái.</Typography>}
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>}
 
           {tab === 'categories' && <Stack spacing={3}>
             <Tabs value={categoryTab} onChange={(_, value) => setCategoryTab(value)} aria-label="Loại danh mục">
@@ -1095,10 +1167,7 @@ export function AdminPage() {
             <Card component="form" onSubmit={submitCategory} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingCategory ? 'Sửa danh mục' : 'Tạo danh mục'}</Typography><TextField required label="Tên danh mục" value={categoryName} onChange={(event) => setCategoryName(event.target.value)} /><TextField label="Mô tả" multiline minRows={3} value={categoryDescription} onChange={(event) => setCategoryDescription(event.target.value)} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingCategory ? 'Cập nhật' : 'Lưu danh mục'}</Button>{editingCategory && <Button onClick={() => { setEditingCategory(null); setCategoryName(''); setCategoryDescription(''); }}>Hủy</Button>}</Stack></Stack></CardContent></Card>
             <Card sx={{ borderRadius: 3 }}><CardContent><Stack divider={<Divider flexItem />}>{categories.map((category) => <Stack key={category.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{category.name}</Typography><Typography variant="body2" color="text.secondary">{category.description || 'Chưa có mô tả'}</Typography></Box><Button size="small" onClick={() => { setEditingCategory(category); setCategoryName(category.name); setCategoryDescription(category.description ?? ''); }}>Sửa</Button><Button color="error" size="small" onClick={() => token && requestConfirmation('Xóa danh mục', category.name, () => adminRepositories.categories.remove(token, category.id), 'Đã xóa danh mục.')}>Xóa</Button></Stack>)}{categories.length === 0 && <EmptyState title="Chưa có danh mục." />}</Stack></CardContent></Card>
             </Box>}
-            {categoryTab === 'news' && <Card role="tabpanel" id="news-categories-panel" aria-labelledby="news-categories-tab"><CardContent><Stack spacing={2}>
-              <Alert severity="info">Danh mục đang được sử dụng trong bài viết. Để đổi danh mục của một bài viết, vào Tin tức và chỉnh sửa bài viết đó. Quản lý danh mục độc lập chưa được hỗ trợ.</Alert>
-              {newsCategoryError ? <Alert severity="error">{newsCategoryError}</Alert> : newsCategoryNames === null ? <Typography role="status">Đang tải danh mục tin tức…</Typography> : newsCategoryNames.length ? <Stack component="ul" divider={<Divider component="li" />} sx={{ m: 0, pl: 3 }}>{newsCategoryNames.map((name) => <Typography component="li" key={name} sx={{ py: 1.25 }}>{name}</Typography>)}</Stack> : <EmptyState title="Chưa có danh mục tin tức." />}
-            </Stack></CardContent></Card>}
+            {categoryTab === 'news' && token && <Box role="tabpanel" id="news-categories-panel" aria-labelledby="news-categories-tab"><NewsCatalogManager token={token} /></Box>}
           </Stack>}
 
           {tab === 'courses' && !selectedCourse && <Stack spacing={2}>
@@ -1349,14 +1418,43 @@ export function AdminPage() {
                   columns={[
                     { key: 'title', header: 'Tin tức', render: (newsPost) => <Stack direction="row" spacing={1.25} alignItems="center" sx={{ minWidth: 0 }}>{newsPost.thumbnail && <Box component="img" src={newsPost.thumbnail} alt={newsPost.title} sx={{ width: 56, height: 42, borderRadius: 1.5, objectFit: 'cover', flexShrink: 0 }} />}<Box sx={{ minWidth: 0 }}><Typography fontWeight={750}>{newsPost.title}</Typography><Typography variant="body2" color="text.secondary">{newsPost.excerpt}</Typography></Box></Stack> },
                     { key: 'category', header: 'Danh mục', width: 100, render: (newsPost) => newsPost.category },
+                    { key: 'author', header: 'Tác giả', width: 140, render: (newsPost) => newsPost.author?.name ?? '—' },
                     { key: 'status', header: 'Trạng thái', width: 136, render: (newsPost) => <StatusChip status={newsPost.status} /> },
                     { key: 'published', header: 'Ngày xuất bản', width: 132, render: (newsPost) => newsPost.published_at ? new Date(newsPost.published_at).toLocaleDateString('vi-VN') : '—' },
                     { key: 'updated', header: 'Cập nhật', width: 98, render: (newsPost) => new Date(newsPost.updated_at).toLocaleDateString('vi-VN') },
-                    { key: 'actions', header: 'Thao tác', width: 164, render: (newsPost) => <Stack spacing={0.5} alignItems="flex-start"><Stack direction="row" spacing={0.5}><Button size="small" onClick={() => beginNewsEdit(newsPost)}>Sửa</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa tin tức', newsPost.title, () => adminRepositories.news.remove(token, newsPost.id), 'Đã xóa tin tức.')}>Xóa</Button></Stack><Button size="small" variant="outlined" onClick={() => changeNewsStatus(newsPost)} sx={{ minWidth: 132, whiteSpace: 'nowrap', flexShrink: 0 }}>{newsPost.status === 'draft' ? 'Xuất bản' : 'Chuyển về nháp'}</Button></Stack> },
+                    { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (newsPost) => <IconButton
+                      id={`news-actions-${newsPost.id}`}
+                      aria-label={`Thao tác ${newsPost.title}`}
+                      aria-haspopup="menu"
+                      aria-expanded={newsMenu?.newsPost.id === newsPost.id}
+                      aria-controls={newsMenu?.newsPost.id === newsPost.id ? 'news-actions-menu' : undefined}
+                      color="primary"
+                      size="small"
+                      onClick={(event) => setNewsMenu({ anchor: event.currentTarget, newsPost })}
+                      sx={{ width: 36, height: 36, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
+                    ><MenuRoundedIcon fontSize="small" /></IconButton> },
                   ] satisfies AdminColumn<ApiNewsPost>[]}
+                  cellPaddingX={2}
+                  stickyLastColumn
                 /> : <EmptyState title="Không có tin tức phù hợp." />}
               </CardContent>
             </Card>}
+            <Menu
+              id="news-actions-menu"
+              disableScrollLock
+              anchorEl={newsMenu?.anchor ?? null}
+              open={Boolean(newsMenu)}
+              onClose={() => setNewsMenu(null)}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              slotProps={{ list: { 'aria-labelledby': newsMenu ? `news-actions-${newsMenu.newsPost.id}` : undefined }, paper: { sx: { mt: 0.5, minWidth: 192 } } }}
+            >
+              <MenuItem onClick={() => { if (!newsMenu) return; beginNewsEdit(newsMenu.newsPost); setNewsMenu(null); }}>Sửa</MenuItem>
+              <MenuItem onClick={() => { if (!newsMenu) return; changeNewsStatus(newsMenu.newsPost); setNewsMenu(null); }}>
+                {newsMenu?.newsPost.status === 'draft' ? 'Xuất bản' : 'Chuyển về nháp'}
+              </MenuItem>
+              <MenuItem sx={{ color: 'error.main' }} onClick={() => { if (!newsMenu) return; const post = newsMenu.newsPost; setNewsMenu(null); if (token) requestConfirmation('Xóa tin tức', post.title, () => adminRepositories.news.remove(token, post.id), 'Đã xóa tin tức.'); }}>Xóa</MenuItem>
+            </Menu>
             {!isNewsEditorOpen && news && news.meta.last_page > 1 && <Pagination count={news.meta.last_page} page={appliedNewsFilters.page} onChange={(_, page) => setAppliedNewsFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
             {isNewsEditorOpen && <Card component="form" onSubmit={submitNews} sx={{ borderRadius: 3 }}>
               <CardContent>
@@ -1368,8 +1466,18 @@ export function AdminPage() {
                   <TextField id="news-title" required label="Tiêu đề" value={newsForm.title} onChange={(event) => setNewsForm({ ...newsForm, title: event.target.value })} />
                   <TextField id="news-category" required label="Danh mục" value={newsForm.category} onChange={(event) => setNewsForm({ ...newsForm, category: event.target.value })} />
                   <TextField id="news-excerpt" required label="Tóm tắt" multiline minRows={2} value={newsForm.excerpt} onChange={(event) => setNewsForm({ ...newsForm, excerpt: event.target.value })} />
-                  <TextField id="news-content" required label="Nội dung" multiline minRows={6} value={newsForm.content} onChange={(event) => setNewsForm({ ...newsForm, content: event.target.value })} />
-                  <TextField id="news-thumbnail" label="Ảnh thumbnail URL" value={newsForm.thumbnail} onChange={(event) => setNewsForm({ ...newsForm, thumbnail: event.target.value })} />
+                  <Box>
+                    <Typography component="label" htmlFor="news-content" variant="body2" fontWeight={700} sx={{ display: 'block', mb: 0.75 }}>Nội dung *</Typography>
+                    <RichTextEditor value={newsForm.content} onChange={(content) => setNewsForm({ ...newsForm, content })} onUploadImage={uploadNewsImage} />
+                  </Box>
+                  <Stack spacing={1}>
+                    <TextField id="news-thumbnail" label="Ảnh thumbnail URL (tuỳ chọn)" value={newsForm.thumbnail} onChange={(event) => setNewsForm({ ...newsForm, thumbnail: event.target.value })} />
+                    <Button component="label" variant="outlined" sx={{ alignSelf: 'flex-start' }}>
+                      Tải ảnh thumbnail
+                      <input hidden type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void uploadNewsImage(file).then((url) => setNewsForm((form) => ({ ...form, thumbnail: url }))); }} />
+                    </Button>
+                    {newsForm.thumbnail && <Box component="img" src={newsForm.thumbnail} alt="Xem trước thumbnail" sx={{ width: 160, height: 90, objectFit: 'cover', borderRadius: 1 }} />}
+                  </Stack>
                   <FormControl>
                     <InputLabel id="news-editor-status">Trạng thái xuất bản</InputLabel>
                     <Select labelId="news-editor-status" label="Trạng thái xuất bản" value={newsForm.status} onChange={(event) => setNewsForm({ ...newsForm, status: event.target.value as NewsDraft['status'] })}>
@@ -1398,10 +1506,39 @@ export function AdminPage() {
                   { key: 'rating', header: 'Điểm', align: 'center', render: (review) => `${review.rating}/5` },
                   { key: 'comment', header: 'Nhận xét', render: (review) => <Typography variant="body2" sx={{ minWidth: 220, maxWidth: 360, overflowWrap: 'anywhere' }}>{review.comment || 'Không có nhận xét'}</Typography> },
                   { key: 'status', header: 'Trạng thái', render: (review) => <StatusChip status={review.status} /> },
-                  { key: 'actions', header: 'Thao tác', render: (review) => <Stack direction="row" spacing={0.5}><Button size="small" variant="outlined" onClick={() => token && void runMutation(() => adminRepositories.reviews.updateStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'), 'Đã cập nhật trạng thái đánh giá.')}>{review.status === 'visible' ? 'Ẩn' : 'Hiện'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, () => adminRepositories.reviews.remove(token, review.id), 'Đã xóa đánh giá.')}>Xóa</Button></Stack> },
+                  { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (review) => <IconButton
+                    id={`review-actions-${review.id}`}
+                    aria-label={`Thao tác đánh giá của ${review.user.name}`}
+                    aria-haspopup="menu"
+                    aria-expanded={reviewMenu?.review.id === review.id}
+                    aria-controls={reviewMenu?.review.id === review.id ? 'review-actions-menu' : undefined}
+                    color="primary"
+                    size="small"
+                    onClick={(event) => setReviewMenu({ anchor: event.currentTarget, review })}
+                    sx={{ width: 36, height: 36, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
+                  ><MenuRoundedIcon fontSize="small" /></IconButton> },
                 ] satisfies AdminColumn<ApiReview>[]}
+                minWidth={0}
+                fixedLayout
+                cellPaddingX={2}
+                stickyLastColumn
               /> : <EmptyState title="Không có đánh giá phù hợp." />}
             </CardContent></Card>
+            <Menu
+              id="review-actions-menu"
+              disableScrollLock
+              anchorEl={reviewMenu?.anchor ?? null}
+              open={Boolean(reviewMenu)}
+              onClose={() => setReviewMenu(null)}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              slotProps={{ list: { 'aria-labelledby': reviewMenu ? `review-actions-${reviewMenu.review.id}` : undefined }, paper: { sx: { mt: 0.5, minWidth: 192 } } }}
+            >
+              <MenuItem onClick={() => { if (!reviewMenu || !token) return; const review = reviewMenu.review; setReviewMenu(null); void runMutation(() => adminRepositories.reviews.updateStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'), 'Đã cập nhật trạng thái đánh giá.'); }}>
+                {reviewMenu?.review.status === 'visible' ? 'Ẩn đánh giá' : 'Hiện đánh giá'}
+              </MenuItem>
+              <MenuItem sx={{ color: 'error.main' }} onClick={() => { if (!reviewMenu) return; const review = reviewMenu.review; setReviewMenu(null); if (token) requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, () => adminRepositories.reviews.remove(token, review.id), 'Đã xóa đánh giá.'); }}>Xóa</MenuItem>
+            </Menu>
             {reviews && reviews.meta.last_page > 1 && <Pagination count={reviews.meta.last_page} page={reviewPage} onChange={(_, page) => setReviewPage(page)} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
           </Stack>

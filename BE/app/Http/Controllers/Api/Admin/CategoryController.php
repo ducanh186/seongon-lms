@@ -7,6 +7,8 @@ use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class CategoryController extends Controller
 {
@@ -20,7 +22,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', Rule::unique('categories', 'name')],
             'description' => ['nullable', 'string'],
         ]);
 
@@ -33,7 +35,7 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', Rule::unique('categories', 'name')->ignore($category)],
             'description' => ['nullable', 'string'],
         ]);
 
@@ -44,6 +46,12 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        if ($category->courses()->exists()) {
+            throw ValidationException::withMessages([
+                'category' => ['Không thể xóa danh mục đang được khóa học sử dụng.'],
+            ]);
+        }
+
         $category->delete();
 
         return response()->noContent();

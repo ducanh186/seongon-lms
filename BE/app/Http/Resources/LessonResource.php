@@ -20,6 +20,22 @@ class LessonResource extends JsonResource
             'position' => $this->position,
             // is_completed chỉ có mặt khi controller gán (ngữ cảnh học viên).
             'is_completed' => $this->when(isset($this->is_completed), fn () => (bool) $this->is_completed),
+            'resume_position_seconds' => $this->when(
+                isset($this->resume_position_seconds),
+                fn () => (int) $this->resume_position_seconds,
+            ),
+            'furthest_position_seconds' => $this->when(
+                isset($this->furthest_position_seconds),
+                fn () => (int) $this->furthest_position_seconds,
+            ),
+            'video_duration_seconds' => $this->when(
+                isset($this->video_duration_seconds),
+                fn () => (int) $this->video_duration_seconds,
+            ),
+            'watched_percent' => $this->when(
+                isset($this->watched_percent),
+                fn () => (int) $this->watched_percent,
+            ),
         ];
     }
 }

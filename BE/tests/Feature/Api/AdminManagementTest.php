@@ -48,7 +48,7 @@ class AdminManagementTest extends TestCase
             ->assertJsonPath('completion_rate', 33.3)
             ->assertJsonPath('popular_courses.0.id', $popular->id)
             ->assertJsonPath('popular_courses.0.enrollments_count', 2)
-            ->assertJsonCount(12, 'monthly_enrollments');
+            ->assertJsonCount(6, 'monthly_enrollments');
 
         $months = collect($response->json('monthly_enrollments'))->pluck('month')->all();
         $this->assertSame($months, collect($months)->sort()->values()->all());
@@ -179,6 +179,36 @@ class AdminManagementTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_filter_accounts_by_role_and_open_account_detail(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $teacherRole = Role::query()->where('code', 'teacher')->firstOrCreate([
+            'code' => 'teacher',
+        ], ['name' => 'Giáo viên', 'description' => 'Giảng viên']);
+        $teacher = User::factory()->create(['email' => 'teacher-detail@example.test']);
+        $teacher->role = 'teacher';
+        $teacher->role_id = $teacherRole->id;
+        $teacher->save();
+        $student = User::factory()->create(['email' => 'student-detail@example.test']);
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/v1/admin/users?role=teacher')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.email', $teacher->email)
+            ->assertJsonPath('data.0.role', 'teacher');
+
+        $this->withToken($token)->getJson("/api/v1/admin/users/{$teacher->id}")
+            ->assertOk()
+            ->assertJsonPath('data.email', $teacher->email)
+            ->assertJsonPath('data.enrollments_count', 0);
+
+        $this->withToken($token)->getJson('/api/v1/admin/users?role=student')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.email', $student->email);
+    }
+
     public function test_admin_course_list_supports_the_approved_management_filters(): void
     {
         $admin = User::factory()->admin()->create();
@@ -255,9 +285,6 @@ class AdminManagementTest extends TestCase
         $courseResponse->assertCreated()->assertJsonPath('data.status', 'draft');
         $courseId = $courseResponse->json('data.id');
 
-        $this->withToken($token)->patchJson("/api/v1/admin/courses/{$courseId}/publish", ['status' => 'published'])
-            ->assertOk()->assertJsonPath('data.status', 'published');
-
         $lesson = $this->withToken($token)->postJson("/api/v1/admin/courses/{$courseId}/lessons", [
             'title' => 'Bai hoc 1',
             'video_url' => 'https://www.youtube.com/embed/example',
@@ -272,13 +299,18 @@ class AdminManagementTest extends TestCase
         ]);
         $quiz->assertOk()->assertJsonPath('course_id', $courseId);
 
-        $this->withToken($token)->postJson('/api/v1/admin/quizzes/'.$quiz->json('id').'/questions', [
-            'content' => 'Cau hoi mau?',
-            'options' => [
-                ['content' => 'Dung', 'is_correct' => true],
-                ['content' => 'Sai', 'is_correct' => false],
-            ],
-        ])->assertCreated()->assertJsonCount(2, 'options');
+        foreach (range(1, 5) as $questionNumber) {
+            $this->withToken($token)->postJson('/api/v1/admin/quizzes/'.$quiz->json('id').'/questions', [
+                'content' => "Cau hoi mau {$questionNumber}?",
+                'options' => [
+                    ['content' => 'Dung', 'is_correct' => true],
+                    ['content' => 'Sai', 'is_correct' => false],
+                ],
+            ])->assertCreated()->assertJsonCount(2, 'options');
+        }
+
+        $this->withToken($token)->patchJson("/api/v1/admin/courses/{$courseId}/publish", ['status' => 'published'])
+            ->assertOk()->assertJsonPath('data.status', 'published');
 
         $this->withToken($token)->patchJson("/api/v1/admin/users/{$student->id}/status", [
             'status' => 'locked',

@@ -164,6 +164,7 @@ export function GlobalHeader() {
               >
                 <MenuItem component={Link} to="/profile" onClick={accountMenu.close}>Hồ sơ</MenuItem>
                 {isStudent && <MenuItem component={Link} to="/my-courses" onClick={accountMenu.close}>Khóa học của tôi</MenuItem>}
+                {isStudent && <MenuItem component={Link} to="/transactions" onClick={accountMenu.close}>Lịch sử giao dịch</MenuItem>}
                 {isAdmin && <MenuItem component={Link} to="/admin" onClick={accountMenu.close}>Admin Portal</MenuItem>}
                 <Divider />
                 <MenuItem onClick={() => void handleLogout()}>Đăng xuất</MenuItem>

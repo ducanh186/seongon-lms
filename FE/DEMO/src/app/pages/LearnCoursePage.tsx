@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Box,
@@ -8,11 +8,7 @@ import {
   Chip,
   Container,
   Divider,
-  FormControl,
-  FormControlLabel,
   LinearProgress,
-  Radio,
-  RadioGroup,
   Rating,
   Stack,
   TextField,
@@ -28,6 +24,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { PageSkeleton } from '../components/AsyncState';
 import { PageHeader } from '../components/PageHeader';
 import { StudentWorkspaceShell } from '../components/StudentWorkspaceShell';
+import { TrackedLessonVideo } from '../components/TrackedLessonVideo';
+import { ExamAttemptPanel } from '../components/ExamAttemptPanel';
 
 export function LearnCoursePage() {
   const { courseId: courseIdParam = '' } = useParams();
@@ -38,7 +36,6 @@ export function LearnCoursePage() {
   const [progress, setProgress] = useState<ApiProgress | null>(null);
   const [activeLesson, setActiveLesson] = useState<ApiLesson | null>(null);
   const [quiz, setQuiz] = useState<ApiQuiz | null>(null);
-  const [answers, setAnswers] = useState<Record<number, number>>({});
   const [quizResult, setQuizResult] = useState<Awaited<ReturnType<typeof applicationRepositories.learning.submitQuiz>> | null>(null);
   const [rating, setRating] = useState<number | null>(5);
   const [comment, setComment] = useState('');
@@ -66,20 +63,26 @@ export function LearnCoursePage() {
       .finally(() => setLoading(false));
   }, [courseId, token]);
 
-  const canSubmitQuiz = useMemo(
-    () => quiz && quiz.questions.every((question) => answers[question.id]),
-    [answers, quiz],
-  );
-
-  const completeLesson = async (lesson: ApiLesson) => {
+  const savePlayback = async (lesson: ApiLesson, positionSeconds: number, durationSeconds: number) => {
     if (!token) return;
     setError(null);
     try {
-      await applicationRepositories.learning.completeLesson(token, lesson.id);
-      setNotice(`Đã hoàn thành: ${lesson.title}`);
-      await refresh();
+      const response = await applicationRepositories.learning.saveLessonProgress(token, lesson.id, positionSeconds, durationSeconds);
+      const updatedLesson: ApiLesson = {
+        ...lesson,
+        is_completed: response.lesson.is_completed,
+        resume_position_seconds: response.lesson.resume_position_seconds,
+        furthest_position_seconds: response.lesson.furthest_position_seconds,
+        video_duration_seconds: response.lesson.video_duration_seconds,
+        watched_percent: response.lesson.watched_percent,
+      };
+      setLessons((current) => current.map((item) => item.id === lesson.id ? updatedLesson : item));
+      setActiveLesson((current) => current?.id === lesson.id ? updatedLesson : current);
+      setProgress(response.course_progress);
+      if (response.lesson.is_completed && !lesson.is_completed) setNotice(`Đã hoàn thành: ${lesson.title}`);
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Không thể cập nhật tiến độ.');
+      throw reason;
     }
   };
 
@@ -88,24 +91,9 @@ export function LearnCoursePage() {
     try {
       setQuiz((await applicationRepositories.learning.getQuiz(token, courseId)).data);
       setQuizResult(null);
-      setAnswers({});
       setNotice(null);
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Không thể tải bài kiểm tra.');
-    }
-  };
-
-  const submitQuiz = async () => {
-    if (!token || !quiz) return;
-    try {
-      const result = await applicationRepositories.learning.submitQuiz(
-        token,
-        courseId,
-        quiz.questions.map((question) => ({ question_id: question.id, option_id: answers[question.id] ?? null })),
-      );
-      setQuizResult(result);
-    } catch (reason) {
-      setError(reason instanceof ApiError ? reason.message : 'Không thể nộp bài kiểm tra.');
     }
   };
 
@@ -168,7 +156,14 @@ export function LearnCoursePage() {
                   overflowWrap: 'anywhere',
                 }}
               >
-                {lesson.position}. {lesson.title}
+                <Box component="span" sx={{ minWidth: 0 }}>
+                  <Box component="span" sx={{ display: 'block' }}>{lesson.position}. {lesson.title}</Box>
+                  {typeof lesson.watched_percent === 'number' && (
+                    <Typography component="span" variant="caption" color="text.secondary">
+                      {lesson.watched_percent}% đã xem
+                    </Typography>
+                  )}
+                </Box>
               </Button>
             ))}
           </Stack>
@@ -189,12 +184,15 @@ export function LearnCoursePage() {
               )}
             </Stack>
             {activeLesson?.video_url ? (
-              <Box
-                component="iframe"
-                src={activeLesson.video_url}
+              <TrackedLessonVideo
+                url={activeLesson.video_url}
                 title={activeLesson.title}
-                sx={{ width: '100%', maxWidth: '100%', aspectRatio: '16 / 9', display: 'block', border: 0, borderRadius: 2, bgcolor: '#102E38' }}
-                allowFullScreen
+                progress={{
+                  resumePositionSeconds: activeLesson.resume_position_seconds,
+                  furthestPositionSeconds: activeLesson.furthest_position_seconds,
+                  durationSeconds: activeLesson.video_duration_seconds ?? activeLesson.duration,
+                }}
+                onProgress={({ positionSeconds, durationSeconds }) => savePlayback(activeLesson, positionSeconds, durationSeconds)}
               />
             ) : (
               <Alert severity="info">Bài học này chưa có video.</Alert>
@@ -203,17 +201,6 @@ export function LearnCoursePage() {
             {resolveMaterialUrl(activeLesson?.material_url) && (
               <Button component="a" href={resolveMaterialUrl(activeLesson?.material_url)} target="_blank" rel="noopener noreferrer" variant="outlined" sx={{ alignSelf: 'flex-start' }}>
                 Mở tài liệu PDF
-              </Button>
-            )}
-            {activeLesson && (
-              <Button
-                variant={activeLesson.is_completed ? 'outlined' : 'contained'}
-                startIcon={<CheckCircleOutlineIcon />}
-                disabled={activeLesson.is_completed}
-                onClick={() => void completeLesson(activeLesson)}
-                sx={{ alignSelf: 'flex-start' }}
-              >
-                {activeLesson.is_completed ? 'Đã hoàn thành' : 'Đánh dấu đã hoàn thành'}
               </Button>
             )}
           </Stack>
@@ -234,63 +221,13 @@ export function LearnCoursePage() {
             ) : !quiz ? (
               <Button variant="contained" onClick={() => void openQuiz()} sx={{ alignSelf: 'flex-start' }}>Mở bài kiểm tra</Button>
             ) : (
-              <Stack spacing={3}>
-                {quizResult && (
-                  <Alert severity={quizResult.passed ? 'success' : 'warning'}>
-                    <Typography component="h3" fontWeight={800}>Kết quả bài kiểm tra</Typography>
-                    {quizResult.passed
-                      ? `Bạn đã đạt ${quizResult.score}%. Chứng chỉ đã được cấp.`
-                      : `Bạn đạt ${quizResult.score}%. Hãy ôn lại và thử lần tiếp theo.`}
-                  </Alert>
-                )}
-                {quiz.questions.map((question, index) => {
-                  const submittedAnswer = quizResult?.attempt.answers?.find((answer) => answer.question_id === question.id);
-
-                  return (
-                    <FormControl key={question.id} component="fieldset" fullWidth disabled={Boolean(quizResult)}>
-                      <Typography component="legend" fontWeight={800}>{index + 1}. {question.content}</Typography>
-                      <RadioGroup
-                        value={String(answers[question.id] ?? '')}
-                        onChange={(event) => setAnswers((value) => ({ ...value, [question.id]: Number(event.target.value) }))}
-                        sx={{ mt: 1 }}
-                      >
-                        {question.options.map((option) => {
-                          const isSubmittedOption = submittedAnswer?.selected_option_id === option.id;
-                          const resultColor = isSubmittedOption ? (submittedAnswer.is_correct ? 'success' : 'error') : null;
-
-                          return (
-                            <FormControlLabel
-                              key={option.id}
-                              value={String(option.id)}
-                              control={<Radio />}
-                              label={resultColor ? `${option.content} · ${resultColor === 'success' ? 'Đúng' : 'Chưa đúng'}` : option.content}
-                              sx={{
-                                m: 0,
-                                px: 1,
-                                border: '1px solid',
-                                borderColor: resultColor ? `${resultColor}.main` : 'transparent',
-                                borderRadius: 1.5,
-                                bgcolor: resultColor ? `${resultColor}.light` : 'transparent',
-                                '&:has(.Mui-checked)': { bgcolor: resultColor ? `${resultColor}.light` : 'primary.light' },
-                              }}
-                            />
-                          );
-                        })}
-                      </RadioGroup>
-                    </FormControl>
-                  );
-                })}
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  <Button variant="contained" disabled={!canSubmitQuiz || Boolean(quizResult)} onClick={() => void submitQuiz()}>
-                    Nộp bài kiểm tra
-                  </Button>
-                  {quizResult && (
-                    <Button variant="outlined" onClick={() => { setQuizResult(null); setAnswers({}); }}>
-                      Làm lại bài kiểm tra
-                    </Button>
-                  )}
-                </Stack>
-              </Stack>
+              <ExamAttemptPanel
+                quiz={quiz}
+                startAttempt={() => applicationRepositories.learning.startQuizAttempt(token!, courseId)}
+                saveAnswers={(attemptId, draft) => applicationRepositories.learning.saveQuizAnswers(token!, attemptId, draft)}
+                submitAttempt={(attemptId) => applicationRepositories.learning.finalizeQuizAttempt(token!, attemptId)}
+                onResult={setQuizResult}
+              />
             )}
           </Stack>
         </CardContent>
@@ -308,13 +245,13 @@ export function LearnCoursePage() {
               <Typography variant="body2" color="text.secondary">Bài học</Typography>
               <Typography variant="body2" fontWeight={800}>{progress?.completed ?? 0}/{progress?.total ?? 0}</Typography>
             </Stack>
-            <LinearProgress variant="determinate" value={progress?.percent ?? 0} aria-label="Tiến độ khóa học" sx={{ height: 8, borderRadius: 1 }} />
-            <Typography variant="h5" fontWeight={800}>{progress?.percent ?? 0}%</Typography>
+            <LinearProgress variant="determinate" value={progress?.video_percent ?? progress?.percent ?? 0} aria-label="Tiến độ khóa học" sx={{ height: 8, borderRadius: 1 }} />
+            <Typography variant="h5" fontWeight={800}>{progress?.video_percent ?? progress?.percent ?? 0}%</Typography>
           </Stack>
         </CardContent>
       </Card>
 
-      <Card variant="outlined" sx={{ flex: 1 }}>
+      {(enrollment?.certificate || quizResult?.certificate) && <Card variant="outlined" sx={{ flex: 1 }}>
         <CardContent sx={{ p: 2 }}>
           <Stack spacing={1.5}>
             <Typography component="h2" variant="h6">Chứng chỉ</Typography>
@@ -324,7 +261,7 @@ export function LearnCoursePage() {
             </Button>
           </Stack>
         </CardContent>
-      </Card>
+      </Card>}
 
       <Card variant="outlined" sx={{ flex: 1 }}>
         <CardContent sx={{ p: 2 }}>

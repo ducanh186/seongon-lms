@@ -17,7 +17,7 @@ import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
-import { ApiError } from '../lib/api';
+import { ApiError, resolveMaterialUrl } from '../lib/api';
 import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import { useAuth } from '../contexts/AuthContext';
 import { PageHeader } from '../components/PageHeader';
@@ -27,6 +27,7 @@ export function ProfilePage() {
   const [name, setName] = useState(user?.name ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
   const [avatar, setAvatar] = useState(user?.avatar ?? '');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [currentPassword, setCurrentPassword] = useState('');
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
@@ -39,6 +40,7 @@ export function ProfilePage() {
     setName(user?.name ?? '');
     setPhone(user?.phone ?? '');
     setAvatar(user?.avatar ?? '');
+    setAvatarFile(null);
   }, [user]);
 
   const saveProfile = async (event: FormEvent) => {
@@ -47,7 +49,15 @@ export function ProfilePage() {
     setError(null);
     setSavingProfile(true);
     try {
-      await applicationRepositories.profile.update(token, { name, phone, avatar });
+      const body = avatarFile ? (() => {
+        const formData = new FormData();
+        formData.append('_method', 'PUT');
+        formData.append('name', name);
+        if (phone) formData.append('phone', phone);
+        formData.append('avatar_file', avatarFile);
+        return formData;
+      })() : { name, phone, avatar };
+      await applicationRepositories.profile.update(token, body);
       await refreshUser();
       setNotice('Đã cập nhật hồ sơ.');
     } catch (reason) {
@@ -96,7 +106,7 @@ export function ProfilePage() {
               <Card component="section" aria-label="Thông tin tài khoản" variant="outlined">
                 <CardContent sx={{ p: 2.5 }}>
                   <Stack spacing={2} alignItems="center" textAlign="center">
-                    <Avatar src={user?.avatar ?? undefined} sx={{ width: 88, height: 88, bgcolor: 'secondary.main', fontSize: 32 }}>
+                    <Avatar src={resolveMaterialUrl(user?.avatar) ?? user?.avatar ?? undefined} sx={{ width: 88, height: 88, bgcolor: 'secondary.main', fontSize: 32 }}>
                       {user?.name?.[0]}
                     </Avatar>
                     <Box sx={{ minWidth: 0, width: '100%' }}>
@@ -148,8 +158,12 @@ export function ProfilePage() {
                         <Typography component="h2" variant="h6">Thông tin liên hệ</Typography>
                       </Stack>
                       <TextField required label="Họ và tên" value={name} onChange={(event) => setName(event.target.value)} error={Boolean(error?.fields.name?.[0])} helperText={error?.fields.name?.[0]} />
+                      <TextField label="Email" value={user?.email ?? ''} InputProps={{ readOnly: true }} />
                       <TextField label="Số điện thoại" value={phone} onChange={(event) => setPhone(event.target.value)} error={Boolean(error?.fields.phone?.[0])} helperText={error?.fields.phone?.[0]} />
-                      <TextField label="URL ảnh đại diện" value={avatar} onChange={(event) => setAvatar(event.target.value)} error={Boolean(error?.fields.avatar?.[0])} helperText={error?.fields.avatar?.[0]} />
+                      <Button component="label" variant="outlined" sx={{ alignSelf: 'flex-start' }}>
+                        Chọn ảnh đại diện
+                        <input aria-label="Ảnh đại diện" hidden type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={(event) => { const file = event.target.files?.[0] ?? null; event.target.value = ''; setAvatarFile(file); if (file) setAvatar(URL.createObjectURL(file)); }} />
+                      </Button>
                       <Button type="submit" variant="contained" disabled={savingProfile} sx={{ alignSelf: 'flex-start' }}>
                         {savingProfile ? 'Đang lưu...' : 'Lưu hồ sơ'}
                       </Button>

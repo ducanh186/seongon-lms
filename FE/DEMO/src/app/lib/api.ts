@@ -1,4 +1,5 @@
 import type {
+  ApiCatalog,
   ApiCategory,
   ApiCart,
   ApiAdminAttempt,
@@ -22,16 +23,21 @@ import type {
   ApiEnrollment,
   ApiMyCoursesResponse,
   ApiLesson,
+  ApiLessonProgressResponse,
   ApiNewsList,
   ApiNewsPost,
   ApiOrder,
   ApiProgress,
   ApiQuiz,
   ApiQuizAttempt,
+  ApiAttemptLifecycleResponse,
+  ApiQuizSubmissionResponse,
   ApiReview,
   ApiUser,
   ApiUserRecord,
   Paginated,
+  PaymentMethod,
+  PaymentSettings,
 } from './contracts';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '');
@@ -39,6 +45,9 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:800
 /** Stored public files belong to Laravel, which may use a separate origin. */
 export function resolveMaterialUrl(value: string | null | undefined): string | undefined {
   if (!value) return undefined;
+  // Frontend-owned assets such as `/images/news/...` must stay on the Vite
+  // origin; only Laravel's public storage paths need the API origin.
+  if (value.startsWith('/') && !value.startsWith('/storage/')) return value;
   try {
     const apiUrl = new URL(API_BASE_URL, window.location.origin);
     const url = new URL(value, apiUrl.origin);
@@ -53,6 +62,8 @@ export class ApiError extends Error {
     message: string,
     public readonly status: number,
     public readonly fields: Record<string, string[]> = {},
+    public readonly code?: string,
+    public readonly dependencies: Record<string, number> = {},
   ) {
     super(message);
     this.name = 'ApiError';
@@ -93,6 +104,8 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       payload?.message ?? 'Không thể kết nối với hệ thống. Vui lòng thử lại.',
       response.status,
       payload?.errors ?? {},
+      payload?.code,
+      payload?.dependencies ?? {},
     );
   }
 
@@ -118,8 +131,11 @@ export const api = {
     apiRequest<{ user: ApiUser; token: string }>('/auth/login', { method: 'POST', body }),
   logout: (token: string) => apiRequest<void>('/auth/logout', { method: 'POST', token }),
   me: (token: string) => apiRequest<{ data: ApiUser }>('/auth/me', { token }),
-  updateProfile: (token: string, body: Pick<ApiUser, 'name' | 'phone' | 'avatar'>) =>
-    apiRequest<{ data: ApiUser }>('/auth/profile', { method: 'PUT', token, body }),
+  updateProfile: (token: string, body: Pick<ApiUser, 'name' | 'phone' | 'avatar'> | FormData) => {
+    const isMultipart = typeof FormData !== 'undefined' && body instanceof FormData;
+    if (isMultipart && !body.has('_method')) body.append('_method', 'PUT');
+    return apiRequest<{ data: ApiUser }>('/auth/profile', { method: isMultipart ? 'POST' : 'PUT', token, body });
+  },
   updatePassword: (token: string, body: Record<string, string>) =>
     apiRequest<void>('/auth/password', { method: 'PUT', token, body }),
 
@@ -134,6 +150,13 @@ export const api = {
 
   createOrder: (token: string, courseId: number) =>
     apiRequest<{ data: ApiOrder }>('/orders', { method: 'POST', token, body: { course_id: courseId } }),
+  paymentMethods: (token: string) => apiRequest<{ data: Array<{ code: PaymentMethod; label: string; mode: 'mock' }> }>('/payment-methods', { token }),
+  getOrder: (token: string, orderId: number) => apiRequest<{ data: ApiOrder }>(`/orders/${orderId}`, { token }),
+  startPayment: (token: string, orderId: number, method: PaymentMethod) => apiRequest<{ data: ApiOrder }>(`/orders/${orderId}/payment-session`, { token, method: 'POST', body: { payment_method: method } }),
+  mockPaymentCallback: (token: string, orderId: number, sessionToken: string, outcome: 'success' | 'cancel') => apiRequest<{ order: ApiOrder }>(`/orders/${orderId}/mock-callback`, { token, method: 'POST', body: { session_token: sessionToken, outcome } }),
+  transactions: (token: string, page = 1) => apiRequest<Paginated<ApiOrder>>(`/my/transactions?page=${page}`, { token }),
+  paymentSettings: (token: string) => apiRequest<{ data: PaymentSettings }>('/admin/payment-settings', { token }),
+  savePaymentSettings: (token: string, settings: PaymentSettings) => apiRequest<{ data: PaymentSettings }>('/admin/payment-settings', { token, method: 'PUT', body: settings }),
   payOrder: (token: string, orderId: number, paymentMethod: 'card' | 'qr', outcome: 'success' | 'failure' = 'success') =>
     apiRequest<{ message: string; order: ApiOrder; enrollment?: ApiEnrollment }>(`/orders/${orderId}/pay`, {
       method: 'POST',
@@ -150,13 +173,25 @@ export const api = {
   lessons: (token: string, courseId: number) => apiRequest<{ data: ApiLesson[] }>(`/my/courses/${courseId}/lessons`, { token }),
   progress: (token: string, courseId: number) => apiRequest<ApiProgress>(`/my/courses/${courseId}/progress`, { token }),
   completeLesson: (token: string, lessonId: number) => apiRequest<ApiProgress>(`/my/lessons/${lessonId}/complete`, { method: 'POST', token }),
+  saveLessonProgress: (token: string, lessonId: number, positionSeconds: number, durationSeconds: number) =>
+    apiRequest<ApiLessonProgressResponse>(`/my/lessons/${lessonId}/progress`, {
+      method: 'PATCH',
+      token,
+      body: { position_seconds: positionSeconds, duration_seconds: durationSeconds },
+    }),
   quiz: (token: string, courseId: number) => apiRequest<{ data: ApiQuiz }>(`/my/courses/${courseId}/quiz`, { token }),
   submitQuiz: (token: string, courseId: number, answers: Array<{ question_id: number; option_id: number | null }>) =>
-    apiRequest<{ attempt: ApiQuizAttempt; passed: boolean; score: number; certificate: ApiCertificate | null }>(`/my/courses/${courseId}/quiz/attempts`, {
+    apiRequest<ApiQuizSubmissionResponse>(`/my/courses/${courseId}/quiz/attempts`, {
       method: 'POST',
       token,
       body: { answers },
     }),
+  startQuizAttempt: (token: string, courseId: number) =>
+    apiRequest<ApiAttemptLifecycleResponse>(`/my/courses/${courseId}/quiz/attempts/start`, { method: 'POST', token }),
+  saveQuizAnswers: (token: string, attemptId: number, answers: Array<{ question_id: number; option_id: number | null }>) =>
+    apiRequest<ApiAttemptLifecycleResponse>(`/my/quiz-attempts/${attemptId}/answers`, { method: 'PATCH', token, body: { answers } }),
+  finalizeQuizAttempt: (token: string, attemptId: number) =>
+    apiRequest<ApiQuizSubmissionResponse>(`/my/quiz-attempts/${attemptId}/submit`, { method: 'POST', token }),
   reviewCourse: (token: string, courseId: number, rating: number, comment: string) =>
     apiRequest<{ data: ApiReview }>(`/my/courses/${courseId}/reviews`, { method: 'POST', token, body: { rating, comment } }),
   certificateUrl: (courseId: number) => `${API_BASE_URL}/my/courses/${courseId}/certificate`,
@@ -173,6 +208,13 @@ export const api = {
   },
 
   adminStats: (token: string) => apiRequest<ApiAdminStats>('/admin/dashboard/stats', { token }),
+  downloadAdminReport: async (token: string, report: 'enrollments' | 'revenue') => {
+    const response = await fetch(`${API_BASE_URL}/admin/reports/${report}`, {
+      headers: { Accept: 'text/csv', Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new ApiError('Không thể xuất báo cáo.', response.status);
+    return response.blob();
+  },
   adminRoles: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiAdminRole>>('/admin/roles' + queryString(filters), { token }),
   adminCarts: (token: string, filters: Record<string, string | number | undefined> = {}) =>
@@ -191,6 +233,11 @@ export const api = {
     apiRequest<Paginated<ApiAdminAnswerIndex>>('/admin/answers' + queryString(filters), { token }),
   adminNews: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<ApiNewsList>(`/admin/news${queryString(filters)}`, { token }),
+  uploadNewsImage: (token: string, file: File) => {
+    const body = new FormData();
+    body.append('image', file);
+    return apiRequest<{ url: string }>('/admin/news/images', { method: 'POST', token, body });
+  },
   saveNews: (token: string, body: Record<string, unknown>, newsId?: number) =>
     apiRequest<{ data: ApiNewsPost }>(newsId ? `/admin/news/${newsId}` : '/admin/news', {
       method: newsId ? 'PUT' : 'POST',
@@ -200,13 +247,22 @@ export const api = {
   deleteNews: (token: string, newsId: number) => apiRequest<void>(`/admin/news/${newsId}`, { method: 'DELETE', token }),
   adminUsers: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiUser>>(`/admin/users${queryString(filters)}`, { token }),
+  adminUser: (token: string, userId: number) =>
+    apiRequest<{ data: ApiUser }>(`/admin/users/${userId}`, { token }),
   adminUserRecords: (token: string, userId: number) =>
     apiRequest<{ data: ApiUserRecord[] }>(`/admin/users/${userId}/records`, { token }),
   updateUserStatus: (token: string, userId: number, status: 'active' | 'locked', reason: string) =>
     apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/status`, { method: 'PATCH', token, body: { status, reason } }),
-  updateUserRole: (token: string, userId: number, role: 'student' | 'admin') =>
+  updateUserRole: (token: string, userId: number, role: 'student' | 'admin' | 'teacher') =>
     apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/role`, { method: 'PATCH', token, body: { role } }),
   adminCategories: (token: string) => apiRequest<{ data: ApiCategory[] }>('/admin/categories', { token }),
+  adminCatalogs: (token: string) => apiRequest<{ data: ApiCatalog[] }>('/admin/catalogs', { token }),
+  createCatalog: (token: string, body: { name: string; description?: string }) =>
+    apiRequest<{ data: ApiCatalog }>('/admin/catalogs', { token, method: 'POST', body }),
+  updateCatalog: (token: string, id: number, body: { name: string; description?: string }) =>
+    apiRequest<{ data: ApiCatalog }>(`/admin/catalogs/${id}`, { token, method: 'PUT', body }),
+  deleteCatalog: (token: string, id: number) =>
+    apiRequest<null>(`/admin/catalogs/${id}`, { token, method: 'DELETE' }),
   createCategory: (token: string, body: { name: string; description?: string }) =>
     apiRequest<{ data: ApiCategory }>('/admin/categories', { method: 'POST', token, body }),
   updateCategory: (token: string, categoryId: number, body: { name: string; description?: string }) =>

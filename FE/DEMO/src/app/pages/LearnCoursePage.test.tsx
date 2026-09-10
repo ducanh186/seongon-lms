@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -9,10 +9,15 @@ const lessons = vi.hoisted(() => vi.fn());
 const progress = vi.hoisted(() => vi.fn());
 const quiz = vi.hoisted(() => vi.fn());
 const submitQuiz = vi.hoisted(() => vi.fn());
+const completeLesson = vi.hoisted(() => vi.fn());
+const saveLessonProgress = vi.hoisted(() => vi.fn());
+const startQuizAttempt = vi.hoisted(() => vi.fn());
+const saveQuizAnswers = vi.hoisted(() => vi.fn());
+const finalizeQuizAttempt = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { myCourses, lessons, progress, quiz, submitQuiz },
+  api: { myCourses, lessons, progress, quiz, submitQuiz, completeLesson, saveLessonProgress, startQuizAttempt, saveQuizAnswers, finalizeQuizAttempt },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth: () => ({ token: 'student-token' }) }));
 
@@ -38,6 +43,33 @@ function useViewport(width: number) {
 }
 
 describe('LearnCoursePage', () => {
+  it('completes a lesson when a tracked video reaches the end and hides the certificate until earned', async () => {
+    myCourses.mockResolvedValue(enrollmentResponse);
+    lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học video', video_url: 'https://cdn.example.test/lesson.mp4', description: null, duration: 30, position: 1, is_completed: false }] });
+    progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, can_take_exam: false });
+    saveLessonProgress.mockResolvedValue({
+      lesson: { lesson_id: 5, resume_position_seconds: 30, furthest_position_seconds: 30, video_duration_seconds: 30, watched_percent: 100, is_completed: true },
+      course_progress: { completed: 1, total: 1, percent: 100, video_percent: 100, can_take_exam: true },
+    });
+
+    renderPage();
+
+    expect(screen.queryByRole('heading', { name: 'Chứng chỉ' })).not.toBeInTheDocument();
+    fireEvent.ended(await screen.findByRole('video', { name: 'Bài học video' }));
+    await waitFor(() => expect(saveLessonProgress).toHaveBeenCalledWith('student-token', 5, 30, 30));
+  });
+
+  it('shows continuous course and lesson playback percentages', async () => {
+    myCourses.mockResolvedValue(enrollmentResponse);
+    lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học video', video_url: 'https://cdn.example.test/lesson.mp4', description: null, duration: 100, position: 1, is_completed: false, resume_position_seconds: 25, furthest_position_seconds: 40, video_duration_seconds: 100, watched_percent: 40 }] });
+    progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, video_percent: 40, can_take_exam: false });
+
+    renderPage();
+
+    expect(await screen.findByText('40% đã xem')).toBeInTheDocument();
+    expect(screen.getByText('40%', { selector: 'h5' })).toBeInTheDocument();
+  });
+
   it('offers the active lesson PDF on the backend host', async () => {
     myCourses.mockResolvedValue(enrollmentResponse);
     lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học PDF', material_url: '/storage/lesson-materials/guide.pdf', video_url: '', description: null, duration: null, position: 1, is_completed: false }] });
@@ -129,10 +161,38 @@ describe('LearnCoursePage', () => {
       score: 50,
       certificate: null,
     });
+    startQuizAttempt.mockResolvedValue({
+      server_now: new Date().toISOString(),
+      attempt: { id: 9, quiz_id: 7, score: null, passed: null, attempt_no: 1, status: 'in_progress', started_at: new Date().toISOString(), expires_at: new Date(Date.now() + 1_800_000).toISOString(), finished_at: null, submitted_at: null, answers: [] },
+    });
+    saveQuizAnswers.mockResolvedValue({ server_now: new Date().toISOString(), attempt: { id: 9, status: 'in_progress', answers: [] } });
+    finalizeQuizAttempt.mockResolvedValue({
+      attempt: {
+        id: 9,
+        quiz_id: 7,
+        score: 50,
+        passed: false,
+        attempt_no: 1,
+        status: 'submitted',
+        started_at: '2026-01-01T00:00:00Z',
+        expires_at: '2026-01-01T00:30:00Z',
+        finished_at: '2026-01-01T00:10:00Z',
+        submitted_at: '2026-01-01T00:10:00Z',
+        answers: [
+          { question_id: 11, selected_option_id: 101, is_correct: true },
+          { question_id: 12, selected_option_id: 202, is_correct: false },
+        ],
+      },
+      passed: false,
+      score: 50,
+      certificate: null,
+      server_now: '2026-01-01T00:10:00Z',
+    });
     const user = userEvent.setup();
 
     renderPage();
     await user.click(await screen.findByRole('button', { name: 'Mở bài kiểm tra' }));
+    await user.click(await screen.findByRole('button', { name: 'Bắt đầu làm bài' }));
     await user.click(await screen.findByRole('radio', { name: 'Đáp án A' }));
     await user.click(screen.getByRole('radio', { name: 'Đáp án D' }));
     await user.click(screen.getByRole('button', { name: 'Nộp bài kiểm tra' }));
@@ -142,9 +202,6 @@ describe('LearnCoursePage', () => {
     expect(screen.getByText('Đáp án D · Chưa đúng')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /Đáp án A/ })).toBeDisabled();
     expect(screen.getByRole('radio', { name: /Đáp án D/ })).toBeDisabled();
-    expect(submitQuiz).toHaveBeenCalledWith('student-token', 10, [
-      { question_id: 11, option_id: 101 },
-      { question_id: 12, option_id: 202 },
-    ]);
+    expect(finalizeQuizAttempt).toHaveBeenCalledWith('student-token', 9);
   });
 });

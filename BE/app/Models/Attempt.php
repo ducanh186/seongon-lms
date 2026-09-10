@@ -16,6 +16,10 @@ class Attempt extends Model
         'score',
         'passed',
         'attempt_number',
+        'status',
+        'started_at',
+        'expires_at',
+        'finished_at',
         'correct_count',
         'wrong_count',
         'answers',
@@ -27,6 +31,9 @@ class Attempt extends Model
         return [
             'passed' => 'boolean',
             'submitted_at' => 'datetime',
+            'started_at' => 'datetime',
+            'expires_at' => 'datetime',
+            'finished_at' => 'datetime',
             // Approved replacement for the quiz_attempt_answers table:
             // [{ question_id: int, selected_answer_id: int|null, is_correct: bool }]
             'answers' => 'array',

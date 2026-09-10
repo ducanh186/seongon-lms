@@ -79,9 +79,7 @@ yarn-error.log*
 /*.png
 /CONTEXT.md
 /FE/DEMO/ATTRIBUTIONS.md
-/FE/DEMO/README.md
 /FE/DEMO/guidelines/
 /FE/DEMO/src/imports/pasted_text/
-/README.md
-/BE/README.md
-/Infra/README.md
+!/docs/README.md
+/.vercel/

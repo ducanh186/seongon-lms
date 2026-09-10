@@ -14,6 +14,10 @@ class NewsPostResource extends JsonResource
             'title' => $this->title,
             'slug' => $this->slug,
             'category' => $this->category,
+            'author' => $this->whenLoaded('author', fn () => $this->author ? [
+                'id' => $this->author->id,
+                'name' => $this->author->name,
+            ] : null),
             'excerpt' => $this->excerpt,
             'content' => $this->content,
             'thumbnail' => $this->thumbnail,

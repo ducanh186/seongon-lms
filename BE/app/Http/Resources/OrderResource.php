@@ -16,6 +16,12 @@ class OrderResource extends JsonResource
             'amount' => $this->amount,
             'total_amount' => $this->total_amount ?? $this->amount,
             'status' => $this->status,
+            'payment_status' => $this->payment_status,
+            'payment_session' => $this->when($request->user()?->id === $this->user_id, $this->payment_session),
+            'payment_started_at' => $this->payment_started_at,
+            'payment_expires_at' => $this->payment_expires_at,
+            'mock_callback_allowed' => $request->user()?->id === $this->user_id
+                && data_get($this->payment_session, 'mode') === 'mock',
             'payment_method' => $this->payment_method,
             'transaction_ref' => $this->transaction_ref,
             'paid_at' => $this->paid_at,

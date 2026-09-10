@@ -332,6 +332,8 @@ if (-not $SkipSeed) {
     # synchronize additive demo data introduced by later application releases.
     Invoke-BuildStep -Label 'Seed demo data when database is empty' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'app:seed-demo-once')
     Invoke-BuildStep -Label 'Synchronize demo account history' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'db:seed', '--class=DemoUserHistorySeeder', '--force')
+    Invoke-BuildStep -Label 'Synchronize demo course popularity' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'db:seed', '--class=DemoPopularCoursesSeeder', '--force')
+    Invoke-BuildStep -Label 'Synchronize demo dashboard history and completions' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'db:seed', '--class=DemoDashboardSeeder', '--force')
 }
 
 Stop-FrontendDevServerForBuild -FrontendRoot $frontendRoot

@@ -5,6 +5,7 @@ describe('apiRequest', () => {
   it('resolves stored PDF paths against the API host, not the frontend host', () => {
     const origin = new URL(import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1', window.location.origin).origin;
     expect(resolveMaterialUrl('/storage/lesson-materials/guide.pdf')).toBe(`${origin}/storage/lesson-materials/guide.pdf`);
+    expect(resolveMaterialUrl('/images/news/seo-ai.svg')).toBe('/images/news/seo-ai.svg');
     expect(resolveMaterialUrl('https://cdn.example.test/guide.pdf')).toBe('https://cdn.example.test/guide.pdf');
     expect(resolveMaterialUrl('javascript:alert(1)')).toBeUndefined();
   });

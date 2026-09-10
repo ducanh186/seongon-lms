@@ -56,13 +56,19 @@ class MyCourseController extends Controller
     {
         $enrollment = $this->resolveActiveEnrollment($request->user(), $course);
 
-        $completed = $enrollment->learningProgress()
-            ->where('is_completed', true)
-            ->pluck('lesson_id')
-            ->flip();
+        $progressByLesson = $enrollment->learningProgress()
+            ->get()
+            ->keyBy('lesson_id');
 
-        $lessons = $course->lessons()->get()->map(function ($lesson) use ($completed) {
-            $lesson->is_completed = $completed->has($lesson->id);
+        $lessons = $course->lessons()->get()->map(function ($lesson) use ($progressByLesson) {
+            $lessonProgress = $progressByLesson->get($lesson->id);
+            $lesson->is_completed = (bool) ($lessonProgress?->is_completed ?? false);
+            $lesson->resume_position_seconds = $lessonProgress?->resume_position_seconds;
+            $lesson->furthest_position_seconds = $lessonProgress?->furthest_position_seconds;
+            $lesson->video_duration_seconds = $lessonProgress?->video_duration_seconds;
+            $lesson->watched_percent = $lessonProgress?->video_duration_seconds
+                ? min(100, (int) floor($lessonProgress->furthest_position_seconds / $lessonProgress->video_duration_seconds * 100))
+                : 0;
 
             return $lesson;
         });

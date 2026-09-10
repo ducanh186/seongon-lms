@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class NewsPost extends Model
 {
@@ -14,6 +15,7 @@ class NewsPost extends Model
         'title',
         'slug',
         'category',
+        'author_id',
         'excerpt',
         'content',
         'thumbnail',
@@ -33,5 +35,10 @@ class NewsPost extends Model
         return $query->where('status', 'published')
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
+    }
+
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

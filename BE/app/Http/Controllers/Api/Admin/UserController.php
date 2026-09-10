@@ -3,19 +3,19 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
 use App\Http\Resources\UserRecordResource;
+use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::query()->withCount('enrollments');
+        $query = User::query()->withCount('enrollments')->with('role');
 
         if ($q = $request->query('q')) {
             $query->where(function ($w) use ($q) {
@@ -27,7 +27,16 @@ class UserController extends Controller
             $query->where('status', $status);
         }
 
+        if ($role = $request->query('role')) {
+            $query->whereHas('role', fn ($roles) => $roles->where('code', $role));
+        }
+
         return UserResource::collection($query->latest()->paginate(15)->withQueryString());
+    }
+
+    public function show(User $user)
+    {
+        return new UserResource($user->load('role')->loadCount('enrollments'));
     }
 
     public function updateRole(Request $request, User $user)

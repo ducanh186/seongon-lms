@@ -58,4 +58,12 @@ describe('ProfilePage', () => {
     expect(screen.getByRole('region', { name: 'Tổng quan học tập' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Bảo mật tài khoản' })).toBeInTheDocument();
   });
+
+  it('shows email as read-only and offers an avatar file picker instead of a URL field', () => {
+    render(<ProfilePage />);
+
+    expect(screen.getByLabelText('Email')).toHaveAttribute('readonly');
+    expect(screen.queryByLabelText(/URL ảnh đại diện/)).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Ảnh đại diện')).toHaveAttribute('type', 'file');
+  });
 });

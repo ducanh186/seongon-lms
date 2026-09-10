@@ -13,6 +13,7 @@ import { MyCoursesPage } from './pages/MyCoursesPage';
 import { NewsDetailPage } from './pages/NewsDetailPage';
 import { NewsPage } from './pages/NewsPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { TransactionsPage } from './pages/TransactionsPage';
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
               { path: 'cart', Component: CartPage },
               { path: 'checkout/:slug', Component: CheckoutPage },
               { path: 'my-courses', Component: MyCoursesPage },
+              { path: 'transactions', Component: TransactionsPage },
               { path: 'learn/:courseId', Component: LearnCoursePage },
             ],
           },

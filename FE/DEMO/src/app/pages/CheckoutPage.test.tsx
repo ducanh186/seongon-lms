@@ -8,6 +8,8 @@ import { CheckoutPage } from './CheckoutPage';
 const course = vi.hoisted(() => vi.fn());
 const createOrder = vi.hoisted(() => vi.fn());
 const payOrder = vi.hoisted(() => vi.fn());
+const paymentMethods = vi.hoisted(() => vi.fn());
+const startPayment = vi.hoisted(() => vi.fn());
 const navigate = vi.hoisted(() => vi.fn());
 const useCart = vi.hoisted(() => vi.fn());
 const useAuth = vi.hoisted(() => vi.fn());
@@ -15,7 +17,7 @@ const updateProfile = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { course, createOrder, payOrder, updateProfile },
+  api: { course, createOrder, payOrder, updateProfile, paymentMethods, startPayment, mockPaymentCallback: payOrder },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 vi.mock('../cart/CartContext', () => ({ useCart }));
@@ -32,6 +34,8 @@ const courseData = {
 
 describe('CheckoutPage', () => {
   beforeEach(() => {
+    paymentMethods.mockResolvedValue({ data: [{ code: 'momo', label: 'Thanh toán qua ví MoMo', mode: 'mock' }] });
+    startPayment.mockResolvedValue({ data: { id: 44, amount: '299000', status: 'pending', payment_status: 'pending', payment_method: 'momo', payment_session: { token: 'session', qr_payload: 'test-order-44', mode: 'mock' }, payment_expires_at: new Date(Date.now() + 900000).toISOString(), mock_callback_allowed: true } });
     useAuth.mockReturnValue({
       token: 'student-token',
       user: { id: 1, name: 'Nguyễn Văn An', email: 'an@example.test', phone: '0901234567', avatar: null, role: 'student' },
@@ -45,22 +49,22 @@ describe('CheckoutPage', () => {
     vi.clearAllMocks();
   });
 
-  it('refreshes the server Cart after payment before navigating to My Courses', async () => {
+  it('refreshes the server Cart after payment and offers transaction history', async () => {
     const refresh = vi.fn().mockResolvedValue(undefined);
     useCart.mockReturnValue({ refresh });
     course.mockResolvedValue({ data: courseData });
     createOrder.mockResolvedValue({ data: { id: 44, user_id: 1, course_id: 10, amount: '299000', status: 'pending', payment_method: null, transaction_ref: null, paid_at: null, created_at: '2026-07-10T00:00:00Z' } });
-    payOrder.mockResolvedValue({ data: { ...courseData } });
+    payOrder.mockResolvedValue({ order: { id: 44, amount: '299000', status: 'paid', payment_status: 'paid' } });
 
     render(<MemoryRouter><CheckoutPage /></MemoryRouter>);
     const user = userEvent.setup();
     await screen.findByRole('complementary', { name: 'Tóm tắt đơn đăng ký' });
     await user.click(screen.getByRole('button', { name: 'Lưu thông tin và tạo đơn' }));
-    await user.click(await screen.findByRole('button', { name: 'Xác nhận thanh toán' }));
+    await user.click(await screen.findByRole('button', { name: 'Tiếp tục' }));
+    await user.click(await screen.findByRole('button', { name: 'Mô phỏng thanh toán thành công' }));
 
     expect(refresh).toHaveBeenCalledOnce();
-    expect(navigate).toHaveBeenCalledWith('/my-courses', expect.objectContaining({ state: expect.objectContaining({ notice: expect.any(String) }) }));
-    expect(refresh.mock.invocationCallOrder[0]).toBeLessThan(navigate.mock.invocationCallOrder[0]);
+    expect(screen.getByRole('link', { name: 'Lịch sử giao dịch' })).toBeInTheDocument();
   });
 
   it('keeps a rejected payment recoverable instead of navigating to My Courses', async () => {
@@ -74,11 +78,12 @@ describe('CheckoutPage', () => {
     expect(await screen.findByRole('complementary', { name: 'Tóm tắt đơn đăng ký' })).toBeInTheDocument();
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Lưu thông tin và tạo đơn' }));
-    await user.click(await screen.findByRole('button', { name: 'Xác nhận thanh toán' }));
+    await user.click(await screen.findByRole('button', { name: 'Tiếp tục' }));
+    await user.click(await screen.findByRole('button', { name: 'Mô phỏng thanh toán thành công' }));
 
     expect(await screen.findByText('Thanh toán thất bại.')).toBeInTheDocument();
     expect(createOrder).toHaveBeenCalledWith('student-token', 10);
-    expect(payOrder).toHaveBeenCalledWith('student-token', 44, 'qr');
+    expect(payOrder).toHaveBeenCalledWith('student-token', 44, 'session', 'success');
     expect(refresh).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
   });
@@ -111,21 +116,22 @@ describe('CheckoutPage', () => {
     expect(createOrder).toHaveBeenCalledWith('student-token', 10);
   });
 
-  it('still completes navigation when Cart refresh fails after a successful payment', async () => {
+  it('still shows successful payment when Cart refresh fails', async () => {
     const refresh = vi.fn().mockRejectedValue(new ApiError('Cart refresh failed.', 500));
     useCart.mockReturnValue({ refresh });
     course.mockResolvedValue({ data: courseData });
     createOrder.mockResolvedValue({ data: { id: 44, user_id: 1, course_id: 10, amount: '299000', status: 'pending', payment_method: null, transaction_ref: null, paid_at: null, created_at: '2026-07-10T00:00:00Z' } });
-    payOrder.mockResolvedValue({});
+    payOrder.mockResolvedValue({ order: { id: 44, amount: '299000', status: 'paid', payment_status: 'paid' } });
 
     render(<MemoryRouter><CheckoutPage /></MemoryRouter>);
     const user = userEvent.setup();
     await screen.findByRole('complementary', { name: 'Tóm tắt đơn đăng ký' });
     await user.click(screen.getByRole('button', { name: 'Lưu thông tin và tạo đơn' }));
-    await user.click(await screen.findByRole('button', { name: 'Xác nhận thanh toán' }));
+    await user.click(await screen.findByRole('button', { name: 'Tiếp tục' }));
+    await user.click(await screen.findByRole('button', { name: 'Mô phỏng thanh toán thành công' }));
 
     expect(refresh).toHaveBeenCalledOnce();
-    expect(navigate).toHaveBeenCalledWith('/my-courses', expect.any(Object));
+    expect(screen.getByRole('link', { name: 'Lịch sử giao dịch' })).toBeInTheDocument();
     expect(screen.queryByText('Thanh toán chưa hoàn tất. Bạn có thể thử lại.')).not.toBeInTheDocument();
   });
 
@@ -139,7 +145,7 @@ describe('CheckoutPage', () => {
     await screen.findByRole('complementary', { name: 'Tóm tắt đơn đăng ký' });
     await user.click(screen.getByRole('button', { name: 'Lưu thông tin và tạo đơn' }));
 
-    expect(await screen.findByText('325.000 đ')).toBeInTheDocument();
+    expect(await screen.findByText('Tổng cộng: 325.000 đ')).toBeInTheDocument();
     expect(screen.queryByText('299.000 đ')).not.toBeInTheDocument();
   });
 

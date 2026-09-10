@@ -5,7 +5,7 @@ export type AdminColumn<T> = {
   key: string;
   header: string;
   align?: 'left' | 'center' | 'right';
-  width?: number;
+  width?: number | string;
   render: (row: T) => ReactNode;
 };
 

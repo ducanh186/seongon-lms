@@ -9,6 +9,7 @@ use Closure;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class NewsController extends Controller
@@ -21,7 +22,7 @@ class NewsController extends Controller
             'category' => ['nullable', 'string', 'max:100'],
         ]);
         $categories = NewsPost::query()->distinct()->orderBy('category')->pluck('category')->values();
-        $query = NewsPost::query()->latest();
+        $query = NewsPost::query()->with('author:id,name')->latest();
 
         if ($search = $filters['q'] ?? null) {
             $query->where(function ($newsQuery) use ($search): void {
@@ -48,14 +49,14 @@ class NewsController extends Controller
         $data = $this->validatedData($request);
         $data['published_at'] = $data['status'] === 'published' ? now() : null;
 
-        $newsPost = $this->createWithUniqueSlug($data);
+        $newsPost = $this->createWithUniqueSlug(array_merge($data, ['author_id' => $request->user()->id]));
 
-        return (new NewsPostResource($newsPost))->response()->setStatusCode(201);
+        return (new NewsPostResource($newsPost->load('author:id,name')))->response()->setStatusCode(201);
     }
 
     public function show(NewsPost $news)
     {
-        return new NewsPostResource($news);
+        return new NewsPostResource($news->load('author:id,name'));
     }
 
     public function update(Request $request, NewsPost $news)
@@ -70,7 +71,18 @@ class NewsController extends Controller
 
         $news->update($data);
 
-        return new NewsPostResource($news);
+        return new NewsPostResource($news->fresh()->load('author:id,name'));
+    }
+
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
+        ]);
+
+        $path = $request->file('image')->store('news-images', 'public');
+
+        return response()->json(['url' => Storage::url($path)], 201);
     }
 
     public function destroy(NewsPost $news)
@@ -85,7 +97,7 @@ class NewsController extends Controller
      */
     private function validatedData(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'max:100'],
             'excerpt' => ['required', 'string', 'max:500'],
@@ -107,6 +119,34 @@ class NewsController extends Controller
             }],
             'status' => ['required', 'in:draft,published'],
         ]);
+
+        $data['content'] = $this->sanitizeContent($data['content']);
+
+        return $data;
+    }
+
+    private function sanitizeContent(string $content): string
+    {
+        if (strip_tags($content) === $content) {
+            return $content;
+        }
+
+        // Remove executable/embedded blocks together with their text before
+        // applying the allow-list, so payloads such as `<script>alert(1)</script>`
+        // do not become visible article copy after sanitization.
+        $content = preg_replace('#<(script|style|iframe|object|embed)\\b[^>]*>.*?</\\1>#is', '', $content) ?? $content;
+        $allowed = '<p><br><h2><h3><strong><em><ul><ol><li><a><img><blockquote>';
+        $content = strip_tags($content, $allowed);
+        $content = preg_replace('/\s+on[a-z]+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $content) ?? $content;
+        $content = preg_replace_callback('/\s+(src|href)\s*=\s*(["\'])(.*?)\2/i', function (array $match): string {
+            $value = trim($match[3]);
+            $safe = (str_starts_with($value, '/') && ! str_starts_with($value, '//'))
+                || preg_match('#^https?://#i', $value) === 1;
+
+            return $safe ? ' '.$match[1].'='.$match[2].$value.$match[2] : '';
+        }, $content) ?? $content;
+
+        return trim($content);
     }
 
     private function uniqueSlug(string $title): string

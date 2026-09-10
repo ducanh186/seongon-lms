@@ -36,6 +36,24 @@ class OrderService
             $query->where('status', $status);
         }
 
+        if ($paymentStatus = $filters['payment_status'] ?? null) {
+            if ($paymentStatus === 'paid' || $paymentStatus === 'cancelled') {
+                $query->where('status', $paymentStatus === 'paid' ? 'paid' : 'failed');
+            } else {
+                $query->where('status', 'pending');
+                if ($paymentStatus === 'expired') {
+                    $query->where('payment_expires_at', '<', now());
+                } else {
+                    $query->where(fn (Builder $q) => $q->whereNull('payment_expires_at')->orWhere('payment_expires_at', '>=', now()));
+                    if ($paymentStatus === 'draft') {
+                        $query->whereNull('payment_started_at')->whereNull('transaction_ref');
+                    } else {
+                        $query->where(fn (Builder $q) => $q->whereNotNull('payment_started_at')->orWhereNotNull('transaction_ref'));
+                    }
+                }
+            }
+        }
+
         if ($courseId = $filters['course_id'] ?? null) {
             $query->where('course_id', $courseId);
         }

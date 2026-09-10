@@ -104,7 +104,7 @@ describe('AdminErdReadSection', () => {
     expect(within(dialog).getByText('SEO Technical')).toBeInTheDocument();
     expect(within(dialog).getByText('10')).toBeInTheDocument();
     expect(within(dialog).getByText('399.000 đ')).toBeInTheDocument();
-    expect(within(dialog).getAllByText('—')).toHaveLength(2);
+    expect(within(dialog).getAllByText('—')).toHaveLength(3);
     await actor.click(within(dialog).getByRole('button', { name: 'Đóng' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     await actor.click(row);

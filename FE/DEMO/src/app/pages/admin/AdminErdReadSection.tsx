@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { paymentMethodLabel, paymentStatus, paymentStatusLabels } from '../../lib/payment';
 import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
 import type {
   ApiAdminAnswerIndex,
@@ -139,13 +140,15 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
             { key: 'course_title', label: 'Tên khóa học', kind: 'text' },
             { key: 'student', label: 'Tài khoản học viên', kind: 'text' },
             {
-              key: 'status',
+              key: 'payment_status',
               label: 'Trạng thái',
               kind: 'select',
               options: [
                 { value: 'pending', label: 'Chờ thanh toán' },
                 { value: 'paid', label: 'Đã thanh toán' },
-                { value: 'failed', label: 'Thất bại' },
+                { value: 'draft', label: 'Chưa thanh toán' },
+                { value: 'cancelled', label: 'Đã hủy' },
+                { value: 'expired', label: 'Hết hạn' },
               ],
               disableScrollLock: true,
             },
@@ -160,7 +163,7 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
             { key: 'courseId', header: 'Mã khóa học', width: 106, align: 'center', render: (order) => order.course.id },
             { key: 'course', header: 'Khóa học', render: (order) => order.course.title },
             { key: 'total', header: 'Tổng tiền', width: 120, align: 'center', render: (order) => <Typography sx={{ whiteSpace: 'nowrap', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{Number(order.total_amount).toLocaleString('vi-VN')} đ</Typography> },
-            { key: 'status', header: 'Trạng thái', width: 132, render: (order) => <Chip size="small" label={{ pending: 'Chờ thanh toán', paid: 'Đã thanh toán', failed: 'Thất bại' }[order.status]} color={order.status === 'paid' ? 'primary' : 'default'} /> },
+            { key: 'status', header: 'Trạng thái', width: 132, render: (order) => <Chip size="small" label={paymentStatusLabels[paymentStatus(order)]} color={order.status === 'paid' ? 'primary' : 'default'} /> },
             { key: 'created', header: 'Ngày tạo', width: 112, render: (order) => <Typography sx={{ whiteSpace: 'nowrap' }}>{date(order.created_at)}</Typography> },
           ] satisfies AdminColumn<ApiAdminOrder>[]}
         />
@@ -174,8 +177,9 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
               ['Khóa học', selectedOrder.course?.title ?? '—'],
               ['Mã khóa học', selectedOrder.course?.id ?? selectedOrder.course_id ?? '—'],
               ['Tổng tiền', selectedOrder.total_amount == null ? '—' : money(selectedOrder.total_amount)],
-              ['Phương thức thanh toán', selectedOrder.payment_method ? ({ card: 'Thẻ', qr: 'Mã QR' }[selectedOrder.payment_method] ?? selectedOrder.payment_method) : '—'],
-              ['Trạng thái', { pending: 'Chờ thanh toán', paid: 'Đã thanh toán', failed: 'Thất bại' }[selectedOrder.status]],
+              ['Phương thức thanh toán', paymentMethodLabel(selectedOrder.payment_method)],
+              ['Trạng thái', paymentStatusLabels[paymentStatus(selectedOrder)]],
+              ['Mã giao dịch', selectedOrder.status === 'paid' ? selectedOrder.transaction_ref ?? '—' : '—'],
               ['Thời gian thanh toán', selectedOrder.paid_at ? new Date(selectedOrder.paid_at).toLocaleString('vi-VN') : '—'],
               ['Ngày tạo đơn', selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleString('vi-VN') : '—'],
             ].map(([label, value]) => <Box key={String(label)} sx={{ display: 'contents' }}><Typography component="dt" color="text.secondary">{label}</Typography><Box component="dd" sx={{ m: 0, overflowWrap: 'anywhere' }}>{value}</Box></Box>)}

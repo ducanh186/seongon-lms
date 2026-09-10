@@ -16,21 +16,24 @@ class DashboardController extends Controller
     {
         $enrollments = Enrollment::count();
         $certificates = Certificate::count();
-        $startMonth = CarbonImmutable::now()->startOfMonth()->subMonths(11);
-        $monthlyEnrollments = collect(range(0, 11))->map(function (int $offset) use ($startMonth): array {
+        $startMonth = CarbonImmutable::now()->startOfMonth()->subMonths(5);
+        $monthlyEnrollments = collect(range(0, 5))->map(function (int $offset) use ($startMonth): array {
             $month = $startMonth->addMonths($offset);
 
             return [
                 'month' => $month->format('Y-m'),
                 'total' => Enrollment::query()
-                    ->whereBetween('enrolled_at', [$month->startOfMonth(), $month->endOfMonth()])
+                    ->where('created_at', '>=', $month)
+                    ->where('created_at', '<', $month->addMonth())
                     ->count(),
             ];
         });
         $popularCourses = Course::query()
+            ->has('enrollments')
             ->withCount('enrollments')
             ->orderByDesc('enrollments_count')
             ->orderBy('title')
+            ->orderBy('id')
             ->limit(5)
             ->get(['id', 'title'])
             ->map(fn (Course $course): array => [
@@ -43,6 +46,7 @@ class DashboardController extends Controller
             'students' => User::where('role', 'student')->count(),
             'courses' => Course::count(),
             'published_courses' => Course::where('status', 'published')->count(),
+            'draft_courses' => Course::where('status', 'draft')->count(),
             'enrollments' => $enrollments,
             'certificates' => $certificates,
             'completion_rate' => $enrollments > 0

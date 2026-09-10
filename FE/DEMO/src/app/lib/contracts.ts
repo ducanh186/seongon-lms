@@ -1,4 +1,4 @@
-export type UserRole = 'student' | 'admin';
+export type UserRole = 'student' | 'admin' | 'teacher';
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
 export type CourseStatus = 'draft' | 'published';
 export type EnrollmentStatus = 'active' | 'expired';
@@ -7,6 +7,7 @@ export interface ApiAdminStats {
   students: number;
   courses: number;
   published_courses: number;
+  draft_courses: number;
   enrollments: number;
   certificates: number;
   completion_rate: number;
@@ -36,6 +37,14 @@ export interface ApiUserRecord {
   created_at: string;
 }
 
+export interface ApiCatalog {
+  id: number;
+  name: string;
+  description: string | null;
+  created_at: string;
+  news_count?: number;
+}
+
 export interface ApiCategory {
   id: number;
   name: string;
@@ -54,6 +63,10 @@ export interface ApiLesson {
   duration: number | null;
   position: number;
   is_completed?: boolean;
+  resume_position_seconds?: number | null;
+  furthest_position_seconds?: number | null;
+  video_duration_seconds?: number | null;
+  watched_percent?: number;
 }
 
 export interface ApiCourse {
@@ -136,6 +149,7 @@ export interface ApiNewsPost {
   title: string;
   slug: string;
   category: string;
+  author?: { id: number; name: string } | null;
   excerpt: string;
   content: string;
   thumbnail: string | null;
@@ -159,7 +173,20 @@ export interface ApiProgress {
   completed: number;
   total: number;
   percent: number;
+  video_percent?: number;
   can_take_exam: boolean;
+}
+
+export interface ApiLessonProgressResponse {
+  lesson: {
+    lesson_id: number;
+    resume_position_seconds: number;
+    furthest_position_seconds: number;
+    video_duration_seconds: number;
+    watched_percent: number;
+    is_completed: boolean;
+  };
+  course_progress: ApiProgress;
 }
 
 export interface ApiEnrollment {
@@ -189,13 +216,33 @@ export interface ApiMyCoursesResponse extends Paginated<ApiEnrollment> {
   summary?: ApiEnrollmentSummary;
 }
 
+export type PaymentMethod = 'momo' | 'bank';
+export type PaymentStatus = 'draft' | 'pending' | 'paid' | 'cancelled' | 'expired';
+export interface PaymentSettings {
+  momo: { enabled: boolean; mode: 'mock'; merchant_name: string };
+  bank: { enabled: boolean; is_active: boolean; bank_name: string; account_name: string; account_number: string; branch: string; qr_payload: string; instructions: string };
+}
+export interface PaymentSession {
+  token: string;
+  mode: 'mock';
+  reference: string;
+  merchant_name: string;
+  qr_payload: string | null;
+  bank: PaymentSettings['bank'] | null;
+}
+
 export interface ApiOrder {
   id: number;
   user_id: number;
   course_id: number;
   amount: string | number;
   status: 'pending' | 'paid' | 'failed';
-  payment_method: 'card' | 'qr' | null;
+  payment_method: PaymentMethod | 'card' | 'qr' | null;
+  payment_status?: PaymentStatus;
+  payment_session?: PaymentSession | null;
+  payment_started_at?: string | null;
+  payment_expires_at?: string | null;
+  mock_callback_allowed?: boolean;
   transaction_ref: string | null;
   paid_at: string | null;
   course?: ApiCourse;
@@ -312,6 +359,7 @@ export interface ApiAdminExam {
   title: string;
   pass_score: number;
   max_attempts: number;
+  duration_minutes: number | null;
   questions_count: number;
   attempts_count: number;
   course: ApiCourse;
@@ -357,15 +405,30 @@ export interface ApiAdminCertificateStatus {
 export interface ApiQuizAttempt {
   id: number;
   quiz_id: number;
-  score: number;
-  passed: boolean;
+  score: number | null;
+  passed: boolean | null;
   attempt_no: number;
-  submitted_at: string;
+  status: 'in_progress' | 'submitted' | 'expired';
+  started_at: string;
+  expires_at: string | null;
+  finished_at: string | null;
+  submitted_at: string | null;
   answers?: Array<{
     question_id: number;
     selected_option_id: number | null;
-    is_correct: boolean;
+    is_correct?: boolean;
   }>;
+}
+
+export interface ApiAttemptLifecycleResponse {
+  attempt: ApiQuizAttempt;
+  server_now: string;
+}
+
+export interface ApiQuizSubmissionResponse extends ApiAttemptLifecycleResponse {
+  passed: boolean;
+  score: number;
+  certificate: ApiCertificate | null;
 }
 
 export interface ApiCertificate {

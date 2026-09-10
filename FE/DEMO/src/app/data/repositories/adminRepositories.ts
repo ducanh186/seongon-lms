@@ -2,8 +2,15 @@ import { api } from '../../lib/api';
 
 // Persistence adapter: approved Laravel JSON API contracts.
 export const adminRepositories = {
+  catalogs: {
+    list: api.adminCatalogs,
+    create: api.createCatalog,
+    update: api.updateCatalog,
+    remove: api.deleteCatalog,
+  },
   dashboard: {
     getStats: api.adminStats,
+    downloadReport: api.downloadAdminReport,
   },
   roles: {
     list: api.adminRoles,
@@ -31,6 +38,7 @@ export const adminRepositories = {
   },
   users: {
     list: api.adminUsers,
+    get: api.adminUser,
     records: api.adminUserRecords,
     updateStatus: api.updateUserStatus,
     updateRole: api.updateUserRole,
@@ -78,6 +86,7 @@ export const adminRepositories = {
   news: {
     list: api.adminNews,
     save: api.saveNews,
+    uploadImage: api.uploadNewsImage,
     remove: api.deleteNews,
   },
 } as const;

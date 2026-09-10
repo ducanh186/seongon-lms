@@ -186,14 +186,14 @@ describe('News public pages', () => {
     expect(api.news).toHaveBeenCalledTimes(2);
   });
 
-  it('renders the detail route as plain text instead of HTML', async () => {
-    const post = { ...posts[0], content: '<script>alert(1)</script>' };
+  it('renders sanitized rich text on the detail route', async () => {
+    const post = { ...posts[0], content: '<p>Đoạn an toàn</p><script>alert(1)</script>' };
     vi.mocked(api.newsPost).mockResolvedValue({ data: post });
 
     renderNews(`/news/${post.slug}`);
 
     expect(await screen.findByRole('heading', { name: post.title })).toBeInTheDocument();
-    expect(screen.getByText('<script>alert(1)</script>')).toBeInTheDocument();
+    expect(screen.getByText('Đoạn an toàn')).toBeInTheDocument();
     expect(document.querySelector('script')).toBeNull();
     expect(api.newsPost).toHaveBeenCalledWith(post.slug);
   });

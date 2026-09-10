@@ -186,7 +186,7 @@ class CartService
             if ($order !== null) {
                 // A pending Order with a key has already entered the payment
                 // attempt. Its amount and key stay immutable until finalize.
-                if ($order->status === 'pending' && $order->transaction_ref !== null) {
+                if ($order->payment_status === 'pending' && $order->transaction_ref !== null) {
                     return $order;
                 }
 
@@ -196,6 +196,9 @@ class CartService
                     'payment_method' => null,
                     'transaction_ref' => null,
                     'paid_at' => null,
+                    'payment_session' => null,
+                    'payment_started_at' => null,
+                    'payment_expires_at' => null,
                 ]);
 
                 return $order;

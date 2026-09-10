@@ -27,6 +27,34 @@ class ExamGradingService
      */
     public function grade(Enrollment $enrollment, Exam $exam, array $answers): Attempt
     {
+        $attemptNumber = (int) Attempt::where('enrollment_id', $enrollment->id)
+            ->where('exam_id', $exam->id)
+            ->max('attempt_number') + 1;
+        $attempt = Attempt::create([
+            'enrollment_id' => $enrollment->id,
+            'exam_id' => $exam->id,
+            'attempt_number' => $attemptNumber,
+            'status' => 'in_progress',
+            'started_at' => now(),
+            'expires_at' => now(),
+            'answers' => collect($answers)->map(fn (array $answer) => [
+                'question_id' => (int) $answer['question_id'],
+                'selected_answer_id' => $answer['option_id'] === null ? null : (int) $answer['option_id'],
+            ])->values()->all(),
+        ]);
+
+        return $this->finalizeAttempt($attempt, 'submitted');
+    }
+
+    public function finalizeAttempt(Attempt $attempt, string $status = 'submitted'): Attempt
+    {
+        $attempt->loadMissing('enrollment', 'exam.questions.answers');
+        $enrollment = $attempt->enrollment;
+        $exam = $attempt->exam;
+        $answers = collect($attempt->answers ?? [])->map(fn (array $answer) => [
+            'question_id' => (int) $answer['question_id'],
+            'option_id' => $answer['selected_answer_id'] ?? null,
+        ])->all();
         $exam->loadMissing('questions.answers');
         $questions = $exam->questions;
         $total = $questions->count();
@@ -56,30 +84,29 @@ class ExamGradingService
 
         $score = $total > 0 ? (int) round($correctCount / $total * 100) : 0;
         $passed = $score >= $exam->pass_score;
-        $attemptNumber = (int) Attempt::where('enrollment_id', $enrollment->id)
-            ->where('exam_id', $exam->id)
-            ->max('attempt_number') + 1;
 
         return DB::transaction(function () use (
-            $enrollment, $exam, $score, $passed, $attemptNumber, $answerRows, $correctCount, $total
+            $attempt, $enrollment, $score, $passed, $status, $answerRows, $correctCount, $total
         ) {
-            $attempt = Attempt::create([
-                'enrollment_id' => $enrollment->id,
-                'exam_id' => $exam->id,
+            $finishedAt = $status === 'expired' && $attempt->expires_at
+                ? $attempt->expires_at
+                : now();
+            $attempt->update([
                 'score' => $score,
                 'passed' => $passed,
-                'attempt_number' => $attemptNumber,
                 'correct_count' => $correctCount,
                 'wrong_count' => $total - $correctCount,
                 'answers' => $answerRows,
-                'submitted_at' => now(),
+                'status' => $status,
+                'finished_at' => $finishedAt,
+                'submitted_at' => $finishedAt,
             ]);
 
             if ($passed) {
                 $this->certificates->issueForEnrollment($enrollment);
             }
 
-            return $attempt;
+            return $attempt->refresh();
         });
     }
 }

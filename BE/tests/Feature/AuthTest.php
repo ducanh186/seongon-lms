@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 
 it('registers a new student and returns a token', function () {
@@ -43,4 +45,22 @@ it('returns the authenticated user', function () {
     $this->getJson('/api/v1/auth/me')
         ->assertOk()
         ->assertJsonPath('data.email', $user->email);
+});
+
+it('accepts a profile avatar upload through multipart method spoofing', function () {
+    Storage::fake('public');
+    $user = User::factory()->create();
+    $avatar = UploadedFile::fake()->image('avatar.png', 200, 200);
+
+    $response = $this->actingAs($user, 'sanctum')->post('/api/v1/auth/profile', [
+        '_method' => 'PUT',
+        'name' => 'Nguyễn Văn B',
+        'phone' => '0900000000',
+        'avatar_file' => $avatar,
+    ]);
+
+    $response->assertOk()->assertJsonPath('data.name', 'Nguyễn Văn B');
+    $path = $response->json('data.avatar');
+    expect($path)->toStartWith('/storage/profile-avatars/');
+    Storage::disk('public')->assertExists(str_replace('/storage/', '', $path));
 });

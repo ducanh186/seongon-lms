@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RoleSeeder::class);
+        $this->call(DemoAccountSeeder::class);
 
         User::factory()->admin()->create([
             'name' => 'SEONGON Admin',
@@ -31,6 +32,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call(GeneratedDemoCatalogSeeder::class);
         $this->call(CompletedCourseDemoSeeder::class);
+        $this->call(DemoPopularCoursesSeeder::class);
+        $this->call(DemoDashboardSeeder::class);
         $this->call(DemoUserHistorySeeder::class);
         $this->call(DemoNewsSeeder::class);
     }

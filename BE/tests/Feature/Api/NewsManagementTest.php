@@ -5,7 +5,9 @@ namespace Tests\Feature\Api;
 use App\Models\NewsPost;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class NewsManagementTest extends TestCase
@@ -56,9 +58,12 @@ class NewsManagementTest extends TestCase
         $create = $this->withToken($token)->postJson('/api/v1/admin/news', $payload);
         $create->assertCreated()
             ->assertJsonPath('data.title', 'News title')
+            ->assertJsonPath('data.author.id', $admin->id)
+            ->assertJsonPath('data.author.name', $admin->name)
             ->assertJsonPath('data.status', 'draft')
             ->assertJsonPath('data.published_at', null);
         $id = $create->json('data.id');
+        $this->assertDatabaseHas('news_posts', ['id' => $id, 'author_id' => $admin->id]);
 
         $this->withToken($token)->getJson("/api/v1/admin/news/{$id}")
             ->assertOk()
@@ -74,6 +79,37 @@ class NewsManagementTest extends TestCase
 
         $this->withToken($token)->deleteJson("/api/v1/admin/news/{$id}")->assertNoContent();
         $this->assertDatabaseMissing('news_posts', ['id' => $id]);
+    }
+
+    public function test_admin_uploads_news_images_to_public_storage(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin, 'sanctum')->post('/api/v1/admin/news/images', [
+            'image' => UploadedFile::fake()->image('inside-article.png', 800, 450),
+        ]);
+
+        $response->assertCreated()->assertJsonPath('url', fn ($url) => str_starts_with($url, '/storage/news-images/'));
+        Storage::disk('public')->assertExists(str_replace('/storage/', '', $response->json('url')));
+    }
+
+    public function test_news_html_keeps_article_blocks_and_removes_executable_markup(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin, 'sanctum')->postJson('/api/v1/admin/news', $this->validPayload([
+            'content' => '<h2>Tiêu đề phụ</h2><p onclick="alert(1)">Nội dung</p><img src="/storage/news-images/a.png" onerror="alert(1)"><script>alert(1)</script>',
+        ]));
+
+        $response->assertCreated();
+        $content = $response->json('data.content');
+        $this->assertStringContainsString('<h2>Tiêu đề phụ</h2>', $content);
+        $this->assertStringContainsString('<img src="/storage/news-images/a.png">', $content);
+        $this->assertStringNotContainsString('onclick', $content);
+        $this->assertStringNotContainsString('onerror', $content);
+        $this->assertStringNotContainsString('<script', $content);
+        $this->assertStringNotContainsString('alert(1)', $content);
     }
 
     public function test_student_gets_forbidden_for_admin_news_endpoints(): void

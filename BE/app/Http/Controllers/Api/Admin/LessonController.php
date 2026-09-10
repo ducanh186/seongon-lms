@@ -8,12 +8,16 @@ use App\Http\Resources\LessonResource;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Services\LearningOperationsService;
+use App\Services\ProtectedDeletionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class LessonController extends Controller
 {
-    public function __construct(private readonly LearningOperationsService $operations) {}
+    public function __construct(
+        private readonly LearningOperationsService $operations,
+        private readonly ProtectedDeletionService $deletion,
+    ) {}
 
     public function index(Request $request)
     {
@@ -74,6 +78,7 @@ class LessonController extends Controller
 
     public function destroy(Lesson $lesson)
     {
+        $this->deletion->assertLessonDeletable($lesson);
         $this->deleteStoredMaterial($lesson->material_url);
         $lesson->delete();
 

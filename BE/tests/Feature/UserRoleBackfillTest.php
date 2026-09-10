@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
  */
 it('provisions the canonical roles from the migration alone', function () {
     expect(Role::query()->pluck('code')->sort()->values()->all())
-        ->toBe(['admin', 'student']);
+        ->toBe(['admin', 'student', 'teacher']);
 });
 
 it('backfills role_id for a student created through the factory', function () {

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\AnswerController as AdminAnswerController;
 use App\Http\Controllers\Api\Admin\AttemptController as AdminAttemptController;
 use App\Http\Controllers\Api\Admin\CartController as AdminCartController;
 use App\Http\Controllers\Api\Admin\CartItemController as AdminCartItemController;
+use App\Http\Controllers\Api\Admin\CatalogController;
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\Admin\CertificateController as AdminCertificateController;
 use App\Http\Controllers\Api\Admin\CourseCategoryController as AdminCourseCategoryController;
@@ -15,8 +16,10 @@ use App\Http\Controllers\Api\Admin\LearningProgressController as AdminLearningPr
 use App\Http\Controllers\Api\Admin\LessonController as AdminLessonController;
 use App\Http\Controllers\Api\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Api\Admin\PaymentSettingsController;
 use App\Http\Controllers\Api\Admin\QuestionController as AdminQuestionController;
 use App\Http\Controllers\Api\Admin\QuizController as AdminQuizController;
+use App\Http\Controllers\Api\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Api\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
@@ -29,6 +32,7 @@ use App\Http\Controllers\Api\Student\CertificateController;
 use App\Http\Controllers\Api\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Api\Student\MyCourseController;
 use App\Http\Controllers\Api\Student\OrderController;
+use App\Http\Controllers\Api\Student\PaymentController;
 use App\Http\Controllers\Api\Student\QuizController as StudentQuizController;
 use App\Http\Controllers\Api\Student\ReviewController as StudentReviewController;
 use Illuminate\Support\Facades\Route;
@@ -60,15 +64,24 @@ Route::prefix('v1')->group(function () {
             Route::delete('cart', [StudentCartController::class, 'destroy']);
 
             Route::post('orders', [OrderController::class, 'store']);
+            Route::get('payment-methods', [PaymentController::class, 'methods']);
+            Route::get('orders/{order}', [PaymentController::class, 'show']);
+            Route::post('orders/{order}/payment-session', [PaymentController::class, 'start']);
+            Route::post('orders/{order}/mock-callback', [PaymentController::class, 'callback']);
+            Route::get('my/transactions', [PaymentController::class, 'history']);
             Route::post('orders/{order}/pay', [OrderController::class, 'pay']);
 
             Route::get('my/courses', [MyCourseController::class, 'index']);
             Route::get('my/courses/{course}/lessons', [MyCourseController::class, 'lessons']);
             Route::get('my/courses/{course}/progress', [MyCourseController::class, 'progress']);
             Route::post('my/lessons/{lesson}/complete', [StudentLessonController::class, 'complete']);
+            Route::patch('my/lessons/{lesson}/progress', [StudentLessonController::class, 'progress']);
 
             Route::get('my/courses/{course}/quiz', [StudentQuizController::class, 'show']);
             Route::post('my/courses/{course}/quiz/attempts', [StudentQuizController::class, 'submit']);
+            Route::post('my/courses/{course}/quiz/attempts/start', [StudentQuizController::class, 'start']);
+            Route::patch('my/quiz-attempts/{attempt}/answers', [StudentQuizController::class, 'saveAnswers']);
+            Route::post('my/quiz-attempts/{attempt}/submit', [StudentQuizController::class, 'finalize']);
             Route::get('my/quiz-attempts/{attempt}', [StudentQuizController::class, 'showAttempt']);
 
             Route::post('my/courses/{course}/reviews', [StudentReviewController::class, 'store']);
@@ -81,6 +94,8 @@ Route::prefix('v1')->group(function () {
             Route::get('carts', [AdminCartController::class, 'index']);
             Route::get('cart-items', [AdminCartItemController::class, 'index']);
             Route::get('orders', [AdminOrderController::class, 'index']);
+            Route::get('payment-settings', [PaymentSettingsController::class, 'show']);
+            Route::put('payment-settings', [PaymentSettingsController::class, 'update']);
             Route::get('course-categories', [AdminCourseCategoryController::class, 'index']);
             Route::get('learning-progress', [AdminLearningProgressController::class, 'index']);
             Route::get('questions', [AdminQuestionController::class, 'index']);
@@ -92,11 +107,16 @@ Route::prefix('v1')->group(function () {
             Route::get('exams', [AdminExamController::class, 'index']);
             Route::get('attempts', [AdminAttemptController::class, 'index']);
             Route::get('certificates', [AdminCertificateController::class, 'index']);
+            Route::get('reports/enrollments', [AdminReportController::class, 'enrollments']);
+            Route::get('reports/revenue', [AdminReportController::class, 'revenue']);
 
+            Route::post('news/images', [AdminNewsController::class, 'uploadImage']);
             Route::apiResource('news', AdminNewsController::class);
+            Route::apiResource('catalogs', CatalogController::class)->except('show');
 
             Route::get('users', [AdminUserController::class, 'index']);
             Route::get('users/{user}/records', [AdminUserController::class, 'records']);
+            Route::get('users/{user}', [AdminUserController::class, 'show']);
             Route::patch('users/{user}/status', [AdminUserController::class, 'updateStatus']);
             Route::patch('users/{user}/role', [AdminUserController::class, 'updateRole']);
 

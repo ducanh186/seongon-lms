@@ -19,6 +19,7 @@ class OrderController extends Controller
             'q' => ['nullable', 'string', 'max:255'],
             'order_id' => ['nullable', 'integer', 'min:1'],
             'status' => ['nullable', Rule::in(['pending', 'paid', 'failed'])],
+            'payment_status' => ['nullable', Rule::in(['draft', 'pending', 'paid', 'cancelled', 'expired'])],
             'course_id' => ['nullable', 'integer', 'exists:courses,id'],
             'course_title' => ['nullable', 'string', 'max:255'],
             'student' => ['nullable', 'string', 'max:255'],

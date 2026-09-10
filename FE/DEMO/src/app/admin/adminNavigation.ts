@@ -7,6 +7,7 @@ export type AdminSection =
   | 'carts'
   | 'cartItems'
   | 'orders'
+  | 'paymentSettings'
   | 'categories'
   | 'courseCategories'
   | 'courses'
@@ -49,8 +50,10 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
       { section: 'overview', label: 'Tổng quan' },
       domainItem('users', 'Tài khoản', 'users'),
       domainItem('orders', 'Đơn hàng', 'orders'),
+      { section: 'paymentSettings', label: 'Cài đặt thanh toán' },
       domainItem('categories', 'Danh mục', 'categories'),
       domainItem('courses', 'Khóa học', 'courses'),
+      domainItem('reviews', 'Đánh giá', 'reviews'),
       domainItem('news', 'Tin tức', 'newsPosts'),
     ],
   },
