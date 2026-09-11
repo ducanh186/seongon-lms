@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Notifications\PasswordResetOtpNotification;
+use App\Services\PasswordResetService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +16,60 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function requestPasswordReset(Request $request, PasswordResetService $passwordResetService)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+        $retryAfterSeconds = (int) config('password_reset.resend_seconds');
+
+        if (! $passwordResetService->claimRequestSlot($data['email'])) {
+            return response()->json([
+                'message' => "Vui lòng chờ {$retryAfterSeconds} giây trước khi yêu cầu OTP mới.",
+                'retry_after_seconds' => $retryAfterSeconds,
+            ], 429);
+        }
+
+        $user = User::where('email', $data['email'])->first();
+
+        if ($user) {
+            $otp = $passwordResetService->issue($user->email);
+            $user->notify(new PasswordResetOtpNotification($otp));
+        }
+
+        return response()->json([
+            'message' => 'Nếu email tồn tại, OTP đã được gửi.',
+            'retry_after_seconds' => $retryAfterSeconds,
+        ], 202);
+    }
+
+    public function verifyPasswordReset(Request $request, PasswordResetService $passwordResetService)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'otp' => ['required', 'digits:6'],
+        ]);
+
+        return response()->json([
+            'reset_token' => $passwordResetService->verify($data['email'], $data['otp']),
+        ]);
+    }
+
+    public function completePasswordReset(Request $request, PasswordResetService $passwordResetService)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'reset_token' => ['required', 'string'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        $passwordResetService->complete($data['email'], $data['reset_token'], $data['password']);
+
+        return response()->json([
+            'message' => 'Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại.',
+        ]);
+    }
+
     public function register(Request $request)
     {
         $data = $request->validate([

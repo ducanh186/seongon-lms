@@ -63,6 +63,22 @@ describe('AuthPage', () => {
     expect(screen.getByTestId('auth-layout')).toHaveStyle({ gridTemplateColumns: '.9fr 1fr' });
   });
 
+  it('links login users to the password reset flow', () => {
+    render(<MemoryRouter><AuthPage /></MemoryRouter>);
+
+    expect(screen.getByRole('link', { name: 'Quên mật khẩu?' })).toHaveAttribute('href', '/forgot-password');
+  });
+
+  it('confirms a completed password reset on the login page', () => {
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/login', state: { passwordReset: true } }]}>
+        <AuthPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại.')).toBeInTheDocument();
+  });
+
   it('always routes an admin to Admin Portal even with stale student return state', async () => {
     login.mockResolvedValue({ id: 2, role: 'admin' });
     render(
@@ -81,6 +97,27 @@ describe('AuthPage', () => {
 
     expect(await screen.findByText('Current path: /admin')).toBeInTheDocument();
     expect(screen.queryByText('Wrong student route')).not.toBeInTheDocument();
+  });
+
+  it('shows a success message and returns to the login tab after registering (UC-01)', async () => {
+    register.mockResolvedValue({ id: 3, role: 'student' });
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/login', state: { from: '/courses/seo' } }]}>
+        <Routes><Route path="/login" element={<AuthPage />} /><Route path="/my-courses" element={<div>Wrong redirect</div>} /></Routes>
+      </MemoryRouter>,
+    );
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('tab', { name: 'Đăng ký' }));
+    await user.type(screen.getByLabelText(/Họ và tên/), 'Học viên mới');
+    await user.type(screen.getByLabelText(/^Email/), 'new@example.test');
+    await user.type(screen.getByLabelText(/^Mật khẩu/), 'SecurePass123');
+    await user.type(screen.getByLabelText(/Xác nhận mật khẩu/), 'SecurePass123');
+    await user.click(screen.getByRole('button', { name: 'Tạo tài khoản' }));
+
+    expect(await screen.findByText('Đăng ký thành công. Vui lòng đăng nhập để tiếp tục.')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Đăng nhập' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByLabelText(/^Email/)).toHaveValue('new@example.test');
+    expect(screen.queryByText('Wrong redirect')).not.toBeInTheDocument();
   });
 });
 

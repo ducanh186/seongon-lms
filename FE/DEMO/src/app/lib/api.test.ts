@@ -84,6 +84,51 @@ describe('apiRequest', () => {
     });
   });
 
+  it('maps the three-step password reset flow to the Laravel endpoints', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'OTP sent', retry_after_seconds: 60 }), {
+        status: 202,
+        headers: { 'Content-Type': 'application/json' },
+      }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ reset_token: 'reset-token' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Password reset' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.requestPasswordReset({ email: 'student@example.test' });
+    await api.verifyPasswordReset({ email: 'student@example.test', otp: '123456' });
+    await api.completePasswordReset({
+      email: 'student@example.test',
+      reset_token: 'reset-token',
+      password: 'NewPass123!',
+      password_confirmation: 'NewPass123!',
+    });
+
+    expect(fetchMock.mock.calls.map(([url, request]) => ({
+      path: String(url).replace(/^.*\/api\/v1/, ''),
+      method: request.method,
+      body: JSON.parse(String(request.body)),
+    }))).toEqual([
+      { path: '/auth/password-reset/request', method: 'POST', body: { email: 'student@example.test' } },
+      { path: '/auth/password-reset/verify', method: 'POST', body: { email: 'student@example.test', otp: '123456' } },
+      {
+        path: '/auth/password-reset/complete',
+        method: 'POST',
+        body: {
+          email: 'student@example.test',
+          reset_token: 'reset-token',
+          password: 'NewPass123!',
+          password_confirmation: 'NewPass123!',
+        },
+      },
+    ]);
+  });
+
   it('downloads a certificate Blob with the supplied bearer token', async () => {
     const certificateBlob = new Blob(['pdf-bytes'], { type: 'application/pdf' });
     const responseBlob = vi.fn().mockResolvedValue(certificateBlob);
@@ -203,5 +248,25 @@ describe('apiRequest', () => {
       '/admin/questions?exam_id=3&page=1',
       '/admin/answers?correct=1&page=1',
     ]);
+  });
+
+  it('adds the UC spec endpoints with the expected paths', async () => {
+    // A fresh Response per call: a Response body can only be read once, and
+    // `apiRequest` awaits `.json()` on every call below.
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(
+      new Response(JSON.stringify({ data: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } }),
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.deleteQuiz('t', 10);
+    await api.adminStats('t', 'week');
+    await api.course('seo-foundation', 't');
+    await api.updateUserStatus('t', 2, 'active');
+
+    const calls = fetchMock.mock.calls.map(([url, init]) => [String(url).replace(/^.*\/api\/v1/, ''), (init as RequestInit).method ?? 'GET', (init as RequestInit).body ?? null]);
+    expect(calls[0]).toEqual(['/admin/courses/10/quiz', 'DELETE', null]);
+    expect(calls[1]).toEqual(['/admin/dashboard/stats?period=week', 'GET', null]);
+    expect(((fetchMock.mock.calls[2][1] as RequestInit).headers as Headers).get('Authorization')).toBe('Bearer t');
+    expect(calls[3]).toEqual(['/admin/users/2/status', 'PATCH', JSON.stringify({ status: 'active' })]);
   });
 });

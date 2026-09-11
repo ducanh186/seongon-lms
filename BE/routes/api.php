@@ -41,6 +41,9 @@ Route::prefix('v1')->group(function () {
     // ---------- Public (Guest) ----------
     Route::post('auth/register', [AuthController::class, 'register']);
     Route::post('auth/login', [AuthController::class, 'login']);
+    Route::post('auth/password-reset/request', [AuthController::class, 'requestPasswordReset']);
+    Route::post('auth/password-reset/verify', [AuthController::class, 'verifyPasswordReset']);
+    Route::post('auth/password-reset/complete', [AuthController::class, 'completePasswordReset']);
 
     Route::get('categories', [CategoryController::class, 'index']);
     Route::get('courses', [CourseController::class, 'index']);
@@ -139,6 +142,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('lessons/{lesson}', [AdminLessonController::class, 'destroy']);
 
             Route::match(['post', 'put'], 'courses/{course}/quiz', [AdminQuizController::class, 'upsert']);
+            Route::delete('courses/{course}/quiz', [AdminQuizController::class, 'destroy']);
             Route::post('quizzes/{quiz}/questions', [AdminQuestionController::class, 'store']);
             Route::put('questions/{question}', [AdminQuestionController::class, 'update']);
             Route::delete('questions/{question}', [AdminQuestionController::class, 'destroy']);

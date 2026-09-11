@@ -20,6 +20,8 @@ import type {
   ApiAdminQuiz,
   ApiCertificate,
   ApiCourse,
+  CourseStatus,
+  DashboardPeriod,
   ApiEnrollment,
   ApiMyCoursesResponse,
   ApiLesson,
@@ -129,6 +131,12 @@ export const api = {
     apiRequest<{ user: ApiUser; token: string }>('/auth/register', { method: 'POST', body }),
   login: (body: { email: string; password: string }) =>
     apiRequest<{ user: ApiUser; token: string }>('/auth/login', { method: 'POST', body }),
+  requestPasswordReset: (body: { email: string }) =>
+    apiRequest<{ message: string; retry_after_seconds: number }>('/auth/password-reset/request', { method: 'POST', body }),
+  verifyPasswordReset: (body: { email: string; otp: string }) =>
+    apiRequest<{ reset_token: string }>('/auth/password-reset/verify', { method: 'POST', body }),
+  completePasswordReset: (body: { email: string; reset_token: string; password: string; password_confirmation: string }) =>
+    apiRequest<{ message: string }>('/auth/password-reset/complete', { method: 'POST', body }),
   logout: (token: string) => apiRequest<void>('/auth/logout', { method: 'POST', token }),
   me: (token: string) => apiRequest<{ data: ApiUser }>('/auth/me', { token }),
   updateProfile: (token: string, body: Pick<ApiUser, 'name' | 'phone' | 'avatar'> | FormData) => {
@@ -142,7 +150,7 @@ export const api = {
   categories: () => apiRequest<{ data: ApiCategory[] }>('/categories'),
   courses: (filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiCourse>>(`/courses${queryString(filters)}`),
-  course: (slug: string) => apiRequest<{ data: ApiCourse }>(`/courses/${slug}`),
+  course: (slug: string, token?: string | null) => apiRequest<{ data: ApiCourse }>(`/courses/${slug}`, { token }),
   news: (filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<ApiNewsList>(`/news${queryString(filters)}`),
   newsPost: (slug: string) => apiRequest<{ data: ApiNewsPost }>(`/news/${slug}`),
@@ -209,7 +217,8 @@ export const api = {
     return response.blob();
   },
 
-  adminStats: (token: string) => apiRequest<ApiAdminStats>('/admin/dashboard/stats', { token }),
+  adminStats: (token: string, period?: DashboardPeriod) =>
+    apiRequest<ApiAdminStats>(`/admin/dashboard/stats${queryString({ period: period && period !== 'all' ? period : undefined })}`, { token }),
   downloadAdminReport: async (token: string, report: 'enrollments' | 'revenue') => {
     const response = await fetch(`${API_BASE_URL}/admin/reports/${report}`, {
       headers: { Accept: 'text/csv', Authorization: `Bearer ${token}` },
@@ -253,8 +262,8 @@ export const api = {
     apiRequest<{ data: ApiUser }>(`/admin/users/${userId}`, { token }),
   adminUserRecords: (token: string, userId: number) =>
     apiRequest<{ data: ApiUserRecord[] }>(`/admin/users/${userId}/records`, { token }),
-  updateUserStatus: (token: string, userId: number, status: 'active' | 'locked', reason: string) =>
-    apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/status`, { method: 'PATCH', token, body: { status, reason } }),
+  updateUserStatus: (token: string, userId: number, status: 'active' | 'locked', reason?: string) =>
+    apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/status`, { method: 'PATCH', token, body: reason === undefined ? { status } : { status, reason } }),
   updateUserRole: (token: string, userId: number, role: 'student' | 'admin' | 'teacher') =>
     apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/role`, { method: 'PATCH', token, body: { role } }),
   adminCategories: (token: string) => apiRequest<{ data: ApiCategory[] }>('/admin/categories', { token }),
@@ -289,7 +298,7 @@ export const api = {
       token,
       body,
     }),
-  publishCourse: (token: string, courseId: number, status: 'draft' | 'published') =>
+  publishCourse: (token: string, courseId: number, status: CourseStatus) =>
     apiRequest<{ data: ApiCourse }>(`/admin/courses/${courseId}/publish`, { method: 'PATCH', token, body: { status } }),
   deleteCourse: (token: string, courseId: number) => apiRequest<void>(`/admin/courses/${courseId}`, { method: 'DELETE', token }),
   saveLesson: (token: string, body: Record<string, unknown> | FormData, courseId?: number, lessonId?: number) => {
@@ -311,8 +320,9 @@ export const api = {
       token,
       body: { order },
     }),
-  saveQuiz: (token: string, courseId: number, body: { title: string; pass_score: number; max_attempts: number }) =>
+  saveQuiz: (token: string, courseId: number, body: { title: string; pass_score: number; max_attempts: number; duration_minutes?: number | null; closes_at?: string | null }) =>
     apiRequest<ApiAdminQuiz>(`/admin/courses/${courseId}/quiz`, { method: 'POST', token, body }),
+  deleteQuiz: (token: string, courseId: number) => apiRequest<void>(`/admin/courses/${courseId}/quiz`, { method: 'DELETE', token }),
   saveQuestion: (token: string, quizId: number, body: { content: string; options: Array<{ content: string; is_correct: boolean }> }) =>
     apiRequest<ApiAdminQuestion>(`/admin/quizzes/${quizId}/questions`, { method: 'POST', token, body }),
   updateQuestion: (token: string, questionId: number, body: { content: string; options: Array<{ content: string; is_correct: boolean }> }) =>

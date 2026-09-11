@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Alert, Box, Button, Container, Paper, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { ApiError } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -14,16 +14,28 @@ export function AuthPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [error, setError] = useState<ApiError | null>(null);
+  const [notice, setNotice] = useState<string | null>(() => (
+    (location.state as { passwordReset?: boolean } | null)?.passwordReset
+      ? 'Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại.'
+      : null
+  ));
   const [submitting, setSubmitting] = useState(false);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
+    setNotice(null);
     setSubmitting(true);
     try {
-      const user = mode === 'login'
-        ? await login(email, password)
-        : await register(name, email, password, passwordConfirmation);
+      if (mode === 'register') {
+        await register(name, email, password, passwordConfirmation);
+        setMode('login');
+        setPassword('');
+        setPasswordConfirmation('');
+        setNotice('Đăng ký thành công. Vui lòng đăng nhập để tiếp tục.');
+        return;
+      }
+      const user = await login(email, password);
       const returnPath = (location.state as { from?: string } | null)?.from;
       navigate(user.role === 'admin' ? '/admin' : (returnPath ?? '/my-courses'));
     } catch (reason) {
@@ -49,15 +61,17 @@ export function AuthPage() {
             <Typography variant="overline" color="primary.dark" fontWeight={800}>SEONGON ACADEMY</Typography>
             <Typography component="h1" variant="h4" sx={{ mt: 1 }}>Chào mừng bạn</Typography>
             <Typography color="text.secondary" sx={{ mt: 1.25 }}>Đăng nhập để tiếp tục lộ trình học của bạn.</Typography>
-            <Tabs value={mode} onChange={(_, value) => setMode(value)} sx={{ mt: 3 }}>
+            <Tabs value={mode} onChange={(_, value) => { setMode(value); setNotice(null); }} sx={{ mt: 3 }}>
               <Tab value="login" label="Đăng nhập" />
               <Tab value="register" label="Đăng ký" />
             </Tabs>
             <Stack spacing={2} sx={{ mt: 3 }}>
+              {notice && <Alert severity="success">{notice}</Alert>}
               {error && <Alert severity="error">{error.message}</Alert>}
               {mode === 'register' && <TextField required label="Họ và tên" value={name} onChange={(event) => setName(event.target.value)} />}
               <TextField required label="Email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} error={Boolean(error?.fields.email?.[0])} helperText={error?.fields.email?.[0]} />
               <TextField required label="Mật khẩu" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} error={Boolean(error?.fields.password?.[0])} helperText={error?.fields.password?.[0] ?? (mode === 'register' ? 'Dùng ít nhất 8 ký tự, bao gồm chữ và số.' : undefined)} />
+              {mode === 'login' && <Button component={Link} to="/forgot-password" sx={{ alignSelf: 'flex-end' }}>Quên mật khẩu?</Button>}
               {mode === 'register' && <TextField required label="Xác nhận mật khẩu" type="password" autoComplete="new-password" value={passwordConfirmation} onChange={(event) => setPasswordConfirmation(event.target.value)} error={Boolean(error?.fields.password_confirmation?.[0])} helperText={error?.fields.password_confirmation?.[0]} />}
               <Button type="submit" size="large" variant="contained" disabled={submitting} aria-busy={submitting}>{submitting ? 'Đang xử lý...' : mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}</Button>
             </Stack>

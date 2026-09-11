@@ -7,6 +7,7 @@ import { CatalogPage } from './pages/CatalogPage';
 import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { CoursePage } from './pages/CoursePage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { Home } from './pages/Home';
 import { LearnCoursePage } from './pages/LearnCoursePage';
 import { MyCoursesPage } from './pages/MyCoursesPage';
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: 'news', Component: NewsPage },
       { path: 'news/:slug', Component: NewsDetailPage },
       { path: 'login', Component: AuthPage },
+      { path: 'forgot-password', Component: ForgotPasswordPage },
       {
         Component: RequireAuth,
         children: [
