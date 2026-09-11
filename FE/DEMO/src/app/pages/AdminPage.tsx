@@ -1091,11 +1091,13 @@ export function AdminPage() {
               getRowKey={(user) => user.id}
               columns={[
                 // Users ERD: full_name, email, role_id. No phone column exists, so
-                // none is rendered; Email takes the remaining fixed-layout width.
-                { key: 'student', header: 'Học viên', width: '28%', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
-                { key: 'email', header: 'Email', render: (user) => <Tooltip title={user.email} describeChild><Typography variant="body2" noWrap tabIndex={0}>{user.email}</Typography></Tooltip> },
+                // none is rendered. Name/Email/Role are capped so the data columns
+                // stay grouped on the left; Thao tác absorbs the leftover width
+                // instead of Email, which used to strand it at the right edge.
+                { key: 'student', header: 'Học viên', width: '24%', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
+                { key: 'email', header: 'Email', width: '30%', render: (user) => <Tooltip title={user.email} describeChild><Typography variant="body2" noWrap tabIndex={0}>{user.email}</Typography></Tooltip> },
                 { key: 'role', header: 'Vai trò', width: 140, render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : user.role === 'teacher' ? 'Giáo viên' : 'Học viên'}</Typography> },
-                { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (user) => <IconButton
+                { key: 'actions', header: 'Thao tác', render: (user) => <IconButton
                   id={`user-actions-${user.id}`}
                   aria-label={`Thao tác ${user.name}`}
                   aria-haspopup="menu"
