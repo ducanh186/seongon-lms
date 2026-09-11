@@ -448,7 +448,7 @@ describe('AdminPage', () => {
     expect(screen.getByRole('combobox', { name: 'Danh mục' })).toHaveTextContent('SEO, Analytics');
   });
 
-  it('renders account columns with phone fallback and a row menu', async () => {
+  it('renders account columns without a phone column and a row menu', async () => {
     mockAdminData();
     adminUsers.mockResolvedValue({
       data: [{
@@ -481,7 +481,6 @@ describe('AdminPage', () => {
     expect(within(table).getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
       'Học viên',
       'Email',
-      'Số điện thoại',
       'Vai trò',
       'Thao tác',
     ]);
@@ -491,7 +490,6 @@ describe('AdminPage', () => {
     expect(within(row).getAllByRole('cell').map((cell) => cell.textContent?.replace(/\u200b/g, ''))).toEqual([
       'Nguyễn Văn A',
       'student@example.test',
-      '—',
       'Học viên',
       '',
     ]);
@@ -501,6 +499,14 @@ describe('AdminPage', () => {
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
     expect(within(table).getByRole('columnheader', { name: 'Thao tác' })).not.toHaveStyle({ position: 'sticky' });
+
+    // The account detail card is part of the same Account Management flow and
+    // follows the same Users ERD: no phone field there either.
+    await user.click(within(row).getByRole('button', { name: 'Thao tác Nguyễn Văn A' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Xem chi tiết' }));
+    expect(await screen.findByRole('heading', { name: 'Chi tiết tài khoản' })).toBeInTheDocument();
+    expect(screen.getByText('Họ tên')).toBeInTheDocument();
+    expect(screen.queryByText('Số điện thoại')).not.toBeInTheDocument();
   });
 
   it('shows status history and requires a reason before locking an account', async () => {
@@ -535,7 +541,7 @@ describe('AdminPage', () => {
     await waitFor(() => expect(updateUserStatus).toHaveBeenCalledWith('admin-token', 2, 'locked', 'Tài khoản vi phạm nội quy.'));
   });
 
-  it('keeps phone data and dispatches the single menu to the selected account after dismissal', async () => {
+  it('ignores API phone data and dispatches the single menu to the selected account after dismissal', async () => {
     mockAdminData();
     adminUsers.mockResolvedValue({
       data: [
@@ -548,8 +554,11 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Tài khoản' }));
     const table = await screen.findByRole('table', { name: 'Danh sách tài khoản' });
-    expect(within(table).getByText('0912 345 678')).toBeInTheDocument();
-    expect(within(table).getByRole('row', { name: /Trần Thị B/ })).toHaveTextContent('—');
+    // phone still arrives on the shared UserResource (Profile/Checkout use it),
+    // but Account Management must not render it: no column, no value, no dash.
+    expect(within(table).queryByRole('columnheader', { name: 'Số điện thoại' })).not.toBeInTheDocument();
+    expect(within(table).queryByText('0912 345 678')).not.toBeInTheDocument();
+    expect(within(table).getByRole('row', { name: /Trần Thị B/ })).not.toHaveTextContent('—');
     const first = within(table).getByRole('button', { name: 'Thao tác Nguyễn Văn A' });
     const second = within(table).getByRole('button', { name: 'Thao tác Trần Thị B' });
     await user.click(first);

@@ -61,7 +61,7 @@ describe('CheckoutPage', () => {
     await screen.findByRole('complementary', { name: 'Tóm tắt đơn đăng ký' });
     await user.click(screen.getByRole('button', { name: 'Lưu thông tin và tạo đơn' }));
     await user.click(await screen.findByRole('button', { name: 'Tiếp tục' }));
-    await user.click(await screen.findByRole('button', { name: 'Mô phỏng thanh toán thành công' }));
+    await user.click(await screen.findByRole('button', { name: 'Tôi đã thanh toán' }));
 
     expect(refresh).toHaveBeenCalledOnce();
     expect(screen.getByRole('link', { name: 'Lịch sử giao dịch' })).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('CheckoutPage', () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Lưu thông tin và tạo đơn' }));
     await user.click(await screen.findByRole('button', { name: 'Tiếp tục' }));
-    await user.click(await screen.findByRole('button', { name: 'Mô phỏng thanh toán thành công' }));
+    await user.click(await screen.findByRole('button', { name: 'Tôi đã thanh toán' }));
 
     expect(await screen.findByText('Thanh toán thất bại.')).toBeInTheDocument();
     expect(createOrder).toHaveBeenCalledWith('student-token', 10);
@@ -128,7 +128,7 @@ describe('CheckoutPage', () => {
     await screen.findByRole('complementary', { name: 'Tóm tắt đơn đăng ký' });
     await user.click(screen.getByRole('button', { name: 'Lưu thông tin và tạo đơn' }));
     await user.click(await screen.findByRole('button', { name: 'Tiếp tục' }));
-    await user.click(await screen.findByRole('button', { name: 'Mô phỏng thanh toán thành công' }));
+    await user.click(await screen.findByRole('button', { name: 'Tôi đã thanh toán' }));
 
     expect(refresh).toHaveBeenCalledOnce();
     expect(screen.getByRole('link', { name: 'Lịch sử giao dịch' })).toBeInTheDocument();

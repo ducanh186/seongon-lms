@@ -19,7 +19,7 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { useParams } from 'react-router';
 import { ApiError, resolveMaterialUrl } from '../lib/api';
 import { applicationRepositories } from '../data/repositories/applicationRepositories';
-import type { ApiEnrollment, ApiLesson, ApiProgress, ApiQuiz } from '../lib/contracts';
+import type { ApiEnrollment, ApiLesson, ApiProgress, ApiQuiz, ApiReview } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
 import { PageSkeleton } from '../components/AsyncState';
 import { PageHeader } from '../components/PageHeader';
@@ -39,22 +39,34 @@ export function LearnCoursePage() {
   const [quizResult, setQuizResult] = useState<Awaited<ReturnType<typeof applicationRepositories.learning.submitQuiz>> | null>(null);
   const [rating, setRating] = useState<number | null>(5);
   const [comment, setComment] = useState('');
+  const [myReview, setMyReview] = useState<ApiReview | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = async () => {
     if (!token || !courseId) return;
-    const [enrollmentResponse, lessonResponse, progressResponse] = await Promise.all([
+    const [enrollmentResponse, lessonResponse, progressResponse, reviewResponse] = await Promise.all([
       applicationRepositories.learning.listMyCourses(token),
       applicationRepositories.learning.listLessons(token, courseId),
       applicationRepositories.learning.getProgress(token, courseId),
+      // UC-12: an existing review turns the create form into an edit form. A
+      // failure here must not block the lessons the page exists to show.
+      applicationRepositories.learning.myReview(token, courseId).catch(() => ({ data: null })),
     ]);
     const current = enrollmentResponse.data.find((item) => item.course_id === courseId) ?? null;
     setEnrollment(current);
     setLessons(lessonResponse.data);
     setActiveLesson((currentLesson) => currentLesson ?? lessonResponse.data[0] ?? null);
     setProgress(progressResponse);
+    applyReview(reviewResponse.data);
+  };
+
+  const applyReview = (review: ApiReview | null) => {
+    setMyReview(review);
+    if (!review) return;
+    setRating(review.rating);
+    setComment(review.comment ?? '');
   };
 
   useEffect(() => {
@@ -100,9 +112,13 @@ export function LearnCoursePage() {
   const submitReview = async () => {
     if (!token || !rating) return;
     try {
-      await applicationRepositories.learning.reviewCourse(token, courseId, rating, comment);
-      setNotice('Cảm ơn bạn đã gửi đánh giá.');
-      setComment('');
+      const existed = myReview !== null;
+      const { data } = await applicationRepositories.learning.reviewCourse(token, courseId, rating, comment);
+      // Keep the saved rating and comment on screen: clearing them made the
+      // student's own review look lost after a successful submit.
+      applyReview(data);
+      setError(null);
+      setNotice(existed ? 'Đã cập nhật đánh giá của bạn.' : 'Cảm ơn bạn đã gửi đánh giá.');
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Không thể gửi đánh giá.');
     }
@@ -266,10 +282,13 @@ export function LearnCoursePage() {
       <Card variant="outlined" sx={{ flex: 1 }}>
         <CardContent sx={{ p: 2 }}>
           <Stack spacing={1.5}>
-            <Typography component="h2" variant="h6">Đánh giá khóa học</Typography>
+            <Typography component="h2" variant="h6">{myReview ? 'Đánh giá của bạn' : 'Đánh giá khóa học'}</Typography>
+            {myReview && <Typography variant="body2" color="text.secondary">
+              Đã gửi ngày {new Date(myReview.created_at).toLocaleDateString('vi-VN')}. Bạn có thể sửa và gửi lại.
+            </Typography>}
             <Rating aria-label="Đánh giá khóa học" value={rating} onChange={(_, value) => setRating(value)} />
             <TextField label="Nhận xét của bạn" multiline minRows={3} value={comment} onChange={(event) => setComment(event.target.value)} />
-            <Button variant="outlined" onClick={() => void submitReview()} disabled={!rating}>Gửi đánh giá</Button>
+            <Button variant="outlined" onClick={() => void submitReview()} disabled={!rating}>{myReview ? 'Cập nhật đánh giá' : 'Gửi đánh giá'}</Button>
           </Stack>
         </CardContent>
       </Card>

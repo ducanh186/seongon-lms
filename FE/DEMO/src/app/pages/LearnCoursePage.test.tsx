@@ -14,10 +14,12 @@ const saveLessonProgress = vi.hoisted(() => vi.fn());
 const startQuizAttempt = vi.hoisted(() => vi.fn());
 const saveQuizAnswers = vi.hoisted(() => vi.fn());
 const finalizeQuizAttempt = vi.hoisted(() => vi.fn());
+const myReview = vi.hoisted(() => vi.fn());
+const reviewCourse = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { myCourses, lessons, progress, quiz, submitQuiz, completeLesson, saveLessonProgress, startQuizAttempt, saveQuizAnswers, finalizeQuizAttempt },
+  api: { myCourses, lessons, progress, quiz, submitQuiz, completeLesson, saveLessonProgress, startQuizAttempt, saveQuizAnswers, finalizeQuizAttempt, myReview, reviewCourse },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth: () => ({ token: 'student-token' }) }));
 
@@ -78,7 +80,10 @@ describe('LearnCoursePage', () => {
     const origin = new URL(import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1', window.location.origin).origin;
     expect(await screen.findByRole('link', { name: 'Mở tài liệu PDF' })).toHaveAttribute('href', `${origin}/storage/lesson-materials/guide.pdf`);
   });
-  beforeEach(() => useViewport(1024));
+  beforeEach(() => {
+    useViewport(1024);
+    myReview.mockResolvedValue({ data: null });
+  });
 
   afterEach(() => {
     cleanup();
@@ -97,6 +102,41 @@ describe('LearnCoursePage', () => {
     expect(screen.getByRole('navigation', { name: 'Nội dung khóa học' })).toBeInTheDocument();
     expect(screen.getByRole('complementary', { name: 'Tiến độ và tài nguyên' })).toBeInTheDocument();
     expect(quiz).not.toHaveBeenCalled();
+  });
+
+  const reviewableCourse = () => {
+    myCourses.mockResolvedValue(enrollmentResponse);
+    lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học 1', video_url: '', description: null, duration: null, position: 1, is_completed: false }] });
+    progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, can_take_exam: false });
+  };
+  const reviewPayload = (rating: number, comment: string) => ({
+    data: { id: 7, course_id: 10, rating, comment, status: 'visible', user: { id: 1, name: 'Nguyễn Văn An' }, created_at: '2026-03-04T00:00:00Z' },
+  });
+
+  it('keeps the submitted review on screen instead of clearing it', async () => {
+    reviewableCourse();
+    reviewCourse.mockResolvedValue(reviewPayload(4, 'Nội dung rõ ràng'));
+
+    renderPage();
+    const user = userEvent.setup();
+    await user.type(await screen.findByRole('textbox', { name: 'Nhận xét của bạn' }), 'Nội dung rõ ràng');
+    await user.click(screen.getByRole('button', { name: 'Gửi đánh giá' }));
+
+    expect(await screen.findByRole('button', { name: 'Cập nhật đánh giá' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Nhận xét của bạn' })).toHaveValue('Nội dung rõ ràng');
+    expect(screen.getByText('Cảm ơn bạn đã gửi đánh giá.')).toBeInTheDocument();
+  });
+
+  it('shows a pre-filled edit form when the student already reviewed the course', async () => {
+    reviewableCourse();
+    myReview.mockResolvedValue(reviewPayload(3, 'Đã đánh giá trước đó'));
+
+    renderPage();
+
+    expect(await screen.findByRole('heading', { name: 'Đánh giá của bạn' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Nhận xét của bạn' })).toHaveValue('Đã đánh giá trước đó');
+    expect(screen.getByRole('button', { name: 'Cập nhật đánh giá' })).toBeInTheDocument();
+    expect(myReview).toHaveBeenCalledWith('student-token', 10);
   });
 
   it('uses the shared skeleton while learning data is loading', () => {

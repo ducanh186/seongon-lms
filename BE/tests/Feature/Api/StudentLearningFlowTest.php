@@ -10,6 +10,7 @@ use App\Models\Exam;
 use App\Models\LearningProgress;
 use App\Models\Lesson;
 use App\Models\Question;
+use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -162,6 +163,43 @@ class StudentLearningFlowTest extends TestCase
         $this->withToken($token)->getJson("/api/v1/my/courses/{$expiredCourse->id}/lessons")
             ->assertForbidden();
         $this->assertDatabaseHas('enrollments', ['id' => $expired->id, 'status' => 'expired']);
+    }
+
+    public function test_student_can_read_back_own_review_so_the_edit_form_survives_a_reload(): void
+    {
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        Enrollment::factory()->create(['user_id' => $student->id, 'course_id' => $course->id]);
+        $token = $student->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson("/api/v1/my/courses/{$course->id}/review")
+            ->assertOk()
+            ->assertJsonPath('data', null);
+
+        $this->withToken($token)->postJson("/api/v1/my/courses/{$course->id}/reviews", [
+            'rating' => 4,
+            'comment' => 'Noi dung ro rang',
+        ])->assertCreated();
+
+        // Newer reviews from other students push the caller's review off page 1
+        // of courses/{slug}/reviews, so the edit form cannot rely on that feed.
+        Review::factory()->count(12)->create(['course_id' => $course->id, 'rating' => 5]);
+
+        $this->withToken($token)->getJson("/api/v1/my/courses/{$course->id}/review")
+            ->assertOk()
+            ->assertJsonPath('data.rating', 4)
+            ->assertJsonPath('data.comment', 'Noi dung ro rang')
+            ->assertJsonPath('data.user.id', $student->id);
+    }
+
+    public function test_review_read_back_is_denied_without_enrollment(): void
+    {
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        $token = $student->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson("/api/v1/my/courses/{$course->id}/review")
+            ->assertForbidden();
     }
 
     public function test_my_courses_paginates_enrollments_and_returns_global_percent_based_summary(): void

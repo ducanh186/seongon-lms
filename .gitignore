@@ -3,7 +3,8 @@
 /FE/node_modules/
 node_modules/
 vendor/
-
+SPEC/ERD.md
+SPEC/raw_feedback.txt
 # ===== Environment =====
 .env
 .env.backup
@@ -11,7 +12,6 @@ vendor/
 /BE/.env
 /FE/.env
 !.env.example
-
 # ===== Laravel (BE) =====
 /BE/storage/*.key
 /BE/public/storage

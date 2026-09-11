@@ -192,6 +192,8 @@ export const api = {
     apiRequest<ApiAttemptLifecycleResponse>(`/my/quiz-attempts/${attemptId}/answers`, { method: 'PATCH', token, body: { answers } }),
   finalizeQuizAttempt: (token: string, attemptId: number) =>
     apiRequest<ApiQuizSubmissionResponse>(`/my/quiz-attempts/${attemptId}/submit`, { method: 'POST', token }),
+  myReview: (token: string, courseId: number) =>
+    apiRequest<{ data: ApiReview | null }>(`/my/courses/${courseId}/review`, { token }),
   reviewCourse: (token: string, courseId: number, rating: number, comment: string) =>
     apiRequest<{ data: ApiReview }>(`/my/courses/${courseId}/reviews`, { method: 'POST', token, body: { rating, comment } }),
   certificateUrl: (courseId: number) => `${API_BASE_URL}/my/courses/${courseId}/certificate`,

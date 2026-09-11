@@ -25,6 +25,7 @@ export const applicationRepositories = {
     startQuizAttempt: api.startQuizAttempt,
     saveQuizAnswers: api.saveQuizAnswers,
     finalizeQuizAttempt: api.finalizeQuizAttempt,
+    myReview: api.myReview,
     reviewCourse: api.reviewCourse,
     downloadCertificate: api.downloadCertificate,
   },

@@ -253,6 +253,71 @@ select.form-control{cursor:pointer}
 .donut-center .lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
 .donut-legend{display:flex;justify-content:center;gap:20px;margin-top:20px;font-size:12px;color:var(--text-muted)}
 .legend-dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.report-dropdown{position:relative}
+.report-dropdown-menu{position:absolute;right:0;top:calc(100% + 8px);width:250px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:6px;z-index:80}
+.report-dropdown-menu button{display:block;width:100%;padding:11px 12px;border:0;background:transparent;border-radius:7px;text-align:left;color:var(--dark);font:inherit;font-size:13px;cursor:pointer}
+.report-dropdown-menu button:hover{background:var(--primary-light);color:var(--primary)}
+.dashboard-chart-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dashboard-chart-grid .bar-chart{gap:8px}
+.dashboard-chart-grid .bar-value{font-size:10px}
+.status-bars{display:grid;gap:14px;margin-top:8px}
+.status-bar-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+.status-bar-track{height:10px;background:var(--border-light);border-radius:999px;overflow:hidden}
+.status-bar-fill{height:100%;background:var(--primary-gradient);border-radius:inherit}
+.status-bar-fill.green{background:linear-gradient(135deg,#16A34A,#22C55E)}
+.status-bar-fill.amber{background:linear-gradient(135deg,#D97706,#F59E0B)}
+.status-bar-fill.gray{background:linear-gradient(135deg,#64748B,#94A3B8)}
+
+/* Printable reports */
+.report-sheet{display:none;background:#EEF2F7;position:fixed;inset:0;z-index:1000;overflow:auto;padding:24px}
+.report-sheet.active{display:block}
+.report-toolbar{max-width:210mm;margin:0 auto 14px;display:flex;justify-content:flex-end;gap:8px}
+.report-page{width:210mm;min-height:297mm;margin:0 auto;background:#fff;color:#172033;padding:14mm 14mm 18mm;box-shadow:0 12px 40px rgba(15,23,42,.18);font-family:Arial,sans-serif;font-size:12px;line-height:1.45}
+.report-header{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #0057FF;padding-bottom:12px;margin-bottom:14px}
+.report-brand{display:flex;align-items:center;gap:12px}
+.report-logo{width:42px;height:42px;border-radius:9px;background:var(--primary-gradient);color:#fff;display:grid;place-items:center;font-weight:800;font-size:16px}
+.report-company{font-size:16px;font-weight:800;color:#0F172A}
+.report-title{text-align:right}
+.report-title h1{font-size:19px;margin:0 0 3px;color:#0F172A}
+.report-code{font-size:12px;color:#475569;font-weight:700}
+.report-info{display:grid;grid-template-columns:1fr 1fr;gap:5px 24px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.report-section{margin:14px 0;break-inside:avoid}
+.report-section h2{font-size:14px;color:#0F172A;border-left:4px solid #0057FF;padding-left:8px;margin-bottom:9px}
+.report-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.report-kpi{border:1px solid #DDE5EF;border-radius:7px;padding:10px;background:#fff}
+.report-kpi-label{font-size:9px;color:#64748B;text-transform:uppercase;font-weight:700;letter-spacing:.04em}
+.report-kpi-value{font-size:17px;font-weight:800;color:#0F172A;margin-top:4px}
+.report-chart{height:190px;display:flex;align-items:flex-end;gap:6px;border-left:1px solid #CBD5E1;border-bottom:1px solid #CBD5E1;padding:12px 8px 0}
+.report-chart-col{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0}
+.report-chart-value{font-size:8px;font-weight:700;color:#334155;margin-bottom:3px;white-space:nowrap}
+.report-chart-bar{width:72%;min-height:2px;background:linear-gradient(180deg,#2680FF,#0057FF);border-radius:4px 4px 0 0}
+.report-chart-label{font-size:8px;color:#475569;margin:4px 0 5px;white-space:nowrap}
+.report-table-wrap{margin-bottom:12px;break-inside:avoid}
+.report-table-title{font-size:12px;font-weight:700;margin-bottom:5px}
+.report-table{width:100%;border-collapse:collapse;font-size:10px}
+.report-table th,.report-table td{border:1px solid #CBD5E1;padding:5px 7px;text-align:left}
+.report-table th{background:#EAF2FF;color:#1E3A5F;font-weight:700}
+.report-table tfoot td{font-weight:800;background:#F8FAFC}
+.report-comment{background:#F8FAFC;border-left:4px solid #16A34A;padding:10px 12px}
+.report-comment p{margin:0 0 5px}
+.report-comment p:last-child{margin-bottom:0}
+.report-footer{margin-top:18px;border-top:1px solid #CBD5E1;padding-top:10px;break-inside:avoid}
+.report-source-note{font-size:9px;color:#475569;margin-bottom:18px}
+.report-signatures{display:grid;grid-template-columns:1fr 1fr;gap:80px;text-align:center;min-height:70px}
+.report-signatures strong{display:block;margin-bottom:38px}
+.report-page-number{text-align:right;font-size:9px;color:#64748B;margin-top:8px}
+
+@page{size:A4 portrait;margin:0}
+@media print{
+  body{background:#fff!important}
+  body>*:not(#report-sheet){display:none!important}
+  #report-sheet{display:block!important;position:static;inset:auto;overflow:visible;background:#fff;padding:0}
+  .report-toolbar{display:none!important}
+  .report-page{width:auto;min-height:auto;margin:0;padding:12mm 12mm 16mm;box-shadow:none}
+  .report-section,.report-table-wrap,.report-footer{break-inside:avoid;page-break-inside:avoid}
+  .screen-page-number{display:none}
+  .report-page-number::after{content:counter(page)}
+}
 
 /* Table */
 .data-table{width:100%;background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
@@ -610,6 +675,9 @@ select.form-control{cursor:pointer}
 
 <!-- ================ APP ROOT ================ -->
 <div id="app"></div>
+
+<!-- ================ PRINTABLE REPORT ================ -->
+<div id="report-sheet" class="report-sheet" aria-hidden="true"></div>
 
 <!-- ================ MODAL & TOAST HOSTS ================ -->
 <div id="modal-host"></div>
@@ -992,6 +1060,8 @@ function loadState(){
       if(!s.courses) s.courses=JSON.parse(JSON.stringify(MOCK_COURSES));
       if(!s.categories) s.categories=[...CATEGORIES];
       if(!s.enrollments) s.enrollments=[];
+      if(!s.orders) s.orders=[];
+      if(!s.report_exports) s.report_exports=[];
       if(!s.reviews) s.reviews=[];
       if(!s.quizResults) s.quizResults=[];
       if(!s.quizzes) s.quizzes={};
@@ -1020,6 +1090,10 @@ function initState(){
       {id:'e1',userId:'u_student',courseId:'c1',enrolledAt:Date.now()-86400000*3,progress:{completed:['l1','l2'],total:6}},
       {id:'e2',userId:'u_student',courseId:'c3',enrolledAt:Date.now()-86400000*10,progress:{completed:['l1','l2','l3','l4'],total:4}}
     ],
+    orders:[
+      {id:'o_demo',userId:'u_student',status:'PAID',paymentMethod:'demo',amount:990000,createdAt:Date.now()-86400000*10,paidAt:Date.now()-86400000*10,items:[{courseId:'c3',title:'Content SEO thực chiến',amount:990000}]}
+    ],
+    report_exports:[],
     reviews:[
       {id:'r1',userId:'u_student',userName:'Nguyễn Học Viên',courseId:'c1',rating:5,comment:'Khóa học rất thực tế, framework AI Max giúp mình có phương pháp làm việc rõ ràng.',createdAt:Date.now()-86400000*2},
       {id:'r2',userId:'u_x',userName:'Trần Minh Anh',courseId:'c1',rating:5,comment:'Nội dung cập nhật, giảng viên nhiệt tình. Recommend cho ai muốn học SEO thời đại AI.',createdAt:Date.now()-86400000*7},
@@ -1052,9 +1126,82 @@ const $=(sel,root=document)=>root.querySelector(sel);
 const $$=(sel,root=document)=>[...root.querySelectorAll(sel)];
 const fmtPrice=(n)=>n===0?'Miễn phí':(new Intl.NumberFormat('vi-VN').format(n)+' ₫');
 const fmtDate=(ts)=>{const d=new Date(ts);return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`};
+const fmtDateTime=(ts)=>{const d=new Date(ts);return `${fmtDate(d)} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
+const fmtReportMoney=(n)=>new Intl.NumberFormat('vi-VN').format(Math.round(Number(n)||0))+' đ';
 const stars=(n)=>{const full=Math.floor(n);const half=n-full>=.5;return '★'.repeat(full)+(half?'½':'')+'☆'.repeat(5-full-(half?1:0))};
 const uid=()=>Math.random().toString(36).slice(2,10);
 const escapeHtml=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+
+function getLast12Months(referenceDate=new Date()){
+  const end=new Date(referenceDate);
+  return Array.from({length:12},(_,index)=>{
+    const date=new Date(end.getFullYear(),end.getMonth()-(11-index),1);
+    const month=String(date.getMonth()+1).padStart(2,'0');
+    return {key:`${date.getFullYear()}-${month}`,label:`${month}/${date.getFullYear()}`,shortLabel:`T${date.getMonth()+1}`};
+  });
+}
+function getMonthKey(value){
+  const date=new Date(value);
+  if(Number.isNaN(date.getTime())) return '';
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+}
+function calculateGrowth(current,previous){
+  if(previous===0) return current===0?0:100;
+  return Math.round((current-previous)/previous*1000)/10;
+}
+function formatGrowth(value){
+  if(value===null || value===undefined) return '—';
+  return `${value>0?'+':''}${new Intl.NumberFormat('vi-VN',{maximumFractionDigits:1}).format(value)}%`;
+}
+function buildEnrollmentReportData(enrollments,referenceDate=new Date()){
+  const monthly=getLast12Months(referenceDate).map(month=>({...month,count:0,growth:null}));
+  const byKey=Object.fromEntries(monthly.map(row=>[row.key,row]));
+  (enrollments||[]).forEach(enrollment=>{
+    const row=byKey[getMonthKey(enrollment.enrolledAt)];
+    if(row) row.count+=1;
+  });
+  monthly.forEach((row,index)=>{row.growth=index===0?null:calculateGrowth(row.count,monthly[index-1].count)});
+  const total=monthly.reduce((sum,row)=>sum+row.count,0);
+  const highest=monthly.reduce((best,row)=>row.count>best.count?row:best,monthly[0]);
+  const lowest=monthly.reduce((best,row)=>row.count<best.count?row:best,monthly[0]);
+  return {monthly,summary:{total,highest,lowest,latestGrowth:monthly.at(-1).growth}};
+}
+function getOrderAmount(order){
+  if(Number.isFinite(Number(order?.amount))) return Number(order.amount);
+  return (order?.items||[]).reduce((sum,item)=>sum+(Number(item.amount)||0),0);
+}
+function buildRevenueReportData(orders,courses,referenceDate=new Date()){
+  const courseMap=Object.fromEntries((courses||[]).map(course=>[course.id,course]));
+  const monthly=getLast12Months(referenceDate).map(month=>({...month,orderCount:0,revenue:0}));
+  const byMonth=Object.fromEntries(monthly.map(row=>[row.key,row]));
+  const paymentMap={};
+  const courseRevenueMap={};
+  const paidOrders=(orders||[]).filter(order=>String(order.status||'').toUpperCase()==='PAID' && getOrderAmount(order)>0 && byMonth[getMonthKey(order.paidAt||order.createdAt)]);
+  paidOrders.forEach(order=>{
+    const amount=getOrderAmount(order);
+    const monthRow=byMonth[getMonthKey(order.paidAt||order.createdAt)];
+    if(monthRow){monthRow.orderCount+=1;monthRow.revenue+=amount}
+    const method=order.paymentMethod||'other';
+    if(!paymentMap[method]) paymentMap[method]={method,orderCount:0,revenue:0};
+    paymentMap[method].orderCount+=1;
+    paymentMap[method].revenue+=amount;
+    const items=order.items?.length?order.items:[{courseId:order.courseId,title:courseMap[order.courseId]?.title,amount}];
+    items.forEach(item=>{
+      const itemAmount=Number(item.amount)||0;
+      if(itemAmount<=0) return;
+      const courseId=item.courseId||'unknown';
+      if(!courseRevenueMap[courseId]) courseRevenueMap[courseId]={courseId,title:item.title||courseMap[courseId]?.title||'Khóa học không xác định',orderCount:0,revenue:0};
+      courseRevenueMap[courseId].orderCount+=1;
+      courseRevenueMap[courseId].revenue+=itemAmount;
+    });
+  });
+  const totalRevenue=paidOrders.reduce((sum,order)=>sum+getOrderAmount(order),0);
+  const paidOrderCount=paidOrders.length;
+  const highestMonth=monthly.reduce((best,row)=>row.revenue>best.revenue?row:best,monthly[0]);
+  const byPayment=Object.values(paymentMap).sort((a,b)=>b.revenue-a.revenue);
+  const byCourse=Object.values(courseRevenueMap).sort((a,b)=>b.revenue-a.revenue);
+  return {monthly,byPayment,byCourse,summary:{totalRevenue,paidOrderCount,averageOrderValue:paidOrderCount?Math.round(totalRevenue/paidOrderCount):0,highestMonth:highestMonth.revenue?highestMonth:null}};
+}
 
 function toast(type,title,msg){
   const el = document.createElement('div');
@@ -1073,6 +1220,15 @@ function closeModal(){$('#modal-host').innerHTML=''}
 /* Course helpers */
 function getCourse(id){return STATE.courses.find(c=>c.id===id)}
 function getEnrollment(courseId,userId){userId=userId||STATE.currentUser?.id;return STATE.enrollments.find(e=>e.courseId===courseId && e.userId===userId)}
+function recordPaidOrder(userId,courses,paymentMethod='demo'){
+  const items=(courses||[]).map(course=>({courseId:course.id,title:course.title,amount:Number(course.price)||0}));
+  const amount=items.reduce((sum,item)=>sum+item.amount,0);
+  if(amount<=0) return null;
+  const now=Date.now();
+  const order={id:'o_'+uid(),userId,status:'PAID',paymentMethod,amount,items,createdAt:now,paidAt:now};
+  STATE.orders.push(order);
+  return order;
+}
 function courseRating(courseId){
   const rs=STATE.reviews.filter(r=>r.courseId===courseId);
   if(!rs.length){const c=getCourse(courseId);return {avg:c?.rating||0,count:c?.reviewCount||0}}
@@ -1505,6 +1661,7 @@ function confirmEnroll(courseId){
   const user=STATE.currentUser;
   const c=getCourse(courseId);
   STATE.enrollments.push({id:'e_'+uid(),userId:user.id,courseId,enrolledAt:Date.now(),progress:{completed:[],total:c.lessons.length}});
+  recordPaidOrder(user.id,[c],'demo');
   saveState();
   closeModal();
   toast('success','Đăng ký thành công','Bạn đã có thể vào học ngay bây giờ');
@@ -1628,10 +1785,12 @@ function pickPayment(m){
 function confirmCheckout(){
   const user=STATE.currentUser;
   const items=STATE.cartItems.filter(x=>x.userId===user.id && getCourse(x.courseId) && getCourse(x.courseId).status==='PUBLISHED' && !getEnrollment(x.courseId,user.id));
+  const purchasedCourses=items.map(x=>getCourse(x.courseId));
   items.forEach(x=>{
     const c=getCourse(x.courseId);
     STATE.enrollments.push({id:'e_'+uid(),userId:user.id,courseId:x.courseId,enrolledAt:Date.now(),progress:{completed:[],total:c.lessons.length}});
   });
+  recordPaidOrder(user.id,purchasedCourses,window._checkout?.method||'demo');
   // Xóa các item đã thanh toán
   STATE.cartItems=STATE.cartItems.filter(x=>!(x.userId===user.id && items.some(i=>i.id===x.id)));
   saveState();
@@ -2158,6 +2317,13 @@ function changePass(){
    ============================================================ */
 function adminLayout(active,title,contentHTML){
   const user=STATE.currentUser;
+  const reportActions=active==='dashboard'?`<div class="report-dropdown">
+    <button class="btn btn-primary btn-sm" onclick="toggleReportMenu(event)" aria-haspopup="menu" aria-expanded="false">Xuất báo cáo ▾</button>
+    <div id="report-export-menu" class="report-dropdown-menu hidden" role="menu">
+      <button onclick="exportReport('BC-01')" role="menuitem">Báo cáo ghi danh (BC-01)</button>
+      <button onclick="exportReport('BC-05')" role="menuitem">Báo cáo doanh thu (BC-05)</button>
+    </div>
+  </div>`:'';
   const nav=[
     ['dashboard','#/admin','Dashboard'],
     ['students','#/admin/students','Quản lý học viên'],
@@ -2179,6 +2345,7 @@ function adminLayout(active,title,contentHTML){
       <div class="app-topbar">
         <h1>${escapeHtml(title)}</h1>
         <div class="flex center gap-12">
+          ${reportActions}
           <div class="text-sm text-muted">${escapeHtml(user.fullName)}</div>
           <div class="avatar" style="width:32px;height:32px;font-size:12px">${user.fullName[0].toUpperCase()}</div>
         </div>
@@ -2186,6 +2353,15 @@ function adminLayout(active,title,contentHTML){
       <div class="app-content">${contentHTML}</div>
     </main>
   </div>`;
+}
+function toggleReportMenu(event){
+  event.stopPropagation();
+  const menu=$('#report-export-menu');
+  const button=event.currentTarget;
+  const willOpen=menu.classList.contains('hidden');
+  menu.classList.toggle('hidden');
+  button.setAttribute('aria-expanded',String(willOpen));
+  if(willOpen) document.addEventListener('click',function closeMenu(){menu.classList.add('hidden');button.setAttribute('aria-expanded','false');document.removeEventListener('click',closeMenu)},{once:true});
 }
 
 /* ============================================================
@@ -2195,21 +2371,26 @@ function renderAdminDashboard(){
   const totalStudents=STATE.users.filter(u=>u.role==='student').length;
   const totalCourses=STATE.courses.length;
   const totalEnrolls=STATE.enrollments.length;
-  const completions=STATE.enrollments.filter(e=>{const c=getCourse(e.courseId);return c && e.progress.completed.length===c.lessons.length}).length;
+  const completions=STATE.enrollments.filter(e=>{const c=getCourse(e.courseId);return c && (e.progress?.completed?.length||0)===c.lessons.length}).length;
+  const certificates=STATE.enrollments.filter(e=>hasCertificate(e.courseId,e.userId)).length;
   const completeRate=totalEnrolls?Math.round(completions/totalEnrolls*100):0;
-  const revenue=STATE.enrollments.reduce((s,e)=>{const c=getCourse(e.courseId);return s+(c?.price||0)},0);
+  const certificateRate=totalEnrolls?Math.round(certificates/totalEnrolls*100):0;
+  const enrollmentReport=buildEnrollmentReportData(STATE.enrollments);
+  const revenueReport=buildRevenueReportData(STATE.orders,STATE.courses);
+  const revenue=revenueReport.summary.totalRevenue;
   const totalReviews=STATE.reviews.length;
-
-  // Bar chart data (fake by month)
-  const months=['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
-  const barData=[42,38,55,48,72,68,85,92,78,110,124,138];
-  const maxBar=Math.max(...barData);
-
-  // Top courses
+  const maxEnroll=Math.max(1,...enrollmentReport.monthly.map(row=>row.count));
+  const maxRevenue=Math.max(1,...revenueReport.monthly.map(row=>row.revenue));
+  const publication=[
+    {label:'Đã xuất bản',count:STATE.courses.filter(c=>c.status==='PUBLISHED').length,className:'green'},
+    {label:'Bản nháp',count:STATE.courses.filter(c=>c.status==='DRAFT').length,className:'amber'},
+    {label:'Đã ẩn',count:STATE.courses.filter(c=>c.status==='HIDDEN').length,className:'gray'}
+  ];
   const topCourses=[...STATE.courses].map(c=>({
     ...c,
-    enrollCount:STATE.enrollments.filter(e=>e.courseId===c.id).length
+    enrollCount:(Number(c.students)||0)+STATE.enrollments.filter(e=>e.courseId===c.id).length
   })).sort((a,b)=>b.enrollCount-a.enrollCount).slice(0,5);
+  const maxPopularity=Math.max(1,...topCourses.map(course=>course.enrollCount));
 
   const html = `
     <div class="admin-banner">
@@ -2217,50 +2398,185 @@ function renderAdminDashboard(){
       <div class="admin-banner-visual">${bannerSVG('admin')}</div>
     </div>
     <div class="kpi-grid">
-      <div class="kpi-card"><div><div class="kpi-label">Tổng học viên</div><div class="kpi-value">${totalStudents}</div><div class="kpi-change">+12% so với tháng trước</div></div></div>
-      <div class="kpi-card"><div><div class="kpi-label">Tổng khóa học</div><div class="kpi-value">${totalCourses}</div><div class="kpi-change">+2 mới</div></div></div>
-      <div class="kpi-card"><div><div class="kpi-label">Tổng lượt đăng ký</div><div class="kpi-value">${totalEnrolls}</div><div class="kpi-change">+8% tuần này</div></div></div>
-      <div class="kpi-card"><div><div class="kpi-label">Tỷ lệ hoàn thành TB</div><div class="kpi-value">${completeRate}%</div><div class="kpi-change">+3%</div></div></div>
-      <div class="kpi-card"><div><div class="kpi-label">Doanh thu demo</div><div class="kpi-value" style="font-size:22px">${new Intl.NumberFormat('vi-VN').format(revenue)} ₫</div><div class="kpi-change">Tháng này</div></div></div>
-      <div class="kpi-card"><div><div class="kpi-label">Đánh giá mới</div><div class="kpi-value">${totalReviews}</div><div class="kpi-change">30 ngày qua</div></div></div>
+      <div class="kpi-card"><div><div class="kpi-label">Tổng học viên</div><div class="kpi-value">${totalStudents}</div><div class="kpi-change">Theo dữ liệu hiện tại</div></div></div>
+      <div class="kpi-card"><div><div class="kpi-label">Tổng khóa học</div><div class="kpi-value">${totalCourses}</div><div class="kpi-change">Theo dữ liệu hiện tại</div></div></div>
+      <div class="kpi-card"><div><div class="kpi-label">Tổng lượt đăng ký</div><div class="kpi-value">${totalEnrolls}</div><div class="kpi-change">Từ localStorage</div></div></div>
+      <div class="kpi-card"><div><div class="kpi-label">Tỷ lệ hoàn thành TB</div><div class="kpi-value">${completeRate}%</div><div class="kpi-change">${certificates} chứng chỉ</div></div></div>
+      <div class="kpi-card"><div><div class="kpi-label">Tổng doanh thu</div><div class="kpi-value" style="font-size:22px">${fmtReportMoney(revenue)}</div><div class="kpi-change">Đơn đã thanh toán</div></div></div>
+      <div class="kpi-card"><div><div class="kpi-label">Đánh giá mới</div><div class="kpi-value">${totalReviews}</div><div class="kpi-change">Toàn bộ dữ liệu</div></div></div>
     </div>
 
-    <div class="chart-grid">
+    <div class="chart-grid dashboard-chart-grid">
       <div class="chart-card">
-        <div class="flex between center mb-16"><h3>Lượt đăng ký khóa học theo tháng</h3><span class="badge badge-primary">Năm 2026</span></div>
+        <div class="flex between center mb-16"><h3>Ghi danh 12 tháng gần nhất</h3><span class="badge badge-primary">Dữ liệu thực</span></div>
         <div class="bar-chart">
-          ${months.map((m,i)=>`<div class="bar-col"><div class="bar" style="height:${barData[i]/maxBar*180}px"><div class="bar-value">${barData[i]}</div></div><div class="bar-label">${m}</div></div>`).join('')}
+          ${enrollmentReport.monthly.map(row=>`<div class="bar-col"><div class="bar" style="height:${row.count/maxEnroll*180}px"><div class="bar-value">${row.count}</div></div><div class="bar-label">${row.shortLabel}</div></div>`).join('')}
         </div>
       </div>
       <div class="chart-card">
-        <h3>Tỷ lệ hoàn thành khóa học</h3>
-        <div class="donut"><div class="donut-center"><div class="val">${completeRate}%</div><div class="lbl">Hoàn thành</div></div></div>
-        <div class="donut-legend">
-          <span><span class="legend-dot" style="background:var(--primary)"></span>Hoàn thành</span>
-          <span><span class="legend-dot" style="background:var(--border-light)"></span>Đang học</span>
+        <div class="flex between center mb-16"><h3>Doanh thu 12 tháng gần nhất</h3><span class="badge badge-success">${fmtReportMoney(revenue)}</span></div>
+        <div class="bar-chart">
+          ${revenueReport.monthly.map(row=>`<div class="bar-col"><div class="bar" style="height:${row.revenue/maxRevenue*180}px;background:linear-gradient(180deg,#22C55E,#16A34A)"><div class="bar-value">${fmtReportMoney(row.revenue)}</div></div><div class="bar-label">${row.shortLabel}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid dashboard-chart-grid">
+      <div class="chart-card">
+        <h3>Tỷ lệ hoàn thành &amp; chứng chỉ</h3>
+        <div class="status-bars">
+          <div><div class="status-bar-head"><span>Hoàn thành khóa học</span><b>${completeRate}% (${completions})</b></div><div class="status-bar-track"><div class="status-bar-fill" style="width:${completeRate}%"></div></div></div>
+          <div><div class="status-bar-head"><span>Đã cấp chứng chỉ</span><b>${certificateRate}% (${certificates})</b></div><div class="status-bar-track"><div class="status-bar-fill green" style="width:${certificateRate}%"></div></div></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Trạng thái xuất bản khóa học</h3>
+        <div class="status-bars">
+          ${publication.map(row=>`<div><div class="status-bar-head"><span>${row.label}</span><b>${row.count}</b></div><div class="status-bar-track"><div class="status-bar-fill ${row.className}" style="width:${totalCourses?row.count/totalCourses*100:0}%"></div></div></div>`).join('')}
         </div>
       </div>
     </div>
 
     <div class="chart-card">
-      <h3>Khóa học có nhiều học viên nhất</h3>
-      <div class="data-table" style="border:none">
-        <table>
-          <thead><tr><th>#</th><th>Khóa học</th><th>Danh mục</th><th>Lượt đăng ký</th><th>Đánh giá</th></tr></thead>
-          <tbody>
-            ${topCourses.map((c,i)=>{const r=courseRating(c.id);return `<tr>
-              <td><b>${i+1}</b></td>
-              <td><b>${escapeHtml(c.title)}</b></td>
-              <td><span class="badge badge-primary">${escapeHtml(c.category)}</span></td>
-              <td>${c.enrollCount+c.students}</td>
-              <td><b>${r.avg}</b> <span style="color:#F59E0B">${stars(r.avg)}</span> (${r.count})</td>
-            </tr>`}).join('')}
-          </tbody>
-        </table>
+      <h3>Khóa học phổ biến</h3>
+      <div class="status-bars">
+        ${topCourses.map((course,index)=>`<div><div class="status-bar-head"><span>${index+1}. ${escapeHtml(course.title)}</span><b>${course.enrollCount.toLocaleString('vi-VN')} ghi danh</b></div><div class="status-bar-track"><div class="status-bar-fill" style="width:${course.enrollCount/maxPopularity*100}%"></div></div></div>`).join('')}
       </div>
     </div>
   `;
   $('#app').innerHTML = adminLayout('dashboard','Dashboard tổng quan',html);
+}
+
+function paymentMethodLabel(method){
+  return ({card:'Thẻ ngân hàng',qr:'QR Code',demo:'Demo thanh toán',bank:'Chuyển khoản',other:'Khác'})[method]||method||'Khác';
+}
+function renderReportBarChart(rows,valueKey,valueFormatter){
+  const max=Math.max(1,...rows.map(row=>Number(row[valueKey])||0));
+  return `<div class="report-chart">${rows.map(row=>{
+    const value=Number(row[valueKey])||0;
+    const height=value?Math.max(5,value/max*145):2;
+    return `<div class="report-chart-col"><div class="report-chart-value">${escapeHtml(valueFormatter(value))}</div><div class="report-chart-bar" style="height:${height}px"></div><div class="report-chart-label">${escapeHtml(row.shortLabel)}</div></div>`;
+  }).join('')}</div>`;
+}
+function renderReportKpis(items){
+  return `<div class="report-kpis">${items.map(item=>`<div class="report-kpi"><div class="report-kpi-label">${escapeHtml(item.label)}</div><div class="report-kpi-value">${escapeHtml(item.value)}</div></div>`).join('')}</div>`;
+}
+function buildEnrollmentReportHTML(data,meta){
+  const growth=data.summary.latestGrowth;
+  const growthAmount=formatGrowth(Math.abs(growth)).replace('+','');
+  const trend=growth>0?`tăng ${growthAmount}`:growth<0?`giảm ${growthAmount}`:'không thay đổi';
+  const kpis=[
+    {label:'Tổng ghi danh',value:data.summary.total.toLocaleString('vi-VN')},
+    {label:'Tháng cao nhất',value:`${data.summary.highest.label} · ${data.summary.highest.count}`},
+    {label:'Tháng thấp nhất',value:`${data.summary.lowest.label} · ${data.summary.lowest.count}`},
+    {label:'Tăng trưởng gần nhất',value:formatGrowth(growth)}
+  ];
+  const tableRows=data.monthly.map(row=>`<tr><td>${row.label}</td><td>${row.count.toLocaleString('vi-VN')}</td><td>${formatGrowth(row.growth)}</td></tr>`).join('');
+  return buildReportShell({
+    ...meta,
+    kpis,
+    chart:renderReportBarChart(data.monthly,'count',value=>String(value)),
+    tables:`<div class="report-table-wrap"><div class="report-table-title">Ghi danh theo tháng</div><table class="report-table"><thead><tr><th>Tháng</th><th>Số ghi danh</th><th>% so tháng trước</th></tr></thead><tbody>${tableRows}</tbody><tfoot><tr><td>Tổng cộng</td><td>${data.summary.total.toLocaleString('vi-VN')}</td><td>—</td></tr></tfoot></table></div>`,
+    comments:[
+      `Tháng có nhiều ghi danh nhất là ${data.summary.highest.label} với ${data.summary.highest.count.toLocaleString('vi-VN')} lượt; thấp nhất là ${data.summary.lowest.label} với ${data.summary.lowest.count.toLocaleString('vi-VN')} lượt.`,
+      `Tháng gần nhất ${trend} so với tháng liền trước.`,
+      `Tổng cộng có ${data.summary.total.toLocaleString('vi-VN')} lượt ghi danh trong 12 tháng được báo cáo.`
+    ],
+    revenueNote:false
+  });
+}
+function buildRevenueReportHTML(data,meta){
+  const highest=data.summary.highestMonth;
+  const previous=data.monthly.at(-2).revenue;
+  const latest=data.monthly.at(-1).revenue;
+  const growth=calculateGrowth(latest,previous);
+  const growthAmount=formatGrowth(Math.abs(growth)).replace('+','');
+  const revenueTrend=growth>0?`tăng ${growthAmount}`:growth<0?`giảm ${growthAmount}`:'không thay đổi';
+  const topPayment=data.byPayment[0];
+  const kpis=[
+    {label:'Tổng doanh thu',value:fmtReportMoney(data.summary.totalRevenue)},
+    {label:'Số đơn có doanh thu',value:data.summary.paidOrderCount.toLocaleString('vi-VN')},
+    {label:'Giá trị đơn trung bình',value:fmtReportMoney(data.summary.averageOrderValue)},
+    {label:'Tháng cao nhất',value:highest?`${highest.label} · ${fmtReportMoney(highest.revenue)}`:'Chưa có dữ liệu'}
+  ];
+  const monthRows=data.monthly.map(row=>`<tr><td>${row.label}</td><td>${row.orderCount.toLocaleString('vi-VN')}</td><td>${fmtReportMoney(row.revenue)}</td></tr>`).join('');
+  const paymentRows=data.byPayment.map(row=>`<tr><td>${escapeHtml(paymentMethodLabel(row.method))}</td><td>${row.orderCount.toLocaleString('vi-VN')}</td><td>${fmtReportMoney(row.revenue)}</td><td>${data.summary.totalRevenue?new Intl.NumberFormat('vi-VN',{maximumFractionDigits:1}).format(row.revenue/data.summary.totalRevenue*100):0}%</td></tr>`).join('')||'<tr><td colspan="4">Chưa có dữ liệu</td></tr>';
+  const courseRows=data.byCourse.map((row,index)=>`<tr><td>${index+1}</td><td>${escapeHtml(row.title)}</td><td>${row.orderCount.toLocaleString('vi-VN')}</td><td>${fmtReportMoney(row.revenue)}</td></tr>`).join('')||'<tr><td colspan="4">Chưa có dữ liệu</td></tr>';
+  const topPaymentSentence=topPayment?`Phương thức đóng góp nhiều nhất là ${paymentMethodLabel(topPayment.method)} với ${fmtReportMoney(topPayment.revenue)}.`:'Chưa có đơn phát sinh doanh thu trong kỳ.';
+  return buildReportShell({
+    ...meta,
+    kpis,
+    chart:renderReportBarChart(data.monthly,'revenue',fmtReportMoney),
+    tables:`
+      <div class="report-table-wrap"><div class="report-table-title">Doanh thu theo tháng</div><table class="report-table"><thead><tr><th>Tháng</th><th>Số đơn</th><th>Doanh thu</th></tr></thead><tbody>${monthRows}</tbody><tfoot><tr><td>Tổng cộng</td><td>${data.summary.paidOrderCount.toLocaleString('vi-VN')}</td><td>${fmtReportMoney(data.summary.totalRevenue)}</td></tr></tfoot></table></div>
+      <div class="report-table-wrap"><div class="report-table-title">Theo phương thức thanh toán</div><table class="report-table"><thead><tr><th>Phương thức</th><th>Số đơn</th><th>Doanh thu</th><th>Tỷ trọng</th></tr></thead><tbody>${paymentRows}</tbody><tfoot><tr><td>Tổng cộng</td><td>${data.summary.paidOrderCount.toLocaleString('vi-VN')}</td><td>${fmtReportMoney(data.summary.totalRevenue)}</td><td>100%</td></tr></tfoot></table></div>
+      <div class="report-table-wrap"><div class="report-table-title">Top khóa học theo doanh thu</div><table class="report-table"><thead><tr><th>#</th><th>Khóa học</th><th>Lượt mua</th><th>Doanh thu</th></tr></thead><tbody>${courseRows}</tbody><tfoot><tr><td colspan="3">Tổng cộng</td><td>${fmtReportMoney(data.summary.totalRevenue)}</td></tr></tfoot></table></div>`,
+    comments:[
+      highest?`Tháng có doanh thu cao nhất là ${highest.label} với ${fmtReportMoney(highest.revenue)}.`:'Chưa có tháng nào phát sinh doanh thu trong kỳ báo cáo.',
+      `Doanh thu tháng gần nhất ${revenueTrend} so với tháng liền trước. ${topPaymentSentence}`,
+      'Khóa học miễn phí có thể làm số lượt ghi danh lớn hơn số đơn có doanh thu; báo cáo giữ nguyên khác biệt này.'
+    ],
+    revenueNote:true
+  });
+}
+function buildReportShell({code,title,generatedAt,filters,kpis,chart,tables,comments,revenueNote}){
+  const dateCode=`${generatedAt.getFullYear()}-${String(generatedAt.getMonth()+1).padStart(2,'0')}-${String(generatedAt.getDate()).padStart(2,'0')}`;
+  return `<div class="report-toolbar"><button class="btn btn-ghost" onclick="closeReport()">Đóng</button><button class="btn btn-outline" onclick="downloadReportCsv()">Tải CSV</button><button class="btn btn-primary" onclick="window.print()">In / Save as PDF</button></div>
+    <article class="report-page">
+      <header class="report-header" data-report-block="header"><div class="report-brand"><div class="report-logo">SL</div><div><div class="report-company">CÔNG TY TNHH SEONGON</div><div>SEONGON Learning</div></div></div><div class="report-title"><h1>${escapeHtml(title)}</h1><div class="report-code">${code}/${dateCode}</div></div></header>
+      <section class="report-info" data-report-block="export-info"><div><b>Người xuất:</b> ${escapeHtml(STATE.currentUser.fullName)}</div><div><b>Thời điểm xuất:</b> ${fmtDateTime(generatedAt)}</div><div><b>Nguồn dữ liệu:</b> localStorage · ${escapeHtml(STORAGE_KEY)}</div><div><b>Bộ lọc:</b> ${escapeHtml(filters.period)}</div></section>
+      <section class="report-section" data-report-block="summary"><h2>Khối 1 – Chỉ số tóm tắt</h2>${renderReportKpis(kpis)}</section>
+      <section class="report-section" data-report-block="chart"><h2>Khối 2 – Biểu đồ</h2>${chart}</section>
+      <section class="report-section" data-report-block="tables"><h2>Khối 3 – Bảng số liệu</h2>${tables}</section>
+      <section class="report-section" data-report-block="comments"><h2>Khối 4 – Nhận xét</h2><div class="report-comment">${comments.map(comment=>`<p>${escapeHtml(comment)}</p>`).join('')}</div></section>
+      <footer class="report-footer"><div class="report-source-note">Nguồn: dữ liệu thực lưu trong localStorage của prototype.${revenueNote?' Doanh thu tính theo đơn ở trạng thái đã thanh toán, chưa trừ hoàn tiền.':''}</div><div class="report-signatures"><div><strong>Người lập</strong>(${escapeHtml(STATE.currentUser.fullName)})</div><div><strong>Người duyệt</strong>(Ký và ghi rõ họ tên)</div></div><div class="report-page-number">Trang <span class="screen-page-number">1</span></div></footer>
+    </article>`;
+}
+function exportReport(code){
+  if(!['BC-01','BC-05'].includes(code)) return;
+  const generatedAt=new Date();
+  const filters={period:'12 tháng gần nhất'};
+  const data=code==='BC-01'?buildEnrollmentReportData(STATE.enrollments,generatedAt):buildRevenueReportData(STATE.orders,STATE.courses,generatedAt);
+  const title=code==='BC-01'?'BÁO CÁO GHI DANH THEO THÁNG':'BÁO CÁO DOANH THU';
+  const html=code==='BC-01'?buildEnrollmentReportHTML(data,{code,title,generatedAt,filters}):buildRevenueReportHTML(data,{code,title,generatedAt,filters});
+  const sheet=$('#report-sheet');
+  sheet.dataset.reportCode=code;
+  sheet.innerHTML=html;
+  sheet.classList.add('active');
+  sheet.setAttribute('aria-hidden','false');
+  STATE.report_exports.push({id:'re_'+uid(),admin_id:STATE.currentUser.id,report_code:code,filters_json:JSON.stringify(filters),exported_at:generatedAt.toISOString()});
+  saveState();
+  window._activeReport={code,data,generatedAt};
+  window.print();
+}
+function closeReport(){
+  const sheet=$('#report-sheet');
+  sheet.classList.remove('active');
+  sheet.setAttribute('aria-hidden','true');
+}
+function csvCell(value){return `"${String(value??'').replace(/"/g,'""')}"`}
+function downloadReportCsv(){
+  const active=window._activeReport;
+  if(!active) return;
+  const rows=[];
+  if(active.code==='BC-01'){
+    rows.push(['Tháng','Số ghi danh','% so tháng trước']);
+    active.data.monthly.forEach(row=>rows.push([row.label,row.count,formatGrowth(row.growth)]));
+    rows.push(['Tổng cộng',active.data.summary.total,'']);
+  }else{
+    rows.push(['DOANH THU THEO THÁNG'],['Tháng','Số đơn','Doanh thu']);
+    active.data.monthly.forEach(row=>rows.push([row.label,row.orderCount,row.revenue]));
+    rows.push(['Tổng cộng',active.data.summary.paidOrderCount,active.data.summary.totalRevenue],[],['THEO PHƯƠNG THỨC THANH TOÁN'],['Phương thức','Số đơn','Doanh thu']);
+    active.data.byPayment.forEach(row=>rows.push([paymentMethodLabel(row.method),row.orderCount,row.revenue]));
+    rows.push([],['TOP KHÓA HỌC THEO DOANH THU'],['Khóa học','Lượt mua','Doanh thu']);
+    active.data.byCourse.forEach(row=>rows.push([row.title,row.orderCount,row.revenue]));
+  }
+  const csv='\uFEFF'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  const link=document.createElement('a');
+  link.href=url;
+  link.download=`${active.code}_${active.generatedAt.getFullYear()}-${String(active.generatedAt.getMonth()+1).padStart(2,'0')}-${String(active.generatedAt.getDate()).padStart(2,'0')}.csv`;
+  document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
 }
 
 /* ============================================================

@@ -1090,10 +1090,11 @@ export function AdminPage() {
               rows={users.data}
               getRowKey={(user) => user.id}
               columns={[
-                { key: 'student', header: 'Học viên', width: '26%', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
+                // Users ERD: full_name, email, role_id. No phone column exists, so
+                // none is rendered; Email takes the remaining fixed-layout width.
+                { key: 'student', header: 'Học viên', width: '28%', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
                 { key: 'email', header: 'Email', render: (user) => <Tooltip title={user.email} describeChild><Typography variant="body2" noWrap tabIndex={0}>{user.email}</Typography></Tooltip> },
-                { key: 'phone', header: 'Số điện thoại', width: 160, render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.phone?.trim() || '—'}</Typography> },
-                { key: 'role', header: 'Vai trò', width: 132, render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : user.role === 'teacher' ? 'Giáo viên' : 'Học viên'}</Typography> },
+                { key: 'role', header: 'Vai trò', width: 140, render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : user.role === 'teacher' ? 'Giáo viên' : 'Học viên'}</Typography> },
                 { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (user) => <IconButton
                   id={`user-actions-${user.id}`}
                   aria-label={`Thao tác ${user.name}`}
@@ -1140,7 +1141,6 @@ export function AdminPage() {
                   {[
                     ['Họ tên', detailUser.name],
                     ['Email', detailUser.email],
-                    ['Số điện thoại', detailUser.phone?.trim() || '—'],
                     ['Vai trò', detailUser.role === 'admin' ? 'Quản trị viên' : detailUser.role === 'teacher' ? 'Giáo viên' : 'Học viên'],
                     ['Trạng thái', detailUser.status === 'active' ? 'Đang hoạt động' : 'Đã khóa'],
                     ['Khóa đã đăng ký', String(detailUser.enrollments_count ?? 0)],

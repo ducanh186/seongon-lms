@@ -28,7 +28,7 @@ it('starts a real API session on Continue and only confirms through the mock cal
   expect(await screen.findByRole('heading', { name: 'Cổng thanh toán MoMo' })).toBeInTheDocument();
   expect(mocks.mockPaymentCallback).not.toHaveBeenCalled();
   expect(screen.getByLabelText('Mã QR thanh toán')).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'Mô phỏng thanh toán thành công' }));
+  await user.click(screen.getByRole('button', { name: 'Tôi đã thanh toán' }));
   expect(await screen.findByRole('link', { name: 'Lịch sử giao dịch' })).toBeInTheDocument();
   expect(mocks.mockPaymentCallback).toHaveBeenCalledWith('student', 44, 'session', 'success');
   expect(mocks.refresh).toHaveBeenCalledOnce();

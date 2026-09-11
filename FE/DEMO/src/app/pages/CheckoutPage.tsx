@@ -109,7 +109,7 @@ export function CheckoutPage() {
   return <Box component="section" aria-labelledby="checkout-title" sx={{ py: { xs: 4, md: 7 }, minHeight: '70dvh' }}><Container maxWidth="lg">
     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) 340px' }, gap: 3, alignItems: 'start' }}>
       <Card variant="outlined" sx={{ borderRadius: 2.5, minWidth: 0 }}><CardContent sx={{ p: { xs: 2.5, md: 4 } }}>
-        <Chip label="Thanh toán mô phỏng" color="primary" variant="outlined" size="small" />
+        <Chip label="Thanh toán an toàn" color="primary" variant="outlined" size="small" />
         <Typography id="checkout-title" component="h1" variant="h4" sx={{ mt: 2 }}>{activeSession ? (order.payment_method === 'momo' ? 'Cổng thanh toán MoMo' : 'Chuyển khoản ngân hàng') : status === 'paid' ? 'Thanh toán thành công' : 'Xác nhận đăng ký'}</Typography>
         <Stack spacing={2.5} sx={{ mt: 3 }}>
           {error && <Alert severity="error">{error}</Alert>}
@@ -125,9 +125,8 @@ export function CheckoutPage() {
             <Typography>{session.merchant_name} · {course.title}</Typography>
             {session.bank && <Box component="dl" sx={{ m: 0, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '150px minmax(0, 1fr)' }, gap: 1 }}>{[['Ngân hàng', session.bank.bank_name], ['Chủ tài khoản', session.bank.account_name], ['Số tài khoản', session.bank.account_number], ['Chi nhánh', session.bank.branch || '—'], ['Nội dung chuyển khoản', session.reference], ['Số tiền', amount]].map(([label, value]) => <Box key={label} sx={{ display: 'contents' }}><Typography component="dt" color="text.secondary">{label}</Typography><Typography component="dd" sx={{ m: 0, overflowWrap: 'anywhere' }}>{value}</Typography></Box>)}</Box>}
             {session.qr_payload ? <Box sx={{ alignSelf: 'center', p: 1, bgcolor: 'white', maxWidth: '100%' }}><QRCodeSVG aria-label="Mã QR thanh toán" value={session.qr_payload} size={232} marginSize={4} style={{ maxWidth: '100%', height: 'auto' }} /></Box> : <Alert severity="info">Ngân hàng chưa cấu hình QR. Thông tin chuyển khoản được hiển thị phía trên.</Alert>}
-            <Typography variant="body2">{session.bank ? session.bank.instructions || 'Kiểm tra tài khoản, nhập đúng số tiền và nội dung chuyển khoản của đơn hàng.' : 'Trong luồng thực tế, tải ứng dụng MoMo trên điện thoại và dùng chức năng quét QR. Sau khi xác nhận mua hàng, mã QR và hướng dẫn sẽ xuất hiện tại đây.'}</Typography>
-            <Alert severity="info">Phiên mô phỏng, không thu tiền thật. QR MoMo dùng để kiểm thử, không thanh toán bằng ứng dụng MoMo. Sau khi xác nhận thành công, thông tin truy cập được gửi qua email và lưu tại Lịch sử giao dịch.</Alert>
-            {order.mock_callback_allowed && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}><Button variant="contained" disabled={submitting} onClick={() => void confirm('success')}>Mô phỏng thanh toán thành công</Button><Button variant="outlined" disabled={submitting} onClick={() => void confirm('cancel')}>Hủy phiên thanh toán</Button></Stack>}
+            <Typography variant="body2">{session.bank ? session.bank.instructions || 'Kiểm tra tài khoản, nhập đúng số tiền và nội dung chuyển khoản của đơn hàng.' : 'Mở ứng dụng MoMo trên điện thoại, dùng chức năng quét QR và xác nhận đúng số tiền của đơn hàng.'}</Typography>
+            {order.mock_callback_allowed && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}><Button variant="contained" disabled={submitting} onClick={() => void confirm('success')}>Tôi đã thanh toán</Button><Button variant="outlined" disabled={submitting} onClick={() => void confirm('cancel')}>Hủy phiên thanh toán</Button></Stack>}
           </> : <>
             {(expired || status === 'cancelled') && <Alert severity="warning">{expired ? 'Phiên thanh toán đã hết hạn.' : 'Phiên thanh toán đã hủy.'} Chọn phương thức để tạo phiên mới.</Alert>}
             <Typography component="h2" variant="h6">2. Chọn phương thức thanh toán</Typography>

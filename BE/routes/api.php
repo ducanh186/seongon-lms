@@ -84,6 +84,7 @@ Route::prefix('v1')->group(function () {
             Route::post('my/quiz-attempts/{attempt}/submit', [StudentQuizController::class, 'finalize']);
             Route::get('my/quiz-attempts/{attempt}', [StudentQuizController::class, 'showAttempt']);
 
+            Route::get('my/courses/{course}/review', [StudentReviewController::class, 'show']);
             Route::post('my/courses/{course}/reviews', [StudentReviewController::class, 'store']);
             Route::get('my/courses/{course}/certificate', [CertificateController::class, 'download']);
         });

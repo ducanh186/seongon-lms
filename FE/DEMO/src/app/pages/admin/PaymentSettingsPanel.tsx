@@ -26,7 +26,7 @@ export function PaymentSettingsPanel({ token }: { token: string }) {
       <Typography variant="h6">Ví MoMo</Typography>
       <FormControlLabel control={<Switch checked={settings.momo.enabled} onChange={(_, checked) => setSettings({ ...settings, momo: { ...settings.momo, enabled: checked } })} />} label="Bật thanh toán MoMo" />
       <TextField label="Tên đơn vị nhận thanh toán" value={settings.momo.merchant_name} onChange={(event) => setSettings({ ...settings, momo: { ...settings.momo, merchant_name: event.target.value } })} required />
-      <Alert severity="info">Chế độ mô phỏng (mock). Không thu tiền thật. Chỉ môi trường local/testing cho phép xác nhận mô phỏng.</Alert>
+      <Alert severity="info">Tên đơn vị nhận thanh toán được hiển thị trên màn hình thanh toán MoMo của học viên.</Alert>
     </Stack></CardContent></Card>
     <Card variant="outlined"><CardContent><Stack spacing={2}>
       <Typography variant="h6">Tài khoản ngân hàng</Typography>

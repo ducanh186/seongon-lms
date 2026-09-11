@@ -73,7 +73,7 @@ class PaymentSessionService
             $order = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
             abort_unless($order->user_id === $user->id, 403);
             abort_unless($order->payment_session && hash_equals($order->payment_session['token'], $token), 403);
-            abort_unless(($order->payment_session['mode'] ?? null) === 'mock', 403, 'Phiên thanh toán không hỗ trợ callback mô phỏng.');
+            abort_unless(($order->payment_session['mode'] ?? null) === 'mock', 403, 'Phiên thanh toán không hỗ trợ xác nhận trực tiếp.');
             if ($order->status === 'paid') {
                 return ['order' => $order, 'enrollment' => $order->enrollment];
             }
