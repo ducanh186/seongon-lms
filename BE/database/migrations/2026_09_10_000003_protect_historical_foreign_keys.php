@@ -51,11 +51,11 @@ return new class extends Migration
     {
         foreach ($this->foreignKeys as [$table, $column, $parent, $parentColumn]) {
             $constraints = DB::select(
-                'select constraint_name from information_schema.key_column_usage where table_schema = database() and table_name = ? and column_name = ? and referenced_table_name is not null',
+                'select CONSTRAINT_NAME as fk_name from information_schema.key_column_usage where table_schema = database() and table_name = ? and column_name = ? and referenced_table_name is not null',
                 [$table, $column],
             );
             foreach ($constraints as $constraint) {
-                $name = str_replace('`', '', $constraint->constraint_name);
+                $name = str_replace('`', '', $constraint->fk_name);
                 DB::statement("alter table `{$table}` drop foreign key `{$name}`");
             }
             $name = "{$table}_{$column}_historical_fk";
