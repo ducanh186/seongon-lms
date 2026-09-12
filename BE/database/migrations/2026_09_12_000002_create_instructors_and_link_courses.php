@@ -11,7 +11,15 @@ return new class extends Migration
     {
         Schema::create('instructors', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $name = $table->string('name');
+
+            if (DB::getDriverName() === 'sqlite') {
+                // SQLite's default BINARY equality differs from the application's
+                // case-insensitive MySQL collation used by the production unique key.
+                $name->collation('NOCASE');
+            }
+
+            $name->unique();
             $table->text('bio')->nullable();
             $table->timestamps();
         });
@@ -20,32 +28,25 @@ return new class extends Migration
             $table->foreignId('instructor_id')->nullable()->constrained()->restrictOnDelete();
         });
 
-        $instructors = [];
-
-        DB::table('courses')->orderBy('id')->each(function (object $course) use (&$instructors): void {
+        DB::table('courses')->orderBy('id')->each(function (object $course): void {
             $name = $course->instructor_name;
 
             if ($name === null || trim($name) === '') {
                 return;
             }
 
-            if (! isset($instructors[$name])) {
-                $instructor = DB::table('instructors')->where('name', $name)->first();
+            $instructor = DB::table('instructors')->where('name', $name)->first();
 
-                if ($instructor === null) {
-                    $instructorId = DB::table('instructors')->insertGetId([
-                        'name' => $name,
-                        'bio' => $this->nonEmptyBio($course->instructor_bio),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                    $instructor = (object) ['id' => $instructorId, 'bio' => $this->nonEmptyBio($course->instructor_bio)];
-                }
-
-                $instructors[$name] = $instructor;
+            if ($instructor === null) {
+                $instructorId = DB::table('instructors')->insertGetId([
+                    'name' => $name,
+                    'bio' => $this->nonEmptyBio($course->instructor_bio),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $instructor = DB::table('instructors')->find($instructorId);
             }
 
-            $instructor = $instructors[$name];
             $bio = $this->nonEmptyBio($course->instructor_bio);
 
             if ($instructor->bio === null && $bio !== null) {
