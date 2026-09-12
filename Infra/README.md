@@ -38,7 +38,7 @@ Theo đúng thứ tự, script:
 3. Tải phpMyAdmin 5.2.3 khi chưa có, xác minh SHA-256 rồi lưu runtime vào `Infra/.native-runtime/`.
 4. Luôn chạy `composer install` và `npm ci` theo lockfile để đồng bộ dependency sau mỗi lần pull code.
 5. Chạy `php artisan migrate --force`.
-6. Chạy `php artisan app:seed-demo-once` và `php artisan db:seed --class=DemoUserHistorySeeder --force`.
+6. Chạy `php artisan app:seed-demo-once`, đồng bộ tài khoản mẫu bằng `DemoAccountSeeder`, rồi chạy `DemoUserHistorySeeder`.
 7. Chạy toàn bộ test backend và frontend.
 8. Build frontend production vào `FE/DEMO/dist`.
 

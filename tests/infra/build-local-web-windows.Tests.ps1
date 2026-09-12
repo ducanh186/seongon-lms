@@ -40,6 +40,7 @@ Describe 'build-local-web-windows phpMyAdmin preparation' {
 
         $script | Should Match '\[switch\]\$SkipSeed'
         $script | Should Match 'app:seed-demo-once'
+        $script | Should Match "db:seed', '--class=DemoAccountSeeder', '--force"
         $script | Should Match "db:seed', '--class=DemoUserHistorySeeder', '--force"
         $script | Should Match 'if \(-not \$SkipSeed\)'
     }
