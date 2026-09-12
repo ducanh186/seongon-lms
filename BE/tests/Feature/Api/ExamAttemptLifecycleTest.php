@@ -301,6 +301,32 @@ class ExamAttemptLifecycleTest extends TestCase
             ->assertJsonPath('attempt.answers.0.correct_answer_id', $correctAnswer->id);
     }
 
+    public function test_each_attempt_receives_three_different_questions_from_the_bank(): void
+    {
+        [$student, $course, $exam] = $this->learningFixture();
+        $exam->update(['total_questions' => 3, 'max_attempts' => 2]);
+        foreach (range(1, 5) as $index) {
+            $question = Question::factory()->create(['exam_id' => $exam->id]);
+            Answer::factory()->correct()->create(['question_id' => $question->id]);
+            Answer::factory()->create(['question_id' => $question->id]);
+        }
+        $token = $student->createToken('test')->plainTextToken;
+
+        $first = $this->withToken($token)
+            ->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts/start")
+            ->assertOk()
+            ->json('attempt');
+        $this->withToken($token)->postJson("/api/v1/my/quiz-attempts/{$first['id']}/submit")->assertOk();
+        $second = $this->withToken($token)
+            ->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts/start")
+            ->assertOk()
+            ->json('attempt');
+
+        $this->assertCount(3, $first['question_ids']);
+        $this->assertCount(3, $second['question_ids']);
+        $this->assertSame([], array_values(array_intersect($first['question_ids'], $second['question_ids'])));
+    }
+
     /** @return array{User, Course, Exam, Question, Answer} */
     private function learningFixture(int $durationMinutes = 30): array
     {

@@ -24,6 +24,11 @@ it('starts a real API session on Continue and only confirms through the mock cal
   const user = userEvent.setup();
   await user.click(await screen.findByRole('button', { name: 'Lưu thông tin và tạo đơn' }));
   expect(screen.queryByText('Chờ thanh toán')).not.toBeInTheDocument();
+  expect(screen.getByTestId('momo-payment-logo')).toBeInTheDocument();
+  expect(screen.getByTestId('bank-payment-logo')).toBeInTheDocument();
+  expect(screen.getByTestId('card-payment-logo')).toBeInTheDocument();
+  expect(screen.queryByRole('textbox', { name: 'Mã khuyến mại' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Áp dụng' })).not.toBeInTheDocument();
   await user.click(await screen.findByRole('button', { name: 'Tiếp tục' }));
   expect(await screen.findByRole('heading', { name: 'Cổng thanh toán MoMo' })).toBeInTheDocument();
   expect(mocks.mockPaymentCallback).not.toHaveBeenCalled();

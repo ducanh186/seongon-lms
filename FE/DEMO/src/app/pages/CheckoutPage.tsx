@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Box, Button, Card, CardContent, Chip, Container, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
+import AccountBalanceRoundedIcon from '@mui/icons-material/AccountBalanceRounded';
+import CreditCardRoundedIcon from '@mui/icons-material/CreditCardRounded';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { QRCodeSVG } from 'qrcode.react';
 import { ApiError } from '../lib/api';
@@ -9,6 +11,16 @@ import { paymentStatus, paymentStatusLabels } from '../lib/payment';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../cart/CartContext';
 import { PageSkeleton } from '../components/AsyncState';
+
+function PaymentMethodOption({ code, label }: { code: PaymentMethod; label: string }) {
+  const logo = code === 'momo'
+    ? <Box component="img" src="/images/momo-logo.png" alt="" aria-hidden="true" data-testid="momo-payment-logo" sx={{ width: 42, height: 42, objectFit: 'contain', borderRadius: 1 }} />
+    : code === 'bank'
+      ? <Box data-testid="bank-payment-logo" aria-hidden="true" sx={{ width: 42, height: 42, borderRadius: 1, bgcolor: '#e8f3ff', color: '#1769aa', display: 'grid', placeItems: 'center' }}><AccountBalanceRoundedIcon /></Box>
+      : <Box data-testid="card-payment-logo" aria-hidden="true" sx={{ width: 42, height: 42, borderRadius: 1, bgcolor: '#eef8f7', color: 'primary.main', display: 'grid', placeItems: 'center' }}><CreditCardRoundedIcon /></Box>;
+
+  return <Stack direction="row" spacing={1.5} alignItems="center">{logo}<Box><Typography>{label}</Typography>{code === 'card' && <Typography variant="caption" color="text.secondary">VISA · Mastercard · JCB</Typography>}</Box></Stack>;
+}
 
 export function CheckoutPage() {
   const { slug = '' } = useParams();
@@ -150,7 +162,7 @@ export function CheckoutPage() {
             {(expired || status === 'cancelled') && <Alert severity="warning">{expired ? 'Phiên thanh toán đã hết hạn.' : 'Phiên thanh toán đã hủy.'} Chọn phương thức để tạo phiên mới.</Alert>}
             <Typography component="h2" variant="h6">2. Chọn phương thức thanh toán</Typography>
             <Typography color="text.secondary">Kiểm tra thông tin đơn hàng trước khi nhấn Tiếp tục.</Typography>
-            {methods.length ? <FormControl><RadioGroup value={method} onChange={(event) => setMethod(event.target.value as PaymentMethod)}>{methods.map((item) => <FormControlLabel key={item.code} value={item.code} control={<Radio />} label={item.label} />)}</RadioGroup></FormControl> : <Alert severity="warning">Hiện chưa có phương thức thanh toán khả dụng.</Alert>}
+            {methods.length ? <FormControl><RadioGroup value={method} onChange={(event) => setMethod(event.target.value as PaymentMethod)} sx={{ gap: 1 }}>{methods.map((item) => <FormControlLabel key={item.code} value={item.code} control={<Radio />} label={<PaymentMethodOption code={item.code} label={item.label} />} sx={{ m: 0, px: 1.5, py: 1, border: '1px solid', borderColor: method === item.code ? 'primary.main' : 'divider', borderRadius: 2 }} />)}</RadioGroup></FormControl> : <Alert severity="warning">Hiện chưa có phương thức thanh toán khả dụng.</Alert>}
             <Button variant="contained" disabled={submitting || !method} onClick={() => void start()}>Tiếp tục</Button>
           </>}
         </Stack>
@@ -159,7 +171,7 @@ export function CheckoutPage() {
         <Typography component="h2" variant="h6">1. Thông tin đơn hàng</Typography><Divider sx={{ my: 2 }} />
         {order && <Typography>Mã đơn hàng: LMS-{order.id}</Typography>}
         <Typography color="text.secondary" sx={{ my: 1 }}>1 khóa học</Typography><Typography fontWeight={700}>{course.title}</Typography>
-        <Stack spacing={2} sx={{ mt: 2 }}><Typography>Tạm tính: {amount}</Typography><TextField label="Mã khuyến mại" disabled helperText="Hiện chưa hỗ trợ mã khuyến mại." /><Button variant="outlined" disabled>Áp dụng</Button><Divider /><Typography variant="h6" color="primary.dark">Tổng cộng: {amount}</Typography>{order && <Typography>{paymentStatusLabels[expired ? 'expired' : status]}</Typography>}<Button component={Link} to={`/courses/${course.slug}`} variant="outlined">Quay lại chi tiết khóa học</Button></Stack>
+        <Stack spacing={2} sx={{ mt: 2 }}><Typography>Tạm tính: {amount}</Typography><Divider /><Typography variant="h6" color="primary.dark">Tổng cộng: {amount}</Typography>{order && <Typography>{paymentStatusLabels[expired ? 'expired' : status]}</Typography>}<Button component={Link} to={`/courses/${course.slug}`} variant="outlined">Quay lại chi tiết khóa học</Button></Stack>
       </CardContent></Card>
     </Box>
   </Container></Box>;
