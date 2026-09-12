@@ -103,7 +103,7 @@ class MainCourseQuizSeeder extends Seeder
     {
         DB::transaction(function (): void {
             Course::query()->where('price', '<=', 0)->update(['price' => 299000]);
-            Exam::query()->whereNull('total_questions')->update(['total_questions' => 3]);
+            Exam::query()->whereNull('total_questions')->update(['total_questions' => 10]);
 
             foreach ([
                 'seo-ai-max-01' => self::SEO,
@@ -115,7 +115,10 @@ class MainCourseQuizSeeder extends Seeder
                     continue;
                 }
 
-                $exam->update(['max_attempts' => 2, 'total_questions' => 3]);
+                $exam->update(['max_attempts' => 2, 'total_questions' => 10]);
+                if ($exam->questions()->count() >= 100) {
+                    continue;
+                }
                 foreach (self::CONTEXTS as $contextIndex => $context) {
                     foreach ($concepts as $conceptIndex => [$stem, $correct, $wrongA, $wrongB]) {
                         $content = sprintf('%s: %s', $context, $stem);

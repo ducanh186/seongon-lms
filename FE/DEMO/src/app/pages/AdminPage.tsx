@@ -709,7 +709,8 @@ export function AdminPage() {
 
   const uploadNewsImage = async (file: File): Promise<string> => {
     if (!token) throw new Error('Phiên đăng nhập đã hết hạn.');
-    return (await adminRepositories.news.uploadImage(token, file)).url;
+    const url = (await adminRepositories.news.uploadImage(token, file)).url;
+    return resolveMaterialUrl(url) ?? url;
   };
 
   const submitLesson = (event: FormEvent) => {
@@ -1395,10 +1396,10 @@ export function AdminPage() {
                     minWidth={760}
                     columns={[
                       { key: 'reviewer', header: 'Học viên', render: (review) => <Typography fontWeight={750}>{review.user.name}</Typography> },
-                      { key: 'rating', header: 'Điểm', align: 'center', render: (review) => `${review.rating}/5` },
+                      { key: 'course', header: 'Tên khóa học', render: (review) => review.course?.title ?? selectedCourse.title },
+                      { key: 'rating', header: 'Số sao', align: 'center', render: (review) => `${review.rating}/5` },
                       { key: 'comment', header: 'Nhận xét', render: (review) => <Typography variant="body2" sx={{ minWidth: 220, maxWidth: 420, overflowWrap: 'anywhere' }}>{review.comment || 'Không có nhận xét'}</Typography> },
-                      { key: 'status', header: 'Trạng thái', render: (review) => <StatusChip status={review.status} /> },
-                      { key: 'actions', header: 'Thao tác', render: (review) => <Stack direction="row" spacing={0.5}><Button size="small" variant="outlined" onClick={() => token && void runMutation(() => adminRepositories.reviews.updateStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'), 'Đã cập nhật trạng thái đánh giá.', true)}>{review.status === 'visible' ? 'Ẩn' : 'Hiện'}</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, () => adminRepositories.reviews.remove(token, review.id), 'Đã xóa đánh giá.', true)}>Xóa</Button></Stack> },
+                      { key: 'actions', header: 'Thao tác', render: (review) => <Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, () => adminRepositories.reviews.remove(token, review.id), 'Đã xóa đánh giá.', true)}>Xóa</Button> },
                     ] satisfies AdminColumn<ApiReview>[]}
                   /> : <Box sx={{ px: { xs: 2.5, md: 3 }, pb: 3 }}><EmptyState title={courseReviews ? 'Khóa học chưa có đánh giá.' : 'Đang tải đánh giá...'} /></Box>}
                 </CardContent>
@@ -1439,7 +1440,7 @@ export function AdminPage() {
               </Stack>}
 
               {courseStep === 2 && <Stack spacing={2}>
-                <Card component="form" onSubmit={submitQuiz} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>Bài kiểm tra cuối khóa</Typography><TextField required label="Tiêu đề bài kiểm tra" value={quizTitle} onChange={(event) => setQuizTitle(event.target.value)} /><TextField required label="Điểm đạt" type="number" inputProps={{ min: 1, max: 100 }} value={quizPassScore} onChange={(event) => setQuizPassScore(event.target.value)} /><TextField required label="Số lần làm tối đa" type="number" inputProps={{ min: 1, max: 20 }} value={quizMaxAttempts} onChange={(event) => setQuizMaxAttempts(event.target.value)} /><TextField label="Thời điểm đóng bài" type="datetime-local" value={quizClosesAt} onChange={(event) => setQuizClosesAt(event.target.value)} InputLabelProps={{ shrink: true }} helperText="Để trống nếu bài kiểm tra không có hạn đóng." /><Button type="submit" variant="outlined" sx={{ alignSelf: 'flex-start' }}>Lưu bài kiểm tra</Button></Stack></CardContent></Card>
+                <Card component="form" onSubmit={submitQuiz} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>Bài kiểm tra cuối khóa</Typography><TextField required label="Tiêu đề bài kiểm tra" value={quizTitle} onChange={(event) => setQuizTitle(event.target.value)} /><TextField required label="Điểm đạt" type="number" inputProps={{ min: 1, max: 100 }} value={quizPassScore} onChange={(event) => setQuizPassScore(event.target.value)} /><TextField required label="Số lần làm tối đa" type="number" inputProps={{ min: 1, max: 20 }} value={quizMaxAttempts} onChange={(event) => setQuizMaxAttempts(event.target.value)} /><TextField required label="Số câu hỏi mỗi lượt" type="number" inputProps={{ min: 1, max: 1000 }} value={quizTotalQuestions} onChange={(event) => setQuizTotalQuestions(event.target.value)} helperText="Hệ thống chọn ngẫu nhiên số câu này từ ngân hàng câu hỏi." /><TextField label="Thời điểm đóng bài" type="datetime-local" value={quizClosesAt} onChange={(event) => setQuizClosesAt(event.target.value)} InputLabelProps={{ shrink: true }} helperText="Để trống nếu bài kiểm tra không có hạn đóng." /><Button type="submit" variant="outlined" sx={{ alignSelf: 'flex-start' }}>Lưu bài kiểm tra</Button></Stack></CardContent></Card>
                 {selectedCourse.quiz && <Card component="form" onSubmit={submitQuestion} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Stack direction="row" justifyContent="space-between" alignItems="center"><Typography component="h2" variant="h6" fontWeight={800}>{editingQuestionId ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}</Typography>{editingQuestionId && <Button size="small" onClick={() => { setEditingQuestionId(null); setQuestionContent(''); setQuestionOptions(blankQuestionOptions); }}>Tạo câu hỏi mới</Button>}</Stack><Stack direction="row" spacing={1} flexWrap="wrap">{selectedCourse.quiz.questions.map((question) => <Button key={question.id} size="small" variant={question.id === editingQuestionId ? 'contained' : 'outlined'} onClick={() => chooseQuestion(question)}>Câu hỏi {question.id}</Button>)}</Stack><TextField required label="Câu hỏi" value={questionContent} onChange={(event) => setQuestionContent(event.target.value)} />{questionOptions.map((option, index) => <Stack key={index} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}><TextField required fullWidth label={`Phương án ${index + 1}`} value={option.content} onChange={(event) => updateQuestionOption(index, { content: event.target.value })} /><RadioGroup row value={String(index)} onChange={() => markCorrectOption(index)}><FormControlLabel value={String(index)} control={<Radio checked={option.is_correct} />} label="Đáp án đúng" /></RadioGroup>{questionOptions.length > 2 && <Button color="error" onClick={() => setQuestionOptions((options) => options.filter((_, optionIndex) => optionIndex !== index))}>Xóa</Button>}</Stack>)}<Button onClick={() => setQuestionOptions((options) => [...options, { content: '', is_correct: false }])}>Thêm phương án</Button><Button type="submit" variant="contained">{editingQuestionId ? 'Cập nhật câu hỏi' : 'Lưu câu hỏi'}</Button>{editingQuestionId && <Button color="error" onClick={() => token && requestConfirmation('Xóa câu hỏi', questionContent || `Câu hỏi ${editingQuestionId}`, () => adminRepositories.courses.removeQuestion(token, editingQuestionId), 'Đã xóa câu hỏi.', true)}>Xóa câu hỏi</Button>}</Stack></CardContent></Card>}
                 <Card sx={{ borderRadius: 3 }}><CardContent><Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between" alignItems={{ sm: 'center' }}><Button onClick={() => setCourseStep(1)}>Quay lại: Bài học & tài liệu</Button><Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}><Button variant="outlined" onClick={() => token && void runMutation(() => adminRepositories.courses.publish(token, selectedCourse.id, 'draft'), 'Đã lưu khóa học ở trạng thái bản nháp.', true)}>Lưu bản nháp</Button><Button variant="contained" onClick={() => token && void runMutation(() => adminRepositories.courses.publish(token, selectedCourse.id, 'published'), 'Đã xuất bản khóa học.', true)}>Xuất bản</Button></Stack></Stack></CardContent></Card>
               </Stack>}
@@ -1541,7 +1542,7 @@ export function AdminPage() {
                       Tải ảnh thumbnail
                       <input hidden type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void uploadNewsImage(file).then((url) => setNewsForm((form) => ({ ...form, thumbnail: url }))); }} />
                     </Button>
-                    {newsForm.thumbnail && <Box component="img" src={newsForm.thumbnail} alt="Xem trước thumbnail" sx={{ width: 160, height: 90, objectFit: 'cover', borderRadius: 1 }} />}
+                    {newsForm.thumbnail && <Box component="img" src={resolveMaterialUrl(newsForm.thumbnail) ?? newsForm.thumbnail} alt="Xem trước thumbnail" sx={{ width: 160, height: 90, objectFit: 'cover', borderRadius: 1 }} />}
                   </Stack>
                   <FormControl>
                     <InputLabel id="news-editor-status">Trạng thái xuất bản</InputLabel>
@@ -1560,7 +1561,6 @@ export function AdminPage() {
           </Stack>}
 
           {tab === 'reviews' && <Stack spacing={2}>
-            <Stack component="section" role="region" aria-label="Bộ lọc đánh giá" data-admin-toolbar="true" direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}><FormControl fullWidth><InputLabel id="review-status">Trạng thái</InputLabel><Select labelId="review-status" label="Trạng thái" value={reviewStatus} onChange={(event) => { setReviewStatus(event.target.value); setReviewPage(1); }}><MenuItem value="">Tất cả</MenuItem><MenuItem value="visible">Hiển thị</MenuItem><MenuItem value="hidden">Đã ẩn</MenuItem></Select></FormControl><Button variant="contained" onClick={() => void load('reviews', true)}>Áp dụng</Button></Stack>
             <Card sx={{ minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
               {reviews?.data.length ? <AdminDataTable<ApiReview>
                 label="Danh sách đánh giá"
@@ -1568,9 +1568,9 @@ export function AdminPage() {
                 getRowKey={(review) => review.id}
                 columns={[
                   { key: 'reviewer', header: 'Người đánh giá', render: (review) => <Typography fontWeight={750} sx={{ minWidth: 160 }}>{review.user.name}</Typography> },
-                  { key: 'rating', header: 'Điểm', align: 'center', render: (review) => `${review.rating}/5` },
+                  { key: 'course', header: 'Tên khóa học', render: (review) => review.course?.title ?? '—' },
+                  { key: 'rating', header: 'Số sao', align: 'center', render: (review) => `${review.rating}/5` },
                   { key: 'comment', header: 'Nhận xét', render: (review) => <Typography variant="body2" sx={{ minWidth: 220, maxWidth: 360, overflowWrap: 'anywhere' }}>{review.comment || 'Không có nhận xét'}</Typography> },
-                  { key: 'status', header: 'Trạng thái', render: (review) => <StatusChip status={review.status} /> },
                   { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (review) => <IconButton
                     id={`review-actions-${review.id}`}
                     aria-label={`Thao tác đánh giá của ${review.user.name}`}
@@ -1599,9 +1599,6 @@ export function AdminPage() {
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
               slotProps={{ list: { 'aria-labelledby': reviewMenu ? `review-actions-${reviewMenu.review.id}` : undefined }, paper: { sx: { mt: 0.5, minWidth: 192 } } }}
             >
-              <MenuItem onClick={() => { if (!reviewMenu || !token) return; const review = reviewMenu.review; setReviewMenu(null); void runMutation(() => adminRepositories.reviews.updateStatus(token, review.id, review.status === 'visible' ? 'hidden' : 'visible'), 'Đã cập nhật trạng thái đánh giá.'); }}>
-                {reviewMenu?.review.status === 'visible' ? 'Ẩn đánh giá' : 'Hiện đánh giá'}
-              </MenuItem>
               <MenuItem sx={{ color: 'error.main' }} onClick={() => { if (!reviewMenu) return; const review = reviewMenu.review; setReviewMenu(null); if (token) requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, () => adminRepositories.reviews.remove(token, review.id), 'Đã xóa đánh giá.'); }}>Xóa</MenuItem>
             </Menu>
             {reviews && reviews.meta.last_page > 1 && <Pagination count={reviews.meta.last_page} page={reviewPage} onChange={(_, page) => setReviewPage(page)} color="primary" sx={{ alignSelf: 'center' }} />}

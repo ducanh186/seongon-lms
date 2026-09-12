@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
+use App\Models\Exam;
 use App\Models\Lesson;
 use App\Models\User;
 use Database\Seeders\CompletedCourseDemoSeeder;
@@ -13,6 +14,16 @@ use Tests\TestCase;
 class GeneratedDemoCatalogSeederTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_each_generated_course_has_a_question_bank_and_randomized_attempt_size(): void
+    {
+        $this->seed(GeneratedDemoCatalogSeeder::class);
+
+        $exam = Exam::query()->withCount('questions')->whereHas('course', fn ($query) => $query->where('slug', 'seo-ai-max-01'))->firstOrFail();
+
+        $this->assertSame(100, $exam->questions_count);
+        $this->assertSame(10, $exam->total_questions);
+    }
 
     public function test_it_uses_the_prototype_course_thumbnail_set_instead_of_random_images(): void
     {

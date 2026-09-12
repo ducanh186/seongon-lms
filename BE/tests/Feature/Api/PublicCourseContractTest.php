@@ -13,21 +13,21 @@ class PublicCourseContractTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_public_course_counts_exclude_hidden_reviews_and_include_students(): void
+    public function test_public_course_counts_all_reviews_and_include_students(): void
     {
         $course = Course::factory()->create(['status' => 'published']);
-        Review::factory()->create(['course_id' => $course->id, 'rating' => 5, 'status' => 'visible']);
-        Review::factory()->create(['course_id' => $course->id, 'rating' => 1, 'status' => 'hidden']);
+        Review::factory()->create(['course_id' => $course->id, 'rating' => 5]);
+        Review::factory()->create(['course_id' => $course->id, 'rating' => 1]);
         Enrollment::factory()->count(2)->create(['course_id' => $course->id]);
 
         $this->getJson('/api/v1/courses')->assertOk()
-            ->assertJsonPath('data.0.reviews_count', 1)
-            ->assertJsonPath('data.0.rating', 5)
+            ->assertJsonPath('data.0.reviews_count', 2)
+            ->assertJsonPath('data.0.rating', 3)
             ->assertJsonPath('data.0.enrollments_count', 2);
 
         $this->getJson("/api/v1/courses/{$course->slug}")->assertOk()
-            ->assertJsonPath('data.reviews_count', 1)
-            ->assertJsonPath('data.rating', 5)
+            ->assertJsonPath('data.reviews_count', 2)
+            ->assertJsonPath('data.rating', 3)
             ->assertJsonPath('data.enrollments_count', 2)
             ->assertJsonPath('data.enrollment', null);
     }

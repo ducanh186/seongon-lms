@@ -28,13 +28,13 @@ const adminReviews = vi.hoisted(() => vi.fn());
 const adminCourse = vi.hoisted(() => vi.fn());
 const saveCourse = vi.hoisted(() => vi.fn());
 const publishCourse = vi.hoisted(() => vi.fn());
+const saveQuiz = vi.hoisted(() => vi.fn());
 const adminEnrollments = vi.hoisted(() => vi.fn());
 const adminAttempts = vi.hoisted(() => vi.fn());
 const adminCertificates = vi.hoisted(() => vi.fn());
 const reorderLessons = vi.hoisted(() => vi.fn());
 const deleteCourse = vi.hoisted(() => vi.fn());
 const deleteReview = vi.hoisted(() => vi.fn());
-const updateReviewStatus = vi.hoisted(() => vi.fn());
 const adminNews = vi.hoisted(() => vi.fn());
 const saveNews = vi.hoisted(() => vi.fn());
 const deleteNews = vi.hoisted(() => vi.fn());
@@ -42,7 +42,7 @@ const useAuth = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { adminStats, adminRoles, adminUsers, adminUser, adminUserRecords, updateUserStatus, updateUserRole, adminCategories, adminCatalogs, createCatalog, updateCatalog, deleteCatalog, adminInstructors, createInstructor, updateInstructor, deleteInstructor, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, publishCourse, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, deleteReview, updateReviewStatus, adminNews, saveNews, deleteNews },
+  api: { adminStats, adminRoles, adminUsers, adminUser, adminUserRecords, updateUserStatus, updateUserRole, adminCategories, adminCatalogs, createCatalog, updateCatalog, deleteCatalog, adminInstructors, createInstructor, updateInstructor, deleteInstructor, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, publishCourse, saveQuiz, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, deleteReview, adminNews, saveNews, deleteNews },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
@@ -161,6 +161,7 @@ function mockAdminData() {
   adminCourse.mockResolvedValue({ data: selectedCourse });
   saveCourse.mockResolvedValue({ data: selectedCourse });
   publishCourse.mockResolvedValue({ data: { ...selectedCourse, status: 'published' } });
+  saveQuiz.mockResolvedValue({ ...selectedCourse.quiz });
   adminEnrollments.mockResolvedValue({
     data: [{
       id: 44, user_id: 5, course_id: 10, order_id: 30,
@@ -1022,6 +1023,22 @@ describe('AdminPage', () => {
     expect(within(table).queryByText('Trạng thái')).not.toBeInTheDocument();
     expect(within(table).getByText('SEO Foundation')).toBeInTheDocument();
     expect(within(table).getByText('5/5')).toBeInTheDocument();
+  });
+
+  it('saves the configured question count for each quiz attempt', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    await openCourseDetails(user);
+    await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
+    await user.click(await screen.findByRole('button', { name: 'Bài kiểm tra' }));
+    await user.clear(screen.getByRole('spinbutton', { name: 'Số câu hỏi mỗi lượt' }));
+    await user.type(screen.getByRole('spinbutton', { name: 'Số câu hỏi mỗi lượt' }), '25');
+    await user.click(screen.getByRole('button', { name: 'Lưu bài kiểm tra' }));
+
+    await waitFor(() => expect(saveQuiz).toHaveBeenCalledWith('admin-token', 10, expect.objectContaining({ total_questions: 25 })));
   });
 
   it('waits for Apply before requesting News filters and keeps the newest applied result', async () => {

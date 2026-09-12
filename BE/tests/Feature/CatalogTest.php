@@ -31,12 +31,11 @@ it('shows a course by slug', function () {
         ->assertJsonPath('data.slug', 'khoa-hoc-abc');
 });
 
-it('lists only visible reviews of a course', function () {
+it('lists all reviews of a course', function () {
     $course = Course::factory()->create(['status' => 'published', 'slug' => 'c1']);
-    Review::factory()->count(2)->create(['course_id' => $course->id, 'status' => 'visible']);
-    Review::factory()->create(['course_id' => $course->id, 'status' => 'hidden']);
+    Review::factory()->count(3)->create(['course_id' => $course->id]);
 
     $this->getJson('/api/v1/courses/c1/reviews')
         ->assertOk()
-        ->assertJsonCount(2, 'data');
+        ->assertJsonCount(3, 'data');
 });

@@ -337,7 +337,7 @@ export const api = {
       token,
       body: { order },
     }),
-  saveQuiz: (token: string, courseId: number, body: { title: string; pass_score: number; max_attempts: number; duration_minutes?: number | null; closes_at?: string | null }) =>
+  saveQuiz: (token: string, courseId: number, body: { title: string; pass_score: number; max_attempts: number; total_questions: number; duration_minutes?: number | null; closes_at?: string | null }) =>
     apiRequest<ApiAdminQuiz>(`/admin/courses/${courseId}/quiz`, { method: 'POST', token, body }),
   deleteQuiz: (token: string, courseId: number) => apiRequest<void>(`/admin/courses/${courseId}/quiz`, { method: 'DELETE', token }),
   saveQuestion: (token: string, quizId: number, body: { content: string; options: Array<{ content: string; is_correct: boolean }> }) =>

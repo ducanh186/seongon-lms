@@ -368,6 +368,7 @@ export interface ApiQuiz {
   title: string;
   pass_score: number;
   max_attempts: number;
+  total_questions?: number | null;
   duration_minutes: number | null;
   closes_at?: string | null;
   attempts_remaining?: number;

@@ -187,15 +187,18 @@ class GeneratedDemoCatalogSeeder extends Seeder
             'title' => 'Bài kiểm tra cuối khóa',
             'pass_score' => 75,
             'max_attempts' => 2,
+            'total_questions' => 10,
         ]);
 
-        foreach (self::QUIZ_QUESTIONS as $questionData) {
+        foreach (range(1, 100) as $questionNumber) {
+            $template = self::QUIZ_QUESTIONS[($questionNumber - 1) % count(self::QUIZ_QUESTIONS)];
             $question = Question::query()->create([
                 'exam_id' => $exam->id,
-                'content' => $questionData['content'],
+                'content' => sprintf('%s #%d: %s', $topic, $questionNumber, $template['content']),
+                'sort_order' => $questionNumber,
             ]);
 
-            foreach ($questionData['options'] as $optionIndex => $optionContent) {
+            foreach ($template['options'] as $optionIndex => $optionContent) {
                 Answer::query()->create([
                     'question_id' => $question->id,
                     'content' => $optionContent,
