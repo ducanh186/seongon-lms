@@ -65,4 +65,19 @@ describe('TrackedLessonVideo', () => {
 
     await waitFor(() => expect(onProgress).toHaveBeenCalledWith({ positionSeconds: 100, durationSeconds: 100 }));
   });
+
+  it('ignores a YouTube message whose info payload is null', () => {
+    render(
+      <TrackedLessonVideo
+        url="https://www.youtube.com/embed/example"
+        title="YouTube lesson"
+        onProgress={vi.fn().mockResolvedValue(undefined)}
+      />,
+    );
+
+    expect(() => window.dispatchEvent(new MessageEvent('message', {
+      origin: 'https://www.youtube.com',
+      data: JSON.stringify({ event: 'infoDelivery', info: null }),
+    }))).not.toThrow();
+  });
 });

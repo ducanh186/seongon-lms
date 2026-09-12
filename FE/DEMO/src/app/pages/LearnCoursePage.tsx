@@ -243,6 +243,7 @@ export function LearnCoursePage() {
                 saveAnswers={(attemptId, draft) => applicationRepositories.learning.saveQuizAnswers(token!, attemptId, draft)}
                 submitAttempt={(attemptId) => applicationRepositories.learning.finalizeQuizAttempt(token!, attemptId)}
                 onResult={setQuizResult}
+                onBackToCourse={() => setQuiz(null)}
               />
             )}
           </Stack>

@@ -55,7 +55,7 @@ it('counts wrong answers separately', function () {
     expect($attempt->correct_count)->toBe(0)->and($attempt->wrong_count)->toBe(4);
 });
 
-it('keeps the legacy attempt field names in the API payload', function () {
+it('keeps the legacy attempt field names and adds the correct answer in the API payload', function () {
     $user = User::factory()->create();
     $course = makeCourseWithContent(1);
     Enrollment::factory()->create(['user_id' => $user->id, 'course_id' => $course->id]);
@@ -67,7 +67,7 @@ it('keeps the legacy attempt field names in the API payload', function () {
 
     expect($attempt)->toHaveKeys(['id', 'quiz_id', 'score', 'passed', 'attempt_no', 'submitted_at', 'answers'])
         ->and(array_keys($attempt['answers'][0]))->toEqualCanonicalizing(
-            ['question_id', 'selected_option_id', 'is_correct']
+            ['question_id', 'selected_option_id', 'is_correct', 'correct_answer_id']
         );
 });
 

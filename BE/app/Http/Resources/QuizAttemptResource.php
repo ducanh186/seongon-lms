@@ -16,6 +16,12 @@ class QuizAttemptResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $correctAnswers = $this->resource->relationLoaded('exam')
+            ? $this->exam->questions->mapWithKeys(fn ($question) => [
+                $question->id => $question->answers->firstWhere('is_correct', true)?->id,
+            ])
+            : collect();
+
         return [
             'id' => $this->id,
             'quiz_id' => $this->exam_id,
@@ -29,13 +35,14 @@ class QuizAttemptResource extends JsonResource
             'expires_at' => $this->expires_at,
             'finished_at' => $this->finished_at,
             'submitted_at' => $this->submitted_at,
-            'answers' => collect($this->answers ?? [])->map(function (array $answer) {
+            'answers' => collect($this->answers ?? [])->map(function (array $answer) use ($correctAnswers) {
                 $result = [
                     'question_id' => $answer['question_id'],
                     'selected_option_id' => $answer['selected_answer_id'] ?? null,
                 ];
                 if (array_key_exists('is_correct', $answer)) {
                     $result['is_correct'] = $answer['is_correct'];
+                    $result['correct_answer_id'] = $correctAnswers->get($answer['question_id']);
                 }
 
                 return $result;

@@ -202,6 +202,13 @@ function getErrorMessage(reason: unknown, fallback: string): string {
   return reason instanceof ApiError ? reason.message : fallback;
 }
 
+function toDateTimeLocal(value?: string | null): string {
+  if (!value) return '';
+  const date = new Date(value);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localDate.toISOString().slice(0, 16);
+}
+
 function courseDraftFrom(course: ApiCourse): CourseDraft {
   return {
     title: course.title,
@@ -285,7 +292,8 @@ export function AdminPage() {
   const [lessonMaterial, setLessonMaterial] = useState<File | null>(null);
   const [quizTitle, setQuizTitle] = useState('Bài kiểm tra cuối khóa');
   const [quizPassScore, setQuizPassScore] = useState('75');
-  const [quizMaxAttempts, setQuizMaxAttempts] = useState('3');
+  const [quizMaxAttempts, setQuizMaxAttempts] = useState('2');
+  const [quizClosesAt, setQuizClosesAt] = useState('');
   const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
   const [questionContent, setQuestionContent] = useState('');
   const [questionOptions, setQuestionOptions] = useState<QuestionOptionDraft[]>(blankQuestionOptions);
@@ -507,7 +515,8 @@ export function AdminPage() {
     setCourseForm(courseDraftFrom(response.data));
     setQuizTitle(response.data.quiz?.title ?? 'Bài kiểm tra cuối khóa');
     setQuizPassScore(String(response.data.quiz?.pass_score ?? 75));
-    setQuizMaxAttempts(String(response.data.quiz?.max_attempts ?? 3));
+    setQuizMaxAttempts(String(response.data.quiz?.max_attempts ?? 2));
+    setQuizClosesAt(toDateTimeLocal(response.data.quiz?.closes_at));
     const firstQuestion = response.data.quiz?.questions[0];
     if (firstQuestion) {
       const draft = questionDraftFrom(firstQuestion);
@@ -782,7 +791,12 @@ export function AdminPage() {
     event.preventDefault();
     if (!token || !selectedCourse) return;
     void runMutation(
-      () => adminRepositories.courses.saveQuiz(token, selectedCourse.id, { title: quizTitle, pass_score: Number(quizPassScore), max_attempts: Number(quizMaxAttempts) }),
+      () => adminRepositories.courses.saveQuiz(token, selectedCourse.id, {
+        title: quizTitle,
+        pass_score: Number(quizPassScore),
+        max_attempts: Number(quizMaxAttempts),
+        closes_at: quizClosesAt ? new Date(quizClosesAt).toISOString() : null,
+      }),
       'Đã lưu cấu hình bài kiểm tra.',
       true,
     );
@@ -1376,7 +1390,7 @@ export function AdminPage() {
               </Stack>}
 
               {courseStep === 2 && <Stack spacing={2}>
-                <Card component="form" onSubmit={submitQuiz} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>Bài kiểm tra cuối khóa</Typography><TextField required label="Tiêu đề bài kiểm tra" value={quizTitle} onChange={(event) => setQuizTitle(event.target.value)} /><TextField required label="Điểm đạt" type="number" inputProps={{ min: 1, max: 100 }} value={quizPassScore} onChange={(event) => setQuizPassScore(event.target.value)} /><TextField required label="Số lần làm tối đa" type="number" inputProps={{ min: 1, max: 20 }} value={quizMaxAttempts} onChange={(event) => setQuizMaxAttempts(event.target.value)} /><Button type="submit" variant="outlined" sx={{ alignSelf: 'flex-start' }}>Lưu bài kiểm tra</Button></Stack></CardContent></Card>
+                <Card component="form" onSubmit={submitQuiz} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>Bài kiểm tra cuối khóa</Typography><TextField required label="Tiêu đề bài kiểm tra" value={quizTitle} onChange={(event) => setQuizTitle(event.target.value)} /><TextField required label="Điểm đạt" type="number" inputProps={{ min: 1, max: 100 }} value={quizPassScore} onChange={(event) => setQuizPassScore(event.target.value)} /><TextField required label="Số lần làm tối đa" type="number" inputProps={{ min: 1, max: 20 }} value={quizMaxAttempts} onChange={(event) => setQuizMaxAttempts(event.target.value)} /><TextField label="Thời điểm đóng bài" type="datetime-local" value={quizClosesAt} onChange={(event) => setQuizClosesAt(event.target.value)} InputLabelProps={{ shrink: true }} helperText="Để trống nếu bài kiểm tra không có hạn đóng." /><Button type="submit" variant="outlined" sx={{ alignSelf: 'flex-start' }}>Lưu bài kiểm tra</Button></Stack></CardContent></Card>
                 {selectedCourse.quiz && <Card component="form" onSubmit={submitQuestion} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Stack direction="row" justifyContent="space-between" alignItems="center"><Typography component="h2" variant="h6" fontWeight={800}>{editingQuestionId ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}</Typography>{editingQuestionId && <Button size="small" onClick={() => { setEditingQuestionId(null); setQuestionContent(''); setQuestionOptions(blankQuestionOptions); }}>Tạo câu hỏi mới</Button>}</Stack><Stack direction="row" spacing={1} flexWrap="wrap">{selectedCourse.quiz.questions.map((question) => <Button key={question.id} size="small" variant={question.id === editingQuestionId ? 'contained' : 'outlined'} onClick={() => chooseQuestion(question)}>Câu hỏi {question.id}</Button>)}</Stack><TextField required label="Câu hỏi" value={questionContent} onChange={(event) => setQuestionContent(event.target.value)} />{questionOptions.map((option, index) => <Stack key={index} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}><TextField required fullWidth label={`Phương án ${index + 1}`} value={option.content} onChange={(event) => updateQuestionOption(index, { content: event.target.value })} /><RadioGroup row value={String(index)} onChange={() => markCorrectOption(index)}><FormControlLabel value={String(index)} control={<Radio checked={option.is_correct} />} label="Đáp án đúng" /></RadioGroup>{questionOptions.length > 2 && <Button color="error" onClick={() => setQuestionOptions((options) => options.filter((_, optionIndex) => optionIndex !== index))}>Xóa</Button>}</Stack>)}<Button onClick={() => setQuestionOptions((options) => [...options, { content: '', is_correct: false }])}>Thêm phương án</Button><Button type="submit" variant="contained">{editingQuestionId ? 'Cập nhật câu hỏi' : 'Lưu câu hỏi'}</Button>{editingQuestionId && <Button color="error" onClick={() => token && requestConfirmation('Xóa câu hỏi', questionContent || `Câu hỏi ${editingQuestionId}`, () => adminRepositories.courses.removeQuestion(token, editingQuestionId), 'Đã xóa câu hỏi.', true)}>Xóa câu hỏi</Button>}</Stack></CardContent></Card>}
                 <Card sx={{ borderRadius: 3 }}><CardContent><Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between" alignItems={{ sm: 'center' }}><Button onClick={() => setCourseStep(1)}>Quay lại: Bài học & tài liệu</Button><Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}><Button variant="outlined" onClick={() => token && void runMutation(() => adminRepositories.courses.publish(token, selectedCourse.id, 'draft'), 'Đã lưu khóa học ở trạng thái bản nháp.', true)}>Lưu bản nháp</Button><Button variant="contained" onClick={() => token && void runMutation(() => adminRepositories.courses.publish(token, selectedCourse.id, 'published'), 'Đã xuất bản khóa học.', true)}>Xuất bản</Button></Stack></Stack></CardContent></Card>
               </Stack>}

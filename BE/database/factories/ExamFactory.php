@@ -13,7 +13,7 @@ class ExamFactory extends Factory
             'course_id' => Course::factory(),
             'title' => 'Bài kiểm tra cuối khóa',
             'pass_score' => 75,
-            'max_attempts' => 3,
+            'max_attempts' => 2,
         ];
     }
 }

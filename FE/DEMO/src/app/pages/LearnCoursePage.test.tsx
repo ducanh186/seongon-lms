@@ -169,7 +169,7 @@ describe('LearnCoursePage', () => {
     expect(screen.queryByRole('button', { name: 'Mở nội dung khóa học' })).not.toBeInTheDocument();
   });
 
-  it('retains submitted answers and shows correct and incorrect disabled states', async () => {
+  it('shows the submitted attempt overview and wrong-answer review', async () => {
     myCourses.mockResolvedValue(enrollmentResponse);
     lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học 1', video_url: '', description: null, duration: null, position: 1, is_completed: true }] });
     progress.mockResolvedValue({ completed: 1, total: 1, percent: 100, can_take_exam: true });
@@ -178,7 +178,11 @@ describe('LearnCoursePage', () => {
       course_id: 10,
       title: 'Bài kiểm tra',
       pass_score: 80,
-      max_attempts: 3,
+      max_attempts: 2,
+      duration_minutes: 30,
+      attempts_remaining: 2,
+      ended: false,
+      attempts: [],
       questions: [
         { id: 11, content: 'Câu hỏi đúng', options: [{ id: 101, content: 'Đáp án A' }, { id: 102, content: 'Đáp án B' }] },
         { id: 12, content: 'Câu hỏi sai', options: [{ id: 201, content: 'Đáp án C' }, { id: 202, content: 'Đáp án D' }] },
@@ -194,7 +198,7 @@ describe('LearnCoursePage', () => {
         submitted_at: '2026-01-01T00:00:00Z',
         answers: [
           { question_id: 11, selected_option_id: 101, is_correct: true },
-          { question_id: 12, selected_option_id: 202, is_correct: false },
+          { question_id: 12, selected_option_id: 202, correct_answer_id: 201, is_correct: false },
         ],
       },
       passed: false,
@@ -220,7 +224,7 @@ describe('LearnCoursePage', () => {
         submitted_at: '2026-01-01T00:10:00Z',
         answers: [
           { question_id: 11, selected_option_id: 101, is_correct: true },
-          { question_id: 12, selected_option_id: 202, is_correct: false },
+          { question_id: 12, selected_option_id: 202, correct_answer_id: 201, is_correct: false },
         ],
       },
       passed: false,
@@ -237,11 +241,13 @@ describe('LearnCoursePage', () => {
     await user.click(screen.getByRole('radio', { name: 'Đáp án D' }));
     await user.click(screen.getByRole('button', { name: 'Nộp bài kiểm tra' }));
 
-    expect(await screen.findByText('Kết quả bài kiểm tra')).toBeInTheDocument();
-    expect(screen.getByText('Đáp án A · Đúng')).toBeInTheDocument();
-    expect(screen.getByText('Đáp án D · Chưa đúng')).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /Đáp án A/ })).toBeDisabled();
-    expect(screen.getByRole('radio', { name: /Đáp án D/ })).toBeDisabled();
+    expect(await screen.findByRole('heading', { name: 'Tổng quan các lần làm bài' })).toBeInTheDocument();
+    expect(screen.getByText('Bạn đạt 50%.')).toBeInTheDocument();
+    await user.click(screen.getAllByRole('button', { name: 'Xem lại lượt 1' })[0]);
+    expect(screen.getByText(/Câu hỏi sai/)).toBeInTheDocument();
+    expect(screen.getByText(/Bạn đã chọn: Đáp án D/)).toBeInTheDocument();
+    expect(screen.getByText(/Đáp án đúng: Đáp án C/)).toBeInTheDocument();
+    expect(screen.queryByText(/Câu hỏi đúng/)).not.toBeInTheDocument();
     expect(finalizeQuizAttempt).toHaveBeenCalledWith('student-token', 9);
   });
 });

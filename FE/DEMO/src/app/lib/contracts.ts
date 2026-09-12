@@ -324,6 +324,8 @@ export interface ApiAdminQuiz {
   title: string;
   pass_score: number;
   max_attempts: number;
+  duration_minutes?: number | null;
+  closes_at?: string | null;
   questions: ApiAdminQuestion[];
 }
 
@@ -339,6 +341,13 @@ export interface ApiQuiz {
   title: string;
   pass_score: number;
   max_attempts: number;
+  duration_minutes: number | null;
+  closes_at?: string | null;
+  attempts_remaining?: number;
+  best_score?: number | null;
+  ended?: boolean;
+  attempts?: ApiQuizAttempt[];
+  questions_count?: number;
   questions: ApiQuizQuestion[];
 }
 
@@ -413,10 +422,14 @@ export interface ApiQuizAttempt {
   expires_at: string | null;
   finished_at: string | null;
   submitted_at: string | null;
+  correct_count?: number | null;
+  wrong_count?: number | null;
+  total_questions?: number | null;
   answers?: Array<{
     question_id: number;
     selected_option_id: number | null;
     is_correct?: boolean;
+    correct_answer_id?: number | null;
   }>;
 }
 

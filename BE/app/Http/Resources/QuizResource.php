@@ -19,6 +19,20 @@ class QuizResource extends JsonResource
             'pass_score' => $this->pass_score,
             'max_attempts' => $this->max_attempts,
             'duration_minutes' => $this->duration_minutes,
+            'closes_at' => $this->closes_at,
+            'attempts_remaining' => $this->when(
+                isset($this->resource->attempts_remaining),
+                $this->resource->attempts_remaining,
+            ),
+            'best_score' => $this->when(
+                isset($this->resource->best_score),
+                $this->resource->best_score,
+            ),
+            'ended' => $this->when(
+                isset($this->resource->ended),
+                $this->resource->ended,
+            ),
+            'attempts' => QuizAttemptResource::collection($this->whenLoaded('studentAttempts')),
             'questions' => $this->whenLoaded('questions', fn () => $this->questions->map(fn ($q) => [
                 'id' => $q->id,
                 'content' => $q->content,

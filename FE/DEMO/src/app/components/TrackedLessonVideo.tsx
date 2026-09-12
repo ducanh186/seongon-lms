@@ -96,14 +96,14 @@ export function TrackedLessonVideo({ url, title, progress, onProgress }: Tracked
     };
     const handleMessage = (event: MessageEvent) => {
       if (!isTrustedYouTubeOrigin(event.origin) || typeof event.data !== 'string') return;
-      let payload: { event?: string; info?: number | { currentTime?: number; duration?: number } };
+      let payload: { event?: string; info?: number | { currentTime?: number; duration?: number } | null };
       try {
         payload = JSON.parse(event.data) as typeof payload;
       } catch {
         return;
       }
       if (payload.event === 'onReady' && positionRef.current > 0) send('seekTo', [positionRef.current, true]);
-      if (typeof payload.info === 'object') {
+      if (payload.info && typeof payload.info === 'object') {
         updatePlayback(payload.info.currentTime ?? positionRef.current, payload.info.duration ?? durationRef.current);
       }
       if (payload.event === 'onStateChange' && payload.info === 2) void persist(true);

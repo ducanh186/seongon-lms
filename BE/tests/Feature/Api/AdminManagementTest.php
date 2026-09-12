@@ -22,6 +22,27 @@ class AdminManagementTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_admin_can_set_the_quiz_close_time(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $response = $this->withToken($token)->postJson("/api/v1/admin/courses/{$course->id}/quiz", [
+            'title' => 'Kiem tra cuoi khoa',
+            'pass_score' => 75,
+            'max_attempts' => 2,
+            'closes_at' => '2026-12-31T16:59:00+07:00',
+        ]);
+
+        $response->assertOk();
+        $this->assertDatabaseHas('exams', [
+            'course_id' => $course->id,
+            'max_attempts' => 2,
+            'closes_at' => '2026-12-31 09:59:00',
+        ]);
+    }
+
     public function test_admin_dashboard_returns_real_monthly_series_and_popular_course_ranking(): void
     {
         $admin = User::factory()->admin()->create();

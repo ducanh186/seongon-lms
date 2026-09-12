@@ -186,7 +186,7 @@ class GeneratedDemoCatalogSeeder extends Seeder
             'course_id' => $course->id,
             'title' => 'Bài kiểm tra cuối khóa',
             'pass_score' => 75,
-            'max_attempts' => 3,
+            'max_attempts' => 2,
         ]);
 
         foreach (self::QUIZ_QUESTIONS as $questionData) {

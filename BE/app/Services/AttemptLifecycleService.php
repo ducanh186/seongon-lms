@@ -16,6 +16,9 @@ class AttemptLifecycleService
     {
         return DB::transaction(function () use ($enrollment, $exam) {
             Enrollment::query()->whereKey($enrollment->id)->lockForUpdate()->firstOrFail();
+            if ($exam->closes_at?->isPast()) {
+                throw ValidationException::withMessages(['quiz' => 'Bài kiểm tra đã kết thúc.']);
+            }
             $active = Attempt::query()
                 ->where('enrollment_id', $enrollment->id)
                 ->where('exam_id', $exam->id)
@@ -39,6 +42,10 @@ class AttemptLifecycleService
             }
 
             $startedAt = now();
+            $expiresAt = $startedAt->copy()->addMinutes($exam->duration_minutes ?? 30);
+            if ($exam->closes_at?->lt($expiresAt)) {
+                $expiresAt = $exam->closes_at->copy();
+            }
 
             return Attempt::create([
                 'enrollment_id' => $enrollment->id,
@@ -46,7 +53,7 @@ class AttemptLifecycleService
                 'attempt_number' => $attemptsUsed + 1,
                 'status' => 'in_progress',
                 'started_at' => $startedAt,
-                'expires_at' => $startedAt->copy()->addMinutes($exam->duration_minutes ?? 30),
+                'expires_at' => $expiresAt,
                 'answers' => [],
             ]);
         });

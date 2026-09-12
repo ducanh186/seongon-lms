@@ -29,6 +29,19 @@ class QuizController extends Controller
         );
 
         $exam = $course->exam()->with('questions.answers')->firstOrFail();
+        $attempts = Attempt::query()
+            ->with('exam.questions.answers')
+            ->where('enrollment_id', $enrollment->id)
+            ->where('exam_id', $exam->id)
+            ->orderBy('attempt_number')
+            ->get();
+        $completedAttempts = $attempts->where('status', '!=', 'in_progress')->values();
+        $attemptsRemaining = max(0, $exam->max_attempts - $completedAttempts->count());
+
+        $exam->setRelation('studentAttempts', $completedAttempts);
+        $exam->setAttribute('attempts_remaining', $attemptsRemaining);
+        $exam->setAttribute('best_score', $completedAttempts->max('score'));
+        $exam->setAttribute('ended', $attemptsRemaining === 0 || $exam->closes_at?->isPast() === true);
 
         return new QuizResource($exam);
     }
@@ -126,7 +139,7 @@ class QuizController extends Controller
 
     public function showAttempt(Request $request, Attempt $attempt)
     {
-        $attempt->loadMissing('enrollment');
+        $attempt->loadMissing('enrollment', 'exam.questions.answers');
         abort_if($attempt->enrollment->user_id !== $request->user()->id, 403);
 
         return new QuizAttemptResource($attempt);

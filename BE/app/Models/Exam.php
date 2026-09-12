@@ -11,7 +11,14 @@ class Exam extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'title', 'pass_score', 'max_attempts', 'duration_minutes', 'total_questions'];
+    protected $fillable = ['course_id', 'title', 'pass_score', 'max_attempts', 'duration_minutes', 'closes_at', 'total_questions'];
+
+    protected function casts(): array
+    {
+        return [
+            'closes_at' => 'datetime',
+        ];
+    }
 
     public function course(): BelongsTo
     {

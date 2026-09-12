@@ -84,7 +84,7 @@ class CompletedCourseDemoSeeder extends Seeder
                 [
                     'title' => 'Đánh giá cuối khóa SEO Foundation',
                     'pass_score' => 75,
-                    'max_attempts' => 3,
+                    'max_attempts' => 2,
                 ],
             );
 
