@@ -51,6 +51,7 @@ export const adminRepositories = {
   courses: {
     list: api.adminCourses,
     get: api.adminCourse,
+    uploadImage: api.uploadCourseImage,
     save: api.saveCourse,
     publish: api.publishCourse,
     remove: api.deleteCourse,

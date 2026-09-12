@@ -56,7 +56,9 @@ class ExamGradingService
             'option_id' => $answer['selected_answer_id'] ?? null,
         ])->all();
         $exam->loadMissing('questions.answers');
-        $questions = $exam->questions;
+        $questions = $attempt->question_ids === null
+            ? $exam->questions
+            : $exam->questions->whereIn('id', $attempt->question_ids);
         $total = $questions->count();
 
         $selected = collect($answers)->keyBy('question_id');

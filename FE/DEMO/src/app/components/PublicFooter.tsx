@@ -37,7 +37,6 @@ export function PublicFooter() {
             <FooterHeading>Khám phá</FooterHeading>
             <Stack spacing={1}>
               <Link component={RouterLink} to="/courses" sx={footerLinkSx}>Tất cả khóa học</Link>
-              <Link component={RouterLink} to="/courses?price=free" sx={footerLinkSx}>Khóa học miễn phí</Link>
               <Link component={RouterLink} to="/news" sx={footerLinkSx}>Tin tức &amp; kiến thức</Link>
             </Stack>
           </Box>

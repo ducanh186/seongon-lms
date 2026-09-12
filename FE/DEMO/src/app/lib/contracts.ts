@@ -340,6 +340,7 @@ export interface ApiAdminQuiz {
   pass_score: number;
   max_attempts: number;
   duration_minutes?: number | null;
+  total_questions?: number | null;
   closes_at?: string | null;
   questions: ApiAdminQuestion[];
 }
@@ -440,6 +441,7 @@ export interface ApiQuizAttempt {
   correct_count?: number | null;
   wrong_count?: number | null;
   total_questions?: number | null;
+  question_ids?: number[] | null;
   answers?: Array<{
     question_id: number;
     selected_option_id: number | null;

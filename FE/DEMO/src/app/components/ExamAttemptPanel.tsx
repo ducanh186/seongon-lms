@@ -46,6 +46,11 @@ export function ExamAttemptPanel({
   onBackToCourse,
 }: ExamAttemptPanelProps) {
   const [attemptId, setAttemptId] = useState<number | null>(null);
+  const [activeQuestionIds, setActiveQuestionIds] = useState<number[] | null>(null);
+  const activeQuestions = useMemo(() => activeQuestionIds === null
+    ? quiz.questions
+    : activeQuestionIds.flatMap((id) => quiz.questions.find((question) => question.id === id) ?? []),
+  [activeQuestionIds, quiz.questions]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [deadline, setDeadline] = useState<number | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
@@ -66,8 +71,8 @@ export function ExamAttemptPanel({
   const autoSubmittedRef = useRef(false);
 
   const answerRows = useMemo(
-    () => quiz.questions.map((question) => ({ question_id: question.id, option_id: answers[question.id] ?? null })),
-    [answers, quiz.questions],
+    () => activeQuestions.map((question) => ({ question_id: question.id, option_id: answers[question.id] ?? null })),
+    [answers, activeQuestions],
   );
   const closesAtPassed = Boolean(quiz.closes_at && Date.parse(quiz.closes_at) <= Date.now());
   const ended = Boolean(quiz.ended || attemptsRemaining === 0 || closesAtPassed);
@@ -82,7 +87,7 @@ export function ExamAttemptPanel({
     attemptIdRef.current = attemptId;
   }, [answers, attemptId]);
 
-  const persist = async (id = attemptIdRef.current, rows = quiz.questions.map((question) => ({
+  const persist = async (id = attemptIdRef.current, rows = activeQuestions.map((question) => ({
     question_id: question.id,
     option_id: answersRef.current[question.id] ?? null,
   }))) => {
@@ -110,6 +115,7 @@ export function ExamAttemptPanel({
       setResult(response);
       setShowOverview(true);
       setAttemptId(null);
+      setActiveQuestionIds(null);
       attemptIdRef.current = null;
       setDeadline(null);
       onResult(response);
@@ -160,6 +166,7 @@ export function ExamAttemptPanel({
           .map((answer) => [answer.question_id, answer.selected_option_id as number]),
       );
       setAttemptId(response.attempt.id);
+      setActiveQuestionIds(response.attempt.question_ids ?? null);
       attemptIdRef.current = response.attempt.id;
       setAnswers(restored);
       answersRef.current = restored;
@@ -179,7 +186,7 @@ export function ExamAttemptPanel({
     answersRef.current = next;
     if (saveTimerRef.current !== null) window.clearTimeout(saveTimerRef.current);
     saveTimerRef.current = window.setTimeout(() => {
-      void persist(attemptIdRef.current, quiz.questions.map((question) => ({
+      void persist(attemptIdRef.current, activeQuestions.map((question) => ({
         question_id: question.id,
         option_id: next[question.id] ?? null,
       })));
@@ -331,7 +338,7 @@ export function ExamAttemptPanel({
         {saveState === 'error' && <Button size="small" color="error" onClick={() => void persist()}>Thử lưu lại</Button>}
       </Stack>
       {error && <Alert severity="error">{error}</Alert>}
-      {quiz.questions.map((question, index) => (
+      {activeQuestions.map((question, index) => (
         <FormControl key={question.id} component="fieldset" fullWidth>
           <Typography component="legend" fontWeight={800}>{index + 1}. {question.content}</Typography>
           <RadioGroup value={String(answers[question.id] ?? '')} onChange={(event) => selectAnswer(question.id, Number(event.target.value))} sx={{ mt: 1 }}>

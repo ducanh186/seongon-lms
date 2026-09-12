@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Services\CourseService;
 use App\Services\ProtectedDeletionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -49,6 +50,17 @@ class CourseController extends Controller
         $data = $this->validateData($request, $course);
 
         return new AdminCourseResource($this->courses->update($course, $data));
+    }
+
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
+        ]);
+
+        $path = $request->file('image')->store('course-images', 'public');
+
+        return response()->json(['url' => Storage::url($path)], 201);
     }
 
     public function publish(Request $request, Course $course)
@@ -94,7 +106,7 @@ class CourseController extends Controller
             'title' => ['required', 'string', 'max:255', Rule::unique('courses', 'title')->ignore($course)],
             'description' => ['nullable', 'string'],
             'thumbnail' => ['nullable', 'string', 'max:2048'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'price' => ['required', 'numeric', 'min:1'],
             'instructor_name' => ['nullable', 'string', 'max:255'],
             'instructor_bio' => ['nullable', 'string'],
             'level' => ['nullable', 'in:beginner,intermediate,advanced'],

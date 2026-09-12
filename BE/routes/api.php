@@ -131,6 +131,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('courses', [AdminCourseController::class, 'index']);
             Route::post('courses', [AdminCourseController::class, 'store']);
+            Route::post('courses/images', [AdminCourseController::class, 'uploadImage']);
             Route::get('courses/{course}', [AdminCourseController::class, 'show']);
             Route::put('courses/{course}', [AdminCourseController::class, 'update']);
             Route::delete('courses/{course}', [AdminCourseController::class, 'destroy']);

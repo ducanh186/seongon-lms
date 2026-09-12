@@ -33,6 +33,9 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
         </Button>
         <Menu anchorEl={reportAnchor} open={Boolean(reportAnchor)} onClose={() => setReportAnchor(null)}>
           <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-01.pdf`} download="BC-01.pdf" onClick={() => setReportAnchor(null)}>Báo cáo ghi danh (PDF mẫu)</MenuItem>
+          <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-02.pdf`} download="BC-02.pdf" onClick={() => setReportAnchor(null)}>Báo cáo hoàn thành &amp; chứng chỉ (PDF mẫu)</MenuItem>
+          <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-03.pdf`} download="BC-03.pdf" onClick={() => setReportAnchor(null)}>Báo cáo xuất bản khóa học (PDF mẫu)</MenuItem>
+          <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-04.pdf`} download="BC-04.pdf" onClick={() => setReportAnchor(null)}>Báo cáo khóa học phổ biến (PDF mẫu)</MenuItem>
           <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-05.pdf`} download="BC-05.pdf" onClick={() => setReportAnchor(null)}>Báo cáo doanh thu (PDF mẫu)</MenuItem>
         </Menu>
       </Box>

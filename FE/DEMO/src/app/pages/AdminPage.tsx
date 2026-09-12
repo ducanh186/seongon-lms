@@ -161,7 +161,7 @@ const blankCourse: CourseDraft = {
   title: '',
   description: '',
   thumbnail: '',
-  price: '0',
+  price: '299000',
   instructor_name: '',
   instructor_bio: '',
   level: 'beginner',
@@ -245,6 +245,7 @@ export function AdminPage() {
   const [tab, setTab] = useState<AdminSection>('overview');
   const [stats, setStats] = useState<ApiAdminStats | null>(null);
   const [users, setUsers] = useState<Paginated<ApiUser> | null>(null);
+  const [teachers, setTeachers] = useState<ApiUser[]>([]);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [categoryTab, setCategoryTab] = useState<'courses' | 'news'>('courses');
   const [courses, setCourses] = useState<Paginated<ApiCourse> | null>(null);
@@ -280,6 +281,7 @@ export function AdminPage() {
   const [editingCourse, setEditingCourse] = useState<ApiCourse | null>(null);
   const [courseCategoryIds, setCourseCategoryIds] = useState<number[]>([]);
   const [courseForm, setCourseForm] = useState<CourseDraft>(blankCourse);
+  const [uploadingCourseImage, setUploadingCourseImage] = useState(false);
   const [isCourseEditorOpen, setIsCourseEditorOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<ApiAdminCourse | null>(null);
   // Course Detail must reach Enrollments (acceptance checklist §3.4) with the
@@ -312,6 +314,13 @@ export function AdminPage() {
   const [statusReason, setStatusReason] = useState('');
   const loadRequestId = useRef(0);
   const loadedKeyBySection = useRef<Partial<Record<AdminSection, string>>>({});
+
+  useEffect(() => {
+    if (!token) return;
+    adminRepositories.users.list(token, { role: 'teacher' })
+      .then((response) => setTeachers(response.data))
+      .catch(() => setTeachers([]));
+  }, [token]);
 
   const cacheKeyFor = useCallback((section: AdminSection) => {
     switch (section) {
@@ -622,6 +631,20 @@ export function AdminPage() {
     }
   };
 
+  const uploadCourseImage = async (file: File) => {
+    if (!token) return;
+    setUploadingCourseImage(true);
+    setError(null);
+    try {
+      const { url } = await adminRepositories.courses.uploadImage(token, file);
+      setCourseForm((form) => ({ ...form, thumbnail: url }));
+    } catch (reason) {
+      setError(getErrorMessage(reason, 'Không thể tải ảnh khóa học.'));
+    } finally {
+      setUploadingCourseImage(false);
+    }
+  };
+
   const submitCourse = (event: FormEvent) => {
     event.preventDefault();
     void saveCourseBasics(false);
@@ -893,9 +916,17 @@ export function AdminPage() {
           </FormControl>
           <TextField required label="Tiêu đề khóa học" value={courseForm.title} onChange={(event) => setCourseForm({ ...courseForm, title: event.target.value })} />
           <TextField label="Mô tả" multiline minRows={4} value={courseForm.description} onChange={(event) => setCourseForm({ ...courseForm, description: event.target.value })} />
-          <TextField label="Ảnh thumbnail URL" value={courseForm.thumbnail} onChange={(event) => setCourseForm({ ...courseForm, thumbnail: event.target.value })} />
+          <Box sx={{ p: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 2 }}>
+            <Typography fontWeight={700}>Ảnh thumbnail</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1 }}>Tải ảnh JPG, JPEG hoặc PNG, tối đa 5 MB.</Typography>
+            <Button component="label" variant="outlined" disabled={uploadingCourseImage}>
+              {uploadingCourseImage ? 'Đang tải ảnh' : 'Chọn ảnh từ máy'}
+              <input hidden type="file" accept="image/jpeg,image/png" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void uploadCourseImage(file); }} />
+            </Button>
+            {courseForm.thumbnail && <Box component="img" src={courseForm.thumbnail} alt="Xem trước thumbnail khóa học" sx={{ display: 'block', width: 200, height: 112, objectFit: 'cover', borderRadius: 1.5, mt: 1.5 }} />}
+          </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
-            <TextField required label="Giá" type="number" value={courseForm.price} onChange={(event) => setCourseForm({ ...courseForm, price: event.target.value })} />
+            <TextField required label="Giá" type="number" inputProps={{ min: 1 }} value={courseForm.price} onChange={(event) => setCourseForm({ ...courseForm, price: event.target.value })} />
             <FormControl>
               <InputLabel id="course-level">Cấp độ</InputLabel>
               <Select labelId="course-level" label="Cấp độ" value={courseForm.level} onChange={(event) => setCourseForm({ ...courseForm, level: event.target.value as CourseDraft['level'] })}>
@@ -905,7 +936,21 @@ export function AdminPage() {
               </Select>
             </FormControl>
           </Box>
-          <TextField label="Tên giảng viên" value={courseForm.instructor_name} onChange={(event) => setCourseForm({ ...courseForm, instructor_name: event.target.value })} />
+          <FormControl>
+            <InputLabel id="course-instructor">Giảng viên</InputLabel>
+            <Select labelId="course-instructor" label="Giảng viên" value={courseForm.instructor_name} onChange={(event) => {
+              const name = event.target.value;
+              setCourseForm((form) => ({
+                ...form,
+                instructor_name: name,
+                instructor_bio: name ? `${name} là giảng viên SEONGON có kinh nghiệm triển khai Digital Marketing thực tế.` : '',
+              }));
+            }}>
+              {courseForm.instructor_name && !teachers.some((teacher) => teacher.name === courseForm.instructor_name) && <MenuItem value={courseForm.instructor_name}>{courseForm.instructor_name}</MenuItem>}
+              {teachers.map((teacher) => <MenuItem key={teacher.id} value={teacher.name}>{teacher.name}</MenuItem>)}
+              {teachers.length === 0 && !courseForm.instructor_name && <MenuItem value="" disabled>Chưa có tài khoản giáo viên</MenuItem>}
+            </Select>
+          </FormControl>
           <TextField label="Giới thiệu giảng viên" multiline minRows={3} value={courseForm.instructor_bio} onChange={(event) => setCourseForm({ ...courseForm, instructor_bio: event.target.value })} />
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between">
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
@@ -1258,10 +1303,9 @@ export function AdminPage() {
             </Card>}
 
             {!isCourseEditorOpen && <Stack component="section" role="region" aria-label={`Thông tin khóa học ${selectedCourse.title}`} spacing={3}>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
                 {[
                   { key: 'lessons', label: 'Bài học', value: selectedCourse.lessons_count ?? 0 },
-                  { key: 'questions', label: 'Câu hỏi', value: selectedCourse.questions_count ?? 0 },
                   { key: 'enrollments', label: 'Học viên ghi danh', value: selectedCourse.enrollments_count ?? 0 },
                   { key: 'rating', label: 'Điểm đánh giá', value: selectedCourse.rating == null ? '—' : `${selectedCourse.rating}/5`, helper: `${selectedCourse.reviews_count ?? 0} đánh giá` },
                 ].map((metric) => <Card key={metric.key} data-course-metric={metric.key} variant="outlined" sx={{ borderRadius: 3 }}><CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}><Typography variant="body2" color="text.secondary" fontWeight={700}>{metric.label}</Typography><Typography variant="h4" fontWeight={850} color="primary.main" sx={{ mt: 0.75 }}>{metric.value}</Typography>{metric.helper && <Typography variant="caption" color="text.secondary">{metric.helper}</Typography>}</CardContent></Card>)}
@@ -1277,6 +1321,7 @@ export function AdminPage() {
                       ['Danh mục', selectedCourse.categories?.map((category) => category.name).join(', ') || selectedCourse.category?.name || '—'],
                       ['Cấp độ', ({ beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao' }[selectedCourse.level ?? 'beginner'])],
                       ['Học phí', `${Number(selectedCourse.price).toLocaleString('vi-VN')} đ`],
+                      ['Thời hạn truy cập', '730 ngày (2 năm) từ ngày ghi danh'],
                       ['Giảng viên', selectedCourse.instructor_name || '—'],
                       ['Bài kiểm tra', selectedCourse.exam_exists ? 'Đã cấu hình' : 'Chưa có'],
                       ['Ngày tạo', selectedCourse.created_at ? new Date(selectedCourse.created_at).toLocaleDateString('vi-VN') : '—'],
@@ -1296,7 +1341,8 @@ export function AdminPage() {
                         ['Tiêu đề', selectedCourse.quiz.title],
                         ['Điểm đạt', `${selectedCourse.quiz.pass_score}%`],
                         ['Số lần làm tối đa', String(selectedCourse.quiz.max_attempts)],
-                        ['Số câu hỏi', String(selectedCourse.quiz.questions.length)],
+                        ['Câu mỗi lượt', String(selectedCourse.quiz.total_questions ?? selectedCourse.quiz.questions.length)],
+                        ['Ngân hàng câu hỏi', String(selectedCourse.quiz.questions.length)],
                       ].map(([label, value]) => <Box key={label}><Typography variant="caption" color="text.secondary" fontWeight={700}>{label}</Typography><Typography fontWeight={700} sx={{ mt: 0.25 }}>{value}</Typography></Box>)}
                     </Box>
                   ) : <Typography color="text.secondary" sx={{ mt: 1 }}>Khóa học chưa cấu hình bài kiểm tra.</Typography>}
@@ -1379,7 +1425,7 @@ export function AdminPage() {
                   </CardContent>
                 </Card>
 <Card sx={{ borderRadius: 3 }}><CardContent><Typography component="h2" variant="h6" fontWeight={800}>Bài học & tài liệu</Typography><Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>Mỗi bài học có thể dùng Video URL và một tài liệu PDF.</Typography><Stack divider={<Divider flexItem />} sx={{ mt: 1 }}>{orderedLessons.map((lesson, index) => <Stack key={lesson.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{lesson.position}. {lesson.title}</Typography><Typography variant="body2" color="text.secondary">{lesson.duration ? `${lesson.duration} giây` : 'Chưa có thời lượng'}</Typography>{lesson.material_url && <Button component="a" href={resolveMaterialUrl(lesson.material_url)} target="_blank" rel="noreferrer" size="small" sx={{ px: 0, mt: 0.5 }}>Mở tài liệu PDF</Button>}</Box><Button size="small" disabled={index === 0} onClick={() => moveLesson(lesson.id, -1)} aria-label={`Di chuyển bài học ${lesson.position} lên`}>Lên</Button><Button size="small" disabled={index === orderedLessons.length - 1} onClick={() => moveLesson(lesson.id, 1)} aria-label={`Di chuyển bài học ${lesson.position} xuống`}>Xuống</Button><Button size="small" onClick={() => { setEditingLessonId(lesson.id); setLessonMaterial(null); setLessonForm({ title: lesson.title, video_url: lesson.video_url, description: lesson.description ?? '', duration: lesson.duration === null ? '' : String(lesson.duration) }); }}>Sửa</Button><Button size="small" color="error" onClick={() => token && requestConfirmation('Xóa bài học', lesson.title, () => adminRepositories.courses.removeLesson(token, lesson.id), 'Đã xóa bài học.', true)}>Xóa</Button></Stack>)}{orderedLessons.length === 0 && <EmptyState title="Khóa học chưa có bài học." />}</Stack></CardContent></Card>
-                <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1}><Button onClick={() => setCourseStep(0)}>Quay lại: Thông tin cơ bản</Button><Button variant="contained" onClick={() => setCourseStep(2)}>Tiếp: Bài kiểm tra</Button></Stack>
+                <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1}><Button onClick={() => setCourseStep(0)}>Quay lại: Thông tin cơ bản</Button><Button variant="contained" disabled={orderedLessons.length === 0} onClick={() => setCourseStep(2)}>Tiếp: Bài kiểm tra</Button></Stack>
               </Stack>}
 
               {courseStep === 2 && <Stack spacing={2}>

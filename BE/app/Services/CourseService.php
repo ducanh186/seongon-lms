@@ -38,7 +38,7 @@ class CourseService
     {
         $query = Course::query()
             ->with(['category', 'categories'])
-            ->withCount(['lessons', 'questions', 'enrollments'])
+            ->withCount(['lessons', 'questions', 'enrollments', 'reviews'])
             ->withExists('exam')
             ->withAvg('reviews', 'rating');
 
@@ -66,7 +66,11 @@ class CourseService
             $query->where('status', 'published')->whereDate('updated_at', $publishedOn);
         }
 
-        return $query->latest()->paginate(15)->withQueryString();
+        return $query->orderByDesc('enrollments_count')
+            ->orderByDesc('reviews_avg_rating')
+            ->orderByDesc('reviews_count')
+            ->latest()
+            ->paginate(15)->withQueryString();
     }
 
     public function forAdmin(Course $course): Course

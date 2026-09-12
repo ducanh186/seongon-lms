@@ -42,6 +42,19 @@ class AttemptLifecycleService
             }
 
             $startedAt = now();
+            $questionIds = null;
+            if ($exam->total_questions) {
+                $allIds = $exam->questions()->pluck('id');
+                $previousIds = Attempt::query()
+                    ->where('enrollment_id', $enrollment->id)
+                    ->where('exam_id', $exam->id)
+                    ->get(['question_ids'])
+                    ->flatMap(fn (Attempt $previous) => $previous->question_ids ?? [])
+                    ->unique();
+                $available = $allIds->diff($previousIds);
+                $pool = $available->count() >= $exam->total_questions ? $available : $allIds;
+                $questionIds = $pool->shuffle()->take($exam->total_questions)->values()->all();
+            }
             $expiresAt = $startedAt->copy()->addMinutes($exam->duration_minutes ?? 30);
             if ($exam->closes_at?->lt($expiresAt)) {
                 $expiresAt = $exam->closes_at->copy();
@@ -55,6 +68,7 @@ class AttemptLifecycleService
                 'started_at' => $startedAt,
                 'expires_at' => $expiresAt,
                 'answers' => [],
+                'question_ids' => $questionIds,
             ]);
         });
     }
@@ -73,10 +87,11 @@ class AttemptLifecycleService
 
             $exam = $locked->exam()->with('questions.answers')->firstOrFail();
             $questions = $exam->questions->keyBy('id');
-            $draft = collect($answers)->map(function (array $answer) use ($questions) {
+            $allowedIds = $locked->question_ids;
+            $draft = collect($answers)->map(function (array $answer) use ($questions, $allowedIds) {
                 $question = $questions->get((int) $answer['question_id']);
                 $optionId = $answer['option_id'] ?? null;
-                if (! $question || ($optionId !== null && ! $question->answers->contains('id', (int) $optionId))) {
+                if (! $question || ($allowedIds !== null && ! in_array((int) $answer['question_id'], $allowedIds, true)) || ($optionId !== null && ! $question->answers->contains('id', (int) $optionId))) {
                     throw ValidationException::withMessages(['answers' => 'Đáp án không thuộc bài kiểm tra này.']);
                 }
 

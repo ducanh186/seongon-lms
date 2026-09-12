@@ -28,13 +28,16 @@ const stats: ApiAdminStats = {
 };
 
 describe('AdminOverview', () => {
-  it('links both sample PDF reports from one dropdown', async () => {
+  it('links one sample PDF per dashboard report from one dropdown', async () => {
     const user = userEvent.setup();
     render(<AdminOverview stats={stats} />);
 
     await user.click(screen.getByRole('button', { name: 'Xuất báo cáo' }));
     expect(screen.getByRole('menuitem', { name: 'Báo cáo ghi danh (PDF mẫu)' })).toHaveAttribute('href', '/reports/BC-01.pdf');
     expect(screen.getByRole('menuitem', { name: 'Báo cáo ghi danh (PDF mẫu)' })).toHaveAttribute('download', 'BC-01.pdf');
+    expect(screen.getByRole('menuitem', { name: 'Báo cáo hoàn thành & chứng chỉ (PDF mẫu)' })).toHaveAttribute('href', '/reports/BC-02.pdf');
+    expect(screen.getByRole('menuitem', { name: 'Báo cáo xuất bản khóa học (PDF mẫu)' })).toHaveAttribute('href', '/reports/BC-03.pdf');
+    expect(screen.getByRole('menuitem', { name: 'Báo cáo khóa học phổ biến (PDF mẫu)' })).toHaveAttribute('href', '/reports/BC-04.pdf');
     expect(screen.getByRole('menuitem', { name: 'Báo cáo doanh thu (PDF mẫu)' })).toHaveAttribute('href', '/reports/BC-05.pdf');
     expect(screen.getByRole('menuitem', { name: 'Báo cáo doanh thu (PDF mẫu)' })).toHaveAttribute('download', 'BC-05.pdf');
   });

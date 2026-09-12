@@ -32,6 +32,7 @@ class QuizController extends Controller
             $data['closes_at'] = Carbon::parse($data['closes_at'])->utc();
         }
 
+        $data['total_questions'] = 3;
         $exam = $course->exam()->updateOrCreate(['course_id' => $course->id], $data);
 
         // load('questions.options') keeps the `options` key the frontend reads;

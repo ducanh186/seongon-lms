@@ -47,6 +47,7 @@ class QuizAttemptResource extends JsonResource
 
                 return $result;
             })->values(),
+            'question_ids' => $this->question_ids,
         ];
     }
 }

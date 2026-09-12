@@ -2321,6 +2321,9 @@ function adminLayout(active,title,contentHTML){
     <button class="btn btn-primary btn-sm" onclick="toggleReportMenu(event)" aria-haspopup="menu" aria-expanded="false">Xuất báo cáo ▾</button>
     <div id="report-export-menu" class="report-dropdown-menu hidden" role="menu">
       <a href="reports/BC-01.pdf" download="BC-01.pdf" role="menuitem">Báo cáo ghi danh (BC-01, PDF mẫu)</a>
+      <a href="reports/BC-02.pdf" download="BC-02.pdf" role="menuitem">Báo cáo hoàn thành &amp; chứng chỉ (BC-02, PDF mẫu)</a>
+      <a href="reports/BC-03.pdf" download="BC-03.pdf" role="menuitem">Báo cáo xuất bản khóa học (BC-03, PDF mẫu)</a>
+      <a href="reports/BC-04.pdf" download="BC-04.pdf" role="menuitem">Báo cáo khóa học phổ biến (BC-04, PDF mẫu)</a>
       <a href="reports/BC-05.pdf" download="BC-05.pdf" role="menuitem">Báo cáo doanh thu (BC-05, PDF mẫu)</a>
     </div>
   </div>`:'';
@@ -2525,10 +2528,10 @@ function buildReportShell({code,title,generatedAt,filters,kpis,chart,tables,comm
     <article class="report-page">
       <header class="report-header" data-report-block="header"><div class="report-brand"><div class="report-logo">SL</div><div><div class="report-company">CÔNG TY TNHH SEONGON</div><div>SEONGON Learning</div></div></div><div class="report-title"><h1>${escapeHtml(title)}</h1><div class="report-code">${code}/${dateCode}</div></div></header>
       <section class="report-info" data-report-block="export-info"><div><b>Người xuất:</b> ${escapeHtml(STATE.currentUser.fullName)}</div><div><b>Thời điểm xuất:</b> ${fmtDateTime(generatedAt)}</div><div><b>Nguồn dữ liệu:</b> localStorage · ${escapeHtml(STORAGE_KEY)}</div><div><b>Bộ lọc:</b> ${escapeHtml(filters.period)}</div></section>
-      <section class="report-section" data-report-block="summary"><h2>Khối 1 – Chỉ số tóm tắt</h2>${renderReportKpis(kpis)}</section>
-      <section class="report-section" data-report-block="chart"><h2>Khối 2 – Biểu đồ</h2>${chart}</section>
-      <section class="report-section" data-report-block="tables"><h2>Khối 3 – Bảng số liệu</h2>${tables}</section>
-      <section class="report-section" data-report-block="comments"><h2>Khối 4 – Nhận xét</h2><div class="report-comment">${comments.map(comment=>`<p>${escapeHtml(comment)}</p>`).join('')}</div></section>
+      <section class="report-section" data-report-block="summary"><h2>Chỉ số tóm tắt</h2>${renderReportKpis(kpis)}</section>
+      <section class="report-section" data-report-block="chart"><h2>Biểu đồ</h2>${chart}</section>
+      <section class="report-section" data-report-block="tables"><h2>Bảng số liệu</h2>${tables}</section>
+      <section class="report-section" data-report-block="comments"><h2>Nhận xét</h2><div class="report-comment">${comments.map(comment=>`<p>${escapeHtml(comment)}</p>`).join('')}</div></section>
       <footer class="report-footer"><div class="report-source-note">Nguồn: dữ liệu thực lưu trong localStorage của prototype.${revenueNote?' Doanh thu tính theo đơn ở trạng thái đã thanh toán, chưa trừ hoàn tiền.':''}</div><div class="report-signatures"><div><strong>Người lập</strong>(${escapeHtml(STATE.currentUser.fullName)})</div><div><strong>Người duyệt</strong>(Ký và ghi rõ họ tên)</div></div><div class="report-page-number">Trang <span class="screen-page-number">1</span></div></footer>
     </article>`;
 }

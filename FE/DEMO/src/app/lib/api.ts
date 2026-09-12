@@ -275,6 +275,11 @@ export const api = {
   adminCourses: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiCourse>>(`/admin/courses${queryString(filters)}`, { token }),
   adminCourse: (token: string, courseId: number) => apiRequest<{ data: ApiAdminCourse }>(`/admin/courses/${courseId}`, { token }),
+  uploadCourseImage: (token: string, file: File) => {
+    const body = new FormData();
+    body.append('image', file);
+    return apiRequest<{ url: string }>('/admin/courses/images', { method: 'POST', token, body });
+  },
   adminLessons: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiAdminLesson>>(`/admin/lessons${queryString(filters)}`, { token }),
   adminExams: (token: string, filters: Record<string, string | number | undefined> = {}) =>

@@ -23,6 +23,7 @@ class Attempt extends Model
         'correct_count',
         'wrong_count',
         'answers',
+        'question_ids',
         'submitted_at',
     ];
 
@@ -37,6 +38,7 @@ class Attempt extends Model
             // Approved replacement for the quiz_attempt_answers table:
             // [{ question_id: int, selected_answer_id: int|null, is_correct: bool }]
             'answers' => 'array',
+            'question_ids' => 'array',
         ];
     }
 

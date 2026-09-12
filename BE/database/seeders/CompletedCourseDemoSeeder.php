@@ -51,7 +51,7 @@ class CompletedCourseDemoSeeder extends Seeder
                     'title' => 'Thực hành xây dựng kế hoạch SEO 90 ngày',
                     'description' => 'Khóa học giúp học viên xây dựng nền tảng SEO, xác định KPI và lập kế hoạch triển khai 90 ngày.',
                     'thumbnail' => DemoCourseThumbnail::completed(),
-                    'price' => 0,
+                    'price' => 299000,
                     'instructor_name' => 'Nguyễn Minh Anh',
                     'instructor_bio' => 'Giảng viên SEONGON giàu kinh nghiệm triển khai chiến lược SEO cho doanh nghiệp.',
                     'level' => 'beginner',
