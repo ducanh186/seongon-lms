@@ -179,7 +179,7 @@ const adminSectionCopy: Record<AdminSection, { title: string; description: strin
   overview: { title: 'Tổng quan vận hành', description: '' },
   paymentSettings: { title: 'Cài đặt thanh toán', description: 'Quản lý phương thức thanh toán và tài khoản nhận tiền.' },
   roles: { title: 'Quản lý vai trò', description: 'Đối chiếu vai trò hệ thống và số tài khoản đang sử dụng từng vai trò.' },
-  users: { title: 'Quản lý tài khoản', description: 'Quản lý tài khoản Admin, Giáo viên và Học viên, vai trò, ghi danh và trạng thái truy cập.' },
+  users: { title: 'Quản lý tài khoản', description: '' },
   carts: { title: 'Quản lý giỏ hàng', description: 'Theo dõi giỏ hàng hiện tại của học viên từ dữ liệu trong carts.' },
   cartItems: { title: 'Mục giỏ hàng', description: 'Đối chiếu từng khóa học đang nằm trong cart_items.' },
   orders: { title: 'Quản lý đơn hàng', description: 'Theo dõi đơn hàng, trạng thái thanh toán và quan hệ học viên - khóa học.' },
@@ -301,7 +301,6 @@ export function AdminPage() {
   const [isNewsEditorOpen, setIsNewsEditorOpen] = useState(false);
   const [newsForm, setNewsForm] = useState<NewsDraft>(blankNews);
   const [pendingConfirmation, setPendingConfirmation] = useState<PendingConfirmation | null>(null);
-  const [historyUser, setHistoryUser] = useState<ApiUser | null>(null);
   const [detailUser, setDetailUser] = useState<ApiUser | null>(null);
   const [userMenu, setUserMenu] = useState<{ anchor: HTMLElement; user: ApiUser } | null>(null);
   const [courseMenu, setCourseMenu] = useState<{ anchor: HTMLElement; course: ApiCourse } | null>(null);
@@ -730,23 +729,16 @@ export function AdminPage() {
     });
   };
 
-  const openUserHistory = async (user: ApiUser) => {
-    if (!token) return;
-    setHistoryUser(user);
-    setUserRecords(null);
-    try {
-      const response = await adminRepositories.users.records(token, user.id);
-      setUserRecords(response.data);
-    } catch (reason) {
-      setError(getErrorMessage(reason, 'Không thể tải lịch sử tài khoản.'));
-      setUserRecords([]);
-    }
-  };
-
   const openUserDetail = async (user: ApiUser) => {
     if (!token) return;
-    setDetailUser(user);
     setUserRecords(null);
+    try {
+      const detail = await adminRepositories.users.get(token, user.id);
+      setDetailUser(detail.data);
+    } catch (reason) {
+      setError(getErrorMessage(reason, 'Không thể tải chi tiết tài khoản.'));
+      return;
+    }
     try {
       const response = await adminRepositories.users.records(token, user.id);
       setUserRecords(response.data);
@@ -1104,14 +1096,14 @@ export function AdminPage() {
               rows={users.data}
               getRowKey={(user) => user.id}
               columns={[
-                // Users ERD: full_name, email, role_id. No phone column exists, so
-                // none is rendered. Name/Email/Role are capped so the data columns
-                // stay grouped on the left; Thao tác absorbs the leftover width
-                // instead of Email, which used to strand it at the right edge.
-                { key: 'student', header: 'Học viên', width: '24%', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
-                { key: 'email', header: 'Email', width: '30%', render: (user) => <Tooltip title={user.email} describeChild><Typography variant="body2" noWrap tabIndex={0}>{user.email}</Typography></Tooltip> },
-                { key: 'role', header: 'Vai trò', width: 140, render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : user.role === 'teacher' ? 'Giáo viên' : 'Học viên'}</Typography> },
-                { key: 'actions', header: 'Thao tác', render: (user) => <IconButton
+                // Account Management displays fields returned by UserResource.
+                // The reference ERD has no phone field, so this table omits it.
+                { key: 'account', header: 'Tài khoản', width: '21%', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
+                { key: 'email', header: 'Email', width: '26%', render: (user) => <Tooltip title={user.email} describeChild><Typography variant="body2" noWrap tabIndex={0}>{user.email}</Typography></Tooltip> },
+                { key: 'role', header: 'Vai trò', width: '12%', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : user.role === 'teacher' ? 'Giáo viên' : 'Học viên'}</Typography> },
+                { key: 'created', header: 'Ngày tạo', width: '14%', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</Typography> },
+                { key: 'status', header: 'Trạng thái', width: '17%', render: (user) => <StatusChip status={user.status} /> },
+                { key: 'actions', header: 'Thao tác', width: '10%', render: (user) => <IconButton
                   id={`user-actions-${user.id}`}
                   aria-label={`Thao tác ${user.name}`}
                   aria-haspopup="menu"
@@ -1123,7 +1115,7 @@ export function AdminPage() {
                   sx={{ width: 36, height: 36, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
                 ><MoreVertIcon fontSize="small" /></IconButton> },
               ] satisfies AdminColumn<ApiUser>[]}
-              minWidth={840}
+              minWidth={1120}
               fixedLayout
               cellPaddingX={2.5}
               stickyFirstColumn
@@ -1139,7 +1131,6 @@ export function AdminPage() {
               slotProps={{ list: { 'aria-labelledby': userMenu ? `user-actions-${userMenu.user.id}` : undefined }, paper: { sx: { mt: 0.5, minWidth: 192 } } }}
             >
               <MenuItem onClick={() => { if (!userMenu) return; void openUserDetail(userMenu.user); setUserMenu(null); }}>Xem chi tiết</MenuItem>
-              <MenuItem onClick={() => { if (!userMenu) return; void openUserHistory(userMenu.user); setUserMenu(null); }}>Xem lịch sử</MenuItem>
               <MenuItem onClick={() => { if (!userMenu) return; setStatusUser(userMenu.user); setStatusReason(''); setUserMenu(null); }} sx={{ color: userMenu?.user.status === 'active' ? 'error.main' : 'primary.main' }}>
                 {userMenu?.user.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
               </MenuItem>
@@ -1148,28 +1139,45 @@ export function AdminPage() {
           </CardContent></Card>}
           {tab === 'users' && detailUser && <Card sx={{ borderRadius: 3, minWidth: 0 }}>
             <CardContent>
-              <Stack spacing={2}>
+              <Stack spacing={2.5}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" gap={2}>
                   <Box><Typography component="h2" variant="h5" fontWeight={800}>Chi tiết tài khoản</Typography><Typography color="text.secondary">Thông tin tài khoản và lịch sử thay đổi trạng thái.</Typography></Box>
                   <Button onClick={() => { setDetailUser(null); setUserRecords(null); }} sx={{ whiteSpace: 'nowrap' }}>Quay lại danh sách</Button>
                 </Stack>
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
-                  {[
-                    ['Họ tên', detailUser.name],
-                    ['Email', detailUser.email],
-                    ['Vai trò', detailUser.role === 'admin' ? 'Quản trị viên' : detailUser.role === 'teacher' ? 'Giáo viên' : 'Học viên'],
-                    ['Trạng thái', detailUser.status === 'active' ? 'Đang hoạt động' : 'Đã khóa'],
-                    ['Khóa đã đăng ký', String(detailUser.enrollments_count ?? 0)],
-                    ['Ngày tạo', new Date(detailUser.created_at).toLocaleString('vi-VN')],
-                  ].map(([label, value]) => <Box key={label} sx={{ p: 2, bgcolor: '#F8FBFC', borderRadius: 2 }}><Typography variant="caption" color="text.secondary">{label}</Typography><Typography fontWeight={700}>{value}</Typography></Box>)}
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
+                  <Box component="section" aria-label="Thông tin liên hệ" sx={{ p: 2.5, bgcolor: '#F8FBFC', borderRadius: 2 }}>
+                    <Typography component="h3" variant="h6" fontWeight={800} sx={{ mb: 1 }}>Thông tin liên hệ</Typography>
+                    <Typography variant="caption" color="text.secondary">Email</Typography>
+                    <Typography fontWeight={700} sx={{ overflowWrap: 'anywhere' }}>{detailUser.email}</Typography>
+                  </Box>
+                  <Box component="section" aria-label="Thông tin cơ bản" sx={{ p: 2.5, bgcolor: '#F8FBFC', borderRadius: 2 }}>
+                    <Typography component="h3" variant="h6" fontWeight={800} sx={{ mb: 1 }}>Thông tin cơ bản</Typography>
+                    {[
+                      ['Họ tên', detailUser.name],
+                      ['Vai trò', detailUser.role === 'admin' ? 'Quản trị viên' : detailUser.role === 'teacher' ? 'Giáo viên' : 'Học viên'],
+                      ['Trạng thái', detailUser.status === 'active' ? 'Đang hoạt động' : 'Đã khóa'],
+                      ['Khóa đã đăng ký', String(detailUser.enrollments_count ?? 0)],
+                    ].map(([label, value]) => <Box key={label} sx={{ py: 0.75 }}><Typography variant="caption" color="text.secondary">{label}</Typography><Typography fontWeight={700}>{value}</Typography></Box>)}
+                  </Box>
                 </Box>
-                <Divider />
-                <Typography variant="h6" fontWeight={800}>Lịch sử trạng thái</Typography>
-                <Stack divider={<Divider flexItem />}>
-                  {userRecords?.map((record) => <Box key={record.id} sx={{ py: 1.25 }}><Typography fontWeight={700}>{record.old_status === 'active' ? 'Đang hoạt động' : 'Đã khóa'} → {record.new_status === 'active' ? 'Đang hoạt động' : 'Đã khóa'}</Typography><Typography variant="body2">{record.reason}</Typography><Typography variant="caption" color="text.secondary">{new Date(record.created_at).toLocaleString('vi-VN')}</Typography></Box>)}
-                  {userRecords === null && <Typography color="text.secondary">Đang tải lịch sử...</Typography>}
-                  {userRecords?.length === 0 && <Typography color="text.secondary">Tài khoản chưa có lịch sử thay đổi trạng thái.</Typography>}
-                </Stack>
+                <Box component="section" aria-label="Thông tin kiểm tra" sx={{ p: 2.5, bgcolor: '#F8FBFC', borderRadius: 2 }}>
+                  <Typography component="h3" variant="h6" fontWeight={800}>Thông tin kiểm tra</Typography>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 2, my: 2 }}>
+                    <Box><Typography variant="caption" color="text.secondary">Ngày tạo</Typography><Typography fontWeight={700}>{new Date(detailUser.created_at).toLocaleString('vi-VN')}</Typography></Box>
+                    <Box><Typography variant="caption" color="text.secondary">Ngày thay đổi</Typography><Typography fontWeight={700}>{detailUser.updated_at ? new Date(detailUser.updated_at).toLocaleString('vi-VN') : '—'}</Typography></Box>
+                  </Box>
+                  <Divider sx={{ mb: 1 }} />
+                  <Typography component="h4" variant="subtitle1" fontWeight={800}>Lịch sử trạng thái</Typography>
+                  <Stack divider={<Divider flexItem />}>
+                    {userRecords?.map((record) => <Box key={record.id} sx={{ py: 1.25 }}>
+                      <Typography fontWeight={700}>{record.old_status === 'active' ? 'Đang hoạt động' : 'Đã khóa'} → {record.new_status === 'active' ? 'Đang hoạt động' : 'Đã khóa'}</Typography>
+                      <Typography variant="body2">{record.reason}</Typography>
+                      <Typography variant="caption" color="text.secondary">{new Date(record.created_at).toLocaleString('vi-VN')}{record.changed_by?.name ? ` · ${record.changed_by.name}` : ''}</Typography>
+                    </Box>)}
+                    {userRecords === null && <Typography color="text.secondary">Đang tải lịch sử...</Typography>}
+                    {userRecords?.length === 0 && <Typography color="text.secondary">Tài khoản chưa có lịch sử thay đổi trạng thái.</Typography>}
+                  </Stack>
+                </Box>
               </Stack>
             </CardContent>
           </Card>}
@@ -1576,21 +1584,6 @@ export function AdminPage() {
                 <Button onClick={() => setPendingConfirmation(null)}>Hủy</Button>
                 <Button color="error" variant="contained" onClick={confirmPendingAction}>Xác nhận xóa</Button>
               </Stack>
-            </Box>
-          </Dialog>
-          <Dialog open={Boolean(historyUser)} onClose={() => { setHistoryUser(null); setUserRecords(null); }} aria-labelledby="user-history-title" maxWidth="sm" fullWidth>
-            <Box sx={{ p: 3 }}>
-              <Typography id="user-history-title" component="h2" variant="h6" fontWeight={800}>Lịch sử tài khoản {historyUser?.name ?? ''}</Typography>
-              <Stack divider={<Divider flexItem />} sx={{ mt: 2 }}>
-                {userRecords?.map((record) => <Box key={record.id} sx={{ py: 1.5 }}>
-                  <Typography fontWeight={700}>{record.old_status === 'active' ? 'Đang hoạt động' : 'Đã khóa'} → {record.new_status === 'active' ? 'Đang hoạt động' : 'Đã khóa'}</Typography>
-                  <Typography variant="body2" sx={{ mt: 0.5 }}>{record.reason}</Typography>
-                  <Typography variant="caption" color="text.secondary">{new Date(record.created_at).toLocaleString('vi-VN')}</Typography>
-                </Box>)}
-                {userRecords === null && <Typography color="text.secondary">Đang tải lịch sử...</Typography>}
-                {userRecords?.length === 0 && <Typography color="text.secondary">Tài khoản chưa có lịch sử thay đổi trạng thái.</Typography>}
-              </Stack>
-              <Stack direction="row" justifyContent="flex-end" sx={{ mt: 3 }}><Button onClick={() => { setHistoryUser(null); setUserRecords(null); }}>Đóng</Button></Stack>
             </Box>
           </Dialog>
           <Dialog open={Boolean(statusUser)} onClose={() => { setStatusUser(null); setStatusReason(''); }} aria-labelledby="user-status-title" maxWidth="xs" fullWidth>

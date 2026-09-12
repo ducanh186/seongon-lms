@@ -44,7 +44,7 @@ class VideoProgressTest extends TestCase
             ->assertJsonPath('data.0.furthest_position_seconds', 300);
     }
 
-    public function test_course_video_percent_uses_total_duration_and_completes_at_ninety_five_percent(): void
+    public function test_lesson_completes_only_when_the_video_is_watched_to_the_end(): void
     {
         $student = User::factory()->create();
         $course = Course::factory()->create();
@@ -53,20 +53,29 @@ class VideoProgressTest extends TestCase
         $second = Lesson::factory()->create(['course_id' => $course->id, 'sort_order' => 2]);
         $token = $student->createToken('test')->plainTextToken;
 
+        // 95 % is no longer enough (spec UC-07: watched to the end).
         $this->withToken($token)->patchJson("/api/v1/my/lessons/{$first->id}/progress", [
             'position_seconds' => 570,
             'duration_seconds' => 600,
         ])->assertOk()
+            ->assertJsonPath('lesson.is_completed', false)
+            ->assertJsonPath('course_progress.completed', 0)
+            ->assertJsonPath('course_progress.video_percent', 95);
+
+        // One second of tolerance covers player polling jitter.
+        $this->withToken($token)->patchJson("/api/v1/my/lessons/{$first->id}/progress", [
+            'position_seconds' => 599,
+            'duration_seconds' => 600,
+        ])->assertOk()
             ->assertJsonPath('lesson.is_completed', true)
             ->assertJsonPath('course_progress.completed', 1)
-            ->assertJsonPath('course_progress.video_percent', 95)
             ->assertJsonPath('course_progress.can_take_exam', false);
 
         $this->withToken($token)->patchJson("/api/v1/my/lessons/{$second->id}/progress", [
             'position_seconds' => 300,
             'duration_seconds' => 600,
         ])->assertOk()
-            ->assertJsonPath('course_progress.video_percent', 72);
+            ->assertJsonPath('course_progress.video_percent', 74);
     }
 
     public function test_playback_endpoint_requires_an_active_enrollment_and_valid_non_negative_values(): void

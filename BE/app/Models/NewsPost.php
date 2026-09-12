@@ -11,6 +11,13 @@ class NewsPost extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::saved(function (self $post): void {
+            Catalog::query()->firstOrCreate(['name' => $post->category]);
+        });
+    }
+
     protected $fillable = [
         'title',
         'slug',

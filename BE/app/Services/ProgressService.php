@@ -37,7 +37,9 @@ class ProgressService
 
             $position = min(max(0, $positionSeconds), $durationSeconds);
             $furthest = max((int) ($progress->furthest_position_seconds ?? 0), $position);
-            $completed = $progress->is_completed || $furthest / $durationSeconds >= 0.95;
+            // UC-07 business rule: a lesson is Completed only when the whole video was
+            // watched. One second of tolerance absorbs player polling jitter.
+            $completed = $progress->is_completed || $furthest >= max(0, $durationSeconds - 1);
 
             $progress->fill([
                 'resume_position_seconds' => $position,

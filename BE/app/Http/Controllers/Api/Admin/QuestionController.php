@@ -75,9 +75,12 @@ class QuestionController extends Controller
     {
         $data = $request->validate([
             'content' => ['required', 'string'],
-            'options' => ['required', 'array', 'min:2'],
+            'options' => ['required', 'array', 'min:2', 'max:4'],
             'options.*.content' => ['required', 'string', 'max:500'],
             'options.*.is_correct' => ['required', 'boolean'],
+        ], [
+            'options.min' => 'Mỗi câu hỏi cần ít nhất 2 phương án.',
+            'options.max' => 'Mỗi câu hỏi có tối đa 4 phương án.',
         ]);
 
         if (collect($data['options'])->where('is_correct', true)->count() !== 1) {

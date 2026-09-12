@@ -28,6 +28,7 @@ describe('ProfilePage', () => {
   it('refreshes the authenticated user after saving profile changes', async () => {
     updateProfile.mockResolvedValue({ data: { id: 1, name: 'Hoc vien moi' } });
     render(<ProfilePage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa thông tin' }));
 
     const nameInput = screen.getByLabelText(/Họ và tên/);
     fireEvent.change(nameInput, { target: { value: 'Hoc vien moi' } });
@@ -61,9 +62,42 @@ describe('ProfilePage', () => {
 
   it('shows email as read-only and offers an avatar file picker instead of a URL field', () => {
     render(<ProfilePage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa thông tin' }));
 
     expect(screen.getByLabelText('Email')).toHaveAttribute('readonly');
     expect(screen.queryByLabelText(/URL ảnh đại diện/)).not.toBeInTheDocument();
     expect(screen.getByLabelText('Ảnh đại diện')).toHaveAttribute('type', 'file');
+  });
+
+  it('starts read-only and restores the original values on cancel (UC-04)', () => {
+    render(<ProfilePage />);
+    expect(screen.queryByRole('textbox', { name: /Họ và tên/ })).not.toBeInTheDocument();
+    expect(screen.getAllByText('Hoc vien').length).toBeGreaterThan(0);
+    expect(screen.getByText('Chưa cập nhật')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa thông tin' }));
+    const nameInput = screen.getByRole('textbox', { name: /Họ và tên/ });
+    fireEvent.change(nameInput, { target: { value: 'Tên tạm' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Hủy' }));
+
+    expect(screen.queryByRole('textbox', { name: /Họ và tên/ })).not.toBeInTheDocument();
+    expect(screen.getAllByText('Hoc vien').length).toBeGreaterThan(0);
+    expect(updateProfile).not.toHaveBeenCalled();
+  });
+
+  it('clears a stale validation error when cancel is followed by re-entering edit mode (UC-04)', async () => {
+    updateProfile.mockRejectedValue(new ApiError('Dữ liệu không hợp lệ.', 422, {
+      name: ['Tên không hợp lệ.'],
+    }));
+    render(<ProfilePage />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa thông tin' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu hồ sơ' }));
+    expect(await screen.findByText('Tên không hợp lệ.')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hủy' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Chỉnh sửa thông tin' }));
+
+    expect(screen.queryByText('Tên không hợp lệ.')).not.toBeInTheDocument();
   });
 });

@@ -24,6 +24,7 @@ import { PageHeader } from '../components/PageHeader';
 
 export function ProfilePage() {
   const { token, user, refreshUser } = useAuth();
+  const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
   const [avatar, setAvatar] = useState(user?.avatar ?? '');
@@ -60,11 +61,21 @@ export function ProfilePage() {
       await applicationRepositories.profile.update(token, body);
       await refreshUser();
       setNotice('Đã cập nhật hồ sơ.');
+      setEditing(false);
     } catch (reason) {
       setError(reason instanceof ApiError ? reason : new ApiError('Không thể cập nhật hồ sơ.', 0));
     } finally {
       setSavingProfile(false);
     }
+  };
+
+  const cancelEdit = () => {
+    setName(user?.name ?? '');
+    setPhone(user?.phone ?? '');
+    setAvatar(user?.avatar ?? '');
+    setAvatarFile(null);
+    setError(null);
+    setEditing(false);
   };
 
   const changePassword = async (event: FormEvent) => {
@@ -150,26 +161,36 @@ export function ProfilePage() {
 
             <Stack spacing={2.5} sx={{ minWidth: 0 }}>
               <Card component="section" aria-label="Thông tin liên hệ" variant="outlined">
-                <Box component="form" onSubmit={saveProfile}>
+                {editing ? (
+                  <Box component="form" onSubmit={saveProfile}>
+                    <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
+                      <Stack spacing={2}>
+                        <Stack direction="row" spacing={1.25} alignItems="center"><PersonOutlineIcon color="primary" /><Typography component="h2" variant="h6">Chỉnh sửa thông tin</Typography></Stack>
+                        <TextField required label="Họ và tên" value={name} onChange={(event) => setName(event.target.value)} error={Boolean(error?.fields.name?.[0])} helperText={error?.fields.name?.[0]} />
+                        <TextField label="Email" value={user?.email ?? ''} InputProps={{ readOnly: true }} />
+                        <TextField label="Số điện thoại" value={phone} onChange={(event) => setPhone(event.target.value)} error={Boolean(error?.fields.phone?.[0])} helperText={error?.fields.phone?.[0]} />
+                        <Button component="label" variant="outlined" sx={{ alignSelf: 'flex-start' }}>
+                          Chọn ảnh đại diện
+                          <input aria-label="Ảnh đại diện" hidden type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={(event) => { const file = event.target.files?.[0] ?? null; event.target.value = ''; setAvatarFile(file); if (file) setAvatar(URL.createObjectURL(file)); }} />
+                        </Button>
+                        <Stack direction="row" spacing={1}>
+                          <Button type="submit" variant="contained" disabled={savingProfile}>{savingProfile ? 'Đang lưu...' : 'Lưu hồ sơ'}</Button>
+                          <Button onClick={cancelEdit} disabled={savingProfile}>Hủy</Button>
+                        </Stack>
+                      </Stack>
+                    </CardContent>
+                  </Box>
+                ) : (
                   <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                     <Stack spacing={2}>
-                      <Stack direction="row" spacing={1.25} alignItems="center">
-                        <PersonOutlineIcon color="primary" />
-                        <Typography component="h2" variant="h6">Thông tin liên hệ</Typography>
-                      </Stack>
-                      <TextField required label="Họ và tên" value={name} onChange={(event) => setName(event.target.value)} error={Boolean(error?.fields.name?.[0])} helperText={error?.fields.name?.[0]} />
-                      <TextField label="Email" value={user?.email ?? ''} InputProps={{ readOnly: true }} />
-                      <TextField label="Số điện thoại" value={phone} onChange={(event) => setPhone(event.target.value)} error={Boolean(error?.fields.phone?.[0])} helperText={error?.fields.phone?.[0]} />
-                      <Button component="label" variant="outlined" sx={{ alignSelf: 'flex-start' }}>
-                        Chọn ảnh đại diện
-                        <input aria-label="Ảnh đại diện" hidden type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={(event) => { const file = event.target.files?.[0] ?? null; event.target.value = ''; setAvatarFile(file); if (file) setAvatar(URL.createObjectURL(file)); }} />
-                      </Button>
-                      <Button type="submit" variant="contained" disabled={savingProfile} sx={{ alignSelf: 'flex-start' }}>
-                        {savingProfile ? 'Đang lưu...' : 'Lưu hồ sơ'}
-                      </Button>
+                      <Stack direction="row" spacing={1.25} alignItems="center"><PersonOutlineIcon color="primary" /><Typography component="h2" variant="h6">Thông tin liên hệ</Typography></Stack>
+                      {[['Họ và tên', user?.name ?? '—'], ['Email', user?.email ?? '—'], ['Số điện thoại', user?.phone || 'Chưa cập nhật']].map(([label, value]) => (
+                        <Box key={label}><Typography variant="caption" color="text.secondary">{label}</Typography><Typography fontWeight={700}>{value}</Typography></Box>
+                      ))}
+                      <Button variant="outlined" onClick={() => { setError(null); setEditing(true); }} sx={{ alignSelf: 'flex-start' }}>Chỉnh sửa thông tin</Button>
                     </Stack>
                   </CardContent>
-                </Box>
+                )}
               </Card>
 
               <Card component="section" aria-label="Bảo mật tài khoản" variant="outlined">

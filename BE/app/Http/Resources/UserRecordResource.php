@@ -15,6 +15,10 @@ class UserRecordResource extends JsonResource
             'old_status' => $this->old_status,
             'new_status' => $this->new_status,
             'reason' => $this->reason,
+            'changed_by' => $this->whenLoaded('changedBy', fn () => $this->changedBy === null ? null : [
+                'id' => $this->changedBy->id,
+                'name' => $this->changedBy->name,
+            ]),
             'created_at' => $this->created_at,
         ];
     }

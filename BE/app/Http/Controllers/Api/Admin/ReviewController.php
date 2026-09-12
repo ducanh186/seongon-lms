@@ -37,7 +37,7 @@ class ReviewController extends Controller
 
         $review->update(['status' => $data['status']]);
 
-        return new ReviewResource($review->load('user'));
+        return new ReviewResource($review->load(['user', 'course']));
     }
 
     public function destroy(Review $review)

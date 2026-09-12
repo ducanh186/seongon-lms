@@ -19,6 +19,11 @@ class ReviewResource extends JsonResource
                 'id' => $this->whenLoaded('user', fn () => $this->user->id),
                 'name' => $this->whenLoaded('user', fn () => $this->user->name),
             ],
+            'course' => $this->whenLoaded('course', fn () => [
+                'id' => $this->course->id,
+                'title' => $this->course->title,
+                'slug' => $this->course->slug,
+            ]),
             'created_at' => $this->created_at,
         ];
     }

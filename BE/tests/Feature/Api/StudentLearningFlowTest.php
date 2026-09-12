@@ -33,7 +33,7 @@ class StudentLearningFlowTest extends TestCase
         $this->withToken($token)->postJson("/api/v1/my/lessons/{$lesson->id}/complete")->assertForbidden();
     }
 
-    public function test_student_can_retry_payment_and_successfully_receives_a_one_year_enrollment(): void
+    public function test_student_can_retry_payment_and_successfully_receives_a_two_year_enrollment(): void
     {
         $student = User::factory()->create();
         $course = Course::factory()->create(['price' => 499000]);
@@ -57,7 +57,7 @@ class StudentLearningFlowTest extends TestCase
             ->assertJsonPath('enrollment.status', 'active');
 
         $enrollment = Enrollment::firstOrFail();
-        $this->assertTrue($enrollment->expires_at->between(now()->addYear()->subMinute(), now()->addYear()->addMinute()));
+        $this->assertTrue($enrollment->expires_at->between(now()->addDays(730)->subMinute(), now()->addDays(730)->addMinute()));
 
         $this->withToken($token)->postJson('/api/v1/orders', ['course_id' => $course->id])
             ->assertUnprocessable();

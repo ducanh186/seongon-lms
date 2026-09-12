@@ -1,5 +1,5 @@
 import { cleanup, render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CoursePage } from './CoursePage';
 
@@ -118,6 +118,17 @@ describe('CoursePage', () => {
     expect(screen.getByLabelText('Đang tải nội dung')).toBeInTheDocument();
   });
 
+  it('sends the guest back to this course after login', async () => {
+    useAuth.mockReturnValue({ user: null });
+    useCart.mockReturnValue({ add, contains: () => false });
+    course.mockResolvedValue({ data: { id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: null, thumbnail: null, price: '299000.00', instructor_name: null, instructor_bio: null, level: 'beginner', status: 'published', created_at: '2026-07-10T00:00:00Z' } });
+    reviews.mockResolvedValue({ data: [] });
+    render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /><Route path="/login" element={<LoginProbe />} /></Routes></MemoryRouter>);
+    const { default: userEvent } = await import('@testing-library/user-event');
+    await userEvent.setup().click(await screen.findByRole('link', { name: 'Đăng nhập để đăng ký' }));
+    expect(await screen.findByText('from: /courses/seo-foundation')).toBeInTheDocument();
+  });
+
   it('shows the enrolled state with a link to the learning page instead of purchase buttons (UC-06)', async () => {
     useAuth.mockReturnValue({ user: { id: 1, role: 'student' }, token: 'student-token' });
     useCart.mockReturnValue({ add, contains: () => false });
@@ -143,3 +154,8 @@ describe('CoursePage', () => {
     expect(add).not.toHaveBeenCalled();
   });
 });
+
+function LoginProbe() {
+  const location = useLocation();
+  return <div>from: {(location.state as { from?: string } | null)?.from}</div>;
+}

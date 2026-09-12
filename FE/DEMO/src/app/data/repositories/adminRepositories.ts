@@ -59,6 +59,7 @@ export const adminRepositories = {
     reorderLessons: api.reorderLessons,
     removeLesson: api.deleteLesson,
     saveQuiz: api.saveQuiz,
+    removeQuiz: api.deleteQuiz,
     saveQuestion: api.saveQuestion,
     updateQuestion: api.updateQuestion,
     removeQuestion: api.deleteQuestion,

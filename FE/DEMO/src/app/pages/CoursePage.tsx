@@ -118,7 +118,7 @@ export function CoursePage() {
               <Typography component="h2" variant="h6" fontWeight={800}>Thông tin đăng ký</Typography>
               <Typography variant="h4" fontWeight={800} color="primary.dark" sx={{ mt: 1.5 }}>{Number(course.price) === 0 ? 'Miễn phí' : `${Number(course.price).toLocaleString('vi-VN')} đ`}</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{course.lessons_count ?? course.lessons?.length ?? 0} bài học</Typography>
-              {!user && <Button component={Link} to="/login" state={{ course }} variant="contained" fullWidth sx={{ mt: 3 }}>Đăng nhập để đăng ký</Button>}
+              {!user && <Button component={Link} to="/login" state={{ from: `/courses/${course.slug}` }} variant="contained" fullWidth sx={{ mt: 3 }}>Đăng nhập để đăng ký</Button>}
               {isStudent && isEnrolled && <>
                 <Alert severity="success" sx={{ mt: 3 }}>Bạn đã đăng ký khóa học này. Tiếp tục học ngay?</Alert>
                 <Button component={Link} to={`/learn/${course.id}`} variant="contained" fullWidth sx={{ mt: 1.5 }}>Vào học</Button>

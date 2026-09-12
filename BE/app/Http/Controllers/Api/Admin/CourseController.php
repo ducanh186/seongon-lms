@@ -24,7 +24,7 @@ class CourseController extends Controller
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'course_id' => ['nullable', 'integer', 'min:1'],
             'q' => ['nullable', 'string', 'max:255'],
-            'status' => ['nullable', Rule::in(['draft', 'published'])],
+            'status' => ['nullable', Rule::in(['draft', 'published', 'hidden'])],
             'price' => ['nullable', 'numeric', 'min:0'],
             'published_on' => ['nullable', 'date_format:Y-m-d'],
         ]);
@@ -54,7 +54,7 @@ class CourseController extends Controller
     public function publish(Request $request, Course $course)
     {
         $data = $request->validate([
-            'status' => ['required', 'in:draft,published'],
+            'status' => ['required', 'in:draft,published,hidden'],
         ]);
 
         if ($data['status'] === 'published') {
@@ -98,7 +98,7 @@ class CourseController extends Controller
             'instructor_name' => ['nullable', 'string', 'max:255'],
             'instructor_bio' => ['nullable', 'string'],
             'level' => ['nullable', 'in:beginner,intermediate,advanced'],
-            'status' => ['required', 'in:draft,published'],
-        ]);
+            'status' => ['required', 'in:draft,published,hidden'],
+        ], ['title.unique' => 'Tiêu đề khóa học đã tồn tại.']);
     }
 }

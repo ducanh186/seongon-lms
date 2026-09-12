@@ -47,7 +47,7 @@ export function GlobalHeader() {
   const handleLogout = async () => {
     await logout();
     accountMenu.close();
-    navigate('/');
+    navigate('/login'); // UC-03 step 3
   };
 
   const navLink = ({ label, to }: { label: string; to: string }) => (

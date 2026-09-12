@@ -64,13 +64,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return result.user;
     },
     register: async (name, email, password, passwordConfirmation) => {
-    const result = await applicationRepositories.auth.register({
+      // UC-01 step 8: registration ends with a success message and a redirect to
+      // Login. The API still returns a token; the client deliberately drops it.
+      const result = await applicationRepositories.auth.register({
         name,
         email,
         password,
         password_confirmation: passwordConfirmation,
       });
-      saveSession(result.token, result.user);
       return result.user;
     },
     refreshUser: async () => {

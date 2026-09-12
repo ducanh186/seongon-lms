@@ -200,6 +200,22 @@ class AdminManagementTest extends TestCase
         ]);
     }
 
+    public function test_admin_account_list_places_administrators_and_teachers_before_students(): void
+    {
+        $firstAdmin = User::factory()->admin()->create(['email' => 'admin-first@example.test']);
+        User::factory()->admin()->create(['email' => 'admin-second@example.test']);
+        User::factory()->teacher()->create(['email' => 'teacher@example.test']);
+        User::factory()->create(['email' => 'student-newest@example.test']);
+        $token = $firstAdmin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/v1/admin/users')
+            ->assertOk()
+            ->assertJsonPath('data.0.email', 'admin-second@example.test')
+            ->assertJsonPath('data.1.email', 'admin-first@example.test')
+            ->assertJsonPath('data.2.email', 'teacher@example.test')
+            ->assertJsonPath('data.3.email', 'student-newest@example.test');
+    }
+
     public function test_admin_can_filter_accounts_by_role_and_open_account_detail(): void
     {
         $admin = User::factory()->admin()->create();
@@ -222,7 +238,8 @@ class AdminManagementTest extends TestCase
         $this->withToken($token)->getJson("/api/v1/admin/users/{$teacher->id}")
             ->assertOk()
             ->assertJsonPath('data.email', $teacher->email)
-            ->assertJsonPath('data.enrollments_count', 0);
+            ->assertJsonPath('data.enrollments_count', 0)
+            ->assertJsonPath('data.updated_at', $teacher->updated_at->toJSON());
 
         $this->withToken($token)->getJson('/api/v1/admin/users?role=student')
             ->assertOk()

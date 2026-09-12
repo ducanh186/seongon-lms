@@ -13,12 +13,13 @@ vi.mock('../lib/api', () => ({
 }));
 
 function SessionProbe() {
-  const { user, login, refreshUser } = useAuth();
+  const { user, login, register, refreshUser } = useAuth();
 
   return (
     <>
       <span>{user?.name ?? 'guest'}</span>
       <button onClick={() => void login('student@example.test', 'SecurePass123!')}>login</button>
+      <button onClick={() => void register('N', 'n@example.test', 'SecurePass123', 'SecurePass123')}>register</button>
       <button onClick={() => void refreshUser()}>refresh</button>
     </>
   );
@@ -79,5 +80,13 @@ describe('AuthContext', () => {
 
     expect(screen.getByText('Hoc vien da cap nhat')).toBeInTheDocument();
     expect(api.me).toHaveBeenCalledWith('sanctum-token');
+  });
+
+  it('does not open a session after registration (UC-01 requires a separate login)', async () => {
+    vi.mocked(api.register).mockResolvedValue({ token: 'ignored-token', user: { id: 2, name: 'Moi', email: 'n@example.test', role: 'student', phone: null, avatar: null, status: 'active', created_at: '2026-07-10T00:00:00Z' } });
+    render(<AuthProvider><SessionProbe /></AuthProvider>);
+    await act(async () => { await screen.getByRole('button', { name: 'register' }).click(); });
+    expect(screen.getByText('guest')).toBeInTheDocument();
+    expect(localStorage.getItem('seongon.session')).toBeNull();
   });
 });

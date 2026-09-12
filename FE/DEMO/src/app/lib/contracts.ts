@@ -1,7 +1,8 @@
 export type UserRole = 'student' | 'admin' | 'teacher';
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
-export type CourseStatus = 'draft' | 'published';
+export type CourseStatus = 'draft' | 'published' | 'hidden';
 export type EnrollmentStatus = 'active' | 'expired';
+export type DashboardPeriod = 'all' | 'week' | 'month' | 'year';
 
 export interface ApiAdminStats {
   students: number;
@@ -14,6 +15,8 @@ export interface ApiAdminStats {
   revenue: number;
   monthly_enrollments: Array<{ month: string; total: number }>;
   popular_courses: Array<{ id: number; title: string; enrollments_count: number }>;
+  period?: DashboardPeriod;
+  registrations_over_time?: Array<{ label: string; total: number }>;
 }
 
 export interface ApiUser {
@@ -25,6 +28,7 @@ export interface ApiUser {
   avatar: string | null;
   status: 'active' | 'locked';
   created_at: string;
+  updated_at?: string;
   enrollments_count?: number;
 }
 
@@ -35,6 +39,7 @@ export interface ApiUserRecord {
   new_status: 'active' | 'locked';
   reason: string;
   created_at: string;
+  changed_by?: { id: number; name: string } | null;
 }
 
 export interface ApiCatalog {
@@ -174,6 +179,7 @@ export interface ApiReview {
   comment: string | null;
   status: 'visible' | 'hidden';
   user: Pick<ApiUser, 'id' | 'name'>;
+  course?: { id: number; title: string; slug: string };
   created_at: string;
 }
 

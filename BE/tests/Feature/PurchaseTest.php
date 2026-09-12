@@ -31,7 +31,7 @@ it('creates a pending order, pays successfully and enrolls for 1 year', function
     expect($enrollment)->not->toBeNull();
     expect(Order::find($orderId)->status)->toBe('paid');
     expect($enrollment->expires_at->toDateString())
-        ->toBe(now()->addYear()->toDateString());
+        ->toBe(now()->addDays(730)->toDateString());
 });
 
 it('marks the order failed on payment failure and creates no enrollment', function () {

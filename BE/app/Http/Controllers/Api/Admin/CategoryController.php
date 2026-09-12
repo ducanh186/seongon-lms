@@ -24,7 +24,7 @@ class CategoryController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('categories', 'name')],
             'description' => ['nullable', 'string'],
-        ]);
+        ], ['name.unique' => 'Tên danh mục đã tồn tại.']);
 
         $data['slug'] = $this->uniqueSlug($data['name']);
         $category = Category::create($data);
@@ -37,7 +37,7 @@ class CategoryController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('categories', 'name')->ignore($category)],
             'description' => ['nullable', 'string'],
-        ]);
+        ], ['name.unique' => 'Tên danh mục đã tồn tại.']);
 
         $category->update($data);
 

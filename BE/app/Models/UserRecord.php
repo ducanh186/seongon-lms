@@ -14,10 +14,16 @@ class UserRecord extends Model
         'old_status',
         'new_status',
         'reason',
+        'changed_by',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function changedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'changed_by');
     }
 }

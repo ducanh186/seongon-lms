@@ -24,6 +24,7 @@ class AdminCourseResource extends CourseResource
                     'title' => $this->quiz->title,
                     'pass_score' => $this->quiz->pass_score,
                     'max_attempts' => $this->quiz->max_attempts,
+                    'duration_minutes' => $this->quiz->duration_minutes,
                     'questions' => $this->quiz->questions->map(fn ($question) => [
                         'id' => $question->id,
                         'content' => $question->content,

@@ -66,7 +66,7 @@ class EnrollmentService
 
     /**
      * Tạo (hoặc gia hạn) enrollment sau khi đơn hàng thanh toán thành công.
-     * Thời hạn truy cập: 1 năm kể từ thời điểm đăng ký.
+     * Thời hạn truy cập: 730 ngày (2 năm) kể từ thời điểm đăng ký — UC-06 / Appendix B.2.
      */
     public function createFromOrder(Order $order): Enrollment
     {
@@ -77,7 +77,7 @@ class EnrollmentService
             [
                 'order_id' => $order->id,
                 'enrolled_at' => $now,
-                'expires_at' => $now->copy()->addYear(),
+                'expires_at' => $now->copy()->addDays(730),
                 'status' => 'active',
             ],
         );

@@ -8,6 +8,7 @@ import { RequireAuth } from '../components/RequireAuth';
 const adminStats = vi.hoisted(() => vi.fn());
 const adminRoles = vi.hoisted(() => vi.fn());
 const adminUsers = vi.hoisted(() => vi.fn());
+const adminUser = vi.hoisted(() => vi.fn());
 const adminUserRecords = vi.hoisted(() => vi.fn());
 const updateUserStatus = vi.hoisted(() => vi.fn());
 const updateUserRole = vi.hoisted(() => vi.fn());
@@ -37,7 +38,7 @@ const useAuth = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { adminStats, adminRoles, adminUsers, adminUserRecords, updateUserStatus, updateUserRole, adminCategories, adminCatalogs, createCatalog, updateCatalog, deleteCatalog, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, publishCourse, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, deleteReview, updateReviewStatus, adminNews, saveNews, deleteNews },
+  api: { adminStats, adminRoles, adminUsers, adminUser, adminUserRecords, updateUserStatus, updateUserRole, adminCategories, adminCatalogs, createCatalog, updateCatalog, deleteCatalog, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, publishCourse, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, deleteReview, updateReviewStatus, adminNews, saveNews, deleteNews },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
@@ -110,6 +111,7 @@ function mockAdminData() {
     meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
   });
   adminUsers.mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } });
+  adminUser.mockResolvedValue({ data: {} });
   updateUserRole.mockResolvedValue({ data: {} });
   updateUserStatus.mockResolvedValue({ data: {} });
   adminUserRecords.mockResolvedValue({ data: [{
@@ -464,10 +466,16 @@ describe('AdminPage', () => {
       }],
       meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
     });
+    adminUser.mockResolvedValue({ data: {
+      id: 2, name: 'Nguyễn Văn A', email: 'student@example.test', role: 'student', phone: null,
+      avatar: null, status: 'active', enrollments_count: 2, created_at: '2026-08-11T00:00:00Z',
+      updated_at: '2026-08-11T00:00:00Z',
+    } });
     render(<AdminPage />);
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Tài khoản' }));
+    expect(screen.queryByText('Quản lý tài khoản Admin, Giáo viên và Học viên, vai trò, ghi danh và trạng thái truy cập.')).not.toBeInTheDocument();
     const userToolbar = screen.getByRole('region', { name: 'Bộ lọc tài khoản' });
     expect(userToolbar).toHaveAttribute('data-admin-toolbar', 'true');
     expect(within(userToolbar).getByRole('button', { name: 'Áp dụng' })).toBeEnabled();
@@ -477,11 +485,13 @@ describe('AdminPage', () => {
 
     const table = await screen.findByRole('table', { name: 'Danh sách tài khoản' });
     // Fill the card on desktop and retain readable columns in a scroll container.
-    expect(table).toHaveStyle({ minWidth: '840px', tableLayout: 'fixed', width: '100%' });
+    expect(table).toHaveStyle({ minWidth: '1120px', tableLayout: 'fixed', width: '100%' });
     expect(within(table).getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
-      'Học viên',
+      'Tài khoản',
       'Email',
       'Vai trò',
+      'Ngày tạo',
+      'Trạng thái',
       'Thao tác',
     ]);
     // Reviewer rejected right-aligned action columns; text columns align left.
@@ -491,10 +501,12 @@ describe('AdminPage', () => {
       'Nguyễn Văn A',
       'student@example.test',
       'Học viên',
+      '11/8/2026',
+      'Đang hoạt động',
       '',
     ]);
     await user.click(within(row).getByRole('button', { name: 'Thao tác Nguyễn Văn A' }));
-    expect(screen.getByRole('menuitem', { name: 'Xem lịch sử' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Xem chi tiết' })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Khóa tài khoản' })).toBeInTheDocument();
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
@@ -509,6 +521,40 @@ describe('AdminPage', () => {
     expect(screen.queryByText('Số điện thoại')).not.toBeInTheDocument();
   });
 
+  it('opens a current account detail with ERD-backed audit data from a two-action menu', async () => {
+    mockAdminData();
+    adminUsers.mockResolvedValue({
+      data: [{ id: 2, name: 'Tên cũ', email: 'teacher@example.test', role: 'teacher', phone: null,
+        avatar: null, status: 'active', created_at: '2026-08-11T00:00:00Z', updated_at: '2026-08-11T00:00:00Z' }],
+      meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
+    });
+    adminUser.mockResolvedValue({ data: {
+      id: 2, name: 'Nguyễn Minh Anh', email: 'teacher@example.test', role: 'teacher', phone: null,
+      avatar: null, status: 'active', created_at: '2026-08-11T00:00:00Z', updated_at: '2026-09-12T00:00:00Z',
+      enrollments_count: 0,
+    } });
+    adminUserRecords.mockResolvedValue({ data: [{ id: 91, user_id: 2, old_status: 'locked', new_status: 'active',
+      reason: 'Đã xác minh thông tin.', changed_by: { id: 1, name: 'SEONGON Admin' }, created_at: '2026-09-12T00:00:00Z' }] });
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Tài khoản' }));
+    await user.click(within(await screen.findByRole('table', { name: 'Danh sách tài khoản' })).getByRole('button', { name: 'Thao tác Tên cũ' }));
+    expect(screen.getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['Xem chi tiết', 'Khóa tài khoản']);
+    await user.click(screen.getByRole('menuitem', { name: 'Xem chi tiết' }));
+
+    const detail = await screen.findByRole('heading', { name: 'Chi tiết tài khoản' });
+    expect(detail).toBeInTheDocument();
+    expect(await screen.findByText('Nguyễn Minh Anh')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Thông tin liên hệ' })).toHaveTextContent('teacher@example.test');
+    expect(screen.getByRole('region', { name: 'Thông tin cơ bản' })).toHaveTextContent('Giáo viên');
+    expect(screen.getByRole('region', { name: 'Thông tin kiểm tra' })).toHaveTextContent('Ngày thay đổi');
+    expect(screen.getByText('Đã xác minh thông tin.')).toBeInTheDocument();
+    expect(screen.getByText('SEONGON Admin')).toBeInTheDocument();
+    expect(screen.queryByText('Lần đăng nhập cuối cùng')).not.toBeInTheDocument();
+    expect(screen.queryByText('Tổ chức')).not.toBeInTheDocument();
+  });
+
   it('shows status history and requires a reason before locking an account', async () => {
     mockAdminData();
     adminUsers.mockResolvedValue({
@@ -518,21 +564,24 @@ describe('AdminPage', () => {
       }],
       meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
     });
+    adminUser.mockResolvedValue({ data: {
+      id: 2, name: 'Nguyễn Văn A', email: 'student@example.test', role: 'student', phone: null,
+      avatar: null, status: 'active', enrollments_count: 2, created_at: '2026-08-11T00:00:00Z',
+      updated_at: '2026-08-11T00:00:00Z',
+    } });
     render(<AdminPage />);
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Tài khoản' }));
     const row = within(await screen.findByRole('table', { name: 'Danh sách tài khoản' })).getByRole('row', { name: /Nguyễn Văn A/ });
     await user.click(within(row).getByRole('button', { name: 'Thao tác Nguyễn Văn A' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Xem lịch sử' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Xem chi tiết' }));
 
-    expect(adminUserRecords).toHaveBeenCalledWith('admin-token', 2);
-    expect(await screen.findByRole('heading', { name: 'Lịch sử tài khoản Nguyễn Văn A' })).toBeInTheDocument();
-    expect(screen.getByText('Vi phạm quy định lớp học.')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Đóng' }));
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(await screen.findByRole('heading', { name: 'Lịch sử trạng thái' })).toBeInTheDocument();
+    expect(await screen.findByText('Vi phạm quy định lớp học.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Quay lại danh sách' }));
 
-    await user.click(within(row).getByRole('button', { name: 'Thao tác Nguyễn Văn A' }));
+    await user.click(within(await screen.findByRole('table', { name: 'Danh sách tài khoản' })).getByRole('button', { name: 'Thao tác Nguyễn Văn A' }));
     await user.click(screen.getByRole('menuitem', { name: 'Khóa tài khoản' }));
     expect(screen.getByRole('button', { name: 'Xác nhận khóa' })).toBeDisabled();
     await user.type(screen.getByRole('textbox', { name: 'Lý do thay đổi trạng thái' }), 'Tài khoản vi phạm nội quy.');
@@ -550,6 +599,11 @@ describe('AdminPage', () => {
       ],
       meta: { current_page: 1, last_page: 1, per_page: 15, total: 2 },
     });
+    adminUser.mockResolvedValue({ data: {
+      id: 3, name: 'Trần Thị B', email: 'long.student.email.address@example.test', role: 'student',
+      phone: '', avatar: null, status: 'locked', created_at: '2026-08-11T00:00:00Z',
+      updated_at: '2026-08-11T00:00:00Z',
+    } });
     render(<AdminPage />);
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Tài khoản' }));
@@ -558,7 +612,10 @@ describe('AdminPage', () => {
     // but Account Management must not render it: no column, no value, no dash.
     expect(within(table).queryByRole('columnheader', { name: 'Số điện thoại' })).not.toBeInTheDocument();
     expect(within(table).queryByText('0912 345 678')).not.toBeInTheDocument();
-    expect(within(table).getByRole('row', { name: /Trần Thị B/ })).not.toHaveTextContent('—');
+    const lockedRow = within(table).getByRole('row', { name: /Trần Thị B/ });
+    expect(lockedRow).toHaveTextContent('Đã khóa');
+    expect(lockedRow).toHaveTextContent('11/8/2026');
+    expect(lockedRow).not.toHaveTextContent('—');
     const first = within(table).getByRole('button', { name: 'Thao tác Nguyễn Văn A' });
     const second = within(table).getByRole('button', { name: 'Thao tác Trần Thị B' });
     await user.click(first);
@@ -572,12 +629,11 @@ describe('AdminPage', () => {
     expect(screen.getAllByRole('menu')).toHaveLength(1);
     expect(screen.getByRole('menu')).toHaveAttribute('aria-labelledby', second.id);
     expect(screen.queryByRole('menuitem', { name: 'Khóa tài khoản' })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('menuitem', { name: 'Xem lịch sử' }));
-    expect(await screen.findByRole('heading', { name: 'Lịch sử tài khoản Trần Thị B' })).toBeInTheDocument();
-    expect(adminUserRecords).toHaveBeenLastCalledWith('admin-token', 3);
-    await user.click(screen.getByRole('button', { name: 'Đóng' }));
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    await user.click(second);
+    await user.click(screen.getByRole('menuitem', { name: 'Xem chi tiết' }));
+    expect(await screen.findByRole('heading', { name: 'Chi tiết tài khoản' })).toBeInTheDocument();
+    expect(await screen.findByText('Vi phạm quy định lớp học.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Quay lại danh sách' }));
+    await user.click(within(await screen.findByRole('table', { name: 'Danh sách tài khoản' })).getByRole('button', { name: 'Thao tác Trần Thị B' }));
     await user.click(screen.getByRole('menuitem', { name: 'Mở khóa tài khoản' }));
     expect(screen.getByRole('heading', { name: 'Kích hoạt tài khoản Trần Thị B' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Xác nhận kích hoạt' })).toBeDisabled();
