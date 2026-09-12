@@ -315,6 +315,10 @@ if (-not $SkipDependencies) {
     Invoke-BuildStep -Label 'Install frontend dependencies' -WorkingDirectory $frontendRoot -Executable $npm -Arguments @('ci', '--no-audit', '--no-fund')
 }
 
+# Local runtime and PHPUnit use different environment values. Remove any cached
+# runtime configuration before migrations, seeders, and tests can load it.
+Invoke-BuildStep -Label 'Clear Laravel configuration cache' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'config:clear')
+
 if (-not $SkipMigrations) {
     Invoke-BuildStep -Label 'Run database migrations' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'migrate', '--force')
 }
