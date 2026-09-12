@@ -37,6 +37,7 @@ throw "Unexpected PHP arguments: $($PhpArgs -join ' ')"
 Describe 'build-local-web-windows phpMyAdmin preparation' {
     It 'runs safe demo seed synchronization by default and supports opting out' {
         $script = Get-Content -Raw -LiteralPath $scriptPath
+        $phpunit = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'BE\phpunit.xml')
 
         $script | Should Match '\[switch\]\$SkipSeed'
         $script | Should Match 'app:seed-demo-once'
@@ -45,6 +46,7 @@ Describe 'build-local-web-windows phpMyAdmin preparation' {
         $script | Should Match "Clear Laravel configuration cache"
         $script | Should Match "memory_limit=512M"
         $script | Should Match 'if \(-not \$SkipSeed\)'
+        $phpunit | Should Match '<ini name="memory_limit" value="512M"/>'
     }
 
     It 'installs a verified phpMyAdmin package and generates local cookie configuration' {
