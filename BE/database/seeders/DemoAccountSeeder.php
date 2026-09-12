@@ -11,6 +11,8 @@ class DemoAccountSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(RoleSeeder::class);
+
         $accounts = [
             ['email' => 'admin2@demo.seongon.vn', 'name' => 'SEONGON Admin 2', 'role' => 'admin', 'status' => 'active'],
             ['email' => 'admin3@demo.seongon.vn', 'name' => 'SEONGON Admin 3', 'role' => 'admin', 'status' => 'active'],

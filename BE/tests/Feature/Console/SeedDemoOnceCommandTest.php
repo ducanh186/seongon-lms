@@ -3,6 +3,7 @@
 namespace Tests\Feature\Console;
 
 use App\Models\User;
+use Database\Seeders\DemoAccountSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -38,5 +39,28 @@ class SeedDemoOnceCommandTest extends TestCase
 
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseMissing('users', ['email' => 'admin@seongon.vn']);
+    }
+
+    public function test_demo_account_sync_restores_roles_when_an_existing_database_has_no_roles(): void
+    {
+        DB::table('roles')->delete();
+        User::factory()->create(['email' => 'existing@example.com']);
+
+        $this->artisan('app:seed-demo-once')
+            ->expectsOutput('Users already exist; demo seed skipped.')
+            ->assertSuccessful();
+
+        $this->artisan('db:seed', [
+            '--class' => DemoAccountSeeder::class,
+            '--force' => true,
+        ])->assertSuccessful();
+
+        $this->assertDatabaseHas('roles', ['code' => 'admin']);
+        $this->assertDatabaseHas('roles', ['code' => 'teacher']);
+        $this->assertDatabaseHas('roles', ['code' => 'student']);
+        $this->assertDatabaseHas('users', [
+            'email' => 'admin2@demo.seongon.vn',
+            'role' => 'admin',
+        ]);
     }
 }
