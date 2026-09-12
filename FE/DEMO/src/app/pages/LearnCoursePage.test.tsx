@@ -104,6 +104,24 @@ describe('LearnCoursePage', () => {
     expect(quiz).not.toHaveBeenCalled();
   });
 
+  it('hides the final quiz after the enrollment has earned a certificate', async () => {
+    myCourses.mockResolvedValue({
+      ...enrollmentResponse,
+      data: [{
+        ...enrollmentResponse.data[0],
+        certificate: { id: 8, enrollment_id: 1, certificate_code: 'CERT-COMPLETE-001', issued_at: '2026-09-12T00:00:00Z' },
+      }],
+    });
+    lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học 1', video_url: '', description: null, duration: null, position: 1, is_completed: true }] });
+    progress.mockResolvedValue({ completed: 1, total: 1, percent: 100, can_take_exam: true });
+
+    renderPage();
+
+    expect(await screen.findByRole('button', { name: 'Tải chứng chỉ' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Bài kiểm tra cuối khóa' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Mở bài kiểm tra' })).not.toBeInTheDocument();
+  });
+
   const reviewableCourse = () => {
     myCourses.mockResolvedValue(enrollmentResponse);
     lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học 1', video_url: '', description: null, duration: null, position: 1, is_completed: false }] });

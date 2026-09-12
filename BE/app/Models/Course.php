@@ -22,6 +22,7 @@ class Course extends Model
         'description',
         'thumbnail',
         'price',
+        'instructor_id',
         'instructor_name',
         'instructor_bio',
         'level',
@@ -78,6 +79,11 @@ class Course extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function instructor(): BelongsTo
+    {
+        return $this->belongsTo(Instructor::class);
     }
 
     /**

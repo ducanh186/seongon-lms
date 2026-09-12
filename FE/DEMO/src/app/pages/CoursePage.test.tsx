@@ -137,7 +137,7 @@ describe('CoursePage', () => {
     render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /></Routes></MemoryRouter>);
 
     expect(await screen.findByText('Bạn đã đăng ký khóa học này. Tiếp tục học ngay?')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Vào học' })).toHaveAttribute('href', '/learn/10');
+    expect(screen.getByRole('link', { name: 'Xem khóa học' })).toHaveAttribute('href', '/learn/10');
     expect(screen.queryByRole('button', { name: 'Đăng ký khóa học' })).not.toBeInTheDocument();
     expect(course).toHaveBeenCalledWith('seo-foundation', 'student-token');
   });

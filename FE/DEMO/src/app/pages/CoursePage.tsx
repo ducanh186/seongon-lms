@@ -121,7 +121,7 @@ export function CoursePage() {
               {!user && <Button component={Link} to="/login" state={{ from: `/courses/${course.slug}` }} variant="contained" fullWidth sx={{ mt: 3 }}>Đăng nhập để đăng ký</Button>}
               {isStudent && isEnrolled && <>
                 <Alert severity="success" sx={{ mt: 3 }}>Bạn đã đăng ký khóa học này. Tiếp tục học ngay?</Alert>
-                <Button component={Link} to={`/learn/${course.id}`} variant="contained" fullWidth sx={{ mt: 1.5 }}>Vào học</Button>
+                <Button component={Link} to={`/learn/${course.id}`} variant="contained" fullWidth sx={{ mt: 1.5 }}>Xem khóa học</Button>
               </>}
               {isStudent && !isEnrolled && <Button onClick={() => void beginCheckout()} variant="contained" fullWidth sx={{ mt: 3 }}>Đăng ký khóa học</Button>}
               {isStudent && !isEnrolled && <Button variant="outlined" fullWidth sx={{ mt: 1.5 }} onClick={() => { if (isInCart) { setCartNotice('Khóa học này đã có trong giỏ hàng.'); return; } setCartNotice(null); void add(course.id); }}>{isInCart ? 'Đã có trong giỏ hàng' : 'Thêm vào giỏ hàng'}</Button>}

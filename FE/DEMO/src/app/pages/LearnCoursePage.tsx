@@ -142,6 +142,8 @@ export function LearnCoursePage() {
   if (loading) return <Container sx={{ py: 6 }}><PageSkeleton rows={4} /></Container>;
   if (error && !enrollment) return <Container sx={{ py: 6 }}><Alert severity="error">{error}</Alert></Container>;
 
+  const hasCertificate = Boolean(enrollment?.certificate || quizResult?.certificate);
+
   const curriculum = (
     <Card variant="outlined" sx={{ position: { lg: 'sticky' }, top: 92 }}>
       <CardContent sx={{ p: 2 }}>
@@ -223,7 +225,7 @@ export function LearnCoursePage() {
         </CardContent>
       </Card>
 
-      <Card variant="outlined">
+      {!hasCertificate && <Card variant="outlined">
         <CardContent sx={{ p: { xs: 2, md: 3 } }}>
           <Stack spacing={2.5}>
             <Box>
@@ -248,7 +250,7 @@ export function LearnCoursePage() {
             )}
           </Stack>
         </CardContent>
-      </Card>
+      </Card>}
     </Stack>
   );
 
@@ -268,7 +270,7 @@ export function LearnCoursePage() {
         </CardContent>
       </Card>
 
-      {(enrollment?.certificate || quizResult?.certificate) && <Card variant="outlined" sx={{ flex: 1 }}>
+      {hasCertificate && <Card variant="outlined" sx={{ flex: 1 }}>
         <CardContent sx={{ p: 2 }}>
           <Stack spacing={1.5}>
             <Typography component="h2" variant="h6">Chứng chỉ</Typography>
