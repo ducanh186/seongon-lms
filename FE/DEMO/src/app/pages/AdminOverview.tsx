@@ -2,6 +2,17 @@ import { useState } from 'react';
 import { Box, Button, Card, CardContent, LinearProgress, Menu, MenuItem, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import type { ApiAdminStats } from '../lib/contracts';
+import { api } from '../lib/api';
+
+type AdminReport = 'enrollments' | 'completion' | 'courses' | 'popular-courses' | 'revenue';
+
+const reportOptions: Array<{ report: AdminReport; label: string; filename: string }> = [
+  { report: 'enrollments', label: 'Báo cáo ghi danh', filename: 'BC-01.pdf' },
+  { report: 'completion', label: 'Báo cáo hoàn thành & chứng chỉ', filename: 'BC-02.pdf' },
+  { report: 'courses', label: 'Báo cáo xuất bản khóa học', filename: 'BC-03.pdf' },
+  { report: 'popular-courses', label: 'Báo cáo khóa học phổ biến', filename: 'BC-04.pdf' },
+  { report: 'revenue', label: 'Báo cáo doanh thu', filename: 'BC-05.pdf' },
+];
 
 // Full year on purpose: `09/25` reads as a day/month date to reviewers.
 function formatMonth(value: string) {
@@ -9,8 +20,9 @@ function formatMonth(value: string) {
   return `${month}/${year}`;
 }
 
-export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
+export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: string | null }) {
   const [reportAnchor, setReportAnchor] = useState<HTMLElement | null>(null);
+  const [downloadingReport, setDownloadingReport] = useState<AdminReport | null>(null);
   const maxMonthly = Math.max(1, ...stats.monthly_enrollments.map((item) => item.total));
   const kpis = [
     ['Học viên', stats.students.toLocaleString('vi-VN')],
@@ -18,6 +30,26 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
     ['Ghi danh', stats.enrollments.toLocaleString('vi-VN')],
     ['Doanh thu', `${stats.revenue.toLocaleString('vi-VN')} đ`],
   ];
+
+  const downloadReport = async (option: (typeof reportOptions)[number]) => {
+    if (!token || downloadingReport) return;
+
+    setDownloadingReport(option.report);
+    try {
+      const blob = await api.downloadAdminReport(token, option.report);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = option.filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setReportAnchor(null);
+    } finally {
+      setDownloadingReport(null);
+    }
+  };
 
   return (
     <Stack spacing={3}>
@@ -32,11 +64,15 @@ export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
           Xuất báo cáo
         </Button>
         <Menu anchorEl={reportAnchor} open={Boolean(reportAnchor)} onClose={() => setReportAnchor(null)}>
-          <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-01.pdf`} download="BC-01.pdf" onClick={() => setReportAnchor(null)}>Báo cáo ghi danh (PDF mẫu)</MenuItem>
-          <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-02.pdf`} download="BC-02.pdf" onClick={() => setReportAnchor(null)}>Báo cáo hoàn thành &amp; chứng chỉ (PDF mẫu)</MenuItem>
-          <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-03.pdf`} download="BC-03.pdf" onClick={() => setReportAnchor(null)}>Báo cáo xuất bản khóa học (PDF mẫu)</MenuItem>
-          <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-04.pdf`} download="BC-04.pdf" onClick={() => setReportAnchor(null)}>Báo cáo khóa học phổ biến (PDF mẫu)</MenuItem>
-          <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-05.pdf`} download="BC-05.pdf" onClick={() => setReportAnchor(null)}>Báo cáo doanh thu (PDF mẫu)</MenuItem>
+          {reportOptions.map((option) => (
+            <MenuItem
+              key={option.report}
+              disabled={!token || Boolean(downloadingReport)}
+              onClick={() => void downloadReport(option)}
+            >
+              {downloadingReport === option.report ? 'Đang tạo báo cáo...' : option.label}
+            </MenuItem>
+          ))}
         </Menu>
       </Box>
       <Box

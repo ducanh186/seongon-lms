@@ -151,6 +151,25 @@ describe('apiRequest', () => {
     expect(certificate.type).toBe('application/pdf');
   });
 
+  it('downloads an admin report PDF from the live report endpoint', async () => {
+    const reportBlob = new Blob(['pdf-bytes'], { type: 'application/pdf' });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      blob: vi.fn().mockResolvedValue(reportBlob),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const report = await api.downloadAdminReport('admin-token', 'popular-courses');
+    const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${apiBaseUrl}/admin/reports/popular-courses/pdf`,
+      { headers: { Authorization: 'Bearer admin-token', Accept: 'application/pdf' } },
+    );
+    expect(report).toBe(reportBlob);
+  });
+
   it('sends lesson material as FormData without forcing a JSON content type', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ data: { id: 9, material_url: '/storage/lesson-materials/guide.pdf' } }), {

@@ -113,6 +113,11 @@ Route::prefix('v1')->group(function () {
             Route::get('certificates', [AdminCertificateController::class, 'index']);
             Route::get('reports/enrollments', [AdminReportController::class, 'enrollments']);
             Route::get('reports/revenue', [AdminReportController::class, 'revenue']);
+            Route::get('reports/enrollments/pdf', [AdminReportController::class, 'enrollmentsPdf']);
+            Route::get('reports/completion/pdf', [AdminReportController::class, 'completionPdf']);
+            Route::get('reports/courses/pdf', [AdminReportController::class, 'coursesPdf']);
+            Route::get('reports/popular-courses/pdf', [AdminReportController::class, 'popularCoursesPdf']);
+            Route::get('reports/revenue/pdf', [AdminReportController::class, 'revenuePdf']);
 
             Route::post('news/images', [AdminNewsController::class, 'uploadImage']);
             Route::apiResource('news', AdminNewsController::class);

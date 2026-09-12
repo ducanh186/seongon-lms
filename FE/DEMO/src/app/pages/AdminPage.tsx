@@ -1110,7 +1110,7 @@ export function AdminPage() {
             {operationPages[tab] && operationPages[tab]!.meta.last_page > 1 && <Pagination count={operationPages[tab]!.meta.last_page} page={operationFilters[tab].page} onChange={(_, page) => changeOperationPage(tab, page)} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
 
-          {tab === 'overview' && stats && <AdminOverview stats={stats} />}
+          {tab === 'overview' && stats && <AdminOverview stats={stats} token={token} />}
 
           {tab === 'users' && !detailUser && <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
             <Stack spacing={2} sx={{ p: 2.5, bgcolor: '#F8FBFC', borderBottom: '1px solid', borderColor: 'divider' }}>
