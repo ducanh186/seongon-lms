@@ -262,7 +262,6 @@ class GeneratedDemoCatalogSeeder extends Seeder
                         'course_id' => $course->id,
                         'rating' => 4 + ($studentIndex % 2),
                         'comment' => 'Nội dung rõ ràng, có ví dụ thực tế và dễ áp dụng vào công việc.',
-                        'status' => 'visible',
                     ]);
                 }
             }

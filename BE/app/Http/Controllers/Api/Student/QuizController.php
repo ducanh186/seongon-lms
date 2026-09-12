@@ -18,7 +18,7 @@ class QuizController extends Controller
 {
     use InteractsWithEnrollment;
 
-    public function show(Request $request, Course $course, ProgressService $progress)
+    public function show(Request $request, Course $course, ProgressService $progress, AttemptLifecycleService $attemptLifecycle)
     {
         $enrollment = $this->resolveActiveEnrollment($request->user(), $course);
         $summary = $progress->summary($enrollment);
@@ -29,6 +29,7 @@ class QuizController extends Controller
         );
 
         $exam = $course->exam()->with('questions.answers')->firstOrFail();
+        $attemptLifecycle->finalizeExpiredFor($enrollment, $exam);
         $attempts = Attempt::query()
             ->with('exam.questions.answers')
             ->where('enrollment_id', $enrollment->id)

@@ -45,7 +45,7 @@ function useViewport(width: number) {
 }
 
 describe('LearnCoursePage', () => {
-  it('completes a lesson when a tracked video reaches the end and hides the certificate until earned', async () => {
+  it('completes a lesson when a tracked video reaches the end', async () => {
     myCourses.mockResolvedValue(enrollmentResponse);
     lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học video', video_url: 'https://cdn.example.test/lesson.mp4', description: null, duration: 30, position: 1, is_completed: false }] });
     progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, can_take_exam: false });
@@ -56,20 +56,20 @@ describe('LearnCoursePage', () => {
 
     renderPage();
 
-    expect(screen.queryByRole('heading', { name: 'Chứng chỉ' })).not.toBeInTheDocument();
     fireEvent.ended(await screen.findByRole('video', { name: 'Bài học video' }));
     await waitFor(() => expect(saveLessonProgress).toHaveBeenCalledWith('student-token', 5, 30, 30));
   });
 
-  it('shows continuous course and lesson playback percentages', async () => {
+  it('keeps lesson playback percentage separate from whole-course progress', async () => {
     myCourses.mockResolvedValue(enrollmentResponse);
     lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học video', video_url: 'https://cdn.example.test/lesson.mp4', description: null, duration: 100, position: 1, is_completed: false, resume_position_seconds: 25, furthest_position_seconds: 40, video_duration_seconds: 100, watched_percent: 40 }] });
-    progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, video_percent: 40, can_take_exam: false });
+    progress.mockResolvedValue({ completed: 3, total: 4, percent: 75, video_percent: 97, can_take_exam: false });
 
     renderPage();
 
     expect(await screen.findByText('40% đã xem')).toBeInTheDocument();
-    expect(screen.getByText('40%', { selector: 'h5' })).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: 'Tiến độ khóa học' })).toHaveAttribute('aria-valuenow', '75');
+    expect(screen.getByText('75%', { selector: 'h5' })).toBeInTheDocument();
   });
 
   it('offers the active lesson PDF on the backend host', async () => {
@@ -117,7 +117,7 @@ describe('LearnCoursePage', () => {
 
     renderPage();
 
-    expect(await screen.findByRole('button', { name: 'Tải chứng chỉ' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Chứng chỉ' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Bài kiểm tra cuối khóa' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Mở bài kiểm tra' })).not.toBeInTheDocument();
   });

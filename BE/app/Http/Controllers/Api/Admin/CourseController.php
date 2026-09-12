@@ -109,6 +109,7 @@ class CourseController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
             'instructor_name' => ['nullable', 'string', 'max:255'],
             'instructor_bio' => ['nullable', 'string'],
+            'instructor_id' => ['nullable', 'integer', 'exists:instructors,id'],
             'level' => ['nullable', 'in:beginner,intermediate,advanced'],
             'status' => ['required', 'in:draft,published,hidden'],
         ], ['title.unique' => 'Tiêu đề khóa học đã tồn tại.']);

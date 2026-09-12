@@ -46,7 +46,7 @@ class ReviewController extends Controller
 
         $review = Review::updateOrCreate(
             ['user_id' => $user->id, 'course_id' => $course->id],
-            ['rating' => $data['rating'], 'comment' => $data['comment'] ?? null, 'status' => 'visible'],
+            ['rating' => $data['rating'], 'comment' => $data['comment'] ?? null],
         );
 
         return (new ReviewResource($review->load('user')))

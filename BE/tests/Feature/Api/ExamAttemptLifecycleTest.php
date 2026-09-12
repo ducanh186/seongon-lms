@@ -189,6 +189,31 @@ class ExamAttemptLifecycleTest extends TestCase
             ->assertJsonPath('data.ended', true);
     }
 
+    public function test_quiz_overview_finalizes_an_expired_active_attempt_before_counting_remaining_tries(): void
+    {
+        Carbon::setTestNow('2026-09-11 08:00:00');
+        [$student, $course, $exam] = $this->learningFixture(durationMinutes: 30);
+        $exam->update(['max_attempts' => 1]);
+        $enrollment = Enrollment::query()->where('user_id', $student->id)->firstOrFail();
+        $attempt = Attempt::query()->create([
+            'enrollment_id' => $enrollment->id,
+            'exam_id' => $exam->id,
+            'attempt_number' => 1,
+            'status' => 'in_progress',
+            'started_at' => now()->subMinutes(31),
+            'expires_at' => now()->subMinute(),
+            'answers' => [],
+        ]);
+        $token = $student->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson("/api/v1/my/courses/{$course->id}/quiz")
+            ->assertOk()
+            ->assertJsonPath('data.attempts_remaining', 0)
+            ->assertJsonPath('data.ended', true)
+            ->assertJsonPath('data.attempts.0.id', $attempt->id)
+            ->assertJsonPath('data.attempts.0.status', 'expired');
+    }
+
     public function test_quiz_overview_keeps_the_second_active_attempt_resumable(): void
     {
         Carbon::setTestNow('2026-09-11 08:00:00');

@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Admin\CourseController as AdminCourseController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\EnrollmentController as AdminEnrollmentController;
 use App\Http\Controllers\Api\Admin\ExamController as AdminExamController;
+use App\Http\Controllers\Api\Admin\InstructorController as AdminInstructorController;
 use App\Http\Controllers\Api\Admin\LearningProgressController as AdminLearningProgressController;
 use App\Http\Controllers\Api\Admin\LessonController as AdminLessonController;
 use App\Http\Controllers\Api\Admin\NewsController as AdminNewsController;
@@ -78,7 +79,8 @@ Route::prefix('v1')->group(function () {
             Route::get('my/courses/{course}/lessons', [MyCourseController::class, 'lessons']);
             Route::get('my/courses/{course}/progress', [MyCourseController::class, 'progress']);
             Route::post('my/lessons/{lesson}/complete', [StudentLessonController::class, 'complete']);
-            Route::patch('my/lessons/{lesson}/progress', [StudentLessonController::class, 'progress']);
+            Route::patch('my/lessons/{lesson}/progress', [StudentLessonController::class, 'progress'])
+                ->middleware('throttle:30,1');
 
             Route::get('my/courses/{course}/quiz', [StudentQuizController::class, 'show']);
             Route::post('my/courses/{course}/quiz/attempts', [StudentQuizController::class, 'submit']);
@@ -134,6 +136,8 @@ Route::prefix('v1')->group(function () {
             Route::put('categories/{category}', [AdminCategoryController::class, 'update']);
             Route::delete('categories/{category}', [AdminCategoryController::class, 'destroy']);
 
+            Route::apiResource('instructors', AdminInstructorController::class)->except('show');
+
             Route::get('courses', [AdminCourseController::class, 'index']);
             Route::post('courses', [AdminCourseController::class, 'store']);
             Route::post('courses/images', [AdminCourseController::class, 'uploadImage']);
@@ -154,7 +158,6 @@ Route::prefix('v1')->group(function () {
             Route::delete('questions/{question}', [AdminQuestionController::class, 'destroy']);
 
             Route::get('reviews', [AdminReviewController::class, 'index']);
-            Route::patch('reviews/{review}/status', [AdminReviewController::class, 'updateStatus']);
             Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy']);
 
             Route::get('dashboard/stats', [DashboardController::class, 'stats']);

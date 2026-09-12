@@ -124,21 +124,6 @@ export function LearnCoursePage() {
     }
   };
 
-  const downloadCertificate = async () => {
-    if (!token) return;
-    try {
-      const blob = await applicationRepositories.learning.downloadCertificate(token, courseId);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'seongon-certificate.pdf';
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (reason) {
-      setError(reason instanceof ApiError ? reason.message : 'Bạn chưa có chứng chỉ để tải.');
-    }
-  };
-
   if (loading) return <Container sx={{ py: 6 }}><PageSkeleton rows={4} /></Container>;
   if (error && !enrollment) return <Container sx={{ py: 6 }}><Alert severity="error">{error}</Alert></Container>;
 
@@ -264,23 +249,11 @@ export function LearnCoursePage() {
               <Typography variant="body2" color="text.secondary">Bài học</Typography>
               <Typography variant="body2" fontWeight={800}>{progress?.completed ?? 0}/{progress?.total ?? 0}</Typography>
             </Stack>
-            <LinearProgress variant="determinate" value={progress?.video_percent ?? progress?.percent ?? 0} aria-label="Tiến độ khóa học" sx={{ height: 8, borderRadius: 1 }} />
-            <Typography variant="h5" fontWeight={800}>{progress?.video_percent ?? progress?.percent ?? 0}%</Typography>
+            <LinearProgress variant="determinate" value={progress?.percent ?? 0} aria-label="Tiến độ khóa học" sx={{ height: 8, borderRadius: 1 }} />
+            <Typography variant="h5" fontWeight={800}>{progress?.percent ?? 0}%</Typography>
           </Stack>
         </CardContent>
       </Card>
-
-      {hasCertificate && <Card variant="outlined" sx={{ flex: 1 }}>
-        <CardContent sx={{ p: 2 }}>
-          <Stack spacing={1.5}>
-            <Typography component="h2" variant="h6">Chứng chỉ</Typography>
-            <Typography variant="body2" color="text.secondary">Tải chứng chỉ PDF sau khi đạt bài kiểm tra.</Typography>
-            <Button variant="outlined" onClick={() => void downloadCertificate()}>
-              Tải chứng chỉ
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>}
 
       <Card variant="outlined" sx={{ flex: 1 }}>
         <CardContent sx={{ p: 2 }}>

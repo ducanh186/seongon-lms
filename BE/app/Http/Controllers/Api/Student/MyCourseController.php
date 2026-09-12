@@ -66,8 +66,9 @@ class MyCourseController extends Controller
             $lesson->resume_position_seconds = $lessonProgress?->resume_position_seconds;
             $lesson->furthest_position_seconds = $lessonProgress?->furthest_position_seconds;
             $lesson->video_duration_seconds = $lessonProgress?->video_duration_seconds;
+            $lesson->watched_seconds = $lessonProgress?->watched_seconds;
             $lesson->watched_percent = $lessonProgress?->video_duration_seconds
-                ? min(100, (int) floor($lessonProgress->furthest_position_seconds / $lessonProgress->video_duration_seconds * 100))
+                ? min(100, (int) floor($lessonProgress->watched_seconds / $lessonProgress->video_duration_seconds * 100))
                 : 0;
 
             return $lesson;

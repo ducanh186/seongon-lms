@@ -9,12 +9,28 @@ use Illuminate\Support\Facades\DB;
 
 class ProgressService
 {
+    private const COMPLETION_RATIO = 0.95;
+    private const MAX_HEARTBEAT_CREDIT_SECONDS = 15;
+    private const HEARTBEAT_TOLERANCE_SECONDS = 2;
+
     public function completeLesson(Enrollment $enrollment, Lesson $lesson): LearningProgress
     {
-        return LearningProgress::updateOrCreate(
-            ['enrollment_id' => $enrollment->id, 'lesson_id' => $lesson->id],
-            ['is_completed' => true, 'completed_at' => now()],
+        $progress = LearningProgress::query()
+            ->where('enrollment_id', $enrollment->id)
+            ->where('lesson_id', $lesson->id)
+            ->first();
+        $duration = (int) ($lesson->duration ?? 0);
+        $required = (int) ceil($duration * self::COMPLETION_RATIO);
+
+        abort_if(
+            $duration <= 0 || !$progress || (!$progress->is_completed && (int) ($progress->watched_seconds ?? 0) < $required),
+            422,
+            'Hãy xem đủ thời lượng video trước khi hoàn thành bài học.',
         );
+
+        $progress->forceFill(['is_completed' => true, 'completed_at' => $progress->completed_at ?? now()])->save();
+
+        return $progress->refresh();
     }
 
     public function recordPlayback(
@@ -35,16 +51,32 @@ class ProgressService
                 'lesson_id' => $lesson->id,
             ]);
 
-            $position = min(max(0, $positionSeconds), $durationSeconds);
+            $duration = (int) ($lesson->duration ?? 0);
+            abort_if($duration <= 0, 422, 'Bài học chưa có thời lượng video chuẩn.');
+            $position = min(max(0, $positionSeconds), $duration);
             $furthest = max((int) ($progress->furthest_position_seconds ?? 0), $position);
-            // UC-07 business rule: a lesson is Completed only when the whole video was
-            // watched. One second of tolerance absorbs player polling jitter.
-            $completed = $progress->is_completed || $furthest >= max(0, $durationSeconds - 1);
+            $segments = is_array($progress->watched_segments) ? $progress->watched_segments : [];
+            $watchedSeconds = (int) ($progress->watched_seconds ?? 0);
+            $lastHeartbeat = $progress->last_heartbeat_at;
+            if ($lastHeartbeat) {
+                $elapsed = max(0, now()->timestamp - $lastHeartbeat->timestamp);
+                $previousPosition = (int) ($progress->resume_position_seconds ?? 0);
+                $positionDelta = $position - $previousPosition;
+                $maxCredit = min(self::MAX_HEARTBEAT_CREDIT_SECONDS, $elapsed + self::HEARTBEAT_TOLERANCE_SECONDS);
+                if ($positionDelta > 0 && $positionDelta <= $maxCredit) {
+                    $segments = $this->mergeWatchedSegment($segments, $previousPosition, $position);
+                    $watchedSeconds = $this->watchedSeconds($segments);
+                }
+            }
+            $completed = $progress->is_completed || $watchedSeconds >= (int) ceil($duration * self::COMPLETION_RATIO);
 
             $progress->fill([
                 'resume_position_seconds' => $position,
                 'furthest_position_seconds' => $furthest,
-                'video_duration_seconds' => $durationSeconds,
+                'video_duration_seconds' => $duration,
+                'watched_seconds' => $watchedSeconds,
+                'watched_segments' => $segments,
+                'last_heartbeat_at' => now(),
                 'is_completed' => $completed,
                 'completed_at' => $completed ? ($progress->completed_at ?? now()) : null,
             ])->save();
@@ -67,10 +99,10 @@ class ProgressService
         $playback = LearningProgress::where('enrollment_id', $enrollment->id)
             ->whereNotNull('video_duration_seconds')
             ->where('video_duration_seconds', '>', 0)
-            ->get(['furthest_position_seconds', 'video_duration_seconds']);
+            ->get(['watched_seconds', 'video_duration_seconds']);
         $trackedDuration = $playback->sum('video_duration_seconds');
         $watchedDuration = $playback->sum(fn (LearningProgress $item) => min(
-            (int) ($item->furthest_position_seconds ?? 0),
+            (int) ($item->watched_seconds ?? 0),
             (int) $item->video_duration_seconds,
         ));
         $videoPercent = $trackedDuration > 0
@@ -84,5 +116,35 @@ class ProgressService
             'video_percent' => $videoPercent,
             'can_take_exam' => $total > 0 && $completed >= $total,
         ];
+    }
+
+    /** @param array<int, array{start:int,end:int}> $segments */
+    private function mergeWatchedSegment(array $segments, int $start, int $end): array
+    {
+        $merged = [];
+        foreach ($segments as $segment) {
+            if (!isset($segment['start'], $segment['end'])) continue;
+            $merged[] = ['start' => (int) $segment['start'], 'end' => (int) $segment['end']];
+        }
+        $merged[] = ['start' => $start, 'end' => $end];
+        usort($merged, fn (array $left, array $right): int => $left['start'] <=> $right['start']);
+
+        $result = [];
+        foreach ($merged as $segment) {
+            $last = $result[count($result) - 1] ?? null;
+            if ($last && $segment['start'] <= $last['end']) {
+                $result[count($result) - 1]['end'] = max($last['end'], $segment['end']);
+            } else {
+                $result[] = $segment;
+            }
+        }
+
+        return $result;
+    }
+
+    /** @param array<int, array{start:int,end:int}> $segments */
+    private function watchedSeconds(array $segments): int
+    {
+        return array_sum(array_map(fn (array $segment): int => max(0, $segment['end'] - $segment['start']), $segments));
     }
 }

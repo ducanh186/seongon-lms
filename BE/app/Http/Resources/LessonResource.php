@@ -32,6 +32,10 @@ class LessonResource extends JsonResource
                 isset($this->video_duration_seconds),
                 fn () => (int) $this->video_duration_seconds,
             ),
+            'watched_seconds' => $this->when(
+                isset($this->watched_seconds),
+                fn () => (int) $this->watched_seconds,
+            ),
             'watched_percent' => $this->when(
                 isset($this->watched_percent),
                 fn () => (int) $this->watched_percent,

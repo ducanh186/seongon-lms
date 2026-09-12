@@ -2,6 +2,7 @@
 
 use App\Models\Attempt;
 use App\Models\Enrollment;
+use App\Models\LearningProgress;
 use App\Models\User;
 use Laravel\Sanctum\Sanctum;
 
@@ -14,8 +15,23 @@ use Laravel\Sanctum\Sanctum;
  */
 function submitExam($test, $course, bool $correct)
 {
+    $enrollment = Enrollment::query()
+        ->where('user_id', auth()->id())
+        ->where('course_id', $course->id)
+        ->firstOrFail();
     foreach ($course->lessons as $lesson) {
-        $test->postJson("/api/v1/my/lessons/{$lesson->id}/complete");
+        $duration = (int) ($lesson->duration ?? 0);
+        $watched = (int) ceil($duration * 0.95);
+        LearningProgress::query()->updateOrCreate(
+            ['enrollment_id' => $enrollment->id, 'lesson_id' => $lesson->id],
+            [
+                'is_completed' => true,
+                'completed_at' => now(),
+                'video_duration_seconds' => $duration,
+                'watched_seconds' => $watched,
+                'watched_segments' => [['start' => 0, 'end' => $watched]],
+            ],
+        );
     }
 
     return $test->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts", [

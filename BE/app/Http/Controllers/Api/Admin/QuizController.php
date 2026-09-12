@@ -23,6 +23,7 @@ class QuizController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'pass_score' => ['required', 'integer', 'min:1', 'max:100'],
             'max_attempts' => ['required', 'integer', 'min:1', 'max:20'],
+            'total_questions' => ['nullable', 'integer', 'min:1', 'max:1000'],
             // UC-18 step 4: duration in minutes. Null keeps the 30-minute default.
             'duration_minutes' => ['nullable', 'integer', 'min:1', 'max:600'],
             'closes_at' => ['nullable', 'date'],
@@ -32,7 +33,9 @@ class QuizController extends Controller
             $data['closes_at'] = Carbon::parse($data['closes_at'])->utc();
         }
 
-        $data['total_questions'] = 3;
+        if (! array_key_exists('total_questions', $data)) {
+            $data['total_questions'] = $course->exam()->value('total_questions');
+        }
         $exam = $course->exam()->updateOrCreate(['course_id' => $course->id], $data);
 
         // load('questions.options') keeps the `options` key the frontend reads;

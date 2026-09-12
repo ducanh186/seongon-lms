@@ -15,7 +15,6 @@ class ReviewFactory extends Factory
             'course_id' => Course::factory(),
             'rating' => fake()->numberBetween(3, 5),
             'comment' => fake()->sentence(),
-            'status' => 'visible',
         ];
     }
 }

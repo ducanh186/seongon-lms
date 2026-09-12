@@ -36,7 +36,7 @@ Theo đúng thứ tự, script:
 1. Kiểm tra cấu trúc `BE` và `FE/DEMO`, PHP, Composer, npm và các file cấu hình bắt buộc.
 2. Kiểm tra PHP 8.2+ và extension `mysqli`.
 3. Tải phpMyAdmin 5.2.3 khi chưa có, xác minh SHA-256 rồi lưu runtime vào `Infra/.native-runtime/`.
-4. Chạy `composer install` và `npm ci` nếu dependency tương ứng chưa tồn tại.
+4. Luôn chạy `composer install` và `npm ci` theo lockfile để đồng bộ dependency sau mỗi lần pull code.
 5. Chạy `php artisan migrate --force`.
 6. Chạy `php artisan app:seed-demo-once` và `php artisan db:seed --class=DemoUserHistorySeeder --force`.
 7. Chạy toàn bộ test backend và frontend.

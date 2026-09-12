@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Models\CourseCategory;
+use App\Models\Instructor;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -144,6 +145,12 @@ class CourseService
     private function courseAttributes(array $data): array
     {
         unset($data['category_ids'], $data['category_id']);
+
+        if (! empty($data['instructor_id'])) {
+            $instructor = Instructor::query()->findOrFail($data['instructor_id']);
+            $data['instructor_name'] = $instructor->name;
+            $data['instructor_bio'] = $instructor->bio;
+        }
 
         return $data;
     }

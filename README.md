@@ -1192,7 +1192,7 @@ Lần chạy đầu:
    Infra\build-local-web-windows.bat
    ```
 
-   Script cài dependency, chạy `migrate --force`, seed demo (chỉ khi DB trống), chạy test backend/frontend và build frontend.
+   Script đồng bộ dependency theo lockfile, chạy `migrate --force`, seed demo (chỉ khi DB trống), chạy test backend/frontend và build frontend.
 
 4. Khởi động:
 

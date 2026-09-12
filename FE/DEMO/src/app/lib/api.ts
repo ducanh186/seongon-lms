@@ -14,6 +14,7 @@ import type {
   ApiAdminLesson,
   ApiAdminOrder,
   ApiAdminQuestionIndex,
+  ApiInstructor,
   ApiAdminRole,
   ApiAdminStats,
   ApiAdminQuestion,
@@ -278,6 +279,13 @@ export const api = {
     apiRequest<{ data: ApiCatalog }>(`/admin/catalogs/${id}`, { token, method: 'PUT', body }),
   deleteCatalog: (token: string, id: number) =>
     apiRequest<null>(`/admin/catalogs/${id}`, { token, method: 'DELETE' }),
+  adminInstructors: (token: string) => apiRequest<{ data: ApiInstructor[] }>('/admin/instructors', { token }),
+  createInstructor: (token: string, body: { name: string; bio?: string }) =>
+    apiRequest<{ data: ApiInstructor }>('/admin/instructors', { token, method: 'POST', body }),
+  updateInstructor: (token: string, id: number, body: { name: string; bio?: string }) =>
+    apiRequest<{ data: ApiInstructor }>(`/admin/instructors/${id}`, { token, method: 'PUT', body }),
+  deleteInstructor: (token: string, id: number) =>
+    apiRequest<null>(`/admin/instructors/${id}`, { token, method: 'DELETE' }),
   createCategory: (token: string, body: { name: string; description?: string }) =>
     apiRequest<{ data: ApiCategory }>('/admin/categories', { method: 'POST', token, body }),
   updateCategory: (token: string, categoryId: number, body: { name: string; description?: string }) =>
@@ -339,7 +347,5 @@ export const api = {
   deleteQuestion: (token: string, questionId: number) => apiRequest<void>(`/admin/questions/${questionId}`, { method: 'DELETE', token }),
   adminReviews: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiReview>>(`/admin/reviews${queryString(filters)}`, { token }),
-  updateReviewStatus: (token: string, reviewId: number, status: 'visible' | 'hidden') =>
-    apiRequest<{ data: ApiReview }>(`/admin/reviews/${reviewId}/status`, { method: 'PATCH', token, body: { status } }),
   deleteReview: (token: string, reviewId: number) => apiRequest<void>(`/admin/reviews/${reviewId}`, { method: 'DELETE', token }),
 };

@@ -31,7 +31,7 @@ import {
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { ApiError, resolveMaterialUrl } from '../lib/api';
-import type { ApiAdminAttempt, ApiAdminCertificateStatus, ApiAdminCourse, ApiAdminExam, ApiAdminLesson, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiNewsList, ApiNewsPost, ApiReview, ApiUser, ApiUserRecord, Paginated } from '../lib/contracts';
+import type { ApiAdminAttempt, ApiAdminCertificateStatus, ApiAdminCourse, ApiAdminExam, ApiAdminLesson, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiInstructor, ApiNewsList, ApiNewsPost, ApiReview, ApiUser, ApiUserRecord, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { useAuth } from '../contexts/AuthContext';
 import { AdminSectionHeader } from '../components/AdminSectionHeader';
@@ -43,6 +43,7 @@ import { AdminOverview } from './AdminOverview';
 import { RichTextEditor } from '../components/RichTextEditor';
 import { PaymentSettingsPanel } from './admin/PaymentSettingsPanel';
 import { NewsCatalogManager } from './admin/NewsCatalogManager';
+import { InstructorCatalogManager } from './admin/InstructorCatalogManager';
 import { AdminErdReadSection, type AdminErdReadSectionKey } from './admin/AdminErdReadSection';
 import { adminRepositories } from '../data/repositories/adminRepositories';
 import { DashboardService } from '../application/services/DashboardService';
@@ -54,6 +55,7 @@ type CourseDraft = {
   description: string;
   thumbnail: string;
   price: string;
+  instructor_id: number | null;
   instructor_name: string;
   instructor_bio: string;
   level: 'beginner' | 'intermediate' | 'advanced';
@@ -162,6 +164,7 @@ const blankCourse: CourseDraft = {
   description: '',
   thumbnail: '',
   price: '299000',
+  instructor_id: null,
   instructor_name: '',
   instructor_bio: '',
   level: 'beginner',
@@ -183,7 +186,7 @@ const adminSectionCopy: Record<AdminSection, { title: string; description: strin
   carts: { title: 'Quản lý giỏ hàng', description: 'Theo dõi giỏ hàng hiện tại của học viên từ dữ liệu trong carts.' },
   cartItems: { title: 'Mục giỏ hàng', description: 'Đối chiếu từng khóa học đang nằm trong cart_items.' },
   orders: { title: 'Quản lý đơn hàng', description: 'Theo dõi đơn hàng, trạng thái thanh toán và quan hệ học viên - khóa học.' },
-  categories: { title: 'Danh mục khóa học', description: 'Tổ chức chủ đề để học viên khám phá nội dung dễ dàng.' },
+  categories: { title: 'DANH MỤC', description: 'Tổ chức chủ đề để học viên khám phá nội dung dễ dàng.' },
   courseCategories: { title: 'Gán danh mục khóa học', description: 'Đối chiếu quan hệ nhiều-nhiều từ course_categories.' },
   courses: { title: 'Quản lý khóa học', description: 'Quản lý nội dung, bài học, bài kiểm tra và trạng thái xuất bản.' },
   lessons: { title: 'Quản lý bài học', description: 'Tra cứu bài học theo khóa học và mở trình biên tập nội dung thống nhất.' },
@@ -215,6 +218,7 @@ function courseDraftFrom(course: ApiCourse): CourseDraft {
     description: course.description ?? '',
     thumbnail: course.thumbnail ?? '',
     price: String(course.price),
+    instructor_id: course.instructor_id ?? null,
     instructor_name: course.instructor_name ?? '',
     instructor_bio: course.instructor_bio ?? '',
     level: course.level ?? 'beginner',
@@ -245,9 +249,9 @@ export function AdminPage() {
   const [tab, setTab] = useState<AdminSection>('overview');
   const [stats, setStats] = useState<ApiAdminStats | null>(null);
   const [users, setUsers] = useState<Paginated<ApiUser> | null>(null);
-  const [teachers, setTeachers] = useState<ApiUser[]>([]);
+  const [instructors, setInstructors] = useState<ApiInstructor[]>([]);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
-  const [categoryTab, setCategoryTab] = useState<'courses' | 'news'>('courses');
+  const [categoryTab, setCategoryTab] = useState<'courses' | 'news' | 'instructors'>('courses');
   const [courses, setCourses] = useState<Paginated<ApiCourse> | null>(null);
   const [adminLessons, setAdminLessons] = useState<Paginated<ApiAdminLesson> | null>(null);
   const [adminExams, setAdminExams] = useState<Paginated<ApiAdminExam> | null>(null);
@@ -266,7 +270,6 @@ export function AdminPage() {
   const [userRole, setUserRole] = useState('');
   const [courseFilters, setCourseFilters] = useState<CourseAdminFilters>(blankCourseFilters);
   const [appliedCourseFilters, setAppliedCourseFilters] = useState<CourseAdminFilters>(blankCourseFilters);
-  const [reviewStatus, setReviewStatus] = useState('');
   const [reviewPage, setReviewPage] = useState(1);
   const [newsQuery, setNewsQuery] = useState('');
   const [newsStatus, setNewsStatus] = useState('');
@@ -295,6 +298,7 @@ export function AdminPage() {
   const [quizTitle, setQuizTitle] = useState('Bài kiểm tra cuối khóa');
   const [quizPassScore, setQuizPassScore] = useState('75');
   const [quizMaxAttempts, setQuizMaxAttempts] = useState('2');
+  const [quizTotalQuestions, setQuizTotalQuestions] = useState('10');
   const [quizClosesAt, setQuizClosesAt] = useState('');
   const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
   const [questionContent, setQuestionContent] = useState('');
@@ -317,9 +321,9 @@ export function AdminPage() {
 
   useEffect(() => {
     if (!token || tab !== 'courses' || !isCourseEditorOpen) return;
-    adminRepositories.users.list(token, { role: 'teacher' })
-      .then((response) => setTeachers(response.data))
-      .catch(() => setTeachers([]));
+    adminRepositories.instructors.list(token)
+      .then((response) => setInstructors(response.data))
+      .catch(() => setInstructors([]));
   }, [isCourseEditorOpen, tab, token]);
 
   const cacheKeyFor = useCallback((section: AdminSection) => {
@@ -329,7 +333,7 @@ export function AdminPage() {
       case 'courses':
         return `${section}:${Object.values(appliedCourseFilters).join(':')}`;
       case 'reviews':
-        return `${section}:${reviewStatus}:${reviewPage}`;
+        return `${section}:${reviewPage}`;
       case 'news':
         return `${section}:${appliedNewsFilters.q}:${appliedNewsFilters.status}:${appliedNewsFilters.category}:${appliedNewsFilters.page}`;
       default:
@@ -337,7 +341,7 @@ export function AdminPage() {
           ? `${section}:${operationFilters[section].q}:${operationFilters[section].courseId}:${operationFilters[section].status}:${operationFilters[section].page}`
           : section;
     }
-  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, operationFilters, reviewPage, reviewStatus]);
+  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, operationFilters, reviewPage]);
 
   const load = useCallback(async (section: AdminSection, force = false) => {
     if (!token) return;
@@ -398,7 +402,7 @@ export function AdminPage() {
           break;
         }
         case 'reviews': {
-          const nextReviews = await adminRepositories.reviews.list(token, { status: reviewStatus || undefined, page: reviewPage });
+          const nextReviews = await adminRepositories.reviews.list(token, { page: reviewPage });
           if (requestId !== loadRequestId.current) return;
           setReviews(nextReviews);
           break;
@@ -483,7 +487,7 @@ export function AdminPage() {
         setLoading(false);
       }
     }
-  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, cacheKeyFor, operationFilters, reviewPage, reviewStatus, token]);
+  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, cacheKeyFor, operationFilters, reviewPage, token]);
 
   useEffect(() => {
     if (isErdReadSection(tab)) {
@@ -524,6 +528,7 @@ export function AdminPage() {
     setQuizTitle(response.data.quiz?.title ?? 'Bài kiểm tra cuối khóa');
     setQuizPassScore(String(response.data.quiz?.pass_score ?? 75));
     setQuizMaxAttempts(String(response.data.quiz?.max_attempts ?? 2));
+    setQuizTotalQuestions(String(response.data.quiz?.total_questions ?? 10));
     setQuizClosesAt(toDateTimeLocal(response.data.quiz?.closes_at));
     const firstQuestion = response.data.quiz?.questions[0];
     if (firstQuestion) {
@@ -613,6 +618,7 @@ export function AdminPage() {
       thumbnail: courseForm.thumbnail || null,
       instructor_name: courseForm.instructor_name || null,
       instructor_bio: courseForm.instructor_bio || null,
+      instructor_id: courseForm.instructor_id,
     };
     setError(null);
 
@@ -795,6 +801,7 @@ export function AdminPage() {
         title: quizTitle,
         pass_score: Number(quizPassScore),
         max_attempts: Number(quizMaxAttempts),
+        total_questions: Number(quizTotalQuestions),
         closes_at: quizClosesAt ? new Date(quizClosesAt).toISOString() : null,
       }),
       'Đã lưu cấu hình bài kiểm tra.',
@@ -938,17 +945,18 @@ export function AdminPage() {
           </Box>
           <FormControl>
             <InputLabel id="course-instructor">Giảng viên</InputLabel>
-            <Select labelId="course-instructor" label="Giảng viên" value={courseForm.instructor_name} onChange={(event) => {
-              const name = event.target.value;
-              setCourseForm((form) => ({
-                ...form,
-                instructor_name: name,
-                instructor_bio: name ? `${name} là giảng viên SEONGON có kinh nghiệm triển khai Digital Marketing thực tế.` : '',
-              }));
+            <Select labelId="course-instructor" label="Giảng viên" value={courseForm.instructor_id === null ? (courseForm.instructor_name ? 'legacy' : '') : String(courseForm.instructor_id)} onChange={(event) => {
+              const value = event.target.value;
+              if (value === 'legacy') return;
+              const instructor = instructors.find((candidate) => candidate.id === Number(value));
+              setCourseForm((form) => instructor
+                ? { ...form, instructor_id: instructor.id, instructor_name: instructor.name, instructor_bio: instructor.bio ?? '' }
+                : { ...form, instructor_id: null, instructor_name: '', instructor_bio: '' });
             }}>
-              {courseForm.instructor_name && !teachers.some((teacher) => teacher.name === courseForm.instructor_name) && <MenuItem value={courseForm.instructor_name}>{courseForm.instructor_name}</MenuItem>}
-              {teachers.map((teacher) => <MenuItem key={teacher.id} value={teacher.name}>{teacher.name}</MenuItem>)}
-              {teachers.length === 0 && !courseForm.instructor_name && <MenuItem value="" disabled>Chưa có tài khoản giáo viên</MenuItem>}
+              <MenuItem value="">Chưa chọn giảng viên</MenuItem>
+              {courseForm.instructor_name && courseForm.instructor_id === null && <MenuItem value="legacy">{courseForm.instructor_name} (legacy)</MenuItem>}
+              {instructors.map((instructor) => <MenuItem key={instructor.id} value={String(instructor.id)}>{instructor.name}</MenuItem>)}
+              {instructors.length === 0 && !courseForm.instructor_name && <MenuItem value="" disabled>Chưa có danh mục giảng viên</MenuItem>}
             </Select>
           </FormControl>
           <TextField label="Giới thiệu giảng viên" multiline minRows={3} value={courseForm.instructor_bio} onChange={(event) => setCourseForm({ ...courseForm, instructor_bio: event.target.value })} />
@@ -1118,7 +1126,7 @@ export function AdminPage() {
               <AdminFilterToolbar label="Bộ lọc tài khoản" action={<Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, role: userRole, page: 1 })}>Áp dụng</Button>}>
                 <TextField label="Tìm tài khoản" value={userQuery} onChange={(event) => setUserQuery(event.target.value)} fullWidth />
                 <FormControl fullWidth><InputLabel id="student-status">Trạng thái</InputLabel><Select labelId="student-status" label="Trạng thái" value={userStatus} onChange={(event) => setUserStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="active">Đang hoạt động</MenuItem><MenuItem value="locked">Đã khóa</MenuItem></Select></FormControl>
-                <FormControl fullWidth><InputLabel id="user-role-filter">Vai trò</InputLabel><Select labelId="user-role-filter" label="Vai trò" value={userRole} onChange={(event) => setUserRole(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem><MenuItem value="teacher">Giáo viên</MenuItem><MenuItem value="student">Học viên</MenuItem></Select></FormControl>
+                <FormControl fullWidth><InputLabel id="user-role-filter">Vai trò</InputLabel><Select labelId="user-role-filter" label="Vai trò" value={userRole} onChange={(event) => setUserRole(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem><MenuItem value="teacher">Giảng viên</MenuItem><MenuItem value="student">Học viên</MenuItem></Select></FormControl>
               </AdminFilterToolbar>
             </Stack>
             {users?.data.length ? <Box sx={{ width: '100%', minWidth: 0 }}><AdminDataTable<ApiUser>
@@ -1130,7 +1138,7 @@ export function AdminPage() {
                 // The reference ERD has no phone field, so this table omits it.
                 { key: 'account', header: 'Tài khoản', width: '21%', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
                 { key: 'email', header: 'Email', width: '26%', render: (user) => <Tooltip title={user.email} describeChild><Typography variant="body2" noWrap tabIndex={0}>{user.email}</Typography></Tooltip> },
-                { key: 'role', header: 'Vai trò', width: '12%', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : user.role === 'teacher' ? 'Giáo viên' : 'Học viên'}</Typography> },
+                { key: 'role', header: 'Vai trò', width: '12%', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : user.role === 'teacher' ? 'Giảng viên' : 'Học viên'}</Typography> },
                 { key: 'created', header: 'Ngày tạo', width: '14%', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</Typography> },
                 { key: 'status', header: 'Trạng thái', width: '17%', render: (user) => <StatusChip status={user.status} /> },
                 { key: 'actions', header: 'Thao tác', width: '10%', render: (user) => <IconButton
@@ -1184,7 +1192,7 @@ export function AdminPage() {
                     <Typography component="h3" variant="h6" fontWeight={800} sx={{ mb: 1 }}>Thông tin cơ bản</Typography>
                     {[
                       ['Họ tên', detailUser.name],
-                      ['Vai trò', detailUser.role === 'admin' ? 'Quản trị viên' : detailUser.role === 'teacher' ? 'Giáo viên' : 'Học viên'],
+                      ['Vai trò', detailUser.role === 'admin' ? 'Quản trị viên' : detailUser.role === 'teacher' ? 'Giảng viên' : 'Học viên'],
                       ['Trạng thái', detailUser.status === 'active' ? 'Đang hoạt động' : 'Đã khóa'],
                       ['Khóa đã đăng ký', String(detailUser.enrollments_count ?? 0)],
                     ].map(([label, value]) => <Box key={label} sx={{ py: 0.75 }}><Typography variant="caption" color="text.secondary">{label}</Typography><Typography fontWeight={700}>{value}</Typography></Box>)}
@@ -1216,12 +1224,14 @@ export function AdminPage() {
             <Tabs value={categoryTab} onChange={(_, value) => setCategoryTab(value)} aria-label="Loại danh mục">
               <Tab id="course-categories-tab" aria-controls="course-categories-panel" value="courses" label="Danh mục khóa học" />
               <Tab id="news-categories-tab" aria-controls="news-categories-panel" value="news" label="Danh mục tin tức" />
+              <Tab id="instructor-categories-tab" aria-controls="instructor-categories-panel" value="instructors" label="Danh mục giảng viên" />
             </Tabs>
             {categoryTab === 'courses' && <Box role="tabpanel" id="course-categories-panel" aria-labelledby="course-categories-tab" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(260px, .6fr) 1fr' }, gap: 3 }}>
             <Card component="form" onSubmit={submitCategory} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingCategory ? 'Sửa danh mục' : 'Tạo danh mục'}</Typography><TextField required label="Tên danh mục" value={categoryName} onChange={(event) => setCategoryName(event.target.value)} /><TextField label="Mô tả" multiline minRows={3} value={categoryDescription} onChange={(event) => setCategoryDescription(event.target.value)} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingCategory ? 'Cập nhật' : 'Lưu danh mục'}</Button>{editingCategory && <Button onClick={() => { setEditingCategory(null); setCategoryName(''); setCategoryDescription(''); }}>Hủy</Button>}</Stack></Stack></CardContent></Card>
             <Card sx={{ borderRadius: 3 }}><CardContent><Stack divider={<Divider flexItem />}>{categories.map((category) => <Stack key={category.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{category.name}</Typography><Typography variant="body2" color="text.secondary">{category.description || 'Chưa có mô tả'}</Typography></Box><Button size="small" onClick={() => { setEditingCategory(category); setCategoryName(category.name); setCategoryDescription(category.description ?? ''); }}>Sửa</Button><Button color="error" size="small" onClick={() => token && requestConfirmation('Xóa danh mục', category.name, () => adminRepositories.categories.remove(token, category.id), 'Đã xóa danh mục.')}>Xóa</Button></Stack>)}{categories.length === 0 && <EmptyState title="Chưa có danh mục." />}</Stack></CardContent></Card>
             </Box>}
             {categoryTab === 'news' && token && <Box role="tabpanel" id="news-categories-panel" aria-labelledby="news-categories-tab"><NewsCatalogManager token={token} /></Box>}
+            {categoryTab === 'instructors' && token && <Box role="tabpanel" id="instructor-categories-panel" aria-labelledby="instructor-categories-tab"><InstructorCatalogManager token={token} /></Box>}
           </Stack>}
 
           {tab === 'courses' && !selectedCourse && <Stack spacing={2}>

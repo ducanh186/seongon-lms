@@ -36,9 +36,9 @@ class LessonController extends Controller
             $validated['position_seconds'],
             $validated['duration_seconds'],
         );
-        $duration = (int) $playback->video_duration_seconds;
+        $duration = (int) $lesson->duration;
         $watchedPercent = $duration > 0
-            ? (int) floor((int) $playback->furthest_position_seconds / $duration * 100)
+            ? (int) floor((int) $playback->watched_seconds / $duration * 100)
             : 0;
 
         return response()->json([
@@ -47,6 +47,7 @@ class LessonController extends Controller
                 'resume_position_seconds' => (int) $playback->resume_position_seconds,
                 'furthest_position_seconds' => (int) $playback->furthest_position_seconds,
                 'video_duration_seconds' => $duration,
+                'watched_seconds' => (int) $playback->watched_seconds,
                 'watched_percent' => min(100, $watchedPercent),
                 'is_completed' => (bool) $playback->is_completed,
             ],

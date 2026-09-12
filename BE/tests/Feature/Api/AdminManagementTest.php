@@ -235,7 +235,7 @@ class AdminManagementTest extends TestCase
         $admin = User::factory()->admin()->create();
         $teacherRole = Role::query()->where('code', 'teacher')->firstOrCreate([
             'code' => 'teacher',
-        ], ['name' => 'Giáo viên', 'description' => 'Giảng viên']);
+        ], ['name' => 'Giảng viên', 'description' => 'Giảng viên']);
         $teacher = User::factory()->create(['email' => 'teacher-detail@example.test']);
         $teacher->role = 'teacher';
         $teacher->role_id = $teacherRole->id;
@@ -425,18 +425,41 @@ class AdminManagementTest extends TestCase
         Storage::disk('public')->assertExists(str_replace('/storage/', '', $materialUrl));
     }
 
-    public function test_admin_can_moderate_a_review(): void
+    public function test_admin_can_manage_a_review_without_a_status_field(): void
     {
         $admin = User::factory()->admin()->create();
         $review = Review::factory()->create();
         $token = $admin->createToken('test')->plainTextToken;
 
-        $this->withToken($token)->patchJson("/api/v1/admin/reviews/{$review->id}/status", ['status' => 'hidden'])
-            ->assertOk()->assertJsonPath('data.status', 'hidden');
+        $this->withToken($token)
+            ->getJson('/api/v1/admin/reviews')
+            ->assertOk()
+            ->assertJsonMissingPath('data.0.status');
+
+        $this->withToken($token)
+            ->patchJson("/api/v1/admin/reviews/{$review->id}/status", ['status' => 'hidden'])
+            ->assertNotFound();
 
         $this->withToken($token)->deleteJson("/api/v1/admin/reviews/{$review->id}")
             ->assertNoContent();
         $this->assertDatabaseMissing('reviews', ['id' => $review->id]);
+    }
+
+    public function test_admin_can_configure_how_many_questions_each_attempt_uses(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $response = $this->withToken($token)->postJson("/api/v1/admin/courses/{$course->id}/quiz", [
+            'title' => 'Bài kiểm tra cuối khóa',
+            'pass_score' => 75,
+            'max_attempts' => 3,
+            'total_questions' => 10,
+        ]);
+
+        $response->assertOk()->assertJsonPath('total_questions', 10);
+        $this->assertDatabaseHas('exams', ['course_id' => $course->id, 'total_questions' => 10]);
     }
 
     public function test_admin_can_list_reviews_for_one_selected_course(): void

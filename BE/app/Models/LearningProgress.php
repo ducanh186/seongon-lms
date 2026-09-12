@@ -23,6 +23,9 @@ class LearningProgress extends Model
         'resume_position_seconds',
         'furthest_position_seconds',
         'video_duration_seconds',
+        'watched_seconds',
+        'watched_segments',
+        'last_heartbeat_at',
     ];
 
     protected function casts(): array
@@ -33,6 +36,9 @@ class LearningProgress extends Model
             'resume_position_seconds' => 'integer',
             'furthest_position_seconds' => 'integer',
             'video_duration_seconds' => 'integer',
+            'watched_seconds' => 'integer',
+            'watched_segments' => 'array',
+            'last_heartbeat_at' => 'datetime',
         ];
     }
 
@@ -50,6 +56,11 @@ class LearningProgress extends Model
                     'resume_position_seconds' => $progress->resume_position_seconds,
                     'furthest_position_seconds' => $progress->furthest_position_seconds,
                     'video_duration_seconds' => $progress->video_duration_seconds,
+                    'watched_seconds' => (int) ($progress->watched_seconds ?? 0),
+                    'watched_segments' => $progress->watched_segments === null
+                        ? null
+                        : json_encode($progress->watched_segments, JSON_THROW_ON_ERROR),
+                    'last_heartbeat_at' => $progress->last_heartbeat_at,
                     'created_at' => $progress->created_at,
                     'updated_at' => $progress->updated_at,
                 ],

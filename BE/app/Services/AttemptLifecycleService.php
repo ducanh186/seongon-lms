@@ -45,6 +45,11 @@ class AttemptLifecycleService
             $questionIds = null;
             if ($exam->total_questions) {
                 $allIds = $exam->questions()->pluck('id');
+                if ($allIds->count() < $exam->total_questions) {
+                    throw ValidationException::withMessages([
+                        'quiz' => "Ngân hàng câu hỏi chỉ có {$allIds->count()} câu, cần {$exam->total_questions} câu cho mỗi lượt làm bài.",
+                    ]);
+                }
                 $previousIds = Attempt::query()
                     ->where('enrollment_id', $enrollment->id)
                     ->where('exam_id', $exam->id)
@@ -132,6 +137,25 @@ class AttemptLifecycleService
                     if ($this->finalize($attempt, 'expired')->status === 'expired') {
                         $count++;
                     }
+                }
+            });
+
+        return $count;
+    }
+
+    public function finalizeExpiredFor(Enrollment $enrollment, Exam $exam): int
+    {
+        $count = 0;
+        Attempt::query()
+            ->where('enrollment_id', $enrollment->id)
+            ->where('exam_id', $exam->id)
+            ->where('status', 'in_progress')
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '<=', now())
+            ->orderBy('id')
+            ->eachById(function (Attempt $attempt) use (&$count): void {
+                if ($this->finalize($attempt, 'expired')->status === 'expired') {
+                    $count++;
                 }
             });
 

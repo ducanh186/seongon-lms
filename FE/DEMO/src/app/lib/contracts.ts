@@ -50,6 +50,15 @@ export interface ApiCatalog {
   news_count?: number;
 }
 
+export interface ApiInstructor {
+  id: number;
+  name: string;
+  bio: string | null;
+  courses_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ApiCategory {
   id: number;
   name: string;
@@ -71,6 +80,7 @@ export interface ApiLesson {
   resume_position_seconds?: number | null;
   furthest_position_seconds?: number | null;
   video_duration_seconds?: number | null;
+  watched_seconds?: number | null;
   watched_percent?: number;
 }
 
@@ -91,6 +101,7 @@ export interface ApiCourse {
   price: string | number;
   instructor_name: string | null;
   instructor_bio: string | null;
+  instructor_id?: number | null;
   level: CourseLevel | null;
   status: CourseStatus;
   lessons_count?: number;
@@ -177,7 +188,6 @@ export interface ApiReview {
   course_id: number;
   rating: number;
   comment: string | null;
-  status: 'visible' | 'hidden';
   user: Pick<ApiUser, 'id' | 'name'>;
   course?: { id: number; title: string; slug: string };
   created_at: string;
@@ -197,6 +207,7 @@ export interface ApiLessonProgressResponse {
     resume_position_seconds: number;
     furthest_position_seconds: number;
     video_duration_seconds: number;
+    watched_seconds?: number;
     watched_percent: number;
     is_completed: boolean;
   };

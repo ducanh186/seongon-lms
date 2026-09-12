@@ -19,9 +19,9 @@ class CourseController extends Controller
             ->withCount([
                 'lessons',
                 'enrollments',
-                'reviews' => fn ($reviews) => $reviews->where('status', 'visible'),
+                'reviews',
             ])
-            ->withAvg(['reviews' => fn ($reviews) => $reviews->where('status', 'visible')], 'rating');
+            ->withAvg('reviews', 'rating');
 
         if ($q = $request->query('q')) {
             $query->where(function ($w) use ($q) {
@@ -87,9 +87,9 @@ class CourseController extends Controller
             ->withCount([
                 'lessons',
                 'enrollments',
-                'reviews' => fn ($reviews) => $reviews->where('status', 'visible'),
+                'reviews',
             ])
-            ->withAvg(['reviews' => fn ($reviews) => $reviews->where('status', 'visible')], 'rating')
+            ->withAvg('reviews', 'rating')
             ->firstOrFail();
 
         // UC-06 exception "Already enrolled": the public detail page needs to know
@@ -108,7 +108,6 @@ class CourseController extends Controller
         $course = Course::where('slug', $slug)->firstOrFail();
 
         $reviews = $course->reviews()
-            ->where('status', 'visible')
             ->with('user')
             ->latest()
             ->paginate(10);

@@ -17,6 +17,9 @@ class LearningContinuitySchemaTest extends TestCase
                 'resume_position_seconds',
                 'furthest_position_seconds',
                 'video_duration_seconds',
+                'watched_seconds',
+                'watched_segments',
+                'last_heartbeat_at',
             ]), "Missing playback columns on {$table}");
         }
     }

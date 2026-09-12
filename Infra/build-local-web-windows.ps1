@@ -307,20 +307,12 @@ if ($CheckOnly) {
 Install-PhpMyAdmin -Executable $php
 
 if (-not $SkipDependencies) {
-    if (-not (Test-Path -LiteralPath (Join-Path $backendRoot 'vendor\autoload.php') -PathType Leaf)) {
-        Invoke-BuildStep -Label 'Install backend dependencies' -WorkingDirectory $backendRoot -Executable $composer -Arguments @('install', '--no-interaction', '--prefer-dist')
-    }
-    else {
-        Write-Host 'Backend dependencies: ready' -ForegroundColor DarkGreen
-    }
-
-    if (-not (Test-Path -LiteralPath (Join-Path $frontendRoot 'node_modules\vite\bin\vite.js') -PathType Leaf)) {
-        Stop-FrontendDevServerForBuild -FrontendRoot $frontendRoot
-        Invoke-BuildStep -Label 'Install frontend dependencies' -WorkingDirectory $frontendRoot -Executable $npm -Arguments @('ci', '--no-audit', '--no-fund')
-    }
-    else {
-        Write-Host 'Frontend dependencies: ready' -ForegroundColor DarkGreen
-    }
+    # Reconcile dependencies on every pull so changed lockfiles cannot leave a
+    # stale vendor/node_modules tree behind. Use -SkipDependencies only when the
+    # operator has already verified the lockfiles are installed.
+    Invoke-BuildStep -Label 'Install backend dependencies' -WorkingDirectory $backendRoot -Executable $composer -Arguments @('install', '--no-interaction', '--prefer-dist')
+    Stop-FrontendDevServerForBuild -FrontendRoot $frontendRoot
+    Invoke-BuildStep -Label 'Install frontend dependencies' -WorkingDirectory $frontendRoot -Executable $npm -Arguments @('ci', '--no-audit', '--no-fund')
 }
 
 if (-not $SkipMigrations) {

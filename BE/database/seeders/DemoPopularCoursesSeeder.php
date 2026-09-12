@@ -69,7 +69,6 @@ class DemoPopularCoursesSeeder extends Seeder
                             [
                                 'rating' => $reviewIndex % 5 === 0 ? 4 : 5,
                                 'comment' => 'Nội dung rõ ràng, có ví dụ thực tế và dễ áp dụng vào công việc.',
-                                'status' => 'visible',
                             ],
                         );
                     });

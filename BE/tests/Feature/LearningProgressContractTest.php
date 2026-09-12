@@ -38,12 +38,14 @@ class LearningProgressContractTest extends TestCase
             'title' => 'Second lesson',
             'video_url' => 'https://example.com/second',
             'sort_order' => 2,
+            'duration' => 100,
         ]);
         $firstLesson = Lesson::query()->create([
             'course_id' => $course->id,
             'title' => 'First lesson',
             'video_url' => 'https://example.com/first',
             'sort_order' => 1,
+            'duration' => 100,
         ]);
         $token = $student->createToken('test')->plainTextToken;
 
@@ -53,6 +55,14 @@ class LearningProgressContractTest extends TestCase
             ->assertJsonPath('data.0.position', 1)
             ->assertJsonPath('data.1.id', $secondLesson->id)
             ->assertJsonPath('data.1.position', 2);
+
+        LearningProgress::query()->create([
+            'enrollment_id' => $enrollment->id,
+            'lesson_id' => $firstLesson->id,
+            'video_duration_seconds' => 100,
+            'watched_seconds' => 95,
+            'watched_segments' => [['start' => 0, 'end' => 95]],
+        ]);
 
         $this->withToken($token)->postJson("/api/v1/my/lessons/{$firstLesson->id}/complete")
             ->assertOk()

@@ -11,6 +11,12 @@ export const adminRepositories = {
   dashboard: {
     getStats: api.adminStats,
   },
+  instructors: {
+    list: api.adminInstructors,
+    create: api.createInstructor,
+    update: api.updateInstructor,
+    remove: api.deleteInstructor,
+  },
   roles: {
     list: api.adminRoles,
   },
@@ -81,7 +87,6 @@ export const adminRepositories = {
   },
   reviews: {
     list: api.adminReviews,
-    updateStatus: api.updateReviewStatus,
     remove: api.deleteReview,
   },
   news: {

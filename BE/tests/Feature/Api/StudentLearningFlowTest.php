@@ -80,10 +80,24 @@ class StudentLearningFlowTest extends TestCase
             'answers' => [['question_id' => $question->id, 'option_id' => $correctOption->id]],
         ])->assertForbidden();
 
+        LearningProgress::create([
+            'enrollment_id' => $enrollment->id,
+            'lesson_id' => $firstLesson->id,
+            'video_duration_seconds' => $firstLesson->duration,
+            'watched_seconds' => (int) ceil($firstLesson->duration * 0.95),
+            'watched_segments' => [['start' => 0, 'end' => (int) ceil($firstLesson->duration * 0.95)]],
+        ]);
         $this->withToken($token)->postJson("/api/v1/my/lessons/{$firstLesson->id}/complete")
             ->assertOk()->assertJsonPath('percent', 50);
         $this->withToken($token)->postJson("/api/v1/my/lessons/{$firstLesson->id}/complete")
             ->assertOk()->assertJsonPath('completed', 1);
+        LearningProgress::create([
+            'enrollment_id' => $enrollment->id,
+            'lesson_id' => $secondLesson->id,
+            'video_duration_seconds' => $secondLesson->duration,
+            'watched_seconds' => (int) ceil($secondLesson->duration * 0.95),
+            'watched_segments' => [['start' => 0, 'end' => (int) ceil($secondLesson->duration * 0.95)]],
+        ]);
         $this->withToken($token)->postJson("/api/v1/my/lessons/{$secondLesson->id}/complete")
             ->assertOk()->assertJsonPath('can_take_exam', true);
 

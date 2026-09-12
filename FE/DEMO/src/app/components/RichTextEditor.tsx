@@ -11,6 +11,7 @@ type RichTextEditorProps = {
 export function RichTextEditor({ value, onChange, onUploadImage }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const selectionRef = useRef<Range | null>(null);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -25,6 +26,23 @@ export function RichTextEditor({ value, onChange, onUploadImage }: RichTextEdito
     if (editorRef.current) onChange(editorRef.current.innerHTML);
   };
 
+  const saveSelection = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || !editorRef.current) return;
+    const range = selection.getRangeAt(0);
+    if (editorRef.current.contains(range.commonAncestorContainer)) {
+      selectionRef.current = range.cloneRange();
+    }
+  };
+
+  const restoreSelection = () => {
+    const range = selectionRef.current;
+    const selection = window.getSelection();
+    if (!range || !selection || !editorRef.current || !editorRef.current.contains(range.commonAncestorContainer)) return;
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
   const insertImage = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
@@ -33,6 +51,7 @@ export function RichTextEditor({ value, onChange, onUploadImage }: RichTextEdito
     setUploading(true);
     try {
       const url = await onUploadImage(file);
+      restoreSelection();
       editorRef.current?.focus();
       document.execCommand('insertImage', false, url);
       if (editorRef.current) onChange(editorRef.current.innerHTML);
@@ -50,7 +69,7 @@ export function RichTextEditor({ value, onChange, onUploadImage }: RichTextEdito
         <Button type="button" size="small" onClick={() => format('formatBlock', 'h2')} aria-label="Tiêu đề phụ">H2</Button>
         <Button type="button" size="small" onClick={() => format('insertUnorderedList')} aria-label="Danh sách">☷</Button>
         <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
-        <Button type="button" size="small" disabled={uploading} onClick={() => fileRef.current?.click()} aria-label="Chèn ảnh">
+        <Button type="button" size="small" disabled={uploading} onMouseDown={saveSelection} onClick={() => fileRef.current?.click()} aria-label="Chèn ảnh">
           {uploading ? 'Đang tải...' : 'Chèn ảnh'}
         </Button>
         <input ref={fileRef} hidden type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={(event) => void insertImage(event)} />
