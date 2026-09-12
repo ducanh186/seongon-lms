@@ -69,6 +69,13 @@ export interface ApiLesson {
   watched_percent?: number;
 }
 
+export interface ApiCourseEnrollment {
+  id: number;
+  expires_at: string;
+  status: EnrollmentStatus;
+  is_expired: boolean;
+}
+
 export interface ApiCourse {
   id: number;
   category_id: number;
@@ -91,6 +98,7 @@ export interface ApiCourse {
   categories?: ApiCategory[];
   lessons?: ApiLesson[];
   has_quiz?: boolean;
+  enrollment?: ApiCourseEnrollment | null;
   created_at: string;
   published_at?: string | null;
   updated_at?: string;

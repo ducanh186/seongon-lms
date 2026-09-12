@@ -27,17 +27,19 @@ const FALLBACK_COURSE_IMAGE = '/generated-images/course-seo.webp';
 
 export function CoursePage() {
   const { slug = '' } = useParams();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { add, contains, error: cartError } = useCart();
   const navigate = useNavigate();
   const [course, setCourse] = useState<ApiCourse | null>(null);
   const [reviews, setReviews] = useState<ApiReview[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [cartNotice, setCartNotice] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
-    Promise.all([applicationRepositories.catalog.getCourse(slug), applicationRepositories.catalog.listReviews(slug)])
+    setCartNotice(null);
+    Promise.all([applicationRepositories.catalog.getCourse(slug, token), applicationRepositories.catalog.listReviews(slug)])
       .then(([courseResponse, reviewResponse]) => {
         if (!active) return;
         setCourse(courseResponse.data);
@@ -45,12 +47,13 @@ export function CoursePage() {
       })
       .catch((reason: unknown) => active && setError(reason instanceof ApiError ? reason.message : 'Không thể tải chi tiết khóa học.'));
     return () => { active = false; };
-  }, [reloadKey, slug]);
+  }, [reloadKey, slug, token]);
 
   if (error) return <Container sx={{ py: 6 }}><RequestError message={error} onRetry={() => setReloadKey((value) => value + 1)} /></Container>;
   if (!course) return <Container sx={{ py: 6 }}><PageSkeleton rows={4} /></Container>;
 
   const isStudent = user?.role === 'student';
+  const isEnrolled = Boolean(isStudent && course.enrollment && !course.enrollment.is_expired);
   const isInCart = contains(course.id);
   const beginCheckout = async () => {
     try {
@@ -116,9 +119,14 @@ export function CoursePage() {
               <Typography variant="h4" fontWeight={800} color="primary.dark" sx={{ mt: 1.5 }}>{Number(course.price) === 0 ? 'Miễn phí' : `${Number(course.price).toLocaleString('vi-VN')} đ`}</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{course.lessons_count ?? course.lessons?.length ?? 0} bài học</Typography>
               {!user && <Button component={Link} to="/login" state={{ course }} variant="contained" fullWidth sx={{ mt: 3 }}>Đăng nhập để đăng ký</Button>}
-              {isStudent && <Button onClick={() => void beginCheckout()} variant="contained" fullWidth sx={{ mt: 3 }}>Đăng ký khóa học</Button>}
-              {isStudent && <Button variant="outlined" fullWidth sx={{ mt: 1.5 }} disabled={isInCart} onClick={() => void add(course.id)}>{isInCart ? 'Đã có trong giỏ hàng' : 'Thêm vào giỏ hàng'}</Button>}
+              {isStudent && isEnrolled && <>
+                <Alert severity="success" sx={{ mt: 3 }}>Bạn đã đăng ký khóa học này. Tiếp tục học ngay?</Alert>
+                <Button component={Link} to={`/learn/${course.id}`} variant="contained" fullWidth sx={{ mt: 1.5 }}>Vào học</Button>
+              </>}
+              {isStudent && !isEnrolled && <Button onClick={() => void beginCheckout()} variant="contained" fullWidth sx={{ mt: 3 }}>Đăng ký khóa học</Button>}
+              {isStudent && !isEnrolled && <Button variant="outlined" fullWidth sx={{ mt: 1.5 }} onClick={() => { if (isInCart) { setCartNotice('Khóa học này đã có trong giỏ hàng.'); return; } setCartNotice(null); void add(course.id); }}>{isInCart ? 'Đã có trong giỏ hàng' : 'Thêm vào giỏ hàng'}</Button>}
               {cartError && <Alert severity="error" sx={{ mt: 1.5 }}>{cartError}</Alert>}
+              {cartNotice && <Alert severity="info" sx={{ mt: 1.5 }}>{cartNotice}</Alert>}
               <Stack spacing={1.25} sx={{ mt: 3 }}>
                 {['Theo dõi tiến độ học', 'Bài kiểm tra cuối khóa', 'Chứng chỉ khi đạt điều kiện'].map((text) => <Stack key={text} direction="row" spacing={1} alignItems="center"><CheckRoundedIcon color="primary" fontSize="small" /><Typography variant="body2">{text}</Typography></Stack>)}
               </Stack>

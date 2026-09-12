@@ -156,4 +156,27 @@ describe('CheckoutPage', () => {
 
     expect(screen.getByLabelText('Đang tải nội dung')).toBeInTheDocument();
   });
+
+  it('redirects to the learning page two seconds after a successful payment (UC-06 step 9)', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      useCart.mockReturnValue({ refresh: vi.fn().mockResolvedValue(undefined) });
+      course.mockResolvedValue({ data: courseData });
+      createOrder.mockResolvedValue({ data: { id: 44, user_id: 1, course_id: 10, amount: '299000', status: 'pending', payment_method: null, transaction_ref: null, paid_at: null, created_at: '2026-07-10T00:00:00Z' } });
+      payOrder.mockResolvedValue({ order: { id: 44, amount: '299000', status: 'paid', payment_status: 'paid' } });
+      render(<MemoryRouter><CheckoutPage /></MemoryRouter>);
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      await screen.findByRole('complementary', { name: 'Tóm tắt đơn đăng ký' });
+      expect(screen.getByLabelText(/Số điện thoại/)).not.toBeRequired();
+      await user.click(screen.getByRole('button', { name: 'Lưu thông tin và tạo đơn' }));
+      await user.click(await screen.findByRole('button', { name: 'Tiếp tục' }));
+      await user.click(await screen.findByRole('button', { name: 'Tôi đã thanh toán' }));
+      await screen.findByText(/Đang chuyển đến trang học/);
+      expect(navigate).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(navigate).toHaveBeenCalledWith('/learn/10');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

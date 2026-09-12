@@ -34,6 +34,19 @@ class CourseResource extends JsonResource
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'lessons' => LessonResource::collection($this->whenLoaded('lessons')),
             'has_quiz' => $this->when($this->relationLoaded('quiz'), fn () => $this->quiz !== null),
+            'enrollment' => $this->when($this->relationLoaded('studentEnrollment'), function () {
+                $enrollment = $this->getRelation('studentEnrollment');
+                if ($enrollment === null) {
+                    return null;
+                }
+
+                return [
+                    'id' => $enrollment->id,
+                    'expires_at' => $enrollment->expires_at,
+                    'status' => $enrollment->status,
+                    'is_expired' => $enrollment->expires_at->isPast(),
+                ];
+            }),
             'created_at' => $this->created_at,
             'published_at' => $this->status === 'published' ? $this->updated_at : null,
             'updated_at' => $this->updated_at,

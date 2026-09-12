@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CourseResource;
 use App\Http\Resources\ReviewResource;
 use App\Models\Course;
+use App\Models\Enrollment;
 use Illuminate\Http\Request;
 
 class CourseController extends Controller
@@ -15,9 +16,12 @@ class CourseController extends Controller
         $query = Course::query()
             ->published()
             ->with(['category', 'categories'])
-            ->withCount('lessons')
-            ->withCount('reviews')
-            ->withAvg('reviews', 'rating');
+            ->withCount([
+                'lessons',
+                'enrollments',
+                'reviews' => fn ($reviews) => $reviews->where('status', 'visible'),
+            ])
+            ->withAvg(['reviews' => fn ($reviews) => $reviews->where('status', 'visible')], 'rating');
 
         if ($q = $request->query('q')) {
             $query->where(function ($w) use ($q) {
@@ -74,15 +78,27 @@ class CourseController extends Controller
         return CourseResource::collection($query->paginate(12)->withQueryString());
     }
 
-    public function show(string $slug)
+    public function show(Request $request, string $slug)
     {
         $course = Course::query()
             ->published()
             ->where('slug', $slug)
             ->with(['category', 'categories', 'lessons', 'quiz'])
-            ->withCount(['lessons', 'reviews'])
-            ->withAvg('reviews', 'rating')
+            ->withCount([
+                'lessons',
+                'enrollments',
+                'reviews' => fn ($reviews) => $reviews->where('status', 'visible'),
+            ])
+            ->withAvg(['reviews' => fn ($reviews) => $reviews->where('status', 'visible')], 'rating')
             ->firstOrFail();
+
+        // UC-06 exception "Already enrolled": the public detail page needs to know
+        // whether the caller owns the course. Optional Sanctum auth, no middleware.
+        $user = $request->user('sanctum');
+        $enrollment = $user && $user->role === 'student'
+            ? Enrollment::query()->where('user_id', $user->id)->where('course_id', $course->id)->first()
+            : null;
+        $course->setRelation('studentEnrollment', $enrollment);
 
         return new CourseResource($course);
     }

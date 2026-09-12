@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Box, Button, Card, CardContent, Chip, Container, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
-import { Link, useParams, useSearchParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { QRCodeSVG } from 'qrcode.react';
 import { ApiError } from '../lib/api';
 import { applicationRepositories } from '../data/repositories/applicationRepositories';
@@ -12,6 +12,7 @@ import { PageSkeleton } from '../components/AsyncState';
 
 export function CheckoutPage() {
   const { slug = '' } = useParams();
+  const navigate = useNavigate();
   const { token, user, refreshUser } = useAuth();
   const { refresh } = useCart();
   const [search, setSearch] = useSearchParams();
@@ -68,6 +69,13 @@ export function CheckoutPage() {
     return () => { active = false; window.clearInterval(timer); };
   }, [token, order?.id, order?.payment_status, refresh]);
 
+  useEffect(() => {
+    // UC-06 step 9: registration success redirects the student to the course page.
+    if (!course || !order || paymentStatus(order) !== 'paid') return;
+    const timer = window.setTimeout(() => navigate(`/learn/${course.id}`), 2000);
+    return () => window.clearTimeout(timer);
+  }, [course?.id, order?.id, order?.status, order?.payment_status, navigate]);
+
   const createOrder = async () => {
     if (!token || !course) return;
     setSubmitting(true); setError(null);
@@ -115,10 +123,10 @@ export function CheckoutPage() {
           {error && <Alert severity="error">{error}</Alert>}
           {restoring ? <PageSkeleton rows={2} /> : !order ? <Box component="form" onSubmit={(event) => { event.preventDefault(); void createOrder(); }}>
             <Typography component="h2" variant="h6">Thông tin đăng ký</Typography>
-            <Stack spacing={2} sx={{ mt: 2 }}><TextField required label="Họ và tên" value={name} onChange={(event) => setName(event.target.value)} /><TextField label="Email" value={user?.email ?? ''} disabled /><TextField required label="Số điện thoại" value={phone} onChange={(event) => setPhone(event.target.value)} inputProps={{ inputMode: 'tel' }} /><Button type="submit" variant="contained" disabled={submitting}>Lưu thông tin và tạo đơn</Button></Stack>
+            <Stack spacing={2} sx={{ mt: 2 }}><TextField required label="Họ và tên" value={name} onChange={(event) => setName(event.target.value)} /><TextField label="Email" value={user?.email ?? ''} disabled /><TextField label="Số điện thoại" value={phone} onChange={(event) => setPhone(event.target.value)} inputProps={{ inputMode: 'tel' }} /><Button type="submit" variant="contained" disabled={submitting}>Lưu thông tin và tạo đơn</Button></Stack>
           </Box> : status === 'paid' ? <>
-            <Alert severity="success">Đã thanh toán. Quyền truy cập khóa học đã được cấp. Hệ thống xử lý email xác nhận qua địa chỉ tài khoản.</Alert>
-            <Button component={Link} to="/transactions" variant="contained">Lịch sử giao dịch</Button><Button component={Link} to="/my-courses" variant="outlined">Khóa học của tôi</Button>
+            <Alert severity="success">Đã thanh toán. Quyền truy cập khóa học đã được cấp. Đang chuyển đến trang học...</Alert>
+            <Button component={Link} to={`/learn/${course.id}`} variant="contained">Vào học ngay</Button><Button component={Link} to="/transactions" variant="outlined">Lịch sử giao dịch</Button><Button component={Link} to="/my-courses" variant="outlined">Khóa học của tôi</Button>
           </> : activeSession ? <>
             <Stack direction="row" spacing={2} alignItems="center">{order.payment_method === 'momo' && <Box role="img" aria-label="MoMo" sx={{ bgcolor: '#a50064', color: 'white', fontWeight: 900, borderRadius: 2, p: 1.5, fontSize: 24 }}>MoMo</Box>}<Chip label="Chờ thanh toán" /><Typography role="timer">{Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, '0')}</Typography></Stack>
             <Typography>Mã đơn hàng: <strong>LMS-{order.id}</strong></Typography>

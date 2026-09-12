@@ -13,7 +13,7 @@ function priceLabel(price: string | number): string {
 }
 
 export function CourseCard({ course, headingLevel = 'h3', compact = false }: { course: ApiCourse; headingLevel?: 'h2' | 'h3'; compact?: boolean }) {
-  const hasLearningMeta = course.lessons_count != null || course.rating != null;
+  const hasLearningMeta = course.lessons_count != null || course.rating != null || course.enrollments_count != null;
 
   return (
     <Card component="article" aria-label={`Khóa học ${course.title}`} sx={{ height: '100%', overflow: 'hidden', transition: 'transform 180ms ease', '&:hover': { transform: 'translateY(-3px)' } }}>
@@ -33,6 +33,7 @@ export function CourseCard({ course, headingLevel = 'h3', compact = false }: { c
           {hasLearningMeta && (
             <Stack direction="row" spacing={1.5} alignItems="center" color="text.secondary" sx={{ mt: 'auto' }}>
               {course.lessons_count != null && <Typography variant="caption">{course.lessons_count} bài học</Typography>}
+              {course.enrollments_count != null && <Typography variant="caption">{course.enrollments_count} học viên</Typography>}
               {course.rating != null && (
                 <Stack direction="row" spacing={0.25} alignItems="center">
                   <StarRoundedIcon sx={{ fontSize: 17, color: 'primary.main' }} />

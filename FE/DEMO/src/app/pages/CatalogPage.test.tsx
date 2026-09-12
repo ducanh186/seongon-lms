@@ -39,6 +39,7 @@ describe('CatalogPage', () => {
         lessons_count: 12,
         reviews_count: 4,
         rating: 4.8,
+        enrollments_count: 42,
         category: { id: 1, name: 'SEO', slug: 'seo', description: null },
         created_at: '2026-07-10T00:00:00Z',
       }],
@@ -58,6 +59,7 @@ describe('CatalogPage', () => {
     expect(await screen.findByRole('heading', { name: 'SEO Foundation' })).toBeInTheDocument();
     expect(screen.getByText('299.000 đ')).toBeInTheDocument();
     expect(screen.getByText('12 bài học')).toBeInTheDocument();
+    expect(await screen.findByText('42 học viên')).toBeInTheDocument();
     expect(api.courses).toHaveBeenCalledWith(expect.objectContaining({ page: 1 }));
   });
 

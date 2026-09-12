@@ -20,7 +20,7 @@ afterEach(() => {
 
 describe('CoursePage', () => {
   it('adds only the Course ID before entering the single-Course checkout route', async () => {
-    useAuth.mockReturnValue({ user: { id: 1, role: 'student' } });
+    useAuth.mockReturnValue({ user: { id: 1, role: 'student' }, token: 'student-token' });
     useCart.mockReturnValue({ add, contains: () => false });
     add.mockResolvedValue(undefined);
     course.mockResolvedValue({
@@ -81,7 +81,7 @@ describe('CoursePage', () => {
     const instructor = screen.getByRole('region', { name: 'Thông tin giảng viên' });
     expect(instructor).toHaveTextContent('Nguyễn Minh Anh');
     expect(instructor).toHaveTextContent('Chuyên gia SEO với kinh nghiệm triển khai dự án thực tế.');
-    expect(course).toHaveBeenCalledWith('seo-foundation');
+    expect(course).toHaveBeenCalledWith('seo-foundation', undefined);
     expect(reviews).toHaveBeenCalledWith('seo-foundation');
   });
 
@@ -116,5 +116,30 @@ describe('CoursePage', () => {
     );
 
     expect(screen.getByLabelText('Đang tải nội dung')).toBeInTheDocument();
+  });
+
+  it('shows the enrolled state with a link to the learning page instead of purchase buttons (UC-06)', async () => {
+    useAuth.mockReturnValue({ user: { id: 1, role: 'student' }, token: 'student-token' });
+    useCart.mockReturnValue({ add, contains: () => false });
+    course.mockResolvedValue({ data: { id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: null, thumbnail: null, price: '299000.00', instructor_name: null, instructor_bio: null, level: 'beginner', status: 'published', created_at: '2026-07-10T00:00:00Z', enrollment: { id: 5, expires_at: '2028-01-01T00:00:00Z', status: 'active', is_expired: false } } });
+    reviews.mockResolvedValue({ data: [] });
+    render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /></Routes></MemoryRouter>);
+
+    expect(await screen.findByText('Bạn đã đăng ký khóa học này. Tiếp tục học ngay?')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Vào học' })).toHaveAttribute('href', '/learn/10');
+    expect(screen.queryByRole('button', { name: 'Đăng ký khóa học' })).not.toBeInTheDocument();
+    expect(course).toHaveBeenCalledWith('seo-foundation', 'student-token');
+  });
+
+  it('tells the student when the course is already in the cart (UC-13)', async () => {
+    useAuth.mockReturnValue({ user: { id: 1, role: 'student' }, token: 'student-token' });
+    useCart.mockReturnValue({ add, contains: () => true });
+    course.mockResolvedValue({ data: { id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: null, thumbnail: null, price: '299000.00', instructor_name: null, instructor_bio: null, level: 'beginner', status: 'published', created_at: '2026-07-10T00:00:00Z', enrollment: null } });
+    reviews.mockResolvedValue({ data: [] });
+    render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /></Routes></MemoryRouter>);
+    const { default: userEvent } = await import('@testing-library/user-event');
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Đã có trong giỏ hàng' }));
+    expect(await screen.findByText('Khóa học này đã có trong giỏ hàng.')).toBeInTheDocument();
+    expect(add).not.toHaveBeenCalled();
   });
 });
