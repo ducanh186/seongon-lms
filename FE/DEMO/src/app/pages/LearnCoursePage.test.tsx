@@ -72,6 +72,38 @@ describe('LearnCoursePage', () => {
     expect(screen.getByText('75%', { selector: 'h5' })).toBeInTheDocument();
   });
 
+  it('keeps the provider duration when the progress response has a stale lesson duration', async () => {
+    myCourses.mockResolvedValue(enrollmentResponse);
+    lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Video YouTube', video_url: 'https://www.youtube.com/embed/example', description: null, duration: 600, position: 1, is_completed: false }] });
+    progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, can_take_exam: false });
+    saveLessonProgress.mockResolvedValue({
+      lesson: { lesson_id: 5, resume_position_seconds: 170, furthest_position_seconds: 170, video_duration_seconds: 600, watched_percent: 28, is_completed: false },
+      course_progress: { completed: 0, total: 1, percent: 0, video_percent: 28, can_take_exam: false },
+    });
+
+    renderPage();
+    await screen.findByTitle('Video YouTube');
+    window.dispatchEvent(new MessageEvent('message', {
+      origin: 'https://www.youtube.com',
+      data: JSON.stringify({ event: 'infoDelivery', info: { currentTime: 170, duration: 170 } }),
+    }));
+
+    await waitFor(() => expect(saveLessonProgress).toHaveBeenCalledWith('student-token', 5, 170, 170));
+    expect(await screen.findByText('02:50 / 02:50')).toBeInTheDocument();
+    expect(screen.getByText('3 phút')).toBeInTheDocument();
+  });
+
+  it('uses the stored provider duration after the learning page reloads', async () => {
+    myCourses.mockResolvedValue(enrollmentResponse);
+    lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Video YouTube', video_url: 'https://www.youtube.com/embed/example', description: null, duration: 600, video_duration_seconds: 170, position: 1, is_completed: false }] });
+    progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, can_take_exam: false });
+
+    renderPage();
+
+    expect(await screen.findByText('00:00 / 02:50')).toBeInTheDocument();
+    expect(screen.getByText('3 phút')).toBeInTheDocument();
+  });
+
   it('offers the active lesson PDF on the backend host', async () => {
     myCourses.mockResolvedValue(enrollmentResponse);
     lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học PDF', material_url: '/storage/lesson-materials/guide.pdf', video_url: '', description: null, duration: null, position: 1, is_completed: false }] });
@@ -104,7 +136,7 @@ describe('LearnCoursePage', () => {
     expect(quiz).not.toHaveBeenCalled();
   });
 
-  it('hides the final quiz after the enrollment has earned a certificate', async () => {
+  it('lets a completed course open its quiz history and use a remaining attempt', async () => {
     myCourses.mockResolvedValue({
       ...enrollmentResponse,
       data: [{
@@ -114,12 +146,38 @@ describe('LearnCoursePage', () => {
     });
     lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học 1', video_url: '', description: null, duration: null, position: 1, is_completed: true }] });
     progress.mockResolvedValue({ completed: 1, total: 1, percent: 100, can_take_exam: true });
+    quiz.mockResolvedValue({ data: {
+      id: 7,
+      course_id: 10,
+      title: 'Bài kiểm tra cuối khóa',
+      pass_score: 75,
+      max_attempts: 2,
+      duration_minutes: 30,
+      attempts_remaining: 1,
+      ended: false,
+      attempts: [{
+        id: 9,
+        quiz_id: 7,
+        score: 100,
+        passed: true,
+        attempt_no: 1,
+        status: 'submitted',
+        started_at: '2026-01-01T00:00:00Z',
+        expires_at: '2026-01-01T00:30:00Z',
+        finished_at: '2026-01-01T00:10:00Z',
+        submitted_at: '2026-01-01T00:10:00Z',
+        answers: [],
+      }],
+      questions: [],
+    } });
 
     renderPage();
 
-    expect(screen.queryByRole('heading', { name: 'Chứng chỉ' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Bài kiểm tra cuối khóa' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Mở bài kiểm tra' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Bài kiểm tra cuối khóa' })).toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Xem kết quả bài kiểm tra' }));
+    expect(await screen.findByRole('heading', { name: 'Tổng quan các lần làm bài' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Làm lại' })).toBeInTheDocument();
+    expect(quiz).toHaveBeenCalledWith('student-token', 10);
   });
 
   const reviewableCourse = () => {
@@ -128,7 +186,7 @@ describe('LearnCoursePage', () => {
     progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, can_take_exam: false });
   };
   const reviewPayload = (rating: number, comment: string) => ({
-    data: { id: 7, course_id: 10, rating, comment, status: 'visible', user: { id: 1, name: 'Nguyễn Văn An' }, created_at: '2026-03-04T00:00:00Z' },
+    data: { id: 7, course_id: 10, rating, comment, user: { id: 1, name: 'Nguyễn Văn An' }, created_at: '2026-03-04T00:00:00Z' },
   });
 
   it('keeps the submitted review on screen instead of clearing it', async () => {

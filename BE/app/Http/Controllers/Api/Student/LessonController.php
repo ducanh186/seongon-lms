@@ -36,7 +36,7 @@ class LessonController extends Controller
             $validated['position_seconds'],
             $validated['duration_seconds'],
         );
-        $duration = (int) $lesson->duration;
+        $duration = (int) $playback->video_duration_seconds;
         $watchedPercent = $duration > 0
             ? (int) floor((int) $playback->watched_seconds / $duration * 100)
             : 0;

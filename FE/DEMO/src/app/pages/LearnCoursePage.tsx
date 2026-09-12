@@ -80,12 +80,14 @@ export function LearnCoursePage() {
     setError(null);
     try {
       const response = await applicationRepositories.learning.saveLessonProgress(token, lesson.id, positionSeconds, durationSeconds);
+      const effectiveDuration = Math.min(durationSeconds, response.lesson.video_duration_seconds || durationSeconds);
       const updatedLesson: ApiLesson = {
         ...lesson,
+        duration: effectiveDuration,
         is_completed: response.lesson.is_completed,
         resume_position_seconds: response.lesson.resume_position_seconds,
         furthest_position_seconds: response.lesson.furthest_position_seconds,
-        video_duration_seconds: response.lesson.video_duration_seconds,
+        video_duration_seconds: effectiveDuration,
         watched_percent: response.lesson.watched_percent,
       };
       setLessons((current) => current.map((item) => item.id === lesson.id ? updatedLesson : item));
@@ -182,8 +184,8 @@ export function LearnCoursePage() {
           <Stack spacing={2}>
             <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1}>
               <Typography component="h2" variant="h5">{activeLesson?.title ?? 'Chọn một bài học'}</Typography>
-              {activeLesson?.duration && (
-                <Chip size="small" label={`${Math.ceil(activeLesson.duration / 60)} phút`} variant="outlined" />
+              {(activeLesson?.video_duration_seconds ?? activeLesson?.duration) && (
+                <Chip size="small" label={`${Math.ceil((activeLesson.video_duration_seconds ?? activeLesson.duration!) / 60)} phút`} variant="outlined" />
               )}
             </Stack>
             {activeLesson?.video_url ? (
@@ -210,19 +212,23 @@ export function LearnCoursePage() {
         </CardContent>
       </Card>
 
-      {!hasCertificate && <Card variant="outlined">
+      <Card variant="outlined">
         <CardContent sx={{ p: { xs: 2, md: 3 } }}>
           <Stack spacing={2.5}>
             <Box>
               <Typography component="h2" variant="h5">Bài kiểm tra cuối khóa</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                Hoàn thành bài học trước khi bắt đầu bài kiểm tra.
+                {hasCertificate
+                  ? 'Bạn đã hoàn thành một lượt bài kiểm tra. Xem kết quả hoặc làm lại nếu còn lượt.'
+                  : 'Hoàn thành bài học trước khi bắt đầu bài kiểm tra.'}
               </Typography>
             </Box>
             {!progress?.can_take_exam ? (
               <Alert severity="info">Hoàn thành 100% bài học để mở bài kiểm tra.</Alert>
             ) : !quiz ? (
-              <Button variant="contained" onClick={() => void openQuiz()} sx={{ alignSelf: 'flex-start' }}>Mở bài kiểm tra</Button>
+              <Button variant="contained" onClick={() => void openQuiz()} sx={{ alignSelf: 'flex-start' }}>
+                {hasCertificate ? 'Xem kết quả bài kiểm tra' : 'Mở bài kiểm tra'}
+              </Button>
             ) : (
               <ExamAttemptPanel
                 quiz={quiz}
@@ -235,7 +241,7 @@ export function LearnCoursePage() {
             )}
           </Stack>
         </CardContent>
-      </Card>}
+      </Card>
     </Stack>
   );
 

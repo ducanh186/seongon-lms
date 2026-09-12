@@ -19,7 +19,7 @@ class ProgressService
             ->where('enrollment_id', $enrollment->id)
             ->where('lesson_id', $lesson->id)
             ->first();
-        $duration = (int) ($lesson->duration ?? 0);
+        $duration = (int) ($progress?->video_duration_seconds ?? $lesson->duration ?? 0);
         $required = (int) ceil($duration * self::COMPLETION_RATIO);
 
         abort_if(
@@ -51,7 +51,12 @@ class ProgressService
                 'lesson_id' => $lesson->id,
             ]);
 
-            $duration = (int) ($lesson->duration ?? 0);
+            $configuredDuration = (int) ($lesson->duration ?? 0);
+            $reportedDuration = max(1, $durationSeconds);
+            $storedDuration = (int) ($progress->video_duration_seconds ?? 0);
+            $duration = $storedDuration > 0 && ($configuredDuration <= 0 || $storedDuration < $configuredDuration)
+                ? $storedDuration
+                : ($configuredDuration > 0 ? min($configuredDuration, $reportedDuration) : $reportedDuration);
             abort_if($duration <= 0, 422, 'Bài học chưa có thời lượng video chuẩn.');
             $position = min(max(0, $positionSeconds), $duration);
             $furthest = max((int) ($progress->furthest_position_seconds ?? 0), $position);
@@ -65,7 +70,7 @@ class ProgressService
                 $maxCredit = min(self::MAX_HEARTBEAT_CREDIT_SECONDS, $elapsed + self::HEARTBEAT_TOLERANCE_SECONDS);
                 if ($positionDelta > 0 && $positionDelta <= $maxCredit) {
                     $segments = $this->mergeWatchedSegment($segments, $previousPosition, $position);
-                    $watchedSeconds = $this->watchedSeconds($segments);
+                    $watchedSeconds = min($this->watchedSeconds($segments), $duration);
                 }
             }
             $completed = $progress->is_completed || $watchedSeconds >= (int) ceil($duration * self::COMPLETION_RATIO);

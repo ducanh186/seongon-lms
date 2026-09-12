@@ -185,6 +185,33 @@ class VideoProgressTest extends TestCase
         ]);
     }
 
+    public function test_playback_uses_the_provider_duration_when_lesson_duration_is_stale(): void
+    {
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        Enrollment::factory()->create(['user_id' => $student->id, 'course_id' => $course->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id, 'duration' => 600]);
+        $token = $student->createToken('test')->plainTextToken;
+        Carbon::setTestNow('2026-09-12 10:00:00');
+
+        $this->withToken($token)->patchJson("/api/v1/my/lessons/{$lesson->id}/progress", [
+            'position_seconds' => 0,
+            'duration_seconds' => 170,
+        ])->assertOk()
+            ->assertJsonPath('lesson.video_duration_seconds', 170);
+
+        foreach (range(1, 17) as $position) {
+            Carbon::setTestNow(Carbon::now()->addSeconds(10));
+            $response = $this->withToken($token)->patchJson("/api/v1/my/lessons/{$lesson->id}/progress", [
+                'position_seconds' => $position * 10,
+                'duration_seconds' => 170,
+            ])->assertOk();
+        }
+
+        $response->assertJsonPath('lesson.is_completed', true)
+            ->assertJsonPath('lesson.video_duration_seconds', 170);
+    }
+
     public function test_legacy_complete_endpoint_cannot_bypass_video_watch_requirement(): void
     {
         $student = User::factory()->create();
