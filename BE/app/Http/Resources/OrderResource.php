@@ -17,6 +17,9 @@ class OrderResource extends JsonResource
             'total_amount' => $this->total_amount ?? $this->amount,
             'status' => $this->status,
             'payment_status' => $this->payment_status,
+            'failure_reason' => $this->status === 'paid' ? null : ($this->payment_status === 'expired'
+                ? 'Phiên thanh toán đã hết hạn.'
+                : ($this->status === 'failed' ? ($this->failure_reason ?? 'Không ghi nhận lý do thanh toán thất bại.') : null)),
             'payment_session' => $this->when($request->user()?->id === $this->user_id, $this->payment_session),
             'payment_started_at' => $this->payment_started_at,
             'payment_expires_at' => $this->payment_expires_at,

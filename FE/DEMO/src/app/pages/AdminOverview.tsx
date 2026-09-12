@@ -9,9 +9,7 @@ function formatMonth(value: string) {
   return `${month}/${year}`;
 }
 
-type AdminReportType = 'enrollments' | 'revenue';
-
-export function AdminOverview({ stats, onExportReport }: { stats: ApiAdminStats; onExportReport?: (report: AdminReportType) => void }) {
+export function AdminOverview({ stats }: { stats: ApiAdminStats }) {
   const [reportAnchor, setReportAnchor] = useState<HTMLElement | null>(null);
   const maxMonthly = Math.max(1, ...stats.monthly_enrollments.map((item) => item.total));
   const kpis = [
@@ -34,8 +32,8 @@ export function AdminOverview({ stats, onExportReport }: { stats: ApiAdminStats;
           Xuất báo cáo
         </Button>
         <Menu anchorEl={reportAnchor} open={Boolean(reportAnchor)} onClose={() => setReportAnchor(null)}>
-          <MenuItem onClick={() => { setReportAnchor(null); onExportReport?.('enrollments'); }}>Báo cáo ghi danh</MenuItem>
-          <MenuItem onClick={() => { setReportAnchor(null); onExportReport?.('revenue'); }}>Báo cáo doanh thu</MenuItem>
+          <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-01.pdf`} download="BC-01.pdf" onClick={() => setReportAnchor(null)}>Báo cáo ghi danh (PDF mẫu)</MenuItem>
+          <MenuItem component="a" href={`${import.meta.env.BASE_URL}reports/BC-05.pdf`} download="BC-05.pdf" onClick={() => setReportAnchor(null)}>Báo cáo doanh thu (PDF mẫu)</MenuItem>
         </Menu>
       </Box>
       <Box

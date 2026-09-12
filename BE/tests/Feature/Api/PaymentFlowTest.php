@@ -35,8 +35,24 @@ class PaymentFlowTest extends TestCase
         $settings['momo']['enabled'] = false;
         $this->putJson('/api/v1/admin/payment-settings', $settings)->assertOk();
         Sanctum::actingAs($order->user);
-        $this->getJson('/api/v1/payment-methods')->assertOk()->assertJsonCount(0, 'data');
+        $this->getJson('/api/v1/payment-methods')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.code', 'card');
         $this->postJson("/api/v1/orders/{$order->id}/payment-session", ['payment_method' => 'momo'])->assertUnprocessable();
+    }
+
+    public function test_card_mock_session_is_available_and_records_card_as_payment_method(): void
+    {
+        Mail::fake();
+        $order = $this->checkout();
+        $this->getJson('/api/v1/payment-methods')->assertOk()->assertJsonFragment(['code' => 'card', 'mode' => 'mock']);
+        $session = $this->postJson("/api/v1/orders/{$order->id}/payment-session", ['payment_method' => 'card'])
+            ->assertOk()->assertJsonPath('data.payment_method', 'card')->assertJsonPath('data.payment_status', 'pending')
+            ->assertJsonPath('data.payment_session.mode', 'mock')->json('data.payment_session');
+        $this->assertNull($session['qr_payload']);
+        $this->postJson("/api/v1/orders/{$order->id}/mock-callback", ['session_token' => $session['token'], 'outcome' => 'success'])
+            ->assertOk()->assertJsonPath('order.payment_method', 'card')->assertJsonPath('order.payment_status', 'paid');
+        $this->getJson('/api/v1/my/transactions')->assertOk()->assertJsonPath('data.0.payment_method', 'card');
+        $this->assertDatabaseCount('enrollments', 1);
+        Mail::assertQueued(PaymentConfirmation::class, 1);
     }
 
     public function test_momo_session_starts_pending_then_callback_grants_access_and_queues_one_email(): void
@@ -50,7 +66,7 @@ class PaymentFlowTest extends TestCase
         $this->assertNotEmpty($session['qr_payload']);
         $this->assertDatabaseCount('enrollments', 0);
         $payload = ['session_token' => $session['token'], 'outcome' => 'success'];
-        $this->postJson("/api/v1/orders/{$order->id}/mock-callback", $payload)->assertOk()->assertJsonPath('order.payment_status', 'paid');
+        $this->postJson("/api/v1/orders/{$order->id}/mock-callback", $payload)->assertOk()->assertJsonPath('order.payment_status', 'paid')->assertJsonPath('order.failure_reason', null);
         $this->postJson("/api/v1/orders/{$order->id}/mock-callback", $payload)->assertOk();
         $this->assertDatabaseCount('enrollments', 1);
         $this->assertDatabaseCount('cart_items', 0);
@@ -89,13 +105,32 @@ class PaymentFlowTest extends TestCase
         Sanctum::actingAs($order->user);
         $session = $this->postJson("/api/v1/orders/{$order->id}/payment-session", ['payment_method' => 'momo'])->assertOk()->json('data.payment_session');
         $this->postJson("/api/v1/orders/{$order->id}/pay", ['payment_method' => 'qr'])->assertUnprocessable();
-        $this->postJson("/api/v1/orders/{$order->id}/mock-callback", ['session_token' => $session['token'], 'outcome' => 'cancel'])->assertOk()->assertJsonPath('order.payment_status', 'cancelled');
+        $this->postJson("/api/v1/orders/{$order->id}/mock-callback", ['session_token' => $session['token'], 'outcome' => 'cancel'])->assertOk()->assertJsonPath('order.payment_status', 'cancelled')->assertJsonPath('order.failure_reason', 'Người học đã hủy thanh toán.');
         $next = $this->postJson("/api/v1/orders/{$order->id}/payment-session", ['payment_method' => 'momo'])->assertOk()->json('data.payment_session');
         $this->assertNotSame($session['token'], $next['token']);
+        $this->assertNull($order->fresh()->failure_reason);
         $this->postJson("/api/v1/orders/{$order->id}/mock-callback", ['session_token' => $session['token'], 'outcome' => 'success'])->assertForbidden();
         Sanctum::actingAs($admin);
         $this->getJson('/api/v1/admin/orders?payment_status=draft')->assertOk()->assertJsonCount(0, 'data');
         $this->getJson('/api/v1/admin/orders?payment_status=pending')->assertOk()->assertJsonPath('data.0.id', $order->id);
+    }
+
+    public function test_admin_completed_orders_filter_excludes_unfinished_and_explains_failures(): void
+    {
+        $draft = $this->checkout();
+        $student = $draft->user;
+        $pending = Order::factory()->create(['user_id' => $student->id, 'status' => 'pending', 'payment_started_at' => now()]);
+        $expired = Order::factory()->create(['user_id' => $student->id, 'status' => 'pending', 'payment_started_at' => now()->subMinutes(20), 'payment_expires_at' => now()->subMinutes(5)]);
+        $paid = Order::factory()->create(['user_id' => $student->id, 'status' => 'paid', 'failure_reason' => null]);
+        $failed = Order::factory()->create(['user_id' => $student->id, 'status' => 'failed', 'failure_reason' => 'Người học đã hủy thanh toán.']);
+
+        Sanctum::actingAs(User::factory()->admin()->create());
+        $orders = $this->getJson('/api/v1/admin/orders?payment_result=finished')->assertOk()->json('data');
+        $this->assertEqualsCanonicalizing([$expired->id, $paid->id, $failed->id], array_column($orders, 'id'));
+        $this->getJson('/api/v1/admin/orders?payment_result=paid')->assertOk()->assertJsonPath('data.0.id', $paid->id)->assertJsonPath('data.0.failure_reason', null);
+        $this->getJson('/api/v1/admin/orders?payment_result=failed')->assertOk()->assertJsonCount(2, 'data');
+        $this->getJson("/api/v1/admin/orders/{$expired->id}")->assertOk()->assertJsonPath('data.failure_reason', 'Phiên thanh toán đã hết hạn.');
+        $this->getJson("/api/v1/admin/orders/{$failed->id}")->assertOk()->assertJsonPath('data.failure_reason', 'Người học đã hủy thanh toán.');
     }
 
     public function test_mock_confirmation_follows_the_started_session_mode_in_production(): void

@@ -255,8 +255,8 @@ select.form-control{cursor:pointer}
 .legend-dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
 .report-dropdown{position:relative}
 .report-dropdown-menu{position:absolute;right:0;top:calc(100% + 8px);width:250px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:6px;z-index:80}
-.report-dropdown-menu button{display:block;width:100%;padding:11px 12px;border:0;background:transparent;border-radius:7px;text-align:left;color:var(--dark);font:inherit;font-size:13px;cursor:pointer}
-.report-dropdown-menu button:hover{background:var(--primary-light);color:var(--primary)}
+.report-dropdown-menu a{display:block;width:100%;padding:11px 12px;border:0;background:transparent;border-radius:7px;text-align:left;color:var(--dark);font:inherit;font-size:13px;cursor:pointer;text-decoration:none}
+.report-dropdown-menu a:hover{background:var(--primary-light);color:var(--primary)}
 .dashboard-chart-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .dashboard-chart-grid .bar-chart{gap:8px}
 .dashboard-chart-grid .bar-value{font-size:10px}
@@ -2320,8 +2320,8 @@ function adminLayout(active,title,contentHTML){
   const reportActions=active==='dashboard'?`<div class="report-dropdown">
     <button class="btn btn-primary btn-sm" onclick="toggleReportMenu(event)" aria-haspopup="menu" aria-expanded="false">Xuất báo cáo ▾</button>
     <div id="report-export-menu" class="report-dropdown-menu hidden" role="menu">
-      <button onclick="exportReport('BC-01')" role="menuitem">Báo cáo ghi danh (BC-01)</button>
-      <button onclick="exportReport('BC-05')" role="menuitem">Báo cáo doanh thu (BC-05)</button>
+      <a href="reports/BC-01.pdf" download="BC-01.pdf" role="menuitem">Báo cáo ghi danh (BC-01, PDF mẫu)</a>
+      <a href="reports/BC-05.pdf" download="BC-05.pdf" role="menuitem">Báo cáo doanh thu (BC-05, PDF mẫu)</a>
     </div>
   </div>`:'';
   const nav=[
@@ -2521,7 +2521,7 @@ function buildRevenueReportHTML(data,meta){
 }
 function buildReportShell({code,title,generatedAt,filters,kpis,chart,tables,comments,revenueNote}){
   const dateCode=`${generatedAt.getFullYear()}-${String(generatedAt.getMonth()+1).padStart(2,'0')}-${String(generatedAt.getDate()).padStart(2,'0')}`;
-  return `<div class="report-toolbar"><button class="btn btn-ghost" onclick="closeReport()">Đóng</button><button class="btn btn-outline" onclick="downloadReportCsv()">Tải CSV</button><button class="btn btn-primary" onclick="window.print()">In / Save as PDF</button></div>
+  return `<div class="report-toolbar"><button class="btn btn-ghost" onclick="closeReport()">Đóng</button><button class="btn btn-primary" onclick="window.print()">In / Save as PDF</button></div>
     <article class="report-page">
       <header class="report-header" data-report-block="header"><div class="report-brand"><div class="report-logo">SL</div><div><div class="report-company">CÔNG TY TNHH SEONGON</div><div>SEONGON Learning</div></div></div><div class="report-title"><h1>${escapeHtml(title)}</h1><div class="report-code">${code}/${dateCode}</div></div></header>
       <section class="report-info" data-report-block="export-info"><div><b>Người xuất:</b> ${escapeHtml(STATE.currentUser.fullName)}</div><div><b>Thời điểm xuất:</b> ${fmtDateTime(generatedAt)}</div><div><b>Nguồn dữ liệu:</b> localStorage · ${escapeHtml(STORAGE_KEY)}</div><div><b>Bộ lọc:</b> ${escapeHtml(filters.period)}</div></section>
@@ -2546,37 +2546,12 @@ function exportReport(code){
   sheet.setAttribute('aria-hidden','false');
   STATE.report_exports.push({id:'re_'+uid(),admin_id:STATE.currentUser.id,report_code:code,filters_json:JSON.stringify(filters),exported_at:generatedAt.toISOString()});
   saveState();
-  window._activeReport={code,data,generatedAt};
   window.print();
 }
 function closeReport(){
   const sheet=$('#report-sheet');
   sheet.classList.remove('active');
   sheet.setAttribute('aria-hidden','true');
-}
-function csvCell(value){return `"${String(value??'').replace(/"/g,'""')}"`}
-function downloadReportCsv(){
-  const active=window._activeReport;
-  if(!active) return;
-  const rows=[];
-  if(active.code==='BC-01'){
-    rows.push(['Tháng','Số ghi danh','% so tháng trước']);
-    active.data.monthly.forEach(row=>rows.push([row.label,row.count,formatGrowth(row.growth)]));
-    rows.push(['Tổng cộng',active.data.summary.total,'']);
-  }else{
-    rows.push(['DOANH THU THEO THÁNG'],['Tháng','Số đơn','Doanh thu']);
-    active.data.monthly.forEach(row=>rows.push([row.label,row.orderCount,row.revenue]));
-    rows.push(['Tổng cộng',active.data.summary.paidOrderCount,active.data.summary.totalRevenue],[],['THEO PHƯƠNG THỨC THANH TOÁN'],['Phương thức','Số đơn','Doanh thu']);
-    active.data.byPayment.forEach(row=>rows.push([paymentMethodLabel(row.method),row.orderCount,row.revenue]));
-    rows.push([],['TOP KHÓA HỌC THEO DOANH THU'],['Khóa học','Lượt mua','Doanh thu']);
-    active.data.byCourse.forEach(row=>rows.push([row.title,row.orderCount,row.revenue]));
-  }
-  const csv='\uFEFF'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n');
-  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  const link=document.createElement('a');
-  link.href=url;
-  link.download=`${active.code}_${active.generatedAt.getFullYear()}-${String(active.generatedAt.getMonth()+1).padStart(2,'0')}-${String(active.generatedAt.getDate()).padStart(2,'0')}.csv`;
-  document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
 }
 
 /* ============================================================

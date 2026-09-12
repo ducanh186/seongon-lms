@@ -683,21 +683,6 @@ export function AdminPage() {
     return (await adminRepositories.news.uploadImage(token, file)).url;
   };
 
-  const exportReport = async (report: 'enrollments' | 'revenue') => {
-    if (!token) return;
-    try {
-      const blob = await adminRepositories.dashboard.downloadReport(token, report);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = report === 'enrollments' ? 'bao-cao-ghi-danh.csv' : 'bao-cao-doanh-thu.csv';
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (reason) {
-      setError(getErrorMessage(reason, 'Không thể xuất báo cáo.'));
-    }
-  };
-
   const submitLesson = (event: FormEvent) => {
     event.preventDefault();
     if (!token || !selectedCourse) return;
@@ -1080,7 +1065,7 @@ export function AdminPage() {
             {operationPages[tab] && operationPages[tab]!.meta.last_page > 1 && <Pagination count={operationPages[tab]!.meta.last_page} page={operationFilters[tab].page} onChange={(_, page) => changeOperationPage(tab, page)} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
 
-          {tab === 'overview' && stats && <AdminOverview stats={stats} onExportReport={(report) => void exportReport(report)} />}
+          {tab === 'overview' && stats && <AdminOverview stats={stats} />}
 
           {tab === 'users' && !detailUser && <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
             <Stack spacing={2} sx={{ p: 2.5, bgcolor: '#F8FBFC', borderBottom: '1px solid', borderColor: 'divider' }}>

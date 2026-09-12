@@ -91,7 +91,7 @@ describe('AdminErdReadSection', () => {
   it('opens the selected order details with relational data and missing payment values', async () => {
     mockRows();
     ordersList.mockResolvedValue({ data: [
-      { id: 31, user_id: 5, course_id: 10, total_amount: '399000', amount: '399000', status: 'pending', payment_method: null, paid_at: null, transaction_ref: null, user, course, created_at: '2026-08-15T00:00:00Z', updated_at: '2026-08-15T00:00:00Z' },
+      { id: 31, user_id: 5, course_id: 10, total_amount: '399000', amount: '399000', status: 'failed', failure_reason: 'Không ghi nhận lý do thanh toán thất bại.', payment_method: null, paid_at: null, transaction_ref: null, user, course, created_at: '2026-08-15T00:00:00Z', updated_at: '2026-08-15T00:00:00Z' },
     ], meta });
     const actor = userEvent.setup();
     render(<AdminErdReadSection section="orders" token="admin-token" onOpenCourse={vi.fn()} />);
@@ -104,6 +104,7 @@ describe('AdminErdReadSection', () => {
     expect(within(dialog).getByText('SEO Technical')).toBeInTheDocument();
     expect(within(dialog).getByText('10')).toBeInTheDocument();
     expect(within(dialog).getByText('399.000 đ')).toBeInTheDocument();
+    expect(within(dialog).getByText('Không ghi nhận lý do thanh toán thất bại.')).toBeInTheDocument();
     expect(within(dialog).getAllByText('—')).toHaveLength(3);
     await actor.click(within(dialog).getByRole('button', { name: 'Đóng' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
@@ -117,6 +118,27 @@ describe('AdminErdReadSection', () => {
     const total = await screen.findByText('399.000 đ');
     expect(total).toHaveStyle({ whiteSpace: 'nowrap', textAlign: 'center' });
     expect(total.closest('td')).toHaveStyle({ textAlign: 'center' });
+  });
+
+  it('shows only final payment outcomes and the recorded failure reason', async () => {
+    mockRows();
+    ordersList.mockResolvedValue({ data: [
+      { id: 32, user_id: 5, course_id: 10, total_amount: '399000', amount: '399000', status: 'failed', payment_status: 'cancelled', failure_reason: 'Người học đã hủy thanh toán.', payment_method: 'momo', paid_at: null, transaction_ref: null, user, course, created_at: '2026-08-15T00:00:00Z', updated_at: '2026-08-15T00:00:00Z' },
+    ], meta });
+    const actor = userEvent.setup();
+    render(<AdminErdReadSection section="orders" token="admin-token" onOpenCourse={vi.fn()} />);
+
+    await waitFor(() => expect(ordersList).toHaveBeenCalledWith('admin-token', expect.objectContaining({ payment_result: 'finished' })));
+    const table = await screen.findByRole('table', { name: 'Danh sách đơn hàng' });
+    expect(within(table).getByText('Thanh toán thất bại')).toBeInTheDocument();
+    await actor.click(within(table).getByRole('row', { name: /SEO Technical/ }));
+    const dialog = await screen.findByRole('dialog', { name: 'Chi tiết đơn hàng #32' });
+    expect(within(dialog).getByText('Người học đã hủy thanh toán.')).toBeInTheDocument();
+    expect(within(dialog).getByText('Lý do')).toBeInTheDocument();
+    await actor.click(within(dialog).getByRole('button', { name: 'Đóng' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await actor.click(screen.getByRole('combobox', { name: 'Trạng thái' }));
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Tất cả', 'Đã thanh toán', 'Thanh toán thất bại']);
   });
 
   afterEach(() => {

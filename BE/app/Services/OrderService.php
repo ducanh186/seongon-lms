@@ -54,6 +54,18 @@ class OrderService
             }
         }
 
+        if ($paymentResult = $filters['payment_result'] ?? null) {
+            if ($paymentResult === 'paid') {
+                $query->where('status', 'paid');
+            } elseif ($paymentResult === 'failed') {
+                $query->where(fn (Builder $q) => $q->where('status', 'failed')
+                    ->orWhere(fn (Builder $expired) => $expired->where('status', 'pending')->where('payment_expires_at', '<', now())));
+            } else {
+                $query->where(fn (Builder $q) => $q->whereIn('status', ['paid', 'failed'])
+                    ->orWhere(fn (Builder $expired) => $expired->where('status', 'pending')->where('payment_expires_at', '<', now())));
+            }
+        }
+
         if ($courseId = $filters['course_id'] ?? null) {
             $query->where('course_id', $courseId);
         }

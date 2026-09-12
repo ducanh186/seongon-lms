@@ -31,7 +31,7 @@ class PaymentController extends Controller
     public function start(Request $request, Order $order, PaymentSessionService $payments)
     {
         abort_unless($order->user_id === $request->user()->id, 403);
-        $data = $request->validate(['payment_method' => ['required', 'in:momo,bank']]);
+        $data = $request->validate(['payment_method' => ['required', 'in:momo,bank,card']]);
 
         return new OrderResource($payments->start($request->user(), $order, $data['payment_method'])->load('course'));
     }

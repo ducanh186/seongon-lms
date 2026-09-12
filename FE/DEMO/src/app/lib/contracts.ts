@@ -230,7 +230,7 @@ export interface ApiMyCoursesResponse extends Paginated<ApiEnrollment> {
   summary?: ApiEnrollmentSummary;
 }
 
-export type PaymentMethod = 'momo' | 'bank';
+export type PaymentMethod = 'momo' | 'bank' | 'card';
 export type PaymentStatus = 'draft' | 'pending' | 'paid' | 'cancelled' | 'expired';
 export interface PaymentSettings {
   momo: { enabled: boolean; mode: 'mock'; merchant_name: string };
@@ -253,6 +253,7 @@ export interface ApiOrder {
   status: 'pending' | 'paid' | 'failed';
   payment_method: PaymentMethod | 'card' | 'qr' | null;
   payment_status?: PaymentStatus;
+  failure_reason?: string | null;
   payment_session?: PaymentSession | null;
   payment_started_at?: string | null;
   payment_expires_at?: string | null;

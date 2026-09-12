@@ -69,6 +69,7 @@ yarn-error.log*
 !/SPEC/raw_feedback.txt
 !/SPEC/feedback_cleaned.md
 !/SPEC/seongon_learning_prototype_v3.html
+!/SPEC/reports/
 /docs/*
 !/docs/SEONGON_LMS_SPEC.md
 !/docs/ERD_P1.png

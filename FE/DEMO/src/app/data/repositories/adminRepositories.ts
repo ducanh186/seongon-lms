@@ -10,7 +10,6 @@ export const adminRepositories = {
   },
   dashboard: {
     getStats: api.adminStats,
-    downloadReport: api.downloadAdminReport,
   },
   roles: {
     list: api.adminRoles,

@@ -25,6 +25,7 @@ class PaymentSessionService
         if ($settings['bank']['enabled'] && $settings['bank']['is_active']) {
             $methods[] = ['code' => 'bank', 'label' => 'Thanh toán qua ngân hàng', 'mode' => 'mock'];
         }
+        $methods[] = ['code' => 'card', 'label' => 'Thanh toán bằng thẻ (mô phỏng)', 'mode' => 'mock'];
 
         return $methods;
     }
@@ -53,11 +54,11 @@ class PaymentSessionService
                 'mode' => 'mock',
                 'reference' => $reference,
                 'merchant_name' => $settings['momo']['merchant_name'],
-                'qr_payload' => $method === 'momo' ? 'seongon://sandbox/payment?'.http_build_query(['order' => $order->id, 'amount' => $order->amount, 'session' => $token]) : ($settings['bank']['qr_payload'] ?? null),
+                'qr_payload' => $method === 'momo' ? 'seongon://sandbox/payment?'.http_build_query(['order' => $order->id, 'amount' => $order->amount, 'session' => $token]) : ($method === 'bank' ? ($settings['bank']['qr_payload'] ?: null) : null),
                 'bank' => $method === 'bank' ? $settings['bank'] : null,
             ];
             $order->update([
-                'status' => 'pending', 'payment_method' => $method,
+                'status' => 'pending', 'failure_reason' => null, 'payment_method' => $method,
                 'transaction_ref' => 'PAYMENT-'.$order->id.'-'.Str::upper(Str::random(8)), 'payment_session' => $session,
                 'payment_started_at' => now(), 'payment_expires_at' => now()->addMinutes(15),
             ]);
@@ -79,14 +80,14 @@ class PaymentSessionService
             }
             abort_unless($order->payment_status === 'pending', 422, 'Phiên thanh toán đã hủy hoặc hết hạn. Hãy tạo phiên mới.');
             if ($outcome === 'cancel') {
-                $order->update(['status' => 'failed']);
+                $order->update(['status' => 'failed', 'failure_reason' => 'Người học đã hủy thanh toán.']);
 
                 return ['order' => $order, 'enrollment' => null];
             }
             $this->assertPurchasable($order);
             $result = app(PaymentGateway::class)->charge($order, ['outcome' => 'success', 'idempotency_key' => 'ORDER-'.$order->id]);
             abort_unless($result->success, 422, 'Thanh toán chưa hoàn tất. Vui lòng thử lại.');
-            $order->update(['status' => 'paid', 'transaction_ref' => $result->transactionRef, 'paid_at' => now()]);
+            $order->update(['status' => 'paid', 'failure_reason' => null, 'transaction_ref' => $result->transactionRef, 'paid_at' => now()]);
             $enrollment = app(EnrollmentService::class)->createFromOrder($order);
             app(CartService::class)->removePurchasedItem($order);
             Mail::to($user->email)->queue((new PaymentConfirmation($order->load('course')))->afterCommit());

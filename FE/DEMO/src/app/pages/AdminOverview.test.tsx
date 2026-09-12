@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { ApiAdminStats } from '../lib/contracts';
 import { AdminOverview } from './AdminOverview';
 
@@ -28,18 +28,15 @@ const stats: ApiAdminStats = {
 };
 
 describe('AdminOverview', () => {
-  it('offers enrollment and revenue report exports from one dropdown', async () => {
-    const onExportReport = vi.fn();
+  it('links both sample PDF reports from one dropdown', async () => {
     const user = userEvent.setup();
-    render(<AdminOverview stats={stats} onExportReport={onExportReport} />);
+    render(<AdminOverview stats={stats} />);
 
     await user.click(screen.getByRole('button', { name: 'Xuất báo cáo' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Báo cáo ghi danh' }));
-    expect(onExportReport).toHaveBeenCalledWith('enrollments');
-
-    await user.click(screen.getByRole('button', { name: 'Xuất báo cáo' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Báo cáo doanh thu' }));
-    expect(onExportReport).toHaveBeenCalledWith('revenue');
+    expect(screen.getByRole('menuitem', { name: 'Báo cáo ghi danh (PDF mẫu)' })).toHaveAttribute('href', '/reports/BC-01.pdf');
+    expect(screen.getByRole('menuitem', { name: 'Báo cáo ghi danh (PDF mẫu)' })).toHaveAttribute('download', 'BC-01.pdf');
+    expect(screen.getByRole('menuitem', { name: 'Báo cáo doanh thu (PDF mẫu)' })).toHaveAttribute('href', '/reports/BC-05.pdf');
+    expect(screen.getByRole('menuitem', { name: 'Báo cáo doanh thu (PDF mẫu)' })).toHaveAttribute('download', 'BC-05.pdf');
   });
 
   it('renders API ranking and genuine ties without inventing extra courses or counts', () => {

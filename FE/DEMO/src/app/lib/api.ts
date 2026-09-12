@@ -219,13 +219,6 @@ export const api = {
 
   adminStats: (token: string, period?: DashboardPeriod) =>
     apiRequest<ApiAdminStats>(`/admin/dashboard/stats${queryString({ period: period && period !== 'all' ? period : undefined })}`, { token }),
-  downloadAdminReport: async (token: string, report: 'enrollments' | 'revenue') => {
-    const response = await fetch(`${API_BASE_URL}/admin/reports/${report}`, {
-      headers: { Accept: 'text/csv', Authorization: `Bearer ${token}` },
-    });
-    if (!response.ok) throw new ApiError('Không thể xuất báo cáo.', response.status);
-    return response.blob();
-  },
   adminRoles: (token: string, filters: Record<string, string | number | undefined> = {}) =>
     apiRequest<Paginated<ApiAdminRole>>('/admin/roles' + queryString(filters), { token }),
   adminCarts: (token: string, filters: Record<string, string | number | undefined> = {}) =>

@@ -72,6 +72,7 @@ class OrderController extends Controller
                 $lockedOrder->transaction_ref = "ORDER-{$lockedOrder->id}";
             }
             $lockedOrder->payment_method = $data['payment_method'];
+            $lockedOrder->failure_reason = null;
             $lockedOrder->save();
 
             return $lockedOrder;
@@ -85,13 +86,13 @@ class OrderController extends Controller
         ]);
 
         if (! $result->success) {
-            $failedOrder = DB::transaction(function () use ($attemptAmount, $attemptKey, $order, $request): Order {
+            $failedOrder = DB::transaction(function () use ($attemptAmount, $attemptKey, $order, $request, $result): Order {
                 User::query()->whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
                 $lockedOrder = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
 
                 if ($lockedOrder->status !== 'paid') {
                     $this->assertPaymentAttemptUnchanged($lockedOrder, $attemptKey, $attemptAmount);
-                    $lockedOrder->update(['status' => 'failed']);
+                    $lockedOrder->update(['status' => 'failed', 'failure_reason' => $result->message ?? 'Thanh toán thất bại.']);
                 }
 
                 return $lockedOrder;
@@ -125,6 +126,7 @@ class OrderController extends Controller
 
             $lockedOrder->update([
                 'status' => 'paid',
+                'failure_reason' => null,
                 'payment_method' => $data['payment_method'],
                 'transaction_ref' => $result->transactionRef,
                 'paid_at' => now(),

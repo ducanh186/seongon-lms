@@ -12,7 +12,7 @@ const order = { id: 44, course_id: 10, amount: '49000', status: 'pending', payme
 beforeEach(() => {
   mocks.course.mockResolvedValue({ data: { id: 10, title: 'SEO Course', slug: 'seo', price: '49000' } });
   mocks.createOrder.mockResolvedValue({ data: order });
-  mocks.paymentMethods.mockResolvedValue({ data: [{ code: 'momo', label: 'Thanh toán qua ví MoMo', mode: 'mock' }, { code: 'bank', label: 'Thanh toán qua ngân hàng', mode: 'mock' }] });
+  mocks.paymentMethods.mockResolvedValue({ data: [{ code: 'momo', label: 'Thanh toán qua ví MoMo', mode: 'mock' }, { code: 'bank', label: 'Thanh toán qua ngân hàng', mode: 'mock' }, { code: 'card', label: 'Thanh toán bằng thẻ (mô phỏng)', mode: 'mock' }] });
   mocks.updateProfile.mockResolvedValue({}); mocks.refresh.mockResolvedValue(undefined);
   mocks.startPayment.mockImplementation((_token, _id, method) => Promise.resolve({ data: { ...order, payment_method: method, payment_status: 'pending', mock_callback_allowed: true, payment_expires_at: new Date(Date.now() + 900000).toISOString(), payment_session: { token: 'session', mode: 'mock', reference: 'LMS-44', qr_payload: 'sandbox-order-44', bank: method === 'bank' ? { bank_name: 'API Bank', account_name: 'API Receiver', account_number: '123456789' } : null } } }));
   mocks.mockPaymentCallback.mockResolvedValue({ order: { ...order, payment_method: 'momo', payment_status: 'paid', status: 'paid' } });
@@ -43,4 +43,18 @@ it('uses bank account details from the started session', async () => {
   expect(await screen.findByText('API Bank')).toBeInTheDocument();
   expect(screen.getByText('123456789')).toBeInTheDocument();
   expect(mocks.startPayment).toHaveBeenCalledWith('student', 44, 'bank');
+});
+
+it('requires a card type before confirming a mock card payment', async () => {
+  render(<MemoryRouter><CheckoutPage /></MemoryRouter>);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: 'Lưu thông tin và tạo đơn' }));
+  await user.click(await screen.findByRole('radio', { name: 'Thanh toán bằng thẻ (mô phỏng)' }));
+  await user.click(screen.getByRole('button', { name: 'Tiếp tục' }));
+  expect(await screen.findByRole('heading', { name: 'Thanh toán bằng thẻ' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Xác nhận thanh toán mô phỏng' })).toBeDisabled();
+  expect(screen.queryByLabelText('Mã QR thanh toán')).not.toBeInTheDocument();
+  await user.click(screen.getByRole('radio', { name: /Thẻ thanh toán quốc tế/ }));
+  expect(screen.getByRole('button', { name: 'Xác nhận thanh toán mô phỏng' })).toBeEnabled();
+  expect(mocks.startPayment).toHaveBeenCalledWith('student', 44, 'card');
 });

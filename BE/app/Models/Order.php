@@ -17,6 +17,7 @@ class Order extends Model
         'amount',
         'total_amount',
         'status',
+        'failure_reason',
         'payment_method',
         'transaction_ref',
         'paid_at',

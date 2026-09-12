@@ -48,6 +48,7 @@ it('marks the order failed on payment failure and creates no enrollment', functi
     ])->assertStatus(422);
 
     expect(Order::find($orderId)->status)->toBe('failed');
+    expect(Order::find($orderId)->failure_reason)->toBe('Thanh toán thất bại (mock).');
     expect(Enrollment::where('user_id', $user->id)->count())->toBe(0);
 });
 
