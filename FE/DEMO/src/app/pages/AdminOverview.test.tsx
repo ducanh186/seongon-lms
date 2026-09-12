@@ -1,7 +1,8 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { ApiAdminStats } from '../lib/contracts';
+import { api } from '../lib/api';
 import { AdminOverview } from './AdminOverview';
 
 const stats: ApiAdminStats = {
@@ -38,6 +39,24 @@ describe('AdminOverview', () => {
     expect(screen.getByRole('menuitem', { name: 'Báo cáo xuất bản khóa học' })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Báo cáo khóa học phổ biến' })).toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Báo cáo doanh thu' })).not.toHaveAttribute('href');
+  });
+
+  it('keeps a visible download link after the report blob is generated', async () => {
+    const user = userEvent.setup();
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    vi.spyOn(api, 'downloadAdminReport').mockResolvedValue(new Blob(['pdf'], { type: 'application/pdf' }));
+    vi.stubGlobal('URL', {
+      createObjectURL: vi.fn().mockReturnValue('blob:report'),
+      revokeObjectURL: vi.fn(),
+    });
+
+    render(<AdminOverview stats={stats} token="admin-token" />);
+    await user.click(screen.getByRole('button', { name: 'Xuất báo cáo' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Báo cáo ghi danh' }));
+
+    expect(await screen.findByRole('link', { name: 'Tải báo cáo ghi danh' })).toHaveAttribute('href', 'blob:report');
+    expect(clickSpy).toHaveBeenCalledOnce();
+    clickSpy.mockRestore();
   });
 
   it('renders API ranking and genuine ties without inventing extra courses or counts', () => {

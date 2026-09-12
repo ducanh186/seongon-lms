@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, LinearProgress, Menu, MenuItem, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import type { ApiAdminStats } from '../lib/contracts';
 import { api } from '../lib/api';
 
@@ -23,6 +24,7 @@ function formatMonth(value: string) {
 export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: string | null }) {
   const [reportAnchor, setReportAnchor] = useState<HTMLElement | null>(null);
   const [downloadingReport, setDownloadingReport] = useState<AdminReport | null>(null);
+  const [readyDownload, setReadyDownload] = useState<{ label: string; filename: string; url: string } | null>(null);
   const maxMonthly = Math.max(1, ...stats.monthly_enrollments.map((item) => item.total));
   const kpis = [
     ['Học viên', stats.students.toLocaleString('vi-VN')],
@@ -38,18 +40,22 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
     try {
       const blob = await api.downloadAdminReport(token, option.report);
       const url = URL.createObjectURL(blob);
+      setReadyDownload({ label: option.label, filename: option.filename, url });
       const link = document.createElement('a');
       link.href = url;
       link.download = option.filename;
       document.body.appendChild(link);
       link.click();
       link.remove();
-      URL.revokeObjectURL(url);
       setReportAnchor(null);
     } finally {
       setDownloadingReport(null);
     }
   };
+
+  useEffect(() => () => {
+    if (readyDownload) URL.revokeObjectURL(readyDownload.url);
+  }, [readyDownload]);
 
   return (
     <Stack spacing={3}>
@@ -75,6 +81,18 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
           ))}
         </Menu>
       </Box>
+      {readyDownload && (
+        <Button
+          component="a"
+          href={readyDownload.url}
+          download={readyDownload.filename}
+          variant="outlined"
+          startIcon={<DownloadRoundedIcon />}
+          sx={{ alignSelf: 'flex-end' }}
+        >
+          Tải {readyDownload.label.toLowerCase()}
+        </Button>
+      )}
       <Box
         data-testid="admin-kpi-strip"
         sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}
