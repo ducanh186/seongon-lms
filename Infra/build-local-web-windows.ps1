@@ -336,7 +336,9 @@ if (-not $SkipSeed) {
 Stop-FrontendDevServerForBuild -FrontendRoot $frontendRoot
 
 if (-not $SkipTests) {
-    Invoke-BuildStep -Label 'Run backend tests' -WorkingDirectory $backendRoot -Executable $php -Arguments @($artisan, 'test')
+    # The Windows PHP CLI default is often 128M; the generated catalog suite
+    # needs more headroom on machines with heavier PHP extensions enabled.
+    Invoke-BuildStep -Label 'Run backend tests' -WorkingDirectory $backendRoot -Executable $php -Arguments @('-d', 'memory_limit=512M', $artisan, 'test')
     Invoke-BuildStep -Label 'Run frontend tests' -WorkingDirectory $frontendRoot -Executable $npm -Arguments @('test')
 }
 

@@ -43,6 +43,7 @@ Describe 'build-local-web-windows phpMyAdmin preparation' {
         $script | Should Match "db:seed', '--class=DemoAccountSeeder', '--force"
         $script | Should Match "db:seed', '--class=DemoUserHistorySeeder', '--force"
         $script | Should Match "Clear Laravel configuration cache"
+        $script | Should Match "memory_limit=512M"
         $script | Should Match 'if \(-not \$SkipSeed\)'
     }
 
