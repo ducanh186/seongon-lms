@@ -248,7 +248,7 @@ $frontendStandardErrorLog = Join-Path $logRoot "frontend-$runId.err.log"
 if (-not $backendReady) {
     $escapedBackendRoot = $backendRoot.Replace("'", "''")
     $escapedPhp = $phpExecutable.Replace("'", "''")
-    $backendCommand = "Set-Location -LiteralPath '$escapedBackendRoot'; & '$escapedPhp' artisan serve --host=127.0.0.1 --port=8000; exit `$LASTEXITCODE"
+    $backendCommand = "Set-Location -LiteralPath '$escapedBackendRoot'; & '$escapedPhp' -d memory_limit=512M artisan serve --host=127.0.0.1 --port=8000; exit `$LASTEXITCODE"
     $backendEncoded = ConvertTo-EncodedPowerShellCommand -Command $backendCommand
     $backendProcess = Start-Process -FilePath 'powershell.exe' -ArgumentList @(
         '-NoProfile', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', $backendEncoded

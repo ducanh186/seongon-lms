@@ -112,6 +112,25 @@ class AdminReportExportTest extends TestCase
         }
     }
 
+    public function test_pdf_export_raises_the_memory_limit_required_by_dompdf(): void
+    {
+        $previousMemoryLimit = ini_get('memory_limit');
+        ini_set('memory_limit', '128M');
+
+        try {
+            $admin = User::factory()->admin()->create();
+            $response = $this->actingAs($admin, 'sanctum')
+                ->get('/api/v1/admin/reports/enrollments/pdf');
+
+            $response->assertOk();
+            $this->assertSame('512M', ini_get('memory_limit'));
+        } finally {
+            if ($previousMemoryLimit !== false) {
+                ini_set('memory_limit', $previousMemoryLimit);
+            }
+        }
+    }
+
     public function test_pdf_report_contains_current_database_values_each_time_it_is_generated(): void
     {
         Carbon::setTestNow('2026-09-12 10:00:00');

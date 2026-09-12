@@ -10,6 +10,12 @@ function Get-FreeTcpPort {
 }
 
 Describe 'start-local-web-windows MySQL service discovery' {
+    It 'starts Laravel with enough memory for generated PDF reports' {
+        $script = Get-Content -Raw -LiteralPath $scriptPath
+
+        $script | Should Match 'memory_limit=512M'
+    }
+
     It 'selects MySQL84 when it is the installed MySQL service' {
         Mock Get-Service {
             [pscustomobject]@{ Name = 'MySQL84'; Status = 'Running' }

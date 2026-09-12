@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
+    private const PDF_MEMORY_LIMIT = '512M';
+
     public function enrollments(): StreamedResponse
     {
         return $this->download('bao-cao-ghi-danh.csv', function ($stream): void {
@@ -175,6 +177,8 @@ class ReportController extends Controller
 
     private function pdf(string $code, string $title, array $columns, Collection $rows)
     {
+        $this->ensurePdfMemoryLimit();
+
         $pdf = Pdf::loadView('reports.admin', [
             'code' => $code,
             'title' => $title,
@@ -185,6 +189,27 @@ class ReportController extends Controller
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download($code.'.pdf');
+    }
+
+    private function ensurePdfMemoryLimit(): void
+    {
+        $configuredLimit = ini_get('memory_limit');
+        if ($configuredLimit === false || $configuredLimit === '-1') {
+            return;
+        }
+
+        $suffix = strtolower(substr(trim($configuredLimit), -1));
+        $value = (float) $configuredLimit;
+        $multiplier = match ($suffix) {
+            'g' => 1024 * 1024 * 1024,
+            'm' => 1024 * 1024,
+            'k' => 1024,
+            default => 1,
+        };
+
+        if ($value * $multiplier < 512 * 1024 * 1024) {
+            ini_set('memory_limit', self::PDF_MEMORY_LIMIT);
+        }
     }
 
     private function download(string $filename, callable $writer): StreamedResponse
