@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Order;
+use App\Models\Review;
 use App\Models\User;
 use Database\Seeders\DemoPopularCoursesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,6 +35,7 @@ class DemoPopularCoursesSeederTest extends TestCase
         $ranking = Course::withCount('enrollments')->orderByDesc('enrollments_count')->limit(5)->pluck('enrollments_count');
         $this->assertGreaterThanOrEqual(60, $ranking->first());
         $this->assertGreaterThanOrEqual(4, $ranking->unique()->count());
+        $this->assertGreaterThanOrEqual(60, Review::query()->where('course_id', Course::where('slug', 'seo-ai-max-01')->value('id'))->count());
         $this->assertLessThan(350, Enrollment::count());
         $this->assertEquals($before, DB::table('enrollments')->where('id', '<=', $real->id)->orderBy('id')->get()->toArray());
         $this->assertSame(1, $real->user->enrollments()->count());

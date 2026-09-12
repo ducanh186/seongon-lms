@@ -106,7 +106,7 @@ class CourseController extends Controller
             'title' => ['required', 'string', 'max:255', Rule::unique('courses', 'title')->ignore($course)],
             'description' => ['nullable', 'string'],
             'thumbnail' => ['nullable', 'string', 'max:2048'],
-            'price' => ['required', 'numeric', 'min:1'],
+            'price' => ['required', 'numeric', 'min:0'],
             'instructor_name' => ['nullable', 'string', 'max:255'],
             'instructor_bio' => ['nullable', 'string'],
             'level' => ['nullable', 'in:beginner,intermediate,advanced'],

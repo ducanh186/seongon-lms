@@ -334,7 +334,7 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('menuitem', { name: 'Xem chi tiết' }));
     const detail = await screen.findByRole('region', { name: 'Thông tin khóa học SEO Foundation' });
     expect(within(detail).getByText('2', { selector: '[data-course-metric="lessons"] *' })).toBeInTheDocument();
-    expect(within(detail).getByText('3', { selector: '[data-course-metric="questions"] *' })).toBeInTheDocument();
+    expect(within(detail).queryByText('Câu hỏi')).not.toBeInTheDocument();
     expect(within(detail).getByText('4', { selector: '[data-course-metric="enrollments"] *' })).toBeInTheDocument();
     expect(within(detail).getByText('4.5/5', { selector: '[data-course-metric="rating"] *' })).toBeInTheDocument();
     expect(screen.queryByRole('tab')).not.toBeInTheDocument();

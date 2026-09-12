@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Order;
+use App\Models\Review;
 use App\Models\User;
 use App\Services\EnrollmentService;
 use Illuminate\Database\Seeder;
@@ -60,6 +61,18 @@ class DemoPopularCoursesSeeder extends Seeder
                     ]);
                     app(EnrollmentService::class)->createFromOrder($order);
                 }
+
+                $course->enrollments()->orderBy('id')->limit(self::POPULARITY[$slug])->get()
+                    ->each(function (Enrollment $enrollment, int $reviewIndex) use ($course): void {
+                        Review::query()->updateOrCreate(
+                            ['user_id' => $enrollment->user_id, 'course_id' => $course->id],
+                            [
+                                'rating' => $reviewIndex % 5 === 0 ? 4 : 5,
+                                'comment' => 'Nội dung rõ ràng, có ví dụ thực tế và dễ áp dụng vào công việc.',
+                                'status' => 'visible',
+                            ],
+                        );
+                    });
             }
         });
     }

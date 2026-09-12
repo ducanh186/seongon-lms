@@ -316,11 +316,11 @@ export function AdminPage() {
   const loadedKeyBySection = useRef<Partial<Record<AdminSection, string>>>({});
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || tab !== 'courses' || !isCourseEditorOpen) return;
     adminRepositories.users.list(token, { role: 'teacher' })
       .then((response) => setTeachers(response.data))
       .catch(() => setTeachers([]));
-  }, [token]);
+  }, [isCourseEditorOpen, tab, token]);
 
   const cacheKeyFor = useCallback((section: AdminSection) => {
     switch (section) {

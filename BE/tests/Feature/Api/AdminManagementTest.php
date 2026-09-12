@@ -22,6 +22,20 @@ class AdminManagementTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_admin_uploads_a_course_thumbnail_from_their_computer(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin, 'sanctum')->post('/api/v1/admin/courses/images', [
+            'image' => UploadedFile::fake()->image('course-thumbnail.jpg', 1200, 675),
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('url', fn ($url) => str_starts_with($url, '/storage/course-images/'));
+        Storage::disk('public')->assertExists(str_replace('/storage/', '', $response->json('url')));
+    }
+
     public function test_admin_can_set_the_quiz_close_time(): void
     {
         $admin = User::factory()->admin()->create();

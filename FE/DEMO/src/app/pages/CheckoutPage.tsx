@@ -146,7 +146,7 @@ export function CheckoutPage() {
             <Typography>{session.merchant_name} · {course.title}</Typography>
             {session.bank && <Box component="dl" sx={{ m: 0, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '150px minmax(0, 1fr)' }, gap: 1 }}>{[['Ngân hàng', session.bank.bank_name], ['Chủ tài khoản', session.bank.account_name], ['Số tài khoản', session.bank.account_number], ['Chi nhánh', session.bank.branch || '—'], ['Nội dung chuyển khoản', session.reference], ['Số tiền', amount]].map(([label, value]) => <Box key={label} sx={{ display: 'contents' }}><Typography component="dt" color="text.secondary">{label}</Typography><Typography component="dd" sx={{ m: 0, overflowWrap: 'anywhere' }}>{value}</Typography></Box>)}</Box>}
             {order.payment_method === 'card' ? <>
-              <Alert severity="info">Đây là cổng thanh toán mô phỏng. Không nhập số thẻ, CVV hoặc mật khẩu thật.</Alert>
+              <Alert severity="info">Không nhập số thẻ, CVV hoặc mật khẩu thật.</Alert>
               <Typography component="h2" variant="h6">Chọn loại thẻ</Typography>
               <RadioGroup value={cardChoice} onChange={(event) => setCardChoice(event.target.value)}>
                 <FormControlLabel value="domestic" control={<Radio />} label="Thẻ nội địa và tài khoản ngân hàng" />
@@ -157,12 +157,12 @@ export function CheckoutPage() {
               {session.qr_payload ? <Box sx={{ alignSelf: 'center', p: 1, bgcolor: 'white', maxWidth: '100%' }}><QRCodeSVG aria-label="Mã QR thanh toán" value={session.qr_payload} size={232} marginSize={4} style={{ maxWidth: '100%', height: 'auto' }} /></Box> : <Alert severity="info">Ngân hàng chưa cấu hình QR. Thông tin chuyển khoản được hiển thị phía trên.</Alert>}
               <Typography variant="body2">{session.bank ? session.bank.instructions || 'Kiểm tra tài khoản, nhập đúng số tiền và nội dung chuyển khoản của đơn hàng.' : 'Mở ứng dụng MoMo trên điện thoại, dùng chức năng quét QR và xác nhận đúng số tiền của đơn hàng.'}</Typography>
             </>}
-            {order.mock_callback_allowed && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}><Button variant="contained" disabled={submitting || (order.payment_method === 'card' && !cardChoice)} onClick={() => void confirm('success')}>{order.payment_method === 'card' ? 'Xác nhận thanh toán mô phỏng' : 'Tôi đã thanh toán'}</Button><Button variant="outlined" disabled={submitting} onClick={() => void confirm('cancel')}>Hủy phiên thanh toán</Button></Stack>}
+            {order.mock_callback_allowed && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}><Button variant="contained" disabled={submitting || (order.payment_method === 'card' && !cardChoice)} onClick={() => void confirm('success')}>{order.payment_method === 'card' ? 'Xác nhận thanh toán' : 'Tôi đã thanh toán'}</Button><Button variant="outlined" disabled={submitting} onClick={() => void confirm('cancel')}>Hủy phiên thanh toán</Button></Stack>}
           </> : <>
             {(expired || status === 'cancelled') && <Alert severity="warning">{expired ? 'Phiên thanh toán đã hết hạn.' : 'Phiên thanh toán đã hủy.'} Chọn phương thức để tạo phiên mới.</Alert>}
             <Typography component="h2" variant="h6">2. Chọn phương thức thanh toán</Typography>
             <Typography color="text.secondary">Kiểm tra thông tin đơn hàng trước khi nhấn Tiếp tục.</Typography>
-            {methods.length ? <FormControl><RadioGroup value={method} onChange={(event) => setMethod(event.target.value as PaymentMethod)} sx={{ gap: 1 }}>{methods.map((item) => <FormControlLabel key={item.code} value={item.code} control={<Radio />} label={<PaymentMethodOption code={item.code} label={item.label} />} sx={{ m: 0, px: 1.5, py: 1, border: '1px solid', borderColor: method === item.code ? 'primary.main' : 'divider', borderRadius: 2 }} />)}</RadioGroup></FormControl> : <Alert severity="warning">Hiện chưa có phương thức thanh toán khả dụng.</Alert>}
+            {methods.length ? <FormControl><RadioGroup value={method} onChange={(event) => setMethod(event.target.value as PaymentMethod)} sx={{ gap: 1 }}>{methods.map((item) => <FormControlLabel key={item.code} value={item.code} control={<Radio slotProps={{ input: { 'aria-label': item.label } }} />} label={<PaymentMethodOption code={item.code} label={item.label} />} sx={{ m: 0, px: 1.5, py: 1, border: '1px solid', borderColor: method === item.code ? 'primary.main' : 'divider', borderRadius: 2 }} />)}</RadioGroup></FormControl> : <Alert severity="warning">Hiện chưa có phương thức thanh toán khả dụng.</Alert>}
             <Button variant="contained" disabled={submitting || !method} onClick={() => void start()}>Tiếp tục</Button>
           </>}
         </Stack>

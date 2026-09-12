@@ -25,7 +25,7 @@ class PaymentSessionService
         if ($settings['bank']['enabled'] && $settings['bank']['is_active']) {
             $methods[] = ['code' => 'bank', 'label' => 'Thanh toán qua ngân hàng', 'mode' => 'mock'];
         }
-        $methods[] = ['code' => 'card', 'label' => 'Thanh toán bằng thẻ (mô phỏng)', 'mode' => 'mock'];
+        $methods[] = ['code' => 'card', 'label' => 'Thanh toán bằng thẻ', 'mode' => 'mock'];
 
         return $methods;
     }
