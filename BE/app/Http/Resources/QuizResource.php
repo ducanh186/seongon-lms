@@ -19,7 +19,6 @@ class QuizResource extends JsonResource
             'pass_score' => $this->pass_score,
             'max_attempts' => $this->max_attempts,
             'duration_minutes' => $this->duration_minutes,
-            'closes_at' => $this->closes_at,
             'attempts_remaining' => $this->when(
                 isset($this->resource->attempts_remaining),
                 $this->resource->attempts_remaining,

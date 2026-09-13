@@ -22,7 +22,6 @@ class GeneratedDemoCatalogSeederTest extends TestCase
         $exam = Exam::query()->withCount('questions')->whereHas('course', fn ($query) => $query->where('slug', 'seo-ai-max-01'))->firstOrFail();
 
         $this->assertSame(100, $exam->questions_count);
-        $this->assertSame(10, $exam->total_questions);
     }
 
     public function test_it_uses_the_prototype_course_thumbnail_set_instead_of_random_images(): void

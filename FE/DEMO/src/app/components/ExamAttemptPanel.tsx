@@ -74,8 +74,7 @@ export function ExamAttemptPanel({
     () => activeQuestions.map((question) => ({ question_id: question.id, option_id: answers[question.id] ?? null })),
     [answers, activeQuestions],
   );
-  const closesAtPassed = Boolean(quiz.closes_at && Date.parse(quiz.closes_at) <= Date.now());
-  const ended = Boolean(quiz.ended || attemptsRemaining === 0 || closesAtPassed);
+  const ended = Boolean(quiz.ended || attemptsRemaining === 0);
   const bestScore = attempts.length > 0
     ? Math.max(...attempts.map((attempt) => attempt.score ?? 0))
     : quiz.best_score;
@@ -198,9 +197,6 @@ export function ExamAttemptPanel({
       <Stack spacing={3}>
         <Stack spacing={1} alignItems="center" textAlign="center" sx={{ py: { xs: 1, sm: 2 } }}>
           {ended && <Chip color="default" label="Bài kiểm tra đã kết thúc" sx={{ fontWeight: 800 }} />}
-          {quiz.closes_at && (
-            <Typography color="text.secondary">Thời điểm kết thúc: {formatDateTime(quiz.closes_at)}</Typography>
-          )}
           <Typography color="text.secondary">Thời gian làm bài: {quiz.duration_minutes ?? 30} phút</Typography>
           <Typography color="text.secondary">Cách chấm điểm: Lần cao nhất</Typography>
         </Stack>
@@ -317,7 +313,6 @@ export function ExamAttemptPanel({
         <Alert severity="warning">
           Thời gian được tính theo máy chủ ngay khi bắt đầu. Đóng trang không làm dừng đồng hồ.
         </Alert>
-        {quiz.closes_at && <Typography variant="body2" color="text.secondary">Bài kiểm tra đóng lúc {formatDateTime(quiz.closes_at)}.</Typography>}
         <Typography variant="body2" color="text.secondary">Bạn có tối đa {quiz.max_attempts} lượt làm.</Typography>
         {error && <Alert severity="error">{error}</Alert>}
         <Button variant="contained" onClick={() => void begin()} disabled={starting}>

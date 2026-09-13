@@ -17,7 +17,7 @@ class PaymentSetting extends Model
     {
         return self::firstOrCreate(['id' => 1], ['configuration' => [
             'momo' => ['enabled' => true, 'mode' => 'mock', 'merchant_name' => 'SEONGON Academy'],
-            'bank' => ['enabled' => false, 'is_active' => false, 'bank_name' => '', 'account_name' => '', 'account_number' => '', 'branch' => '', 'qr_payload' => '', 'instructions' => ''],
+            'bank' => ['enabled' => false, 'bank_name' => '', 'account_name' => '', 'account_number' => '', 'branch' => '', 'qr_payload' => '', 'instructions' => ''],
         ]]);
     }
 }

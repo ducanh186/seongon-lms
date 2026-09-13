@@ -59,6 +59,10 @@ class CourseService
             $query->whereHas('categories', fn (Builder $categoryQuery) => $categoryQuery->whereKey($categoryId));
         }
 
+        if ($instructorId = $filters['instructor_id'] ?? null) {
+            $query->where('instructor_id', $instructorId);
+        }
+
         if (array_key_exists('price', $filters) && $filters['price'] !== null) {
             $query->where('price', $filters['price']);
         }

@@ -11,7 +11,7 @@ afterEach(() => { cleanup(); vi.clearAllMocks(); });
 it('shows a bank account only after the server accepts the saved configuration', async () => {
   const settings = {
     momo: { enabled: true, mode: 'mock', merchant_name: 'SEONGON Academy' },
-    bank: { enabled: false, is_active: false, bank_name: '', account_name: '', account_number: '', branch: '', qr_payload: '', instructions: '' },
+    bank: { enabled: false, bank_name: '', account_name: '', account_number: '', branch: '', qr_payload: '', instructions: '' },
   };
   mocks.paymentSettings.mockResolvedValue({ data: settings });
   mocks.savePaymentSettings.mockImplementation((_token, submitted) => Promise.resolve({ data: submitted }));
@@ -25,4 +25,18 @@ it('shows a bank account only after the server accepts the saved configuration',
   expect(await screen.findByText('Đã lưu cấu hình thanh toán.')).toBeInTheDocument();
   expect(screen.getByText('MB · 012345678')).toBeInTheDocument();
   expect(mocks.savePaymentSettings).toHaveBeenCalledWith('admin', expect.objectContaining({ bank: expect.objectContaining({ bank_name: 'MB', account_number: '012345678' }) }));
+});
+
+it('uses one bank switch and accepts required account fields when enabled', async () => {
+  const settings = {
+    momo: { enabled: true, mode: 'mock' as const, merchant_name: 'SEONGON Academy' },
+    bank: { enabled: true, bank_name: '', account_name: '', account_number: '', branch: '', qr_payload: '', instructions: '' },
+  };
+  mocks.paymentSettings.mockResolvedValue({ data: settings });
+  mocks.savePaymentSettings.mockResolvedValue({ data: settings });
+  render(<PaymentSettingsPanel token="admin" />);
+
+  expect(await screen.findByRole('switch', { name: 'Bật thanh toán ngân hàng' })).toBeChecked();
+  expect(screen.queryByRole('switch', { name: 'Tài khoản nhận thanh toán đang hoạt động' })).not.toBeInTheDocument();
+  expect(screen.getByRole('textbox', { name: 'Tên ngân hàng' })).toBeRequired();
 });

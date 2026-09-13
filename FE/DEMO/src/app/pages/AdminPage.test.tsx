@@ -734,6 +734,7 @@ describe('AdminPage', () => {
 
     expect(adminCourses).toHaveBeenCalledWith('admin-token', {
       category_id: undefined,
+      instructor_id: undefined,
       course_id: undefined,
       q: 'Completed Demo Course',
       status: undefined,
@@ -742,6 +743,20 @@ describe('AdminPage', () => {
       page: 1,
     });
     expect(await screen.findByText('Completed Demo Course')).toBeInTheDocument();
+  });
+
+  it('filters courses by the selected instructor after Apply', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    await user.click(screen.getByLabelText('Lọc giảng viên'));
+    await user.click(await screen.findByRole('option', { name: 'SEONGON' }));
+    adminCourses.mockClear();
+    await user.click(screen.getByRole('button', { name: 'Áp dụng' }));
+
+    expect(adminCourses).toHaveBeenCalledWith('admin-token', expect.objectContaining({ instructor_id: 1, page: 1 }));
   });
 
   it('names the selected course before running its destructive mutation', async () => {
@@ -1026,7 +1041,7 @@ describe('AdminPage', () => {
     expect(within(table).getByText('5/5')).toBeInTheDocument();
   });
 
-  it('saves the configured question count for each quiz attempt', async () => {
+  it('saves quiz settings without removed scheduling fields', async () => {
     mockAdminData();
     render(<AdminPage />);
     const user = userEvent.setup();
@@ -1035,11 +1050,15 @@ describe('AdminPage', () => {
     await openCourseDetails(user);
     await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
     await user.click(await screen.findByRole('button', { name: 'Bài kiểm tra' }));
-    await user.clear(screen.getByRole('spinbutton', { name: 'Số câu hỏi mỗi lượt' }));
-    await user.type(screen.getByRole('spinbutton', { name: 'Số câu hỏi mỗi lượt' }), '25');
+    expect(screen.queryByRole('spinbutton', { name: 'Số câu hỏi mỗi lượt' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Thời điểm đóng bài')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Lưu bài kiểm tra' }));
 
-    await waitFor(() => expect(saveQuiz).toHaveBeenCalledWith('admin-token', 10, expect.objectContaining({ total_questions: 25 })));
+    await waitFor(() => expect(saveQuiz).toHaveBeenCalledWith('admin-token', 10, {
+      title: 'Quiz SEO',
+      pass_score: 75,
+      max_attempts: 3,
+    }));
   });
 
   it('waits for Apply before requesting News filters and keeps the newest applied result', async () => {

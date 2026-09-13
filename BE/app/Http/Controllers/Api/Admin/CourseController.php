@@ -23,6 +23,7 @@ class CourseController extends Controller
     {
         $filters = $request->validate([
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'instructor_id' => ['nullable', 'integer', 'exists:instructors,id'],
             'course_id' => ['nullable', 'integer', 'min:1'],
             'q' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', Rule::in(['draft', 'published', 'hidden'])],

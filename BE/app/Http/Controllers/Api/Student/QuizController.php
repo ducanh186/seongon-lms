@@ -42,7 +42,7 @@ class QuizController extends Controller
         $exam->setRelation('studentAttempts', $completedAttempts);
         $exam->setAttribute('attempts_remaining', $attemptsRemaining);
         $exam->setAttribute('best_score', $completedAttempts->max('score'));
-        $exam->setAttribute('ended', $attemptsRemaining === 0 || $exam->closes_at?->isPast() === true);
+        $exam->setAttribute('ended', $attemptsRemaining === 0);
 
         return new QuizResource($exam);
     }

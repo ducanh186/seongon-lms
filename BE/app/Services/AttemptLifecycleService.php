@@ -10,15 +10,14 @@ use Illuminate\Validation\ValidationException;
 
 class AttemptLifecycleService
 {
+    private const QUESTIONS_PER_ATTEMPT = 40;
+
     public function __construct(private ExamGradingService $grading) {}
 
     public function startOrResume(Enrollment $enrollment, Exam $exam): Attempt
     {
         return DB::transaction(function () use ($enrollment, $exam) {
             Enrollment::query()->whereKey($enrollment->id)->lockForUpdate()->firstOrFail();
-            if ($exam->closes_at?->isPast()) {
-                throw ValidationException::withMessages(['quiz' => 'Bài kiểm tra đã kết thúc.']);
-            }
             $active = Attempt::query()
                 ->where('enrollment_id', $enrollment->id)
                 ->where('exam_id', $exam->id)
@@ -42,28 +41,22 @@ class AttemptLifecycleService
             }
 
             $startedAt = now();
-            $questionIds = null;
-            if ($exam->total_questions) {
-                $allIds = $exam->questions()->pluck('id');
-                if ($allIds->count() < $exam->total_questions) {
-                    throw ValidationException::withMessages([
-                        'quiz' => "Ngân hàng câu hỏi chỉ có {$allIds->count()} câu, cần {$exam->total_questions} câu cho mỗi lượt làm bài.",
-                    ]);
-                }
-                $previousIds = Attempt::query()
-                    ->where('enrollment_id', $enrollment->id)
-                    ->where('exam_id', $exam->id)
-                    ->get(['question_ids'])
-                    ->flatMap(fn (Attempt $previous) => $previous->question_ids ?? [])
-                    ->unique();
-                $available = $allIds->diff($previousIds);
-                $pool = $available->count() >= $exam->total_questions ? $available : $allIds;
-                $questionIds = $pool->shuffle()->take($exam->total_questions)->values()->all();
+            $allIds = $exam->questions()->pluck('id');
+            if ($allIds->count() < self::QUESTIONS_PER_ATTEMPT) {
+                throw ValidationException::withMessages([
+                    'quiz' => "Ngân hàng câu hỏi chỉ có {$allIds->count()} câu, cần ".self::QUESTIONS_PER_ATTEMPT.' câu cho mỗi lượt làm bài.',
+                ]);
             }
+            $previousIds = Attempt::query()
+                ->where('enrollment_id', $enrollment->id)
+                ->where('exam_id', $exam->id)
+                ->get(['question_ids'])
+                ->flatMap(fn (Attempt $previous) => $previous->question_ids ?? [])
+                ->unique();
+            $available = $allIds->diff($previousIds);
+            $pool = $available->count() >= self::QUESTIONS_PER_ATTEMPT ? $available : $allIds;
+            $questionIds = $pool->shuffle()->take(self::QUESTIONS_PER_ATTEMPT)->values()->all();
             $expiresAt = $startedAt->copy()->addMinutes($exam->duration_minutes ?? 30);
-            if ($exam->closes_at?->lt($expiresAt)) {
-                $expiresAt = $exam->closes_at->copy();
-            }
 
             return Attempt::create([
                 'enrollment_id' => $enrollment->id,

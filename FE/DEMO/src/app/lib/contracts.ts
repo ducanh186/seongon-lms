@@ -245,7 +245,7 @@ export type PaymentMethod = 'momo' | 'bank' | 'card';
 export type PaymentStatus = 'draft' | 'pending' | 'paid' | 'cancelled' | 'expired';
 export interface PaymentSettings {
   momo: { enabled: boolean; mode: 'mock'; merchant_name: string };
-  bank: { enabled: boolean; is_active: boolean; bank_name: string; account_name: string; account_number: string; branch: string; qr_payload: string; instructions: string };
+  bank: { enabled: boolean; bank_name: string; account_name: string; account_number: string; branch: string; qr_payload: string; instructions: string };
 }
 export interface PlaybackSettings {
   anti_cheat_enabled: boolean;
@@ -354,8 +354,6 @@ export interface ApiAdminQuiz {
   pass_score: number;
   max_attempts: number;
   duration_minutes?: number | null;
-  total_questions?: number | null;
-  closes_at?: string | null;
   questions: ApiAdminQuestion[];
 }
 
@@ -371,9 +369,7 @@ export interface ApiQuiz {
   title: string;
   pass_score: number;
   max_attempts: number;
-  total_questions?: number | null;
   duration_minutes: number | null;
-  closes_at?: string | null;
   attempts_remaining?: number;
   best_score?: number | null;
   ended?: boolean;
@@ -455,7 +451,6 @@ export interface ApiQuizAttempt {
   submitted_at: string | null;
   correct_count?: number | null;
   wrong_count?: number | null;
-  total_questions?: number | null;
   question_ids?: number[] | null;
   answers?: Array<{
     question_id: number;

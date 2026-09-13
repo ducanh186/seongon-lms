@@ -187,7 +187,6 @@ class GeneratedDemoCatalogSeeder extends Seeder
             'title' => 'Bài kiểm tra cuối khóa',
             'pass_score' => 75,
             'max_attempts' => 2,
-            'total_questions' => 10,
         ]);
 
         foreach (range(1, 100) as $questionNumber) {

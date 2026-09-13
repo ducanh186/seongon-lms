@@ -433,7 +433,7 @@ Database: `seongon_lms` (MySQL). Bảng nghiệp vụ:
 | `course_categories` | Gán khóa học ↔ danh mục (N-N) | course_id, category_id | |
 | `courses` | Khóa học | title, slug, price, level, thumbnail, instructor_name, status | draft / published |
 | `lessons` | Bài học (video) | course_id, title, video_url, material_url, duration, position/sort_order | |
-| `exams` | Bài kiểm tra của khóa học (1 khóa = 1 bài) | course_id, pass_score, max_attempts, duration_minutes, total_questions | |
+| `exams` | Bài kiểm tra của khóa học (1 khóa = 1 bài) | course_id, pass_score, max_attempts, duration_minutes | Mỗi lượt cố định 40 câu |
 | `questions` | Câu hỏi | exam_id, content, sort_order | |
 | `answers` | Đáp án | question_id, content, is_correct | |
 | `carts` | Giỏ hàng (1 user = 1 giỏ) | user_id | |
@@ -1175,43 +1175,25 @@ Bản đồ cuối cùng phải thuộc:
 
 # PHỤ LỤC A – CHẠY DỰ ÁN TRÊN WINDOWS
 
-Cần chuẩn bị:
+Khách hàng chỉ cần Windows 10/11, Docker Desktop (Linux containers/WSL2), Git và Internet ở lần build đầu. Không cần cài PHP, Composer, Node/npm hay MySQL trên host.
 
-* Windows với PowerShell 5.1 trở lên.
-* PHP 8.3 trở lên (bật `mysqli`), Composer, Node.js/npm.
-* MySQL Server chạy dưới dạng Windows service tên `MySQL<number>` (ví dụ `MySQL84`) và một database rỗng.
-* Internet cho lần chuẩn bị đầu (tải dependency và phpMyAdmin).
+Sau mỗi lần cập nhật code:
 
-Lần chạy đầu:
+```powershell
+git pull
+Infra\docker-up-windows.bat
+```
 
-1. Sao chép `BE/.env.example` thành `BE/.env`, đổi `DB_CONNECTION=mysql` và điền `DB_*`, tạo `APP_KEY` (`php artisan key:generate`).
-2. Sao chép `FE/DEMO/.env.example` thành `FE/DEMO/.env`.
-3. Từ thư mục gốc chạy:
+Script tự tạo `Infra/.env` lần đầu, build lại `app` và `nginx` từ lockfile hiện tại, khởi động MySQL, chạy migration/seed/optimize trong container và chờ `/healthz` trước khi báo thành công.
 
-   ```bat
-   Infra\build-local-web-windows.bat
-   ```
-
-   Script đồng bộ dependency theo lockfile, chạy `migrate --force`, seed demo khi DB trống và đồng bộ tài khoản mẫu trên DB đã có dữ liệu, chạy test backend/frontend và build frontend.
-
-4. Khởi động:
-
-   ```bat
-   Infra\start-local-web-windows.bat
-   ```
-
-   Giao diện: `http://localhost:5173`. API: `http://127.0.0.1:8000`. phpMyAdmin: `http://127.0.0.1:8081`.
+- Website: `http://localhost`
+- phpMyAdmin tùy chọn: `Infra\docker-up-windows.bat -Admin` → `http://127.0.0.1:8081`
+- Xem log: `docker compose --env-file Infra/.env -f Infra/docker-compose.yml logs --tail=120`
+- Dừng stack, giữ dữ liệu: `docker compose --env-file Infra/.env -f Infra/docker-compose.yml down`
 
 Tài khoản demo (mật khẩu `password`): `admin@seongon.vn`, `student@seongon.vn`, `teacher@demo.seongon.vn`, `locked@demo.seongon.vn` (bị khóa).
 
-Chạy test:
-
-```powershell
-cd BE ; php artisan test
-cd FE/DEMO ; npm test
-```
-
-Chi tiết tùy chọn và xử lý lỗi: [Infra/README.md](Infra/README.md). Frontend riêng: [FE/DEMO/README.md](FE/DEMO/README.md). Docker Compose (tùy chọn): `Infra/docker-compose.yml`.
+Chi tiết xử lý lỗi và chế độ host legacy: [Infra/README.md](Infra/README.md). Frontend riêng: [FE/DEMO/README.md](FE/DEMO/README.md).
 
 ---
 

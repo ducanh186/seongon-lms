@@ -11,13 +11,11 @@ class Exam extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'title', 'pass_score', 'max_attempts', 'duration_minutes', 'closes_at', 'total_questions'];
+    protected $fillable = ['course_id', 'title', 'pass_score', 'max_attempts', 'duration_minutes'];
 
     protected function casts(): array
     {
-        return [
-            'closes_at' => 'datetime',
-        ];
+        return [];
     }
 
     public function course(): BelongsTo

@@ -22,7 +22,7 @@ class PaymentSessionService
         if ($settings['momo']['enabled']) {
             $methods[] = ['code' => 'momo', 'label' => 'Thanh toán qua ví MoMo', 'mode' => 'mock'];
         }
-        if ($settings['bank']['enabled'] && $settings['bank']['is_active']) {
+        if ($settings['bank']['enabled']) {
             $methods[] = ['code' => 'bank', 'label' => 'Thanh toán qua ngân hàng', 'mode' => 'mock'];
         }
         $methods[] = ['code' => 'card', 'label' => 'Thanh toán bằng thẻ', 'mode' => 'mock'];

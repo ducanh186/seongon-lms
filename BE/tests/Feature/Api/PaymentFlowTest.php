@@ -79,7 +79,8 @@ class PaymentFlowTest extends TestCase
         $order = $this->checkout();
         Sanctum::actingAs(User::factory()->admin()->create());
         $settings = $this->getJson('/api/v1/admin/payment-settings')->assertOk()->json('data');
-        $settings['bank'] = ['enabled' => true, 'bank_name' => 'Test Bank', 'account_name' => 'Test Receiver', 'account_number' => '123456789', 'branch' => 'Test Branch', 'qr_payload' => 'TEST-BANK-PAYLOAD', 'instructions' => 'Use the order reference.', 'is_active' => true];
+        unset($settings['bank']['is_active']);
+        $settings['bank'] = ['enabled' => true, 'bank_name' => 'Test Bank', 'account_name' => 'Test Receiver', 'account_number' => '123456789', 'branch' => 'Test Branch', 'qr_payload' => 'TEST-BANK-PAYLOAD', 'instructions' => 'Use the order reference.'];
         $this->putJson('/api/v1/admin/payment-settings', $settings)->assertOk();
         Sanctum::actingAs($order->user);
         $session = $this->postJson("/api/v1/orders/{$order->id}/payment-session", ['payment_method' => 'bank'])

@@ -72,8 +72,8 @@ class ExamAttemptLifecycleTest extends TestCase
 
         $attempt = Attempt::findOrFail($attemptId);
         $this->assertSame('expired', $attempt->status);
-        $this->assertSame(100, $attempt->score);
-        $this->assertTrue($attempt->passed);
+        $this->assertSame(3, $attempt->score);
+        $this->assertFalse($attempt->passed);
         $this->assertNotNull($attempt->finished_at);
     }
 
@@ -96,10 +96,7 @@ class ExamAttemptLifecycleTest extends TestCase
     {
         Carbon::setTestNow('2026-09-11 08:00:00');
         [$student, $course, $exam, $question] = $this->learningFixture();
-        $exam->update([
-            'max_attempts' => 2,
-            'closes_at' => now()->addDay(),
-        ]);
+        $exam->update(['max_attempts' => 2]);
         $attempt = Attempt::query()->create([
             'enrollment_id' => Enrollment::query()->where('user_id', $student->id)->value('id'),
             'exam_id' => $exam->id,
@@ -131,37 +128,11 @@ class ExamAttemptLifecycleTest extends TestCase
             ->assertJsonPath('data.attempts.0.wrong_count', 1);
     }
 
-    public function test_closed_exam_rejects_a_new_attempt(): void
-    {
-        Carbon::setTestNow('2026-09-11 08:00:00');
-        [$student, $course, $exam] = $this->learningFixture();
-        $exam->update(['closes_at' => now()->subMinute()]);
-        $token = $student->createToken('test')->plainTextToken;
-
-        $this->withToken($token)
-            ->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts/start")
-            ->assertUnprocessable()
-            ->assertJsonPath('message', 'Bài kiểm tra đã kết thúc.');
-    }
-
-    public function test_quiz_overview_is_ended_after_its_close_time(): void
-    {
-        Carbon::setTestNow('2026-09-11 08:00:00');
-        [$student, $course, $exam] = $this->learningFixture();
-        $exam->update(['closes_at' => now()->subMinute()]);
-        $token = $student->createToken('test')->plainTextToken;
-
-        $this->withToken($token)->getJson("/api/v1/my/courses/{$course->id}/quiz")
-            ->assertOk()
-            ->assertJsonPath('data.ended', true);
-    }
-
     public function test_quiz_overview_is_ended_after_all_attempts_are_used(): void
     {
         [$student, $course, $exam] = $this->learningFixture();
         $exam->update([
             'max_attempts' => 2,
-            'closes_at' => now()->addDay(),
         ]);
         $enrollment = Enrollment::query()->where('user_id', $student->id)->firstOrFail();
         foreach ([1, 2] as $attemptNumber) {
@@ -218,7 +189,7 @@ class ExamAttemptLifecycleTest extends TestCase
     {
         Carbon::setTestNow('2026-09-11 08:00:00');
         [$student, $course, $exam] = $this->learningFixture();
-        $exam->update(['max_attempts' => 2, 'closes_at' => now()->addDay()]);
+        $exam->update(['max_attempts' => 2]);
         $enrollment = Enrollment::query()->where('user_id', $student->id)->firstOrFail();
 
         foreach (['submitted', 'in_progress'] as $index => $status) {
@@ -244,23 +215,6 @@ class ExamAttemptLifecycleTest extends TestCase
         $this->withToken($token)->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts/start")
             ->assertOk()
             ->assertJsonPath('attempt.attempt_no', 2);
-    }
-
-    public function test_attempt_deadline_does_not_extend_past_the_exam_close_time(): void
-    {
-        Carbon::setTestNow('2026-09-11 08:00:00');
-        [$student, $course, $exam] = $this->learningFixture(durationMinutes: 30);
-        $exam->update(['closes_at' => now()->addMinutes(10)]);
-        $token = $student->createToken('test')->plainTextToken;
-
-        $response = $this->withToken($token)
-            ->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts/start")
-            ->assertOk();
-
-        $this->assertSame(
-            '2026-09-11 08:10:00',
-            Carbon::parse($response->json('attempt.expires_at'))->format('Y-m-d H:i:s'),
-        );
     }
 
     public function test_submitted_attempt_review_includes_the_correct_answer(): void
@@ -326,11 +280,11 @@ class ExamAttemptLifecycleTest extends TestCase
             ->assertJsonPath('attempt.answers.0.correct_answer_id', $correctAnswer->id);
     }
 
-    public function test_each_attempt_receives_three_different_questions_from_the_bank(): void
+    public function test_each_attempt_receives_forty_different_questions_from_the_bank(): void
     {
         [$student, $course, $exam] = $this->learningFixture();
-        $exam->update(['total_questions' => 3, 'max_attempts' => 2]);
-        foreach (range(1, 5) as $index) {
+        $exam->update(['max_attempts' => 2]);
+        foreach (range(1, 60) as $index) {
             $question = Question::factory()->create(['exam_id' => $exam->id]);
             Answer::factory()->correct()->create(['question_id' => $question->id]);
             Answer::factory()->create(['question_id' => $question->id]);
@@ -347,8 +301,8 @@ class ExamAttemptLifecycleTest extends TestCase
             ->assertOk()
             ->json('attempt');
 
-        $this->assertCount(3, $first['question_ids']);
-        $this->assertCount(3, $second['question_ids']);
+        $this->assertCount(40, $first['question_ids']);
+        $this->assertCount(40, $second['question_ids']);
         $this->assertSame([], array_values(array_intersect($first['question_ids'], $second['question_ids'])));
     }
 
@@ -373,6 +327,11 @@ class ExamAttemptLifecycleTest extends TestCase
         $question = Question::factory()->create(['exam_id' => $exam->id]);
         $answer = Answer::factory()->correct()->create(['question_id' => $question->id]);
         Answer::factory()->create(['question_id' => $question->id]);
+        foreach (range(2, 40) as $questionNumber) {
+            $extraQuestion = Question::factory()->create(['exam_id' => $exam->id]);
+            Answer::factory()->correct()->create(['question_id' => $extraQuestion->id]);
+            Answer::factory()->create(['question_id' => $extraQuestion->id]);
+        }
 
         return [$student, $course, $exam, $question, $answer];
     }

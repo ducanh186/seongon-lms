@@ -8,6 +8,7 @@ use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Exam;
+use App\Models\Instructor;
 use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\Review;
@@ -36,7 +37,7 @@ class AdminManagementTest extends TestCase
         Storage::disk('public')->assertExists(str_replace('/storage/', '', $response->json('url')));
     }
 
-    public function test_admin_can_set_the_quiz_close_time(): void
+    public function test_admin_can_configure_a_quiz_without_removed_fields(): void
     {
         $admin = User::factory()->admin()->create();
         $course = Course::factory()->create();
@@ -46,15 +47,12 @@ class AdminManagementTest extends TestCase
             'title' => 'Kiem tra cuoi khoa',
             'pass_score' => 75,
             'max_attempts' => 2,
-            'closes_at' => '2026-12-31T16:59:00+07:00',
         ]);
 
-        $response->assertOk();
-        $this->assertDatabaseHas('exams', [
-            'course_id' => $course->id,
-            'max_attempts' => 2,
-            'closes_at' => '2026-12-31 09:59:00',
-        ]);
+        $response->assertOk()
+            ->assertJsonMissingPath('total_questions')
+            ->assertJsonMissingPath('closes_at');
+        $this->assertDatabaseHas('exams', ['course_id' => $course->id, 'max_attempts' => 2]);
     }
 
     public function test_admin_dashboard_returns_real_monthly_series_and_popular_course_ranking(): void
@@ -265,17 +263,27 @@ class AdminManagementTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $category = Category::factory()->create(['name' => 'SEO']);
+        $instructor = Instructor::factory()->create(['name' => 'Filter Instructor']);
         $course = Course::factory()->create([
             'category_id' => $category->id,
+            'instructor_id' => $instructor->id,
             'title' => 'SEO Filter Target',
             'price' => 499000,
             'status' => 'published',
             'updated_at' => '2026-08-20 10:00:00',
         ]);
         Course::factory()->create(['title' => 'Other course', 'price' => 499000]);
+        Course::factory()->create([
+            'category_id' => $category->id,
+            'title' => 'Filter Instructor Other Course',
+            'instructor_id' => Instructor::factory()->create(['name' => 'Other Instructor'])->id,
+            'price' => 499000,
+            'status' => 'published',
+            'updated_at' => '2026-08-20 11:00:00',
+        ]);
         $token = $admin->createToken('test')->plainTextToken;
 
-        $this->withToken($token)->getJson('/api/v1/admin/courses?category_id='.$category->id.'&course_id='.$course->id.'&q=Filter&status=published&price=499000&published_on=2026-08-20')
+        $this->withToken($token)->getJson('/api/v1/admin/courses?category_id='.$category->id.'&instructor_id='.$instructor->id.'&course_id='.$course->id.'&q=Filter&status=published&price=499000&published_on=2026-08-20')
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonPath('data.0.id', $course->id)
@@ -443,23 +451,6 @@ class AdminManagementTest extends TestCase
         $this->withToken($token)->deleteJson("/api/v1/admin/reviews/{$review->id}")
             ->assertNoContent();
         $this->assertDatabaseMissing('reviews', ['id' => $review->id]);
-    }
-
-    public function test_admin_can_configure_how_many_questions_each_attempt_uses(): void
-    {
-        $admin = User::factory()->admin()->create();
-        $course = Course::factory()->create();
-        $token = $admin->createToken('test')->plainTextToken;
-
-        $response = $this->withToken($token)->postJson("/api/v1/admin/courses/{$course->id}/quiz", [
-            'title' => 'Bài kiểm tra cuối khóa',
-            'pass_score' => 75,
-            'max_attempts' => 3,
-            'total_questions' => 10,
-        ]);
-
-        $response->assertOk()->assertJsonPath('total_questions', 10);
-        $this->assertDatabaseHas('exams', ['course_id' => $course->id, 'total_questions' => 10]);
     }
 
     public function test_admin_can_list_reviews_for_one_selected_course(): void

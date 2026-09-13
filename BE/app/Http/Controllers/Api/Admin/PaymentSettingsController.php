@@ -16,7 +16,7 @@ class PaymentSettingsController extends Controller
 
     public function update(Request $request)
     {
-        $bankRequired = Rule::requiredIf($request->boolean('bank.enabled') && $request->boolean('bank.is_active'));
+        $bankRequired = Rule::requiredIf($request->boolean('bank.enabled'));
         $data = $request->validate([
             'momo' => ['required', 'array:enabled,mode,merchant_name'],
             'momo.enabled' => ['required', 'boolean'],
@@ -24,7 +24,7 @@ class PaymentSettingsController extends Controller
             'momo.merchant_name' => ['required', 'string', 'max:100'],
             'bank' => ['required', 'array:enabled,is_active,bank_name,account_name,account_number,branch,qr_payload,instructions'],
             'bank.enabled' => ['required', 'boolean'],
-            'bank.is_active' => ['required', 'boolean'],
+            'bank.is_active' => ['sometimes', 'boolean'],
             'bank.bank_name' => [$bankRequired, 'nullable', 'string', 'max:100'],
             'bank.account_name' => [$bankRequired, 'nullable', 'string', 'max:100'],
             'bank.account_number' => [$bankRequired, 'nullable', 'string', 'max:50', 'regex:/^[a-zA-Z0-9 -]+$/'],
@@ -32,6 +32,7 @@ class PaymentSettingsController extends Controller
             'bank.qr_payload' => ['nullable', 'string', 'max:1000'],
             'bank.instructions' => ['nullable', 'string', 'max:2000'],
         ]);
+        unset($data['bank']['is_active']);
         PaymentSetting::current()->update(['configuration' => $data]);
 
         return $this->show();
