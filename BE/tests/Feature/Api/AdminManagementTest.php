@@ -174,6 +174,32 @@ class AdminManagementTest extends TestCase
         $this->assertDatabaseHas('course_categories', ['course_id' => $courseId, 'category_id' => $third->id]);
     }
 
+    public function test_admin_can_configure_playback_protection_per_course(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $category = Category::factory()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $course = $this->withToken($token)->postJson('/api/v1/admin/courses', [
+            'category_id' => $category->id,
+            'title' => 'Course with protected playback',
+            'price' => 299000,
+            'status' => 'draft',
+            'anti_cheat_enabled' => true,
+        ])->assertCreated()
+            ->assertJsonPath('data.anti_cheat_enabled', true)
+            ->json('data');
+
+        $this->withToken($token)->putJson('/api/v1/admin/courses/'.$course['id'], [
+            'category_id' => $category->id,
+            'title' => 'Course with protected playback',
+            'price' => 299000,
+            'status' => 'draft',
+            'anti_cheat_enabled' => false,
+        ])->assertOk()
+            ->assertJsonPath('data.anti_cheat_enabled', false);
+    }
+
     public function test_admin_user_list_includes_each_students_enrollment_count(): void
     {
         $admin = User::factory()->admin()->create();

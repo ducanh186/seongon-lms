@@ -15,6 +15,7 @@ import type {
   ApiAdminOrder,
   ApiAdminQuestionIndex,
   ApiInstructor,
+  ApiTeacherProfile,
   ApiAdminRole,
   ApiAdminStats,
   ApiAdminQuestion,
@@ -289,6 +290,18 @@ export const api = {
     apiRequest<{ data: ApiInstructor }>(`/admin/instructors/${id}`, { token, method: 'PUT', body }),
   deleteInstructor: (token: string, id: number) =>
     apiRequest<null>(`/admin/instructors/${id}`, { token, method: 'DELETE' }),
+  adminTeacherProfiles: (token: string) => apiRequest<{ data: ApiTeacherProfile[] }>('/admin/teacher-profiles', { token }),
+  createTeacherProfile: (token: string, body: { name: string; bio?: string; avatar?: string | null }) =>
+    apiRequest<{ data: ApiTeacherProfile }>('/admin/teacher-profiles', { token, method: 'POST', body }),
+  updateTeacherProfile: (token: string, id: number, body: { name: string; bio?: string; avatar?: string | null }) =>
+    apiRequest<{ data: ApiTeacherProfile }>(`/admin/teacher-profiles/${id}`, { token, method: 'PUT', body }),
+  deleteTeacherProfile: (token: string, id: number) =>
+    apiRequest<null>(`/admin/teacher-profiles/${id}`, { token, method: 'DELETE' }),
+  uploadTeacherProfileImage: (token: string, file: File) => {
+    const body = new FormData();
+    body.append('image', file);
+    return apiRequest<{ url: string }>('/admin/teacher-profiles/images', { method: 'POST', token, body });
+  },
   createCategory: (token: string, body: { name: string; description?: string }) =>
     apiRequest<{ data: ApiCategory }>('/admin/categories', { method: 'POST', token, body }),
   updateCategory: (token: string, categoryId: number, body: { name: string; description?: string }) =>

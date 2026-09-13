@@ -1,6 +1,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
+  Avatar,
   Box,
   Button,
   Card,
@@ -19,6 +20,7 @@ import {
   RadioGroup,
   Select,
   Stack,
+  Switch,
   Step,
   StepButton,
   Stepper,
@@ -31,7 +33,7 @@ import {
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { ApiError, resolveMaterialUrl } from '../lib/api';
-import type { ApiAdminAttempt, ApiAdminCertificateStatus, ApiAdminCourse, ApiAdminExam, ApiAdminLesson, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiInstructor, ApiNewsList, ApiNewsPost, ApiReview, ApiUser, ApiUserRecord, Paginated } from '../lib/contracts';
+import type { ApiAdminAttempt, ApiAdminCertificateStatus, ApiAdminCourse, ApiAdminExam, ApiAdminLesson, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiNewsList, ApiNewsPost, ApiReview, ApiTeacherProfile, ApiUser, ApiUserRecord, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { useAuth } from '../contexts/AuthContext';
 import { AdminSectionHeader } from '../components/AdminSectionHeader';
@@ -42,7 +44,6 @@ import { AdminShell, type AdminSection } from '../components/AdminShell';
 import { AdminOverview } from './AdminOverview';
 import { RichTextEditor } from '../components/RichTextEditor';
 import { PaymentSettingsPanel } from './admin/PaymentSettingsPanel';
-import { PlaybackSettingsPanel } from './admin/PlaybackSettingsPanel';
 import { NewsCatalogManager } from './admin/NewsCatalogManager';
 import { InstructorCatalogManager } from './admin/InstructorCatalogManager';
 import { AdminErdReadSection, type AdminErdReadSectionKey } from './admin/AdminErdReadSection';
@@ -58,10 +59,12 @@ type CourseDraft = {
   thumbnail: string;
   price: string;
   instructor_id: number | null;
+  teacher_profile_id: number | null;
   instructor_name: string;
   instructor_bio: string;
   level: 'beginner' | 'intermediate' | 'advanced';
   status: 'draft' | 'published';
+  anti_cheat_enabled: boolean;
 };
 
 type LessonDraft = {
@@ -168,10 +171,12 @@ const blankCourse: CourseDraft = {
   thumbnail: '',
   price: '299000',
   instructor_id: null,
+  teacher_profile_id: null,
   instructor_name: '',
   instructor_bio: '',
   level: 'beginner',
   status: 'draft',
+  anti_cheat_enabled: false,
 };
 
 const blankLesson: LessonDraft = { title: '', video_url: '', description: '', duration: '' };
@@ -184,7 +189,6 @@ const blankQuestionOptions: QuestionOptionDraft[] = [
 const adminSectionCopy: Record<AdminSection, { title: string; description: string }> = {
   overview: { title: 'Tổng quan vận hành', description: '' },
   paymentSettings: { title: 'Cài đặt thanh toán', description: 'Quản lý phương thức thanh toán và tài khoản nhận tiền.' },
-  playbackSettings: { title: 'Cài đặt video', description: 'Điều chỉnh chống gian lận playback cho toàn bộ khóa học.' },
   roles: { title: 'Quản lý vai trò', description: 'Đối chiếu vai trò hệ thống và số tài khoản đang sử dụng từng vai trò.' },
   users: { title: 'Quản lý tài khoản', description: '' },
   carts: { title: 'Quản lý giỏ hàng', description: 'Theo dõi giỏ hàng hiện tại của học viên từ dữ liệu trong carts.' },
@@ -216,10 +220,12 @@ function courseDraftFrom(course: ApiCourse): CourseDraft {
     thumbnail: course.thumbnail ?? '',
     price: String(course.price),
     instructor_id: course.instructor_id ?? null,
+    teacher_profile_id: course.teacher_profile_id ?? course.instructor_id ?? null,
     instructor_name: course.instructor_name ?? '',
     instructor_bio: course.instructor_bio ?? '',
     level: course.level ?? 'beginner',
     status: course.status,
+    anti_cheat_enabled: course.anti_cheat_enabled ?? false,
   };
 }
 
@@ -246,7 +252,7 @@ export function AdminPage() {
   const [tab, setTab] = useState<AdminSection>('overview');
   const [stats, setStats] = useState<ApiAdminStats | null>(null);
   const [users, setUsers] = useState<Paginated<ApiUser> | null>(null);
-  const [instructors, setInstructors] = useState<ApiInstructor[]>([]);
+  const [instructors, setInstructors] = useState<ApiTeacherProfile[]>([]);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [categoryTab, setCategoryTab] = useState<'courses' | 'news' | 'instructors'>('courses');
   const [courses, setCourses] = useState<Paginated<ApiCourse> | null>(null);
@@ -608,6 +614,8 @@ export function AdminPage() {
       instructor_name: courseForm.instructor_name || null,
       instructor_bio: courseForm.instructor_bio || null,
       instructor_id: courseForm.instructor_id,
+      teacher_profile_id: courseForm.teacher_profile_id,
+      anti_cheat_enabled: courseForm.anti_cheat_enabled,
     };
     setError(null);
 
@@ -933,21 +941,24 @@ export function AdminPage() {
           </Box>
           <FormControl>
             <InputLabel id="course-instructor">Giảng viên</InputLabel>
-            <Select labelId="course-instructor" label="Giảng viên" value={courseForm.instructor_id === null ? (courseForm.instructor_name ? 'legacy' : '') : String(courseForm.instructor_id)} onChange={(event) => {
+            <Select labelId="course-instructor" label="Giảng viên" value={courseForm.teacher_profile_id === null ? (courseForm.instructor_name ? 'legacy' : '') : String(courseForm.teacher_profile_id)} onChange={(event) => {
               const value = event.target.value;
               if (value === 'legacy') return;
               const instructor = instructors.find((candidate) => candidate.id === Number(value));
               setCourseForm((form) => instructor
-                ? { ...form, instructor_id: instructor.id, instructor_name: instructor.name, instructor_bio: instructor.bio ?? '' }
-                : { ...form, instructor_id: null, instructor_name: '', instructor_bio: '' });
+                ? { ...form, instructor_id: instructor.id, teacher_profile_id: instructor.id, instructor_name: instructor.name, instructor_bio: instructor.bio ?? '' }
+                : { ...form, instructor_id: null, teacher_profile_id: null, instructor_name: '', instructor_bio: '' });
             }}>
               <MenuItem value="">Chưa chọn giảng viên</MenuItem>
               {courseForm.instructor_name && courseForm.instructor_id === null && <MenuItem value="legacy">{courseForm.instructor_name} (legacy)</MenuItem>}
-              {instructors.map((instructor) => <MenuItem key={instructor.id} value={String(instructor.id)}>{instructor.name}</MenuItem>)}
+              {instructors.map((instructor) => <MenuItem key={instructor.id} value={String(instructor.id)}><Stack direction="row" spacing={1} alignItems="center"><Avatar src={resolveMaterialUrl(instructor.avatar ?? undefined)} alt={`Ảnh giảng viên ${instructor.name}`} sx={{ width: 28, height: 28 }} /><span>{instructor.name}</span></Stack></MenuItem>)}
               {instructors.length === 0 && !courseForm.instructor_name && <MenuItem value="" disabled>Chưa có danh mục giảng viên</MenuItem>}
             </Select>
           </FormControl>
-          <TextField label="Giới thiệu giảng viên" multiline minRows={3} value={courseForm.instructor_bio} onChange={(event) => setCourseForm({ ...courseForm, instructor_bio: event.target.value })} />
+          <FormControlLabel
+            control={<Switch checked={courseForm.anti_cheat_enabled} onChange={(_, checked) => setCourseForm((form) => ({ ...form, anti_cheat_enabled: checked }))} />}
+            label="Bật chống gian lận video"
+          />
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between">
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
               <Button type="submit" variant="contained">{editingCourse ? 'Cập nhật' : 'Lưu khóa học'}</Button>
@@ -983,7 +994,6 @@ export function AdminPage() {
           )}
 
           {token && tab === 'paymentSettings' && <PaymentSettingsPanel token={token} />}
-          {token && tab === 'playbackSettings' && <PlaybackSettingsPanel token={token} />}
 
           {isOperationSection(tab) && <Stack spacing={2}>
             <Box component="section" role="region" aria-label={`Bộ lọc ${adminSectionCopy[tab].title.toLowerCase()}`} data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: operationStatusOptions[tab] ? 'minmax(240px, 1fr) minmax(150px, .45fr) minmax(180px, .55fr) auto' : 'minmax(240px, 1fr) minmax(150px, .45fr) auto', gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
@@ -1115,7 +1125,7 @@ export function AdminPage() {
               <AdminFilterToolbar label="Bộ lọc tài khoản" action={<Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, role: userRole, page: 1 })}>Áp dụng</Button>}>
                 <TextField label="Tìm tài khoản" value={userQuery} onChange={(event) => setUserQuery(event.target.value)} fullWidth />
                 <FormControl fullWidth><InputLabel id="student-status">Trạng thái</InputLabel><Select labelId="student-status" label="Trạng thái" value={userStatus} onChange={(event) => setUserStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="active">Đang hoạt động</MenuItem><MenuItem value="locked">Đã khóa</MenuItem></Select></FormControl>
-                <FormControl fullWidth><InputLabel id="user-role-filter">Vai trò</InputLabel><Select labelId="user-role-filter" label="Vai trò" value={userRole} onChange={(event) => setUserRole(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem><MenuItem value="teacher">Giảng viên</MenuItem><MenuItem value="student">Học viên</MenuItem></Select></FormControl>
+                <FormControl fullWidth><InputLabel id="user-role-filter">Vai trò</InputLabel><Select labelId="user-role-filter" label="Vai trò" value={userRole} onChange={(event) => setUserRole(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem><MenuItem value="student">Học viên</MenuItem></Select></FormControl>
               </AdminFilterToolbar>
             </Stack>
             {users?.data.length ? <Box sx={{ width: '100%', minWidth: 0 }}><AdminDataTable<ApiUser>
@@ -1323,6 +1333,7 @@ export function AdminPage() {
                       ['Học phí', `${Number(selectedCourse.price).toLocaleString('vi-VN')} đ`],
                       ['Thời hạn truy cập', '730 ngày (2 năm) từ ngày ghi danh'],
                       ['Giảng viên', selectedCourse.instructor_name || '—'],
+                      ['Chống gian lận video', selectedCourse.anti_cheat_enabled ? 'Đã bật' : 'Đã tắt'],
                       ['Bài kiểm tra', selectedCourse.exam_exists ? 'Đã cấu hình' : 'Chưa có'],
                       ['Ngày tạo', selectedCourse.created_at ? new Date(selectedCourse.created_at).toLocaleDateString('vi-VN') : '—'],
                       ['Ngày cập nhật', selectedCourse.updated_at ? new Date(selectedCourse.updated_at).toLocaleDateString('vi-VN') : '—'],

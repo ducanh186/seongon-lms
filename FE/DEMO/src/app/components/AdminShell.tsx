@@ -38,7 +38,6 @@ function getNavigationIcon(section: AdminSection) {
     case 'reviews':
       return <RateReviewRoundedIcon fontSize="small" />;
     case 'paymentSettings':
-    case 'playbackSettings':
       return <SettingsRoundedIcon fontSize="small" />;
     default:
       return <DashboardRoundedIcon fontSize="small" />;

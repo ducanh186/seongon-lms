@@ -12,10 +12,11 @@ export const adminRepositories = {
     getStats: api.adminStats,
   },
   instructors: {
-    list: api.adminInstructors,
-    create: api.createInstructor,
-    update: api.updateInstructor,
-    remove: api.deleteInstructor,
+    list: api.adminTeacherProfiles,
+    create: api.createTeacherProfile,
+    update: api.updateTeacherProfile,
+    remove: api.deleteTeacherProfile,
+    uploadImage: api.uploadTeacherProfileImage,
   },
   roles: {
     list: api.adminRoles,

@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material';
-import { ApiError } from '../../lib/api';
-import type { ApiInstructor } from '../../lib/contracts';
+import { Alert, Avatar, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material';
+import { ApiError, resolveMaterialUrl } from '../../lib/api';
+import type { ApiTeacherProfile } from '../../lib/contracts';
 import { adminRepositories } from '../../data/repositories/adminRepositories';
 import { AdminDataTable } from '../../components/AdminDataTable';
 import { EmptyState } from '../../components/AsyncState';
 
 export function InstructorCatalogManager({ token }: { token: string }) {
-  const [rows, setRows] = useState<ApiInstructor[]>([]);
-  const [editing, setEditing] = useState<ApiInstructor | null>(null);
-  const [removing, setRemoving] = useState<ApiInstructor | null>(null);
+  const [rows, setRows] = useState<ApiTeacherProfile[]>([]);
+  const [editing, setEditing] = useState<ApiTeacherProfile | null>(null);
+  const [removing, setRemoving] = useState<ApiTeacherProfile | null>(null);
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -40,6 +42,7 @@ export function InstructorCatalogManager({ token }: { token: string }) {
     setEditing(null);
     setName('');
     setBio('');
+    setAvatar(null);
   };
 
   const save = async (event: FormEvent) => {
@@ -48,7 +51,7 @@ export function InstructorCatalogManager({ token }: { token: string }) {
     setError('');
     setNotice('');
     try {
-      const body = { name: name.trim(), bio: bio.trim() || undefined };
+      const body = { name: name.trim(), bio: bio.trim() || undefined, avatar };
       if (editing) await adminRepositories.instructors.update(token, editing.id, body);
       else await adminRepositories.instructors.create(token, body);
       reset();
@@ -58,6 +61,19 @@ export function InstructorCatalogManager({ token }: { token: string }) {
       setError(reason instanceof ApiError ? reason.message : 'Không thể lưu danh mục giảng viên.');
     } finally {
       setBusy(false);
+    }
+  };
+
+  const uploadAvatar = async (file: File) => {
+    setUploading(true);
+    setError('');
+    try {
+      const response = await adminRepositories.instructors.uploadImage(token, file);
+      setAvatar(response.url);
+    } catch (reason) {
+      setError(reason instanceof ApiError ? reason.message : 'Không thể tải ảnh giảng viên.');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -91,6 +107,16 @@ export function InstructorCatalogManager({ token }: { token: string }) {
               <Typography component="h2" variant="h6" fontWeight={800}>{editing ? 'Sửa danh mục giảng viên' : 'Tạo danh mục giảng viên'}</Typography>
               <TextField required label="Tên giảng viên" value={name} onChange={(event) => setName(event.target.value)} inputProps={{ maxLength: 255 }} />
               <TextField label="Giới thiệu giảng viên" multiline minRows={3} value={bio} onChange={(event) => setBio(event.target.value)} />
+              <Box>
+                <Typography variant="body2" fontWeight={700}>Ảnh giảng viên</Typography>
+                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mt: 1 }}>
+                  <Avatar src={resolveMaterialUrl(avatar ?? undefined)} alt="Xem trước ảnh giảng viên" sx={{ width: 56, height: 56 }} />
+                  <Button component="label" variant="outlined" disabled={busy || uploading}>
+                    {uploading ? 'Đang tải ảnh' : 'Chọn ảnh'}
+                    <input aria-label="Ảnh giảng viên" hidden type="file" accept="image/jpeg,image/png" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void uploadAvatar(file); }} />
+                  </Button>
+                </Stack>
+              </Box>
               <Stack direction="row" spacing={1}>
                 <Button type="submit" variant="contained" disabled={busy || !name.trim()}>{editing ? 'Cập nhật giảng viên' : 'Lưu giảng viên'}</Button>
                 {editing && <Button disabled={busy} onClick={reset}>Hủy</Button>}
@@ -100,16 +126,16 @@ export function InstructorCatalogManager({ token }: { token: string }) {
         </Card>
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
-            {loading ? <Typography role="status">Đang tải danh mục giảng viên…</Typography> : rows.length === 0 ? <EmptyState title="Chưa có danh mục giảng viên." /> : <AdminDataTable<ApiInstructor>
+            {loading ? <Typography role="status">Đang tải danh mục giảng viên…</Typography> : rows.length === 0 ? <EmptyState title="Chưa có danh mục giảng viên." /> : <AdminDataTable<ApiTeacherProfile>
               label="Danh sách giảng viên"
               rows={rows}
               getRowKey={(row) => row.id}
               minWidth={620}
               columns={[
-                { key: 'name', header: 'Tên giảng viên', render: (row) => <Typography fontWeight={700}>{row.name}</Typography> },
+                { key: 'name', header: 'Tên giảng viên', render: (row) => <Stack direction="row" spacing={1} alignItems="center"><Avatar src={resolveMaterialUrl(row.avatar ?? undefined)} alt={`Ảnh giảng viên ${row.name}`} sx={{ width: 32, height: 32 }} /> <Typography fontWeight={700}>{row.name}</Typography></Stack> },
                 { key: 'bio', header: 'Giới thiệu', render: (row) => row.bio || 'Chưa có giới thiệu' },
                 { key: 'courses_count', header: 'Khóa học', align: 'center', render: (row) => `${row.courses_count} khóa học` },
-                { key: 'actions', header: 'Thao tác', align: 'center', width: 150, render: (row) => <Stack direction="row" spacing={0.5} justifyContent="center" sx={{ flexWrap: 'nowrap', '& .MuiButton-root': { minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 } }}><Button disabled={busy} onClick={() => { setEditing(row); setName(row.name); setBio(row.bio ?? ''); }}>Sửa</Button><Button color="error" disabled={busy} onClick={() => setRemoving(row)}>Xóa</Button></Stack> },
+                { key: 'actions', header: 'Thao tác', align: 'center', width: 150, render: (row) => <Stack direction="row" spacing={0.5} justifyContent="center" sx={{ flexWrap: 'nowrap', '& .MuiButton-root': { minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 } }}><Button disabled={busy} onClick={() => { setEditing(row); setName(row.name); setBio(row.bio ?? ''); setAvatar(row.avatar); }}>Sửa</Button><Button color="error" disabled={busy} onClick={() => setRemoving(row)}>Xóa</Button></Stack> },
               ]}
             />}
           </CardContent>

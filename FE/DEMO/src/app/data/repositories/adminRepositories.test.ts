@@ -21,10 +21,11 @@ vi.mock('../../lib/api', () => ({
     adminLearningProgress: vi.fn(),
     adminQuestions: vi.fn(),
     adminAnswers: vi.fn(),
-    adminInstructors: vi.fn(),
-    createInstructor: vi.fn(),
-    updateInstructor: vi.fn(),
-    deleteInstructor: vi.fn(),
+    adminTeacherProfiles: vi.fn(),
+    createTeacherProfile: vi.fn(),
+    updateTeacherProfile: vi.fn(),
+    deleteTeacherProfile: vi.fn(),
+    uploadTeacherProfileImage: vi.fn(),
   },
 }));
 
@@ -48,20 +49,20 @@ describe('admin repositories', () => {
   });
 
   it('keeps instructor catalog CRUD behind the instructors repository', async () => {
-    vi.mocked(api.adminInstructors).mockResolvedValue({ data: [] } as never);
-    vi.mocked(api.createInstructor).mockResolvedValue({ data: {} } as never);
-    vi.mocked(api.updateInstructor).mockResolvedValue({ data: {} } as never);
-    vi.mocked(api.deleteInstructor).mockResolvedValue(null as never);
+    vi.mocked(api.adminTeacherProfiles).mockResolvedValue({ data: [] } as never);
+    vi.mocked(api.createTeacherProfile).mockResolvedValue({ data: {} } as never);
+    vi.mocked(api.updateTeacherProfile).mockResolvedValue({ data: {} } as never);
+    vi.mocked(api.deleteTeacherProfile).mockResolvedValue(null as never);
 
     await adminRepositories.instructors.list('token');
     await adminRepositories.instructors.create('token', { name: 'Teacher', bio: 'Bio' });
     await adminRepositories.instructors.update('token', 3, { name: 'Updated', bio: '' });
     await adminRepositories.instructors.remove('token', 3);
 
-    expect(api.adminInstructors).toHaveBeenCalledWith('token');
-    expect(api.createInstructor).toHaveBeenCalledWith('token', { name: 'Teacher', bio: 'Bio' });
-    expect(api.updateInstructor).toHaveBeenCalledWith('token', 3, { name: 'Updated', bio: '' });
-    expect(api.deleteInstructor).toHaveBeenCalledWith('token', 3);
+    expect(api.adminTeacherProfiles).toHaveBeenCalledWith('token');
+    expect(api.createTeacherProfile).toHaveBeenCalledWith('token', { name: 'Teacher', bio: 'Bio' });
+    expect(api.updateTeacherProfile).toHaveBeenCalledWith('token', 3, { name: 'Updated', bio: '' });
+    expect(api.deleteTeacherProfile).toHaveBeenCalledWith('token', 3);
   });
 
   it('keeps learning-operation reads behind typed repositories', async () => {

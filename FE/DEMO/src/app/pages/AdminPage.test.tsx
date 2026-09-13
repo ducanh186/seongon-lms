@@ -18,9 +18,14 @@ const createCatalog = vi.hoisted(() => vi.fn());
 const updateCatalog = vi.hoisted(() => vi.fn());
 const deleteCatalog = vi.hoisted(() => vi.fn());
 const adminInstructors = vi.hoisted(() => vi.fn());
+const adminTeacherProfiles = vi.hoisted(() => vi.fn());
 const createInstructor = vi.hoisted(() => vi.fn());
+const createTeacherProfile = vi.hoisted(() => vi.fn());
 const updateInstructor = vi.hoisted(() => vi.fn());
+const updateTeacherProfile = vi.hoisted(() => vi.fn());
 const deleteInstructor = vi.hoisted(() => vi.fn());
+const deleteTeacherProfile = vi.hoisted(() => vi.fn());
+const uploadTeacherProfileImage = vi.hoisted(() => vi.fn());
 const adminCourses = vi.hoisted(() => vi.fn());
 const adminLessons = vi.hoisted(() => vi.fn());
 const adminExams = vi.hoisted(() => vi.fn());
@@ -42,7 +47,7 @@ const useAuth = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { adminStats, adminRoles, adminUsers, adminUser, adminUserRecords, updateUserStatus, updateUserRole, adminCategories, adminCatalogs, createCatalog, updateCatalog, deleteCatalog, adminInstructors, createInstructor, updateInstructor, deleteInstructor, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, publishCourse, saveQuiz, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, deleteReview, adminNews, saveNews, deleteNews },
+  api: { adminStats, adminRoles, adminUsers, adminUser, adminUserRecords, updateUserStatus, updateUserRole, adminCategories, adminCatalogs, createCatalog, updateCatalog, deleteCatalog, adminInstructors, createInstructor, updateInstructor, deleteInstructor, adminTeacherProfiles, createTeacherProfile, updateTeacherProfile, deleteTeacherProfile, uploadTeacherProfileImage, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, publishCourse, saveQuiz, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, deleteReview, adminNews, saveNews, deleteNews },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
@@ -137,10 +142,14 @@ function mockAdminData() {
   createCatalog.mockResolvedValue({ data: { id: 3, name: 'Mới', description: null } });
   updateCatalog.mockResolvedValue({ data: { id: 1, name: 'Marketing', description: 'Tin tức marketing' } });
   deleteCatalog.mockResolvedValue(null);
-  adminInstructors.mockResolvedValue({ data: [{ id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', courses_count: 1, created_at: '', updated_at: '' }] });
+  adminInstructors.mockResolvedValue({ data: [{ id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' }] });
+  adminTeacherProfiles.mockResolvedValue({ data: [{ id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' }] });
   createInstructor.mockResolvedValue({ data: { id: 2, name: 'Mới', bio: null, courses_count: 0, created_at: '', updated_at: '' } });
+  createTeacherProfile.mockResolvedValue({ data: { id: 2, name: 'Mới', bio: null, avatar: null, courses_count: 0, created_at: '', updated_at: '' } });
   updateInstructor.mockResolvedValue({ data: { id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', courses_count: 1, created_at: '', updated_at: '' } });
+  updateTeacherProfile.mockResolvedValue({ data: { id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' } });
   deleteInstructor.mockResolvedValue(null);
+  deleteTeacherProfile.mockResolvedValue(null);
   adminCourses.mockResolvedValue({ data: [course], meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 } });
   adminLessons.mockResolvedValue({
     data: [{
@@ -250,12 +259,50 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('option', { name: 'SEO' }));
     await user.keyboard('{Escape}');
     await user.click(screen.getByRole('combobox', { name: 'Giảng viên' }));
-    await user.click(screen.getByRole('option', { name: 'SEONGON' }));
+    await user.click(screen.getByRole('option', { name: /SEONGON/ }));
     await user.click(screen.getByRole('button', { name: 'Lưu khóa học' }));
 
     await waitFor(() => expect(saveCourse).toHaveBeenCalledWith(
       'admin-token',
-      expect.objectContaining({ instructor_id: 1, instructor_name: 'SEONGON', instructor_bio: 'Giảng viên SEO' }),
+      expect.objectContaining({ instructor_id: 1, teacher_profile_id: 1, instructor_name: 'SEONGON', instructor_bio: 'Giảng viên SEO' }),
+      undefined,
+    ));
+  });
+
+  it('renders the selected teacher avatar in the course dropdown', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học', exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Tạo khóa học mới' }));
+    await user.click(screen.getByRole('combobox', { name: 'Danh mục' }));
+    await user.click(screen.getByRole('option', { name: 'SEO' }));
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('combobox', { name: 'Giảng viên' }));
+
+    expect(await screen.findByRole('img', { name: 'Ảnh giảng viên SEONGON' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/seongon.jpg');
+  });
+
+  it('saves playback protection as a per-course setting', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học', exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Tạo khóa học mới' }));
+    await screen.findByRole('heading', { name: 'Tạo khóa học' });
+    await user.type(screen.getByRole('textbox', { name: /Tiêu đề/ }), 'Course playback riêng');
+    await user.click(screen.getByRole('combobox', { name: 'Danh mục' }));
+    await user.click(screen.getByRole('option', { name: 'SEO' }));
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('textbox', { name: 'Giới thiệu giảng viên' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('switch', { name: 'Bật chống gian lận video' }));
+    await user.click(screen.getByRole('button', { name: 'Lưu khóa học' }));
+
+    await waitFor(() => expect(saveCourse).toHaveBeenCalledWith(
+      'admin-token',
+      expect.objectContaining({ anti_cheat_enabled: true }),
       undefined,
     ));
   });
@@ -318,7 +365,6 @@ describe('AdminPage', () => {
       'Tài khoản',
       'Đơn hàng',
       'Cài đặt thanh toán',
-      'Cài đặt video',
       'Danh mục',
       'Khóa học',
       'Đánh giá',

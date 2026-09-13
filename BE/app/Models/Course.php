@@ -23,16 +23,19 @@ class Course extends Model
         'thumbnail',
         'price',
         'instructor_id',
+        'teacher_profile_id',
         'instructor_name',
         'instructor_bio',
         'level',
         'status',
+        'anti_cheat_enabled',
     ];
 
     protected function casts(): array
     {
         return [
             'price' => 'decimal:2',
+            'anti_cheat_enabled' => 'boolean',
         ];
     }
 
@@ -84,6 +87,11 @@ class Course extends Model
     public function instructor(): BelongsTo
     {
         return $this->belongsTo(Instructor::class);
+    }
+
+    public function teacherProfile(): BelongsTo
+    {
+        return $this->belongsTo(TeacherProfile::class);
     }
 
     /**

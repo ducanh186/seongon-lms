@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Course;
 use App\Models\CourseCategory;
 use App\Models\Instructor;
+use App\Models\TeacherProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +39,7 @@ class CourseService
     public function paginateForAdmin(array $filters = []): LengthAwarePaginator
     {
         $query = Course::query()
-            ->with(['category', 'categories'])
+            ->with(['category', 'categories', 'teacherProfile'])
             ->withCount(['lessons', 'questions', 'enrollments', 'reviews'])
             ->withExists('exam')
             ->withAvg('reviews', 'rating');
@@ -81,7 +82,7 @@ class CourseService
     public function forAdmin(Course $course): Course
     {
         return $course
-            ->load(['category', 'categories', 'lessons', 'quiz.questions.answers'])
+            ->load(['category', 'categories', 'teacherProfile', 'lessons', 'quiz.questions.answers'])
             ->loadCount(['lessons', 'questions', 'enrollments', 'reviews'])
             ->loadExists('exam')
             ->loadAvg('reviews', 'rating');
@@ -150,7 +151,14 @@ class CourseService
     {
         unset($data['category_ids'], $data['category_id']);
 
-        if (! empty($data['instructor_id'])) {
+        if (! empty($data['teacher_profile_id'])) {
+            $teacherProfile = TeacherProfile::query()->findOrFail($data['teacher_profile_id']);
+            $data['instructor_name'] = $teacherProfile->name;
+            $data['instructor_bio'] = $teacherProfile->bio;
+            // Teacher profiles are the canonical relationship. Do not copy the
+            // profile id into the legacy instructors FK, which may not exist.
+            unset($data['instructor_id']);
+        } elseif (! empty($data['instructor_id'])) {
             $instructor = Instructor::query()->findOrFail($data['instructor_id']);
             $data['instructor_name'] = $instructor->name;
             $data['instructor_bio'] = $instructor->bio;

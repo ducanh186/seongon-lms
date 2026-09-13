@@ -59,6 +59,16 @@ export interface ApiInstructor {
   updated_at: string;
 }
 
+export interface ApiTeacherProfile {
+  id: number;
+  name: string;
+  bio: string | null;
+  avatar: string | null;
+  courses_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ApiCategory {
   id: number;
   name: string;
@@ -102,8 +112,11 @@ export interface ApiCourse {
   instructor_name: string | null;
   instructor_bio: string | null;
   instructor_id?: number | null;
+  teacher_profile_id?: number | null;
+  teacher_profile?: ApiTeacherProfile | null;
   level: CourseLevel | null;
   status: CourseStatus;
+  anti_cheat_enabled?: boolean;
   lessons_count?: number;
   questions_count?: number;
   enrollments_count?: number;

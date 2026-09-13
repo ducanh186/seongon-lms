@@ -156,6 +156,30 @@ class VideoProgressTest extends TestCase
         ]);
     }
 
+    public function test_seeking_to_the_end_does_not_credit_a_course_with_anti_cheat_enabled(): void
+    {
+        $student = User::factory()->create();
+        $course = Course::factory()->create(['anti_cheat_enabled' => true]);
+        Enrollment::factory()->create(['user_id' => $student->id, 'course_id' => $course->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id, 'duration' => 600]);
+        Carbon::setTestNow('2026-09-12 10:00:00');
+
+        $this->actingAs($student, 'sanctum')
+            ->patchJson("/api/v1/my/lessons/{$lesson->id}/progress", [
+                'position_seconds' => 0,
+                'duration_seconds' => 600,
+            ])->assertOk();
+
+        Carbon::setTestNow('2026-09-12 10:00:10');
+        $this->actingAs($student, 'sanctum')
+            ->patchJson("/api/v1/my/lessons/{$lesson->id}/progress", [
+                'position_seconds' => 600,
+                'duration_seconds' => 600,
+            ])->assertOk()
+            ->assertJsonPath('lesson.watched_seconds', 0)
+            ->assertJsonPath('lesson.is_completed', false);
+    }
+
     public function test_sequential_heartbeats_credit_real_playback_until_the_lesson_is_complete(): void
     {
         $student = User::factory()->create();

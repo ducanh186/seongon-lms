@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 class ProgressService
 {
     private const COMPLETION_RATIO = 0.95;
+    private const MAX_HEARTBEAT_CREDIT_SECONDS = 15;
+    private const HEARTBEAT_TOLERANCE_SECONDS = 2;
 
     public function completeLesson(Enrollment $enrollment, Lesson $lesson): LearningProgress
     {
@@ -38,6 +40,7 @@ class ProgressService
         int $durationSeconds,
     ): LearningProgress {
         return DB::transaction(function () use ($enrollment, $lesson, $positionSeconds, $durationSeconds) {
+            $lesson->loadMissing('course');
             $progress = LearningProgress::query()
                 ->where('enrollment_id', $enrollment->id)
                 ->where('lesson_id', $lesson->id)
@@ -59,10 +62,21 @@ class ProgressService
             $position = min(max(0, $positionSeconds), $duration);
             $furthest = max((int) ($progress->furthest_position_seconds ?? 0), $position);
             $segments = is_array($progress->watched_segments) ? $progress->watched_segments : [];
-            // Playback integrity checks are disabled. Keep the legacy behavior where
-            // the furthest reported position credits the watched range.
-            $segments = $this->mergeWatchedSegment($segments, 0, $position);
-            $watchedSeconds = min($this->watchedSeconds($segments), $duration);
+            $watchedSeconds = (int) ($progress->watched_seconds ?? 0);
+            $lastHeartbeat = $progress->last_heartbeat_at;
+            if (! (bool) ($lesson->course?->anti_cheat_enabled ?? false)) {
+                $segments = $this->mergeWatchedSegment($segments, 0, $position);
+                $watchedSeconds = min($this->watchedSeconds($segments), $duration);
+            } elseif ($lastHeartbeat) {
+                $elapsed = max(0, now()->timestamp - $lastHeartbeat->timestamp);
+                $previousPosition = (int) ($progress->resume_position_seconds ?? 0);
+                $positionDelta = $position - $previousPosition;
+                $maxCredit = min(self::MAX_HEARTBEAT_CREDIT_SECONDS, $elapsed + self::HEARTBEAT_TOLERANCE_SECONDS);
+                if ($positionDelta > 0 && $positionDelta <= $maxCredit) {
+                    $segments = $this->mergeWatchedSegment($segments, $previousPosition, $position);
+                    $watchedSeconds = min($this->watchedSeconds($segments), $duration);
+                }
+            }
             $completed = $progress->is_completed || $watchedSeconds >= (int) ceil($duration * self::COMPLETION_RATIO);
 
             $progress->fill([
