@@ -314,13 +314,6 @@ export function AdminPage() {
   const loadRequestId = useRef(0);
   const loadedKeyBySection = useRef<Partial<Record<AdminSection, string>>>({});
 
-  useEffect(() => {
-    if (!token || tab !== 'courses' || !isCourseEditorOpen) return;
-    adminRepositories.instructors.list(token)
-      .then((response) => setInstructors(response.data))
-      .catch(() => setInstructors([]));
-  }, [isCourseEditorOpen, tab, token]);
-
   const cacheKeyFor = useCallback((section: AdminSection) => {
     switch (section) {
       case 'users':
