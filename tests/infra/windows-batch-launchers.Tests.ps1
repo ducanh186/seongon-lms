@@ -19,4 +19,16 @@ Describe 'Windows batch launchers' {
         $LASTEXITCODE | Should Be 0
         ($output -join "`n") | Should Match 'Dependencies: ready'
     }
+
+    It 'launches both native scripts from the repository root without profile prompts' {
+        foreach ($name in @('build-local-web-windows.bat', 'start-local-web-windows.bat')) {
+            $launcher = Get-Content -Raw (Join-Path $infraRoot $name)
+
+            $launcher | Should Match 'REPO_ROOT=%~dp0\.\.'
+            $launcher | Should Match 'pushd "%REPO_ROOT%"'
+            $launcher | Should Match '-NoProfile -NonInteractive'
+            $launcher | Should Match 'POWERSHELL_EXE'
+            $launcher | Should Match 'popd'
+        }
+    }
 }
