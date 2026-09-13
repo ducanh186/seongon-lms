@@ -58,6 +58,18 @@ function Ensure-LocalEnvFile {
     )
 
     if (Test-Path -LiteralPath $Path -PathType Leaf) {
+        $content = Get-Content -Raw -LiteralPath $Path
+        $updatedContent = $content
+        if ($updatedContent -match '(?m)^HTTP_PORT=80\s*$') {
+            $updatedContent = $updatedContent -replace '(?m)^HTTP_PORT=80\s*$', 'HTTP_PORT=5173'
+        }
+        if ($updatedContent -match '(?m)^APP_URL=http://localhost\s*$') {
+            $updatedContent = $updatedContent -replace '(?m)^APP_URL=http://localhost\s*$', 'APP_URL=http://localhost:5173'
+        }
+        if ($updatedContent -ne $content) {
+            Set-Content -LiteralPath $Path -Value $updatedContent -Encoding UTF8
+            Write-Host "Updated legacy Docker port defaults in $Path" -ForegroundColor Yellow
+        }
         return
     }
     if (-not (Test-Path -LiteralPath $ExamplePath -PathType Leaf)) {
@@ -91,7 +103,7 @@ function Assert-DockerReady {
 function Get-HttpPort {
     $match = Select-String -Path $envPath -Pattern '^\s*HTTP_PORT\s*=\s*(\d+)\s*$' | Select-Object -First 1
     if (-not $match) {
-        return 80
+        return 5173
     }
 
     $port = [int]$match.Matches[0].Groups[1].Value
@@ -113,6 +125,48 @@ function Invoke-Compose {
     if ($LASTEXITCODE -ne 0) {
         throw "Docker Compose failed with exit code ${LASTEXITCODE}: docker compose $($Arguments -join ' ')"
     }
+}
+
+function Stop-PortProcess {
+    param([Parameter(Mandatory = $true)][int]$Port)
+
+    $listeners = @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)
+    if ($listeners.Count -eq 0) {
+        return
+    }
+
+    foreach ($listener in $listeners) {
+        $processId = [int]$listener.OwningProcess
+        if ($processId -eq 0) {
+            continue
+        }
+
+        $process = Get-CimInstance Win32_Process -Filter "ProcessId=$processId" -ErrorAction SilentlyContinue
+        if (-not $process) {
+            continue
+        }
+
+        $processName = [IO.Path]::GetFileNameWithoutExtension([string]$process.Name)
+        if ($processName -match '^(com\.docker\.backend|docker-proxy|dockerd|Docker Desktop)$') {
+            Write-Host "Port $Port is owned by Docker; stopping the current Compose stack..." -ForegroundColor Yellow
+            Invoke-Compose -Arguments @('down')
+            continue
+        }
+
+        Write-Host "Stopping process $processId ($processName) on port $Port..." -ForegroundColor Yellow
+        Stop-Process -Id $processId -Force -ErrorAction Stop
+    }
+
+    $deadline = [DateTime]::UtcNow.AddSeconds(10)
+    do {
+        $listeners = @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)
+        if ($listeners.Count -eq 0) {
+            return
+        }
+        Start-Sleep -Milliseconds 250
+    } while ([DateTime]::UtcNow -lt $deadline)
+
+    throw "Port $Port is still occupied after stopping the existing process."
 }
 
 function Wait-ForHealth {
@@ -154,6 +208,7 @@ try {
 
     Ensure-LocalEnvFile -Path $envPath -ExamplePath $envExamplePath
     Assert-DockerReady
+    Stop-PortProcess -Port (Get-HttpPort)
 
     Invoke-Compose -Arguments @('config', '--quiet')
     Invoke-Compose -Arguments @('build', '--pull', 'app', 'nginx')

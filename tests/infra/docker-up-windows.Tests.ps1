@@ -49,4 +49,17 @@ Describe 'Docker Desktop Windows launcher contract' {
             $envExample | Should Match "(?m)^$name="
         }
     }
+
+    It 'uses the native frontend port and releases an occupied listener before startup' {
+        $script = Get-Content -Raw -LiteralPath $scriptPath
+        $compose = Get-Content -Raw -LiteralPath $composePath
+        $envExample = Get-Content -Raw -LiteralPath $envExamplePath
+
+        $envExample | Should Match '(?m)^HTTP_PORT=5173$'
+        $envExample | Should Match '(?m)^APP_URL=http://localhost:5173$'
+        $compose | Should Match '\$\{HTTP_PORT:-5173\}:80'
+        $script | Should Match 'Stop-PortProcess'
+        $script | Should Match 'Get-NetTCPConnection'
+        $script | Should Match 'Stop-Process'
+    }
 }

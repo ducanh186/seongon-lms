@@ -7,7 +7,7 @@
 - Windows 10/11 với Docker Desktop đang chạy, bật Linux containers/WSL2.
 - Git trong `PATH`.
 - Internet ở lần build đầu để tải base images và package dependencies.
-- Cổng `80` chưa bị ứng dụng khác chiếm. Có thể đổi bằng `HTTP_PORT` trong `Infra/.env`.
+- Cổng `5173` dùng chung với native launcher. Script sẽ dừng process đang chiếm cổng này trước khi khởi động Docker. Có thể đổi bằng `HTTP_PORT` trong `Infra/.env`.
 
 ## 2. Lần đầu và mỗi lần cập nhật
 
@@ -29,8 +29,8 @@ Script sẽ:
 
 Giao diện và API dùng cùng origin qua Nginx:
 
-- Website: `http://localhost`
-- Healthcheck: `http://localhost/healthz`
+- Website: `http://localhost:5173`
+- Healthcheck: `http://localhost:5173/healthz`
 - phpMyAdmin (chỉ khi bật admin): `http://127.0.0.1:8081`
 
 Muốn bật phpMyAdmin:
@@ -55,7 +55,7 @@ Nếu build hoặc healthcheck lỗi, script tự in trạng thái service và 1
 
 - `Docker CLI was not found`: cài Docker Desktop, mở lại PowerShell rồi chạy lại.
 - `Docker Desktop is not running`: mở Docker Desktop và chờ engine báo Ready.
-- `port is already allocated`: đổi `HTTP_PORT` trong `Infra/.env`, sau đó chạy lại script.
+- `Port ... is still occupied`: kiểm tra process có quyền dừng hay đổi `HTTP_PORT` trong `Infra/.env`, sau đó chạy lại script.
 - `healthcheck timeout`: xem `docker compose ... logs --tail=120`; thường là Docker chưa đủ RAM/CPU hoặc database đang khởi động lần đầu.
 - Muốn kiểm tra Compose mà không start container: `docker compose --env-file Infra/.env -f Infra/docker-compose.yml config`.
 
