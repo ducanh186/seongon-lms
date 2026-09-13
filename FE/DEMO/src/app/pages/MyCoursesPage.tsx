@@ -18,6 +18,7 @@ import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { Link, useLocation } from 'react-router';
 import { ApiError } from '../lib/api';
+import { resolveMaterialUrl } from '../lib/apiUrl';
 import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiEnrollment, ApiEnrollmentSummary, Paginated } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
@@ -194,7 +195,7 @@ export function MyCoursesPage() {
                     <Card key={enrollment.id} variant="outlined" sx={{ display: 'grid', gridTemplateColumns: '180px minmax(0, 1fr)', overflow: 'hidden' }}>
                       <Box
                         component="img"
-                        src={enrollment.course?.thumbnail ?? '/generated-images/course-seo.webp'}
+                        src={resolveMaterialUrl(enrollment.course?.thumbnail) ?? '/generated-images/course-seo.webp'}
                         alt={`Ảnh khóa học ${courseTitle}`}
                         sx={{ width: '100%', height: '100%', minHeight: 210, objectFit: 'cover' }}
                       />

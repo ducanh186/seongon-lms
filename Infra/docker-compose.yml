@@ -67,6 +67,8 @@ services:
     restart: unless-stopped
     ports:
       - "${HTTP_PORT:-5173}:80"
+    volumes:
+      - app_storage:/var/www/html/storage:ro
     depends_on:
       app:
         condition: service_healthy

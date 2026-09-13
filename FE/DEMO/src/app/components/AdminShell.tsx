@@ -13,6 +13,7 @@ import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import { Avatar, Box, Button, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { resolveMaterialUrl } from '../lib/apiUrl';
 import { getAdminNavigationItems, type AdminSection } from '../admin/adminNavigation';
 
 export type { AdminSection } from '../admin/adminNavigation';
@@ -69,7 +70,7 @@ export function AdminShell({ active, onChange, children }: AdminShellProps) {
             Đăng xuất
           </Button>
           <Stack direction="row" alignItems="center" spacing={1.25} sx={{ pl: 2, borderLeft: '1px solid rgba(255,255,255,.18)' }}>
-            <Avatar src={user?.avatar ?? undefined} sx={{ width: 34, height: 34, bgcolor: 'primary.main' }}>{user?.name?.[0] ?? 'A'}</Avatar>
+            <Avatar src={resolveMaterialUrl(user?.avatar)} sx={{ width: 34, height: 34, bgcolor: 'primary.main' }}>{user?.name?.[0] ?? 'A'}</Avatar>
             <Box>
               <Typography variant="body2" color="common.white" fontWeight={750}>{user?.name ?? 'SEONGON Admin'}</Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255,255,255,.65)' }}>Quản trị hệ thống</Typography>

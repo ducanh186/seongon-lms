@@ -9,7 +9,10 @@ const useAuth = vi.hoisted(() => vi.fn());
 const useCart = vi.hoisted(() => vi.fn());
 const add = vi.hoisted(() => vi.fn());
 
-vi.mock('../lib/api', () => ({ api: { course, reviews } }));
+vi.mock('../lib/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/api')>()),
+  api: { course, reviews },
+}));
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 vi.mock('../cart/CartContext', () => ({ useCart }));
 
@@ -127,6 +130,27 @@ describe('CoursePage', () => {
     const { default: userEvent } = await import('@testing-library/user-event');
     await userEvent.setup().click(await screen.findByRole('link', { name: 'Đăng nhập để đăng ký' }));
     expect(await screen.findByText('from: /courses/seo-foundation')).toBeInTheDocument();
+  });
+
+  it('loads an uploaded thumbnail from the Laravel origin', async () => {
+    useAuth.mockReturnValue({ user: null });
+    useCart.mockReturnValue({ add, contains: () => false });
+    course.mockResolvedValue({
+      data: {
+        id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: null,
+        thumbnail: '/storage/course-images/seo.jpg', price: '299000.00', instructor_name: null,
+        instructor_bio: null, level: 'beginner', status: 'published', created_at: '2026-07-10T00:00:00Z',
+      },
+    });
+    reviews.mockResolvedValue({ data: [] });
+
+    const { container } = render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /></Routes></MemoryRouter>);
+
+    await screen.findByRole('heading', { name: 'SEO Foundation' });
+    expect(container.querySelector('img')).toHaveAttribute(
+      'src',
+      'http://127.0.0.1:8000/storage/course-images/seo.jpg',
+    );
   });
 
   it('shows the enrolled state with a link to the learning page instead of purchase buttons (UC-06)', async () => {

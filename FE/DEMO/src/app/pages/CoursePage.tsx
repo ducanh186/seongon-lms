@@ -17,6 +17,7 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { Link, useNavigate, useParams } from 'react-router';
 import { ApiError } from '../lib/api';
+import { resolveMaterialUrl } from '../lib/apiUrl';
 import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiCourse, ApiReview } from '../lib/contracts';
 import { useAuth } from '../contexts/AuthContext';
@@ -82,7 +83,7 @@ export function CoursePage() {
               <Typography color="text.secondary" sx={{ mt: 3, whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>{course.description || 'Nội dung khóa học đang được cập nhật.'}</Typography>
             </Box>
             <Box sx={{ bgcolor: '#E9F7F5', border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden' }}>
-              <Box component="img" src={course.thumbnail ?? FALLBACK_COURSE_IMAGE} alt="" sx={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', display: 'block' }} />
+              <Box component="img" src={resolveMaterialUrl(course.thumbnail) ?? FALLBACK_COURSE_IMAGE} alt="" sx={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', display: 'block' }} />
             </Box>
             <Divider />
             <Box>

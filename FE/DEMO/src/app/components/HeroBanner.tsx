@@ -1,6 +1,7 @@
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { Link } from 'react-router';
+import { resolveMaterialUrl } from '../lib/apiUrl';
 import type { ApiCourse } from '../lib/contracts';
 import { layoutTokens } from '../theme';
 
@@ -21,7 +22,7 @@ export function HeroBanner({ courses }: { courses: ApiCourse[] }) {
     >
       <Box
         component="img"
-        src={primary.thumbnail ?? FALLBACK_HERO_IMAGE}
+        src={resolveMaterialUrl(primary.thumbnail) ?? FALLBACK_HERO_IMAGE}
         alt=""
         loading="eager"
         sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}

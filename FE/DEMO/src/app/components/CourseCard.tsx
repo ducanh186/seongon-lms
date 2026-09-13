@@ -2,6 +2,7 @@ import { Box, Card, CardActionArea, CardContent, Chip, Stack, Typography } from 
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import { Link } from 'react-router';
+import { resolveMaterialUrl } from '../lib/apiUrl';
 import type { ApiCourse } from '../lib/contracts';
 
 const FALLBACK_COURSE_IMAGE = '/generated-images/course-seo.webp';
@@ -18,7 +19,7 @@ export function CourseCard({ course, headingLevel = 'h3', compact = false }: { c
   return (
     <Card component="article" aria-label={`Khóa học ${course.title}`} sx={{ height: '100%', overflow: 'hidden', transition: 'transform 180ms ease', '&:hover': { transform: 'translateY(-3px)' } }}>
       <CardActionArea component={Link} to={`/courses/${course.slug}`} sx={{ height: '100%', display: 'flex', alignItems: 'stretch', flexDirection: 'column' }}>
-        <Box component="img" src={course.thumbnail ?? FALLBACK_COURSE_IMAGE} alt="" sx={{ width: '100%', height: compact ? 148 : 176, objectFit: 'cover', bgcolor: 'primary.light' }} />
+        <Box component="img" src={resolveMaterialUrl(course.thumbnail) ?? FALLBACK_COURSE_IMAGE} alt="" sx={{ width: '100%', height: compact ? 148 : 176, objectFit: 'cover', bgcolor: 'primary.light' }} />
         <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: compact ? 1 : 1.25, width: '100%', flexGrow: 1, p: compact ? 2 : 2.5 }}>
           <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
             {course.level && <Chip label={levelLabels[course.level]} size="small" color="primary" variant="outlined" />}

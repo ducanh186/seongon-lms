@@ -83,4 +83,18 @@ describe('AdminShell', () => {
     expect(screen.getByRole('complementary')).toHaveAttribute('data-collapsed', 'true');
     expect(screen.getByRole('button', { name: 'Mở rộng thanh bên' })).toBeInTheDocument();
   });
+
+  it('loads an uploaded administrator avatar from the Laravel origin', () => {
+    useAuth.mockReturnValue({
+      user: { name: 'SEONGON Admin', role: 'admin', avatar: '/storage/profile-avatars/admin.jpg' },
+      logout: vi.fn(),
+    });
+
+    render(<MemoryRouter><AdminShell active="overview" onChange={vi.fn()}><p>Nội dung quản trị</p></AdminShell></MemoryRouter>);
+
+    expect(screen.getByRole('banner', { name: 'Admin Portal' }).querySelector('img')).toHaveAttribute(
+      'src',
+      'http://127.0.0.1:8000/storage/profile-avatars/admin.jpg',
+    );
+  });
 });

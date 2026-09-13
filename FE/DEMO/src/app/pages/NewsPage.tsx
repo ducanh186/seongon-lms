@@ -18,6 +18,7 @@ import { Link } from 'react-router';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { SectionHeading } from '../components/SectionHeading';
 import { ApiError } from '../lib/api';
+import { resolveMaterialUrl } from '../lib/apiUrl';
 import { applicationRepositories } from '../data/repositories/applicationRepositories';
 import type { ApiNewsList } from '../lib/contracts';
 
@@ -84,7 +85,7 @@ export function NewsPage() {
               {news.data.map((post) => (
                 <Card key={post.id} variant="outlined" sx={{ height: '100%', borderRadius: 2.5 }}>
                   <CardActionArea component={Link} to={`/news/${post.slug}`} aria-label={post.title} sx={{ height: '100%', alignItems: 'stretch' }}>
-                    {post.thumbnail && <CardMedia component="img" height="180" image={post.thumbnail} alt="" />}
+                    {post.thumbnail && <CardMedia component="img" height="180" image={resolveMaterialUrl(post.thumbnail)} alt="" />}
                     <CardContent sx={{ height: '100%' }}>
                       <Stack spacing={1.25} sx={{ height: '100%' }}>
                         <Typography variant="overline" color="primary.main">{post.category}</Typography>

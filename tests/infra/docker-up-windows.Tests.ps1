@@ -2,6 +2,7 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..')).Path
 $scriptPath = Join-Path $repoRoot 'Infra\docker-up-windows.ps1'
 $batchPath = Join-Path $repoRoot 'Infra\docker-up-windows.bat'
 $composePath = Join-Path $repoRoot 'Infra\docker-compose.yml'
+$nginxConfigPath = Join-Path $repoRoot 'Infra\docker\nginx\default.conf'
 $envExamplePath = Join-Path $repoRoot 'Infra\.env.example'
 
 Describe 'Docker Desktop Windows launcher contract' {
@@ -41,6 +42,15 @@ Describe 'Docker Desktop Windows launcher contract' {
         $compose | Should Match 'mysql_data:'
         $compose | Should Match 'app_storage:'
         $compose | Should Not Match '(?m)^\s*- "3306:3306"'
+    }
+
+    It 'serves uploaded public files from the shared application storage volume' {
+        $compose = Get-Content -Raw -LiteralPath $composePath
+        $nginxConfig = Get-Content -Raw -LiteralPath $nginxConfigPath
+
+        $compose | Should Match '(?ms)nginx:.*?volumes:\s*\r?\n\s*- app_storage:/var/www/html/storage:ro'
+        $nginxConfig | Should Match 'location \^~ /storage/'
+        $nginxConfig | Should Match 'alias /var/www/html/storage/app/public/'
     }
 
     It 'documents all required first-run environment values' {

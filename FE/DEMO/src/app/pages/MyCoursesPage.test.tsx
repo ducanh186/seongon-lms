@@ -45,6 +45,30 @@ describe('MyCoursesPage', () => {
     expect(screen.getByLabelText('Đang tải nội dung')).toBeInTheDocument();
   });
 
+  it('loads an uploaded course thumbnail from the Laravel origin', async () => {
+    myCourses.mockResolvedValue({
+      data: [{
+        id: 1,
+        course_id: 10,
+        enrolled_at: '2026-01-01T00:00:00Z',
+        expires_at: '2027-01-01T00:00:00Z',
+        status: 'active',
+        is_expired: false,
+        course: { title: 'SEO Foundation', thumbnail: '/storage/course-images/seo.jpg' },
+        progress: { completed: 1, total: 10, percent: 10, can_take_exam: false },
+        certificate: null,
+      }],
+      meta: { current_page: 1, last_page: 1, per_page: 12, total: 1 },
+    });
+
+    render(<MemoryRouter><MyCoursesPage /></MemoryRouter>);
+
+    expect(await screen.findByRole('img', { name: 'Ảnh khóa học SEO Foundation' })).toHaveAttribute(
+      'src',
+      'http://127.0.0.1:8000/storage/course-images/seo.jpg',
+    );
+  });
+
   it('uses the required summary hierarchy, default filter, CTA, and certificate visibility', async () => {
     myCourses.mockResolvedValue({
       data: [

@@ -20,6 +20,7 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import logoSeongon from 'figma:asset/dd45f331e8a4458443255a6f01a8333b19d6c86a.png';
 import { useCart } from '../cart/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { resolveMaterialUrl } from '../lib/apiUrl';
 import { layoutTokens } from '../theme';
 import { CourseMegaMenu } from './CourseMegaMenu';
 import { NotificationMenu } from './NotificationMenu';
@@ -133,7 +134,7 @@ export function GlobalHeader() {
                 onMouseEnter={accountMenu.open}
                 onMouseLeave={accountMenu.closeAfterDelay}
                 onClick={accountMenu.open}
-                startIcon={<Avatar src={user.avatar ?? undefined} sx={{ width: 32, height: 32, bgcolor: 'primary.dark' }}>{user.name[0]}</Avatar>}
+                startIcon={<Avatar src={resolveMaterialUrl(user.avatar)} sx={{ width: 32, height: 32, bgcolor: 'primary.dark' }}>{user.name[0]}</Avatar>}
                 color="primary"
                 aria-haspopup="menu"
                 aria-controls={accountMenuId}

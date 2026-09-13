@@ -210,6 +210,20 @@ $artisan = Resolve-RequiredFile -Path (Join-Path $backendRoot 'artisan') -Descri
 $phpExecutable = Resolve-CommandPath -Name 'php.exe'
 $npmExecutable = Resolve-CommandPath -Name 'npm.cmd'
 
+$publicStorageLink = Join-Path $backendRoot 'public\storage'
+if (-not (Test-Path -LiteralPath $publicStorageLink)) {
+    Push-Location $backendRoot
+    try {
+        & $phpExecutable artisan storage:link
+        if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $publicStorageLink)) {
+            throw 'Could not create the Laravel public storage link.'
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}
+
 if ($mysqlService.Status -ne 'Running') {
     Write-Host "Starting $($mysqlService.Name)..." -ForegroundColor Yellow
     try {

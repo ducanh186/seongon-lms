@@ -7,8 +7,8 @@ import { NewsPage } from './NewsPage';
 import { api } from '../lib/api';
 import type { ApiNewsList, ApiNewsPost } from '../lib/contracts';
 
-vi.mock('../lib/api', () => ({
-  ApiError: class ApiError extends Error {},
+vi.mock('../lib/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/api')>()),
   api: {
     news: vi.fn(),
     newsPost: vi.fn(),
@@ -86,6 +86,21 @@ describe('News public pages', () => {
     expect(await screen.findByRole('heading', { name: posts[0].title })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: posts[0].title })).toHaveAttribute('href', `/news/${posts[0].slug}`);
     expect(screen.getByText(posts[1].excerpt)).toBeInTheDocument();
+  });
+
+  it('loads an uploaded news thumbnail from the Laravel origin', async () => {
+    vi.mocked(api.news).mockResolvedValue(page([{
+      ...posts[0],
+      thumbnail: '/storage/news-images/seo.jpg',
+    }]));
+
+    const { container } = renderNews();
+
+    await screen.findByRole('heading', { name: posts[0].title });
+    expect(container.querySelector('img')).toHaveAttribute(
+      'src',
+      'http://127.0.0.1:8000/storage/news-images/seo.jpg',
+    );
   });
 
   it('sends the selected category through the news API filter contract', async () => {

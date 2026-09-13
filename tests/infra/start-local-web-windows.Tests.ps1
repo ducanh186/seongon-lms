@@ -16,6 +16,12 @@ Describe 'start-local-web-windows MySQL service discovery' {
         $script | Should Match 'memory_limit=512M'
     }
 
+    It 'creates the Laravel public storage link before starting the servers' {
+        $script = Get-Content -Raw -LiteralPath $scriptPath
+
+        $script | Should Match 'artisan storage:link'
+    }
+
     It 'selects MySQL84 when it is the installed MySQL service' {
         Mock Get-Service {
             [pscustomobject]@{ Name = 'MySQL84'; Status = 'Running' }
