@@ -41,7 +41,7 @@ describe('AdminOverview', () => {
     expect(screen.getByRole('menuitem', { name: 'Báo cáo doanh thu' })).not.toHaveAttribute('href');
   });
 
-  it('keeps a visible download link after the report blob is generated', async () => {
+  it('auto-downloads the generated report without showing a fallback button', async () => {
     const user = userEvent.setup();
     const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
     vi.spyOn(api, 'downloadAdminReport').mockResolvedValue(new Blob(['pdf'], { type: 'application/pdf' }));
@@ -54,7 +54,7 @@ describe('AdminOverview', () => {
     await user.click(screen.getByRole('button', { name: 'Xuất báo cáo' }));
     await user.click(screen.getByRole('menuitem', { name: 'Báo cáo ghi danh' }));
 
-    expect(await screen.findByRole('link', { name: 'Tải báo cáo ghi danh' })).toHaveAttribute('href', 'blob:report');
+    expect(screen.queryByRole('link', { name: 'Tải báo cáo ghi danh' })).not.toBeInTheDocument();
     expect(clickSpy).toHaveBeenCalledOnce();
     clickSpy.mockRestore();
   });
