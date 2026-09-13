@@ -100,6 +100,20 @@ export function LearnCoursePage() {
     }
   };
 
+  const finishLesson = async (lesson: ApiLesson) => {
+    if (!token) return;
+    setError(null);
+    try {
+      const courseProgress = await applicationRepositories.learning.completeLesson(token, lesson.id);
+      setLessons((current) => current.map((item) => item.id === lesson.id ? { ...item, is_completed: true } : item));
+      setActiveLesson((current) => current?.id === lesson.id ? { ...current, is_completed: true } : current);
+      setProgress(courseProgress);
+      if (!lesson.is_completed) setNotice(`Đã hoàn thành: ${lesson.title}`);
+    } catch (reason) {
+      setError(reason instanceof ApiError ? reason.message : 'Không thể hoàn thành bài học.');
+    }
+  };
+
   const openQuiz = async () => {
     if (!token || !progress?.can_take_exam) return;
     try {
@@ -163,11 +177,6 @@ export function LearnCoursePage() {
               >
                 <Box component="span" sx={{ minWidth: 0 }}>
                   <Box component="span" sx={{ display: 'block' }}>{lesson.position}. {lesson.title}</Box>
-                  {typeof lesson.watched_percent === 'number' && (
-                    <Typography component="span" variant="caption" color="text.secondary">
-                      {lesson.watched_percent}% đã xem
-                    </Typography>
-                  )}
                 </Box>
               </Button>
             ))}
@@ -198,6 +207,7 @@ export function LearnCoursePage() {
                   durationSeconds: activeLesson.video_duration_seconds ?? activeLesson.duration,
                 }}
                 onProgress={({ positionSeconds, durationSeconds }) => savePlayback(activeLesson, positionSeconds, durationSeconds)}
+                onComplete={() => finishLesson(activeLesson)}
               />
             ) : (
               <Alert severity="info">Bài học này chưa có video.</Alert>

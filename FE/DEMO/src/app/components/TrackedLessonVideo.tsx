@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Box, Button, LinearProgress, Stack, Typography } from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
 
 export type PlaybackSnapshot = {
   positionSeconds: number;
@@ -17,11 +17,12 @@ type TrackedLessonVideoProps = {
   title: string;
   progress?: PlaybackProgress;
   onProgress: (snapshot: PlaybackSnapshot) => Promise<void> | void;
+  onComplete?: () => Promise<void> | void;
 };
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
-export function TrackedLessonVideo({ url, title, progress, onProgress }: TrackedLessonVideoProps) {
+export function TrackedLessonVideo({ url, title, progress, onProgress, onComplete }: TrackedLessonVideoProps) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const positionRef = useRef(Math.max(0, progress?.resumePositionSeconds ?? 0));
   const durationRef = useRef(Math.max(0, progress?.durationSeconds ?? 0));
@@ -29,6 +30,7 @@ export function TrackedLessonVideo({ url, title, progress, onProgress }: Tracked
   const lastSnapshotRef = useRef<PlaybackSnapshot | null>(null);
   const savePromiseRef = useRef<Promise<void> | null>(null);
   const onProgressRef = useRef(onProgress);
+  const onCompleteRef = useRef(onComplete);
   const [position, setPosition] = useState(positionRef.current);
   const [duration, setDuration] = useState(durationRef.current);
   const [saveState, setSaveState] = useState<SaveState>('idle');
@@ -36,6 +38,10 @@ export function TrackedLessonVideo({ url, title, progress, onProgress }: Tracked
   useEffect(() => {
     onProgressRef.current = onProgress;
   }, [onProgress]);
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     const nextPosition = Math.max(0, progress?.resumePositionSeconds ?? 0);
@@ -80,6 +86,14 @@ export function TrackedLessonVideo({ url, title, progress, onProgress }: Tracked
     void persist(force);
   }, [persist]);
 
+  const finishPlayback = useCallback((finalDuration: number) => {
+    durationRef.current = finalDuration;
+    positionRef.current = finalDuration;
+    setDuration(finalDuration);
+    setPosition(finalDuration);
+    void persist(true).then(() => onCompleteRef.current?.());
+  }, [persist]);
+
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'hidden') void persist(true);
@@ -108,9 +122,7 @@ export function TrackedLessonVideo({ url, title, progress, onProgress }: Tracked
       }
       if (payload.event === 'onStateChange' && payload.info === 2) void persist(true);
       if (payload.event === 'onStateChange' && payload.info === 0) {
-        positionRef.current = durationRef.current;
-        setPosition(durationRef.current);
-        void persist(true);
+        finishPlayback(durationRef.current);
       }
     };
 
@@ -124,7 +136,7 @@ export function TrackedLessonVideo({ url, title, progress, onProgress }: Tracked
       window.removeEventListener('message', handleMessage);
       void persist(true);
     };
-  }, [persist, updatePlayback, url]);
+  }, [finishPlayback, persist, updatePlayback, url]);
 
   const retry = () => {
     const snapshot = lastSnapshotRef.current;
@@ -133,10 +145,6 @@ export function TrackedLessonVideo({ url, title, progress, onProgress }: Tracked
     durationRef.current = snapshot.durationSeconds;
     void persist(true);
   };
-
-  const watchedPercent = duration > 0
-    ? Math.min(100, Math.floor(Math.max(progress?.furthestPositionSeconds ?? 0, position) / duration * 100))
-    : 0;
 
   return (
     <Stack spacing={1.25}>
@@ -177,7 +185,7 @@ export function TrackedLessonVideo({ url, title, progress, onProgress }: Tracked
             const finalDuration = Number.isFinite(event.currentTarget.duration) && event.currentTarget.duration > 0
               ? event.currentTarget.duration
               : durationRef.current;
-            updatePlayback(finalDuration, finalDuration, true);
+            finishPlayback(finalDuration);
           }}
         />
       )}
@@ -185,7 +193,6 @@ export function TrackedLessonVideo({ url, title, progress, onProgress }: Tracked
         <Typography variant="caption" color="text.secondary" sx={{ minWidth: 82 }}>
           {formatTime(position)} / {formatTime(duration)}
         </Typography>
-        <LinearProgress variant="determinate" value={watchedPercent} aria-label="Tiến độ video" sx={{ flex: 1, height: 6, borderRadius: 1 }} />
         {saveState === 'saving' && <Typography variant="caption" color="text.secondary">Đang lưu</Typography>}
         {saveState === 'saved' && <Typography variant="caption" color="success.main">Đã lưu</Typography>}
         {saveState === 'error' && <Button size="small" color="error" onClick={retry}>Thử lưu lại</Button>}

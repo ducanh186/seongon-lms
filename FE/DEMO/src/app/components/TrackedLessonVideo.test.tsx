@@ -51,11 +51,13 @@ describe('TrackedLessonVideo', () => {
 
   it('flushes the final position when playback ends', async () => {
     const onProgress = vi.fn().mockResolvedValue(undefined);
+    const onComplete = vi.fn().mockResolvedValue(undefined);
     render(
       <TrackedLessonVideo
         url="https://cdn.example.test/lesson.mp4"
         title="Lesson video"
         onProgress={onProgress}
+        onComplete={onComplete}
       />,
     );
     const video = screen.getByRole('video', { name: 'Lesson video' }) as HTMLVideoElement;
@@ -64,6 +66,8 @@ describe('TrackedLessonVideo', () => {
     fireEvent.ended(video);
 
     await waitFor(() => expect(onProgress).toHaveBeenCalledWith({ positionSeconds: 100, durationSeconds: 100 }));
+    await waitFor(() => expect(onComplete).toHaveBeenCalledOnce());
+    expect(screen.queryByRole('progressbar', { name: 'Tiến độ video' })).not.toBeInTheDocument();
   });
 
   it('ignores a YouTube message whose info payload is null', () => {

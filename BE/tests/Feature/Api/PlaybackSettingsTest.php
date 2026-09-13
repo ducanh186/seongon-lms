@@ -40,7 +40,7 @@ class PlaybackSettingsTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_disabled_anti_cheat_credits_a_seek_but_keeps_database_duration_authoritative(): void
+    public function test_playback_tracking_stays_completion_neutral_when_the_setting_is_disabled(): void
     {
         $admin = User::factory()->admin()->create();
         $adminToken = $admin->createToken('test')->plainTextToken;
@@ -60,6 +60,6 @@ class PlaybackSettingsTest extends TestCase
             ->assertOk()
             ->assertJsonPath('lesson.video_duration_seconds', 100)
             ->assertJsonPath('lesson.watched_seconds', 100)
-            ->assertJsonPath('lesson.is_completed', true);
+            ->assertJsonPath('lesson.is_completed', false);
     }
 }

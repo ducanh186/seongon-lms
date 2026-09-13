@@ -45,29 +45,49 @@ function useViewport(width: number) {
 }
 
 describe('LearnCoursePage', () => {
-  it('completes a lesson when a tracked video reaches the end', async () => {
+  it('completes one of four lessons when a mismatched YouTube video reaches the end', async () => {
     myCourses.mockResolvedValue(enrollmentResponse);
-    lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học video', video_url: 'https://cdn.example.test/lesson.mp4', description: null, duration: 30, position: 1, is_completed: false }] });
-    progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, can_take_exam: false });
+    lessons.mockResolvedValue({ data: [
+      { id: 5, course_id: 10, title: 'Bài học video', video_url: 'https://www.youtube.com/embed/example', description: null, duration: 600, position: 1, is_completed: false },
+      { id: 6, course_id: 10, title: 'Bài 2', video_url: '', description: null, duration: null, position: 2, is_completed: false },
+      { id: 7, course_id: 10, title: 'Bài 3', video_url: '', description: null, duration: null, position: 3, is_completed: false },
+      { id: 8, course_id: 10, title: 'Bài 4', video_url: '', description: null, duration: null, position: 4, is_completed: false },
+    ] });
+    progress.mockResolvedValue({ completed: 0, total: 4, percent: 0, can_take_exam: false });
     saveLessonProgress.mockResolvedValue({
-      lesson: { lesson_id: 5, resume_position_seconds: 30, furthest_position_seconds: 30, video_duration_seconds: 30, watched_percent: 100, is_completed: true },
-      course_progress: { completed: 1, total: 1, percent: 100, video_percent: 100, can_take_exam: true },
+      lesson: { lesson_id: 5, resume_position_seconds: 177, furthest_position_seconds: 177, video_duration_seconds: 600, watched_percent: 29, is_completed: false },
+      course_progress: { completed: 0, total: 4, percent: 0, video_percent: 29, can_take_exam: false },
     });
+    completeLesson.mockResolvedValue({ completed: 1, total: 4, percent: 25, video_percent: 29, can_take_exam: false });
 
     renderPage();
 
-    fireEvent.ended(await screen.findByRole('video', { name: 'Bài học video' }));
-    await waitFor(() => expect(saveLessonProgress).toHaveBeenCalledWith('student-token', 5, 30, 30));
+    await screen.findByTitle('Bài học video');
+    fireEvent(window, new MessageEvent('message', {
+      origin: 'https://www.youtube.com',
+      data: JSON.stringify({ event: 'infoDelivery', info: { currentTime: 177, duration: 177 } }),
+    }));
+    await waitFor(() => expect(saveLessonProgress).toHaveBeenCalledWith('student-token', 5, 177, 177));
+    fireEvent(window, new MessageEvent('message', {
+      origin: 'https://www.youtube.com',
+      data: JSON.stringify({ event: 'onStateChange', info: 0 }),
+    }));
+
+    await waitFor(() => expect(completeLesson).toHaveBeenCalledWith('student-token', 5));
+    expect(await screen.findByText('1/4')).toBeInTheDocument();
+    expect(screen.getByText('25%', { selector: 'h5' })).toBeInTheDocument();
   });
 
-  it('keeps lesson playback percentage separate from whole-course progress', async () => {
+  it('shows only lesson-count course progress and hides playback percentages', async () => {
     myCourses.mockResolvedValue(enrollmentResponse);
     lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học video', video_url: 'https://cdn.example.test/lesson.mp4', description: null, duration: 100, position: 1, is_completed: false, resume_position_seconds: 25, furthest_position_seconds: 40, video_duration_seconds: 100, watched_percent: 40 }] });
     progress.mockResolvedValue({ completed: 3, total: 4, percent: 75, video_percent: 97, can_take_exam: false });
 
     renderPage();
 
-    expect(await screen.findByText('40% đã xem')).toBeInTheDocument();
+    await screen.findByText('Bài học video');
+    expect(screen.queryByText('40% đã xem')).not.toBeInTheDocument();
+    expect(screen.queryByRole('progressbar', { name: 'Tiến độ video' })).not.toBeInTheDocument();
     expect(screen.getByRole('progressbar', { name: 'Tiến độ khóa học' })).toHaveAttribute('aria-valuenow', '75');
     expect(screen.getByText('75%', { selector: 'h5' })).toBeInTheDocument();
   });
@@ -83,7 +103,7 @@ describe('LearnCoursePage', () => {
 
     renderPage();
     await screen.findByTitle('Video YouTube');
-    window.dispatchEvent(new MessageEvent('message', {
+    fireEvent(window, new MessageEvent('message', {
       origin: 'https://www.youtube.com',
       data: JSON.stringify({ event: 'infoDelivery', info: { currentTime: 170, duration: 170 } }),
     }));
