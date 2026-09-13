@@ -318,6 +318,7 @@ describe('AdminPage', () => {
       'Tài khoản',
       'Đơn hàng',
       'Cài đặt thanh toán',
+      'Cài đặt video',
       'Danh mục',
       'Khóa học',
       'Đánh giá',

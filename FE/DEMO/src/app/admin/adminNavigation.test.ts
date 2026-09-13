@@ -6,7 +6,7 @@ describe('Admin navigation configuration', () => {
   it('keeps a flat task-oriented navigation while preserving the domain registry', () => {
     expect(ADMIN_NAVIGATION.map((group) => group.label)).toEqual(['Điều hướng']);
     expect(getAdminNavigationItems().map((item) => item.label)).toEqual([
-      'Tổng quan', 'Tài khoản', 'Đơn hàng', 'Cài đặt thanh toán',
+      'Tổng quan', 'Tài khoản', 'Đơn hàng', 'Cài đặt thanh toán', 'Cài đặt video',
       'Danh mục', 'Khóa học', 'Đánh giá', 'Tin tức',
     ]);
 

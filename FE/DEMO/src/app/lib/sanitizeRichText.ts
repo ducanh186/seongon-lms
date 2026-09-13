@@ -1,4 +1,4 @@
-const allowedTags = new Set(['P', 'BR', 'H2', 'H3', 'STRONG', 'EM', 'UL', 'OL', 'LI', 'A', 'IMG', 'BLOCKQUOTE']);
+const allowedTags = new Set(['P', 'BR', 'H2', 'H3', 'STRONG', 'EM', 'U', 'UL', 'OL', 'LI', 'A', 'IMG', 'BLOCKQUOTE']);
 
 export function sanitizeRichText(value: string, resolveUrl: (value: string) => string = (url) => url): string {
   if (typeof DOMParser === 'undefined') return value.replace(/<script[\s\S]*?<\/script>/gi, '');

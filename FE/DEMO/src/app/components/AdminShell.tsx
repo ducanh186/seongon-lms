@@ -9,6 +9,7 @@ import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
 import RateReviewRoundedIcon from '@mui/icons-material/RateReviewRounded';
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import { Avatar, Box, Button, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
@@ -36,6 +37,9 @@ function getNavigationIcon(section: AdminSection) {
       return <ArticleRoundedIcon fontSize="small" />;
     case 'reviews':
       return <RateReviewRoundedIcon fontSize="small" />;
+    case 'paymentSettings':
+    case 'playbackSettings':
+      return <SettingsRoundedIcon fontSize="small" />;
     default:
       return <DashboardRoundedIcon fontSize="small" />;
   }

@@ -42,6 +42,7 @@ import { AdminShell, type AdminSection } from '../components/AdminShell';
 import { AdminOverview } from './AdminOverview';
 import { RichTextEditor } from '../components/RichTextEditor';
 import { PaymentSettingsPanel } from './admin/PaymentSettingsPanel';
+import { PlaybackSettingsPanel } from './admin/PlaybackSettingsPanel';
 import { NewsCatalogManager } from './admin/NewsCatalogManager';
 import { InstructorCatalogManager } from './admin/InstructorCatalogManager';
 import { AdminErdReadSection, type AdminErdReadSectionKey } from './admin/AdminErdReadSection';
@@ -181,6 +182,7 @@ const blankQuestionOptions: QuestionOptionDraft[] = [
 const adminSectionCopy: Record<AdminSection, { title: string; description: string }> = {
   overview: { title: 'Tổng quan vận hành', description: '' },
   paymentSettings: { title: 'Cài đặt thanh toán', description: 'Quản lý phương thức thanh toán và tài khoản nhận tiền.' },
+  playbackSettings: { title: 'Cài đặt video', description: 'Điều chỉnh chống gian lận playback cho toàn bộ khóa học.' },
   roles: { title: 'Quản lý vai trò', description: 'Đối chiếu vai trò hệ thống và số tài khoản đang sử dụng từng vai trò.' },
   users: { title: 'Quản lý tài khoản', description: '' },
   carts: { title: 'Quản lý giỏ hàng', description: 'Theo dõi giỏ hàng hiện tại của học viên từ dữ liệu trong carts.' },
@@ -931,7 +933,7 @@ export function AdminPage() {
               {uploadingCourseImage ? 'Đang tải ảnh' : 'Chọn ảnh từ máy'}
               <input hidden type="file" accept="image/jpeg,image/png" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void uploadCourseImage(file); }} />
             </Button>
-            {courseForm.thumbnail && <Box component="img" src={courseForm.thumbnail} alt="Xem trước thumbnail khóa học" sx={{ display: 'block', width: 200, height: 112, objectFit: 'cover', borderRadius: 1.5, mt: 1.5 }} />}
+            {courseForm.thumbnail && <Box component="img" src={resolveMaterialUrl(courseForm.thumbnail) ?? courseForm.thumbnail} alt="Xem trước thumbnail khóa học" sx={{ display: 'block', width: 200, height: 112, objectFit: 'cover', borderRadius: 1.5, mt: 1.5 }} />}
           </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
             <TextField required label="Giá" type="number" inputProps={{ min: 1 }} value={courseForm.price} onChange={(event) => setCourseForm({ ...courseForm, price: event.target.value })} />
@@ -996,6 +998,7 @@ export function AdminPage() {
           )}
 
           {token && tab === 'paymentSettings' && <PaymentSettingsPanel token={token} />}
+          {token && tab === 'playbackSettings' && <PlaybackSettingsPanel token={token} />}
 
           {isOperationSection(tab) && <Stack spacing={2}>
             <Box component="section" role="region" aria-label={`Bộ lọc ${adminSectionCopy[tab].title.toLowerCase()}`} data-admin-toolbar="true" sx={{ display: 'grid', gridTemplateColumns: operationStatusOptions[tab] ? 'minmax(240px, 1fr) minmax(150px, .45fr) minmax(180px, .55fr) auto' : 'minmax(240px, 1fr) minmax(150px, .45fr) auto', gap: 2, alignItems: 'stretch', p: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
@@ -1482,7 +1485,7 @@ export function AdminPage() {
                   rows={news.data}
                   getRowKey={(newsPost) => newsPost.id}
                   columns={[
-                    { key: 'title', header: 'Tin tức', render: (newsPost) => <Stack direction="row" spacing={1.25} alignItems="center" sx={{ minWidth: 0 }}>{newsPost.thumbnail && <Box component="img" src={newsPost.thumbnail} alt={newsPost.title} sx={{ width: 56, height: 42, borderRadius: 1.5, objectFit: 'cover', flexShrink: 0 }} />}<Box sx={{ minWidth: 0 }}><Typography fontWeight={750}>{newsPost.title}</Typography><Typography variant="body2" color="text.secondary">{newsPost.excerpt}</Typography></Box></Stack> },
+                    { key: 'title', header: 'Tin tức', render: (newsPost) => <Stack direction="row" spacing={1.25} alignItems="center" sx={{ minWidth: 0 }}>{newsPost.thumbnail && <Box component="img" src={resolveMaterialUrl(newsPost.thumbnail) ?? newsPost.thumbnail} alt={newsPost.title} sx={{ width: 56, height: 42, borderRadius: 1.5, objectFit: 'cover', flexShrink: 0 }} />}<Box sx={{ minWidth: 0 }}><Typography fontWeight={750}>{newsPost.title}</Typography><Typography variant="body2" color="text.secondary">{newsPost.excerpt}</Typography></Box></Stack> },
                     { key: 'category', header: 'Danh mục', width: 100, render: (newsPost) => newsPost.category },
                     { key: 'author', header: 'Tác giả', width: 140, render: (newsPost) => newsPost.author?.name ?? '—' },
                     { key: 'status', header: 'Trạng thái', width: 136, render: (newsPost) => <StatusChip status={newsPost.status} /> },

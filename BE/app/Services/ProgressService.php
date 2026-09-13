@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Enrollment;
 use App\Models\LearningProgress;
 use App\Models\Lesson;
+use App\Models\PlaybackSetting;
 use Illuminate\Support\Facades\DB;
 
 class ProgressService
@@ -19,7 +20,7 @@ class ProgressService
             ->where('enrollment_id', $enrollment->id)
             ->where('lesson_id', $lesson->id)
             ->first();
-        $duration = (int) ($progress?->video_duration_seconds ?? $lesson->duration ?? 0);
+        $duration = (int) ($lesson->duration ?? $progress?->video_duration_seconds ?? 0);
         $required = (int) ceil($duration * self::COMPLETION_RATIO);
 
         abort_if(
@@ -54,16 +55,20 @@ class ProgressService
             $configuredDuration = (int) ($lesson->duration ?? 0);
             $reportedDuration = max(1, $durationSeconds);
             $storedDuration = (int) ($progress->video_duration_seconds ?? 0);
-            $duration = $storedDuration > 0 && ($configuredDuration <= 0 || $storedDuration < $configuredDuration)
-                ? $storedDuration
-                : ($configuredDuration > 0 ? min($configuredDuration, $reportedDuration) : $reportedDuration);
+            $duration = $configuredDuration > 0
+                ? $configuredDuration
+                : ($storedDuration > 0 ? $storedDuration : $reportedDuration);
             abort_if($duration <= 0, 422, 'Bài học chưa có thời lượng video chuẩn.');
             $position = min(max(0, $positionSeconds), $duration);
             $furthest = max((int) ($progress->furthest_position_seconds ?? 0), $position);
             $segments = is_array($progress->watched_segments) ? $progress->watched_segments : [];
             $watchedSeconds = (int) ($progress->watched_seconds ?? 0);
             $lastHeartbeat = $progress->last_heartbeat_at;
-            if ($lastHeartbeat) {
+            if (!PlaybackSetting::current()->anti_cheat_enabled) {
+                $watchedSeconds = max($watchedSeconds, $position);
+                $segments = $this->mergeWatchedSegment($segments, 0, $position);
+                $watchedSeconds = min($this->watchedSeconds($segments), $duration);
+            } elseif ($lastHeartbeat) {
                 $elapsed = max(0, now()->timestamp - $lastHeartbeat->timestamp);
                 $previousPosition = (int) ($progress->resume_position_seconds ?? 0);
                 $positionDelta = $position - $previousPosition;

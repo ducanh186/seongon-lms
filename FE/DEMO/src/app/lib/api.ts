@@ -41,6 +41,7 @@ import type {
   Paginated,
   PaymentMethod,
   PaymentSettings,
+  PlaybackSettings,
 } from './contracts';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '');
@@ -166,6 +167,8 @@ export const api = {
   transactions: (token: string, page = 1) => apiRequest<Paginated<ApiOrder>>(`/my/transactions?page=${page}`, { token }),
   paymentSettings: (token: string) => apiRequest<{ data: PaymentSettings }>('/admin/payment-settings', { token }),
   savePaymentSettings: (token: string, settings: PaymentSettings) => apiRequest<{ data: PaymentSettings }>('/admin/payment-settings', { token, method: 'PUT', body: settings }),
+  playbackSettings: (token: string) => apiRequest<{ data: PlaybackSettings }>('/admin/playback-settings', { token }),
+  savePlaybackSettings: (token: string, settings: PlaybackSettings) => apiRequest<{ data: PlaybackSettings }>('/admin/playback-settings', { token, method: 'PUT', body: settings }),
   payOrder: (token: string, orderId: number, paymentMethod: 'card' | 'qr', outcome: 'success' | 'failure' = 'success') =>
     apiRequest<{ message: string; order: ApiOrder; enrollment?: ApiEnrollment }>(`/orders/${orderId}/pay`, {
       method: 'POST',

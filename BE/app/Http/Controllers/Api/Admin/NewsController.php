@@ -135,7 +135,7 @@ class NewsController extends Controller
         // applying the allow-list, so payloads such as `<script>alert(1)</script>`
         // do not become visible article copy after sanitization.
         $content = preg_replace('#<(script|style|iframe|object|embed)\\b[^>]*>.*?</\\1>#is', '', $content) ?? $content;
-        $allowed = '<p><br><h2><h3><strong><em><ul><ol><li><a><img><blockquote>';
+        $allowed = '<p><br><h2><h3><strong><em><u><ul><ol><li><a><img><blockquote>';
         $content = strip_tags($content, $allowed);
         $content = preg_replace('/\s+on[a-z]+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $content) ?? $content;
         $content = preg_replace_callback('/\s+(src|href)\s*=\s*(["\'])(.*?)\2/i', function (array $match): string {

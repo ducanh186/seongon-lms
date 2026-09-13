@@ -50,7 +50,7 @@ describe('AdminShell', () => {
     expect(navigation).toHaveAttribute('data-admin-sidebar', 'true');
     expect(navigation).toHaveStyle({ maxHeight: 'calc(100dvh - 124px)', overflowY: 'auto' });
     expect(within(navigation).getAllByRole('button').map((button) => button.textContent)).toEqual([
-      'Tổng quan', 'Tài khoản', 'Đơn hàng', 'Cài đặt thanh toán',
+      'Tổng quan', 'Tài khoản', 'Đơn hàng', 'Cài đặt thanh toán', 'Cài đặt video',
       'Danh mục', 'Khóa học', 'Đánh giá', 'Tin tức',
     ]);
     expect(within(navigation).queryByText('Quản lý khóa học')).not.toBeInTheDocument();

@@ -247,6 +247,9 @@ export interface PaymentSettings {
   momo: { enabled: boolean; mode: 'mock'; merchant_name: string };
   bank: { enabled: boolean; is_active: boolean; bank_name: string; account_name: string; account_number: string; branch: string; qr_payload: string; instructions: string };
 }
+export interface PlaybackSettings {
+  anti_cheat_enabled: boolean;
+}
 export interface PaymentSession {
   token: string;
   mode: 'mock';

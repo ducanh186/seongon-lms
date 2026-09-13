@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Admin\LessonController as AdminLessonController;
 use App\Http\Controllers\Api\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\PaymentSettingsController;
+use App\Http\Controllers\Api\Admin\PlaybackSettingsController;
 use App\Http\Controllers\Api\Admin\QuestionController as AdminQuestionController;
 use App\Http\Controllers\Api\Admin\QuizController as AdminQuizController;
 use App\Http\Controllers\Api\Admin\ReportController as AdminReportController;
@@ -102,6 +103,8 @@ Route::prefix('v1')->group(function () {
             Route::get('orders', [AdminOrderController::class, 'index']);
             Route::get('payment-settings', [PaymentSettingsController::class, 'show']);
             Route::put('payment-settings', [PaymentSettingsController::class, 'update']);
+            Route::get('playback-settings', [PlaybackSettingsController::class, 'show']);
+            Route::put('playback-settings', [PlaybackSettingsController::class, 'update']);
             Route::get('course-categories', [AdminCourseCategoryController::class, 'index']);
             Route::get('learning-progress', [AdminLearningProgressController::class, 'index']);
             Route::get('questions', [AdminQuestionController::class, 'index']);
