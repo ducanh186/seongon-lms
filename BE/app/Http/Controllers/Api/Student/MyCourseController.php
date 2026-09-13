@@ -65,10 +65,16 @@ class MyCourseController extends Controller
             $lesson->is_completed = (bool) ($lessonProgress?->is_completed ?? false);
             $lesson->resume_position_seconds = $lessonProgress?->resume_position_seconds;
             $lesson->furthest_position_seconds = $lessonProgress?->furthest_position_seconds;
-            $lesson->video_duration_seconds = $lessonProgress?->video_duration_seconds;
-            $lesson->watched_seconds = $lessonProgress?->watched_seconds;
-            $lesson->watched_percent = $lessonProgress?->video_duration_seconds
-                ? min(100, (int) floor($lessonProgress->watched_seconds / $lessonProgress->video_duration_seconds * 100))
+            // Lesson.duration is authoritative for both current and legacy playback records.
+            $duration = (int) ($lesson->duration ?: ($lessonProgress?->video_duration_seconds ?? 0));
+            $watchedSeconds = min(
+                max(0, (int) ($lessonProgress?->watched_seconds ?? 0)),
+                max(0, $duration),
+            );
+            $lesson->video_duration_seconds = $duration > 0 ? $duration : null;
+            $lesson->watched_seconds = $watchedSeconds;
+            $lesson->watched_percent = $duration > 0
+                ? min(100, (int) floor($watchedSeconds / $duration * 100))
                 : 0;
 
             return $lesson;

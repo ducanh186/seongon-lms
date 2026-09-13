@@ -5,14 +5,11 @@ namespace App\Services;
 use App\Models\Enrollment;
 use App\Models\LearningProgress;
 use App\Models\Lesson;
-use App\Models\PlaybackSetting;
 use Illuminate\Support\Facades\DB;
 
 class ProgressService
 {
     private const COMPLETION_RATIO = 0.95;
-    private const MAX_HEARTBEAT_CREDIT_SECONDS = 15;
-    private const HEARTBEAT_TOLERANCE_SECONDS = 2;
 
     public function completeLesson(Enrollment $enrollment, Lesson $lesson): LearningProgress
     {
@@ -62,22 +59,10 @@ class ProgressService
             $position = min(max(0, $positionSeconds), $duration);
             $furthest = max((int) ($progress->furthest_position_seconds ?? 0), $position);
             $segments = is_array($progress->watched_segments) ? $progress->watched_segments : [];
-            $watchedSeconds = (int) ($progress->watched_seconds ?? 0);
-            $lastHeartbeat = $progress->last_heartbeat_at;
-            if (!PlaybackSetting::current()->anti_cheat_enabled) {
-                $watchedSeconds = max($watchedSeconds, $position);
-                $segments = $this->mergeWatchedSegment($segments, 0, $position);
-                $watchedSeconds = min($this->watchedSeconds($segments), $duration);
-            } elseif ($lastHeartbeat) {
-                $elapsed = max(0, now()->timestamp - $lastHeartbeat->timestamp);
-                $previousPosition = (int) ($progress->resume_position_seconds ?? 0);
-                $positionDelta = $position - $previousPosition;
-                $maxCredit = min(self::MAX_HEARTBEAT_CREDIT_SECONDS, $elapsed + self::HEARTBEAT_TOLERANCE_SECONDS);
-                if ($positionDelta > 0 && $positionDelta <= $maxCredit) {
-                    $segments = $this->mergeWatchedSegment($segments, $previousPosition, $position);
-                    $watchedSeconds = min($this->watchedSeconds($segments), $duration);
-                }
-            }
+            // Playback integrity checks are disabled. Keep the legacy behavior where
+            // the furthest reported position credits the watched range.
+            $segments = $this->mergeWatchedSegment($segments, 0, $position);
+            $watchedSeconds = min($this->watchedSeconds($segments), $duration);
             $completed = $progress->is_completed || $watchedSeconds >= (int) ceil($duration * self::COMPLETION_RATIO);
 
             $progress->fill([
@@ -100,21 +85,31 @@ class ProgressService
      */
     public function summary(Enrollment $enrollment): array
     {
-        $total = Lesson::where('course_id', $enrollment->course_id)->count();
+        $lessons = Lesson::where('course_id', $enrollment->course_id)
+            ->get(['id', 'duration'])
+            ->keyBy('id');
+        $total = $lessons->count();
         $completed = LearningProgress::where('enrollment_id', $enrollment->id)
+            ->whereIn('lesson_id', $lessons->keys())
             ->where('is_completed', true)
             ->count();
 
         $percent = $total > 0 ? (int) round($completed / $total * 100) : 0;
         $playback = LearningProgress::where('enrollment_id', $enrollment->id)
+            ->whereIn('lesson_id', $lessons->keys())
             ->whereNotNull('video_duration_seconds')
             ->where('video_duration_seconds', '>', 0)
-            ->get(['watched_seconds', 'video_duration_seconds']);
-        $trackedDuration = $playback->sum('video_duration_seconds');
-        $watchedDuration = $playback->sum(fn (LearningProgress $item) => min(
-            (int) ($item->watched_seconds ?? 0),
-            (int) $item->video_duration_seconds,
-        ));
+            ->get(['lesson_id', 'watched_seconds', 'video_duration_seconds']);
+        $trackedDuration = 0;
+        $watchedDuration = 0;
+        foreach ($playback as $item) {
+            $lessonDuration = (int) ($lessons->get($item->lesson_id)?->duration ?? 0);
+            $storedDuration = (int) $item->video_duration_seconds;
+            $duration = $lessonDuration > 0 ? $lessonDuration : $storedDuration;
+            if ($duration <= 0) continue;
+            $trackedDuration += $duration;
+            $watchedDuration += min(max(0, (int) ($item->watched_seconds ?? 0)), $duration);
+        }
         $videoPercent = $trackedDuration > 0
             ? (int) floor($watchedDuration / $trackedDuration * 100)
             : $percent;

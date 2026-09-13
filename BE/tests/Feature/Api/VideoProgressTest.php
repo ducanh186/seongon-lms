@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lesson;
+use App\Models\LearningProgress;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,7 +50,7 @@ class VideoProgressTest extends TestCase
             ->assertJsonPath('data.0.watched_percent', 50);
     }
 
-    public function test_lesson_completes_only_when_the_video_is_watched_to_the_end(): void
+    public function test_lesson_completes_when_playback_reaches_the_completion_threshold(): void
     {
         $student = User::factory()->create();
         $course = Course::factory()->create();
@@ -64,15 +65,15 @@ class VideoProgressTest extends TestCase
             'duration_seconds' => 600,
         ])->assertOk();
 
-        // A 95 % jump is not playback and must not complete the lesson.
+        // Anti-cheat is disabled, so the legacy seek behavior credits the position.
         Carbon::setTestNow('2026-09-12 10:00:10');
         $this->withToken($token)->patchJson("/api/v1/my/lessons/{$first->id}/progress", [
             'position_seconds' => 570,
             'duration_seconds' => 600,
         ])->assertOk()
-            ->assertJsonPath('lesson.is_completed', false)
-            ->assertJsonPath('course_progress.completed', 0)
-            ->assertJsonPath('course_progress.video_percent', 0);
+            ->assertJsonPath('lesson.is_completed', true)
+            ->assertJsonPath('course_progress.completed', 1)
+            ->assertJsonPath('course_progress.video_percent', 95);
 
         // Sequential heartbeats credit actual playback and unlock at 95 %.
         Carbon::setTestNow(Carbon::now()->addSeconds(10));
@@ -126,7 +127,7 @@ class VideoProgressTest extends TestCase
         ])->assertUnprocessable();
     }
 
-    public function test_seeking_to_the_end_does_not_credit_unwatched_time_or_complete_the_lesson(): void
+    public function test_seeking_to_the_end_credits_the_lesson_when_anti_cheat_is_disabled(): void
     {
         $student = User::factory()->create();
         $course = Course::factory()->create();
@@ -146,11 +147,12 @@ class VideoProgressTest extends TestCase
             'duration_seconds' => 600,
         ])->assertOk();
 
-        $response->assertJsonPath('lesson.is_completed', false)
-            ->assertJsonPath('course_progress.completed', 0);
+        $response->assertJsonPath('lesson.is_completed', true)
+            ->assertJsonPath('course_progress.completed', 1)
+            ->assertJsonPath('course_progress.video_percent', 100);
         $this->assertDatabaseHas('lesson_progress', [
             'lesson_id' => $lesson->id,
-            'watched_seconds' => 0,
+            'watched_seconds' => 600,
         ]);
     }
 
@@ -210,6 +212,35 @@ class VideoProgressTest extends TestCase
 
         $response->assertJsonPath('lesson.is_completed', true)
             ->assertJsonPath('lesson.video_duration_seconds', 600);
+    }
+
+    public function test_course_and_lesson_progress_normalize_legacy_playback_duration_to_the_lesson_duration(): void
+    {
+        $student = User::factory()->create();
+        $course = Course::factory()->create();
+        $enrollment = Enrollment::factory()->create(['user_id' => $student->id, 'course_id' => $course->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id, 'duration' => 180]);
+        LearningProgress::query()->create([
+            'enrollment_id' => $enrollment->id,
+            'lesson_id' => $lesson->id,
+            'video_duration_seconds' => 600,
+            'watched_seconds' => 174,
+            'resume_position_seconds' => 174,
+            'furthest_position_seconds' => 174,
+            'is_completed' => false,
+        ]);
+        $token = $student->createToken('test')->plainTextToken;
+
+        $this->withToken($token)
+            ->getJson("/api/v1/my/courses/{$course->id}/lessons")
+            ->assertOk()
+            ->assertJsonPath('data.0.video_duration_seconds', 180)
+            ->assertJsonPath('data.0.watched_percent', 96);
+
+        $this->withToken($token)
+            ->getJson("/api/v1/my/courses/{$course->id}/progress")
+            ->assertOk()
+            ->assertJsonPath('video_percent', 96);
     }
 
     public function test_legacy_complete_endpoint_cannot_bypass_video_watch_requirement(): void

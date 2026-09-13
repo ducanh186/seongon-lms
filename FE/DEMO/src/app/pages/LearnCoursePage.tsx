@@ -80,7 +80,7 @@ export function LearnCoursePage() {
     setError(null);
     try {
       const response = await applicationRepositories.learning.saveLessonProgress(token, lesson.id, positionSeconds, durationSeconds);
-      const effectiveDuration = Math.min(durationSeconds, response.lesson.video_duration_seconds || durationSeconds);
+      const effectiveDuration = response.lesson.video_duration_seconds || durationSeconds;
       const updatedLesson: ApiLesson = {
         ...lesson,
         duration: effectiveDuration,

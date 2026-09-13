@@ -72,7 +72,7 @@ describe('LearnCoursePage', () => {
     expect(screen.getByText('75%', { selector: 'h5' })).toBeInTheDocument();
   });
 
-  it('keeps the provider duration when the progress response has a stale lesson duration', async () => {
+  it('keeps the server duration when the video provider reports a different duration', async () => {
     myCourses.mockResolvedValue(enrollmentResponse);
     lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Video YouTube', video_url: 'https://www.youtube.com/embed/example', description: null, duration: 600, position: 1, is_completed: false }] });
     progress.mockResolvedValue({ completed: 0, total: 1, percent: 0, can_take_exam: false });
@@ -89,8 +89,8 @@ describe('LearnCoursePage', () => {
     }));
 
     await waitFor(() => expect(saveLessonProgress).toHaveBeenCalledWith('student-token', 5, 170, 170));
-    expect(await screen.findByText('02:50 / 02:50')).toBeInTheDocument();
-    expect(screen.getByText('3 phút')).toBeInTheDocument();
+    expect(await screen.findByText('02:50 / 10:00')).toBeInTheDocument();
+    expect(screen.getByText('10 phút')).toBeInTheDocument();
   });
 
   it('uses the stored provider duration after the learning page reloads', async () => {
