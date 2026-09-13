@@ -246,6 +246,33 @@ function Invoke-BuildStep {
     }
 }
 
+function Invoke-ComposerInstall {
+    param(
+        [Parameter(Mandatory = $true)][string]$WorkingDirectory,
+        [Parameter(Mandatory = $true)][string]$Composer
+    )
+
+    Write-Host "`n== Install backend dependencies ==" -ForegroundColor Cyan
+    Push-Location -LiteralPath $WorkingDirectory
+    try {
+        & $Composer 'install' '--no-interaction' '--prefer-dist' '--no-progress'
+        $distExitCode = $LASTEXITCODE
+        if ($distExitCode -eq 0) {
+            return
+        }
+
+        Write-Warning "Composer dist install failed with exit code $distExitCode. Retrying with source packages..."
+        & $Composer 'install' '--no-interaction' '--prefer-source' '--no-progress'
+        $sourceExitCode = $LASTEXITCODE
+        if ($sourceExitCode -ne 0) {
+            throw "Install backend dependencies failed with exit code $sourceExitCode after dist and source installs."
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}
+
 function Stop-FrontendDevServerForBuild {
     param([Parameter(Mandatory = $true)][string]$FrontendRoot)
 
@@ -310,7 +337,7 @@ if (-not $SkipDependencies) {
     # Reconcile dependencies on every pull so changed lockfiles cannot leave a
     # stale vendor/node_modules tree behind. Use -SkipDependencies only when the
     # operator has already verified the lockfiles are installed.
-    Invoke-BuildStep -Label 'Install backend dependencies' -WorkingDirectory $backendRoot -Executable $composer -Arguments @('install', '--no-interaction', '--prefer-dist')
+    Invoke-ComposerInstall -WorkingDirectory $backendRoot -Composer $composer
     Stop-FrontendDevServerForBuild -FrontendRoot $frontendRoot
     Invoke-BuildStep -Label 'Install frontend dependencies' -WorkingDirectory $frontendRoot -Executable $npm -Arguments @('ci', '--no-audit', '--no-fund')
 }

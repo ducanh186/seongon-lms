@@ -49,6 +49,13 @@ Describe 'build-local-web-windows phpMyAdmin preparation' {
         $phpunit | Should Match '<ini name="memory_limit" value="512M"/>'
     }
 
+    It 'falls back to Composer source installs after a dist download failure' {
+        $script = Get-Content -Raw -LiteralPath $scriptPath
+
+        $script | Should Match 'prefer-source'
+        $script | Should Match 'dist.*source'
+    }
+
     It 'installs a verified phpMyAdmin package and generates local cookie configuration' {
         $caseRoot = Join-Path $TestDrive 'valid'
         $runtimeRoot = Join-Path $caseRoot 'runtime'
