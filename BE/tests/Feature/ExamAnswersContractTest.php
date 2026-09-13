@@ -49,11 +49,11 @@ it('stores selected answers in the approved JSON shape', function () {
 
     $attempt = Attempt::query()->firstOrFail();
 
-    expect($attempt->answers)->toHaveCount(4)
+    expect($attempt->answers)->toHaveCount(40)
         ->and(array_keys($attempt->answers[0]))->toEqualCanonicalizing(
             ['question_id', 'selected_answer_id', 'is_correct']
         )
-        ->and($attempt->correct_count)->toBe(4)
+        ->and($attempt->correct_count)->toBe(40)
         ->and($attempt->wrong_count)->toBe(0)
         ->and($attempt->attempt_number)->toBe(1);
 });
@@ -68,7 +68,7 @@ it('counts wrong answers separately', function () {
 
     $attempt = Attempt::query()->firstOrFail();
 
-    expect($attempt->correct_count)->toBe(0)->and($attempt->wrong_count)->toBe(4);
+    expect($attempt->correct_count)->toBe(0)->and($attempt->wrong_count)->toBe(40);
 });
 
 it('keeps the legacy attempt field names and adds the correct answer in the API payload', function () {
@@ -98,7 +98,7 @@ it('lets a student reopen a past attempt and see per-question results', function
 
     $this->getJson("/api/v1/my/quiz-attempts/{$attemptId}")
         ->assertOk()
-        ->assertJsonCount(4, 'data.answers')
+        ->assertJsonCount(40, 'data.answers')
         ->assertJsonPath('data.answers.0.is_correct', false)
         ->assertJsonPath('data.attempt_no', 1);
 });

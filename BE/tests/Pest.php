@@ -11,7 +11,7 @@ use Tests\TestCase;
 uses(TestCase::class, RefreshDatabase::class)->in('Feature');
 
 /**
- * Tạo 1 khóa học đầy đủ: N bài học + 1 exam (pass 75, max 2 lần) với 4 câu hỏi,
+ * Tạo 1 khóa học đầy đủ: N bài học + 1 exam (pass 75, max 2 lần) với 100 câu hỏi,
  * mỗi câu 2 đáp án (đáp án đầu là đúng).
  */
 function makeCourseWithContent(int $lessons = 3): Course
@@ -28,7 +28,7 @@ function makeCourseWithContent(int $lessons = 3): Course
         'max_attempts' => 2,
     ]);
 
-    for ($q = 0; $q < 4; $q++) {
+    for ($q = 0; $q < 100; $q++) {
         $question = Question::factory()->create(['exam_id' => $exam->id]);
         Answer::factory()->correct()->create(['question_id' => $question->id]);
         Answer::factory()->create(['question_id' => $question->id]);

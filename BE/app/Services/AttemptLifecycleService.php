@@ -89,15 +89,18 @@ class AttemptLifecycleService
             $draft = collect($answers)->map(function (array $answer) use ($questions, $allowedIds) {
                 $question = $questions->get((int) $answer['question_id']);
                 $optionId = $answer['option_id'] ?? null;
-                if (! $question || ($allowedIds !== null && ! in_array((int) $answer['question_id'], $allowedIds, true)) || ($optionId !== null && ! $question->answers->contains('id', (int) $optionId))) {
+                if (! $question || ($optionId !== null && ! $question->answers->contains('id', (int) $optionId))) {
                     throw ValidationException::withMessages(['answers' => 'Đáp án không thuộc bài kiểm tra này.']);
+                }
+                if ($allowedIds !== null && ! in_array((int) $answer['question_id'], $allowedIds, true)) {
+                    return null;
                 }
 
                 return [
                     'question_id' => (int) $answer['question_id'],
                     'selected_answer_id' => $optionId === null ? null : (int) $optionId,
                 ];
-            })->unique('question_id')->values()->all();
+            })->filter()->unique('question_id')->values()->all();
 
             $locked->update(['answers' => $draft]);
 

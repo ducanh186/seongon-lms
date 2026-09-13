@@ -151,6 +151,11 @@ class UcSpecAlignmentTest extends TestCase
         $question = Question::factory()->create(['exam_id' => $exam->id]);
         $correct = Answer::factory()->correct()->create(['question_id' => $question->id]);
         Answer::factory()->create(['question_id' => $question->id]);
+        foreach (range(2, 40) as $questionNumber) {
+            $extraQuestion = Question::factory()->create(['exam_id' => $exam->id]);
+            Answer::factory()->correct()->create(['question_id' => $extraQuestion->id]);
+            Answer::factory()->create(['question_id' => $extraQuestion->id]);
+        }
 
         return [$student, $course, $exam, $question, $correct, $student->createToken('test')->plainTextToken];
     }

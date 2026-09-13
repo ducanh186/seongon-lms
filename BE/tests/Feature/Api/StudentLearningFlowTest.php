@@ -74,6 +74,11 @@ class StudentLearningFlowTest extends TestCase
         $question = Question::factory()->create(['exam_id' => $quiz->id]);
         $correctOption = Answer::factory()->correct()->create(['question_id' => $question->id]);
         Answer::factory()->create(['question_id' => $question->id]);
+        foreach (range(2, 40) as $questionNumber) {
+            $extraQuestion = Question::factory()->create(['exam_id' => $quiz->id]);
+            Answer::factory()->correct()->create(['question_id' => $extraQuestion->id]);
+            Answer::factory()->create(['question_id' => $extraQuestion->id]);
+        }
         $token = $student->createToken('test')->plainTextToken;
 
         $this->withToken($token)->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts", [
@@ -101,8 +106,12 @@ class StudentLearningFlowTest extends TestCase
         $this->withToken($token)->postJson("/api/v1/my/lessons/{$secondLesson->id}/complete")
             ->assertOk()->assertJsonPath('can_take_exam', true);
 
+        $course->load('quiz.questions.answers');
         $submission = $this->withToken($token)->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts", [
-            'answers' => [['question_id' => $question->id, 'option_id' => $correctOption->id]],
+            'answers' => $course->quiz->questions->map(fn (Question $item) => [
+                'question_id' => $item->id,
+                'option_id' => $item->answers->firstWhere('is_correct', true)->id,
+            ])->all(),
         ]);
 
         $submission->assertOk()

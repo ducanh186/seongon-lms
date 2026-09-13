@@ -120,6 +120,8 @@ class ExamAttemptLifecycleTest extends TestCase
 
         $this->withToken($token)->getJson("/api/v1/my/courses/{$course->id}/quiz")
             ->assertOk()
+            ->assertJsonMissingPath('data.total_questions')
+            ->assertJsonMissingPath('data.closes_at')
             ->assertJsonPath('data.attempts_remaining', 1)
             ->assertJsonPath('data.best_score', 0)
             ->assertJsonPath('data.ended', false)
