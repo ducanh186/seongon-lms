@@ -16,7 +16,6 @@ class DemoAccountSeeder extends Seeder
         $accounts = [
             ['email' => 'admin2@demo.seongon.vn', 'name' => 'SEONGON Admin 2', 'role' => 'admin', 'status' => 'active'],
             ['email' => 'admin3@demo.seongon.vn', 'name' => 'SEONGON Admin 3', 'role' => 'admin', 'status' => 'active'],
-            ['email' => 'teacher@demo.seongon.vn', 'name' => 'Nguyễn Minh Anh', 'role' => 'teacher', 'status' => 'active'],
             ['email' => 'locked@demo.seongon.vn', 'name' => 'Tài khoản đã khóa', 'role' => 'student', 'status' => 'locked'],
         ];
 

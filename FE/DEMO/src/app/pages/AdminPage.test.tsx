@@ -17,13 +17,9 @@ const adminCatalogs = vi.hoisted(() => vi.fn());
 const createCatalog = vi.hoisted(() => vi.fn());
 const updateCatalog = vi.hoisted(() => vi.fn());
 const deleteCatalog = vi.hoisted(() => vi.fn());
-const adminInstructors = vi.hoisted(() => vi.fn());
 const adminTeacherProfiles = vi.hoisted(() => vi.fn());
-const createInstructor = vi.hoisted(() => vi.fn());
 const createTeacherProfile = vi.hoisted(() => vi.fn());
-const updateInstructor = vi.hoisted(() => vi.fn());
 const updateTeacherProfile = vi.hoisted(() => vi.fn());
-const deleteInstructor = vi.hoisted(() => vi.fn());
 const deleteTeacherProfile = vi.hoisted(() => vi.fn());
 const uploadTeacherProfileImage = vi.hoisted(() => vi.fn());
 const adminCourses = vi.hoisted(() => vi.fn());
@@ -47,7 +43,7 @@ const useAuth = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { adminStats, adminRoles, adminUsers, adminUser, adminUserRecords, updateUserStatus, updateUserRole, adminCategories, adminCatalogs, createCatalog, updateCatalog, deleteCatalog, adminInstructors, createInstructor, updateInstructor, deleteInstructor, adminTeacherProfiles, createTeacherProfile, updateTeacherProfile, deleteTeacherProfile, uploadTeacherProfileImage, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, publishCourse, saveQuiz, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, deleteReview, adminNews, saveNews, deleteNews },
+  api: { adminStats, adminRoles, adminUsers, adminUser, adminUserRecords, updateUserStatus, updateUserRole, adminCategories, adminCatalogs, createCatalog, updateCatalog, deleteCatalog, adminTeacherProfiles, createTeacherProfile, updateTeacherProfile, deleteTeacherProfile, uploadTeacherProfileImage, adminCourses, adminLessons, adminExams, adminReviews, adminCourse, saveCourse, publishCourse, saveQuiz, adminEnrollments, adminAttempts, adminCertificates, reorderLessons, deleteCourse, deleteReview, adminNews, saveNews, deleteNews },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth }));
 
@@ -58,7 +54,9 @@ async function openCourseDetails(user: ReturnType<typeof userEvent.setup>) {
 
 const course = {
   id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: 'Course description', thumbnail: null,
-  price: '299000', instructor_name: 'SEONGON', instructor_bio: null, level: 'beginner' as const, status: 'draft' as const,
+  price: '299000', instructor_name: 'SEONGON', instructor_bio: 'Giảng viên SEO', teacher_profile_id: 1,
+  teacher_profile: { id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' },
+  level: 'beginner' as const, status: 'draft' as const,
   lessons_count: 2, questions_count: 3, enrollments_count: 4, reviews_count: 2, rating: 4.5, exam_exists: true,
   category: { id: 1, name: 'SEO', slug: 'seo', description: null },
   categories: [
@@ -142,13 +140,9 @@ function mockAdminData() {
   createCatalog.mockResolvedValue({ data: { id: 3, name: 'Mới', description: null } });
   updateCatalog.mockResolvedValue({ data: { id: 1, name: 'Marketing', description: 'Tin tức marketing' } });
   deleteCatalog.mockResolvedValue(null);
-  adminInstructors.mockResolvedValue({ data: [{ id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' }] });
   adminTeacherProfiles.mockResolvedValue({ data: [{ id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' }] });
-  createInstructor.mockResolvedValue({ data: { id: 2, name: 'Mới', bio: null, courses_count: 0, created_at: '', updated_at: '' } });
   createTeacherProfile.mockResolvedValue({ data: { id: 2, name: 'Mới', bio: null, avatar: null, courses_count: 0, created_at: '', updated_at: '' } });
-  updateInstructor.mockResolvedValue({ data: { id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', courses_count: 1, created_at: '', updated_at: '' } });
   updateTeacherProfile.mockResolvedValue({ data: { id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' } });
-  deleteInstructor.mockResolvedValue(null);
   deleteTeacherProfile.mockResolvedValue(null);
   adminCourses.mockResolvedValue({ data: [course], meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 } });
   adminLessons.mockResolvedValue({
@@ -262,11 +256,12 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('option', { name: /SEONGON/ }));
     await user.click(screen.getByRole('button', { name: 'Lưu khóa học' }));
 
-    await waitFor(() => expect(saveCourse).toHaveBeenCalledWith(
-      'admin-token',
-      expect.objectContaining({ instructor_id: 1, teacher_profile_id: 1, instructor_name: 'SEONGON', instructor_bio: 'Giảng viên SEO' }),
-      undefined,
-    ));
+    await waitFor(() => expect(saveCourse).toHaveBeenCalled());
+    const body = saveCourse.mock.calls[0][1];
+    expect(body).toMatchObject({ teacher_profile_id: 1 });
+    expect(body).not.toHaveProperty('instructor_id');
+    expect(body).not.toHaveProperty('instructor_name');
+    expect(body).not.toHaveProperty('instructor_bio');
   });
 
   it('renders the selected teacher avatar in the course dropdown', async () => {
@@ -282,6 +277,9 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('combobox', { name: 'Giảng viên' }));
 
     expect(await screen.findByRole('img', { name: 'Ảnh giảng viên SEONGON' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/seongon.jpg');
+    await user.click(screen.getByRole('option', { name: /SEONGON/ }));
+    expect(screen.getByRole('textbox', { name: 'Giới thiệu giảng viên' })).toHaveValue('Giảng viên SEO');
+    expect(screen.getByRole('img', { name: 'Ảnh hồ sơ giảng viên SEONGON' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/seongon.jpg');
   });
 
   it('saves playback protection as a per-course setting', async () => {
@@ -608,12 +606,12 @@ describe('AdminPage', () => {
   it('opens a current account detail with ERD-backed audit data from a two-action menu', async () => {
     mockAdminData();
     adminUsers.mockResolvedValue({
-      data: [{ id: 2, name: 'Tên cũ', email: 'teacher@example.test', role: 'teacher', phone: null,
+      data: [{ id: 2, name: 'Tên cũ', email: 'student-detail@example.test', role: 'student', phone: null,
         avatar: null, status: 'active', created_at: '2026-08-11T00:00:00Z', updated_at: '2026-08-11T00:00:00Z' }],
       meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
     });
     adminUser.mockResolvedValue({ data: {
-      id: 2, name: 'Nguyễn Minh Anh', email: 'teacher@example.test', role: 'teacher', phone: null,
+      id: 2, name: 'Nguyễn Minh Anh', email: 'student-detail@example.test', role: 'student', phone: null,
       avatar: null, status: 'active', created_at: '2026-08-11T00:00:00Z', updated_at: '2026-09-12T00:00:00Z',
       enrollments_count: 0,
     } });
@@ -630,8 +628,8 @@ describe('AdminPage', () => {
     const detail = await screen.findByRole('heading', { name: 'Chi tiết tài khoản' });
     expect(detail).toBeInTheDocument();
     expect(await screen.findByText('Nguyễn Minh Anh')).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'Thông tin liên hệ' })).toHaveTextContent('teacher@example.test');
-    expect(screen.getByRole('region', { name: 'Thông tin cơ bản' })).toHaveTextContent('Giảng viên');
+    expect(screen.getByRole('region', { name: 'Thông tin liên hệ' })).toHaveTextContent('student-detail@example.test');
+    expect(screen.getByRole('region', { name: 'Thông tin cơ bản' })).toHaveTextContent('Học viên');
     expect(screen.getByRole('region', { name: 'Thông tin kiểm tra' })).toHaveTextContent('Ngày thay đổi');
     expect(screen.getByText('Đã xác minh thông tin.')).toBeInTheDocument();
     expect(screen.getByText('SEONGON Admin')).toBeInTheDocument();
@@ -780,7 +778,7 @@ describe('AdminPage', () => {
 
     expect(adminCourses).toHaveBeenCalledWith('admin-token', {
       category_id: undefined,
-      instructor_id: undefined,
+      teacher_profile_id: undefined,
       course_id: undefined,
       q: 'Completed Demo Course',
       status: undefined,
@@ -802,7 +800,7 @@ describe('AdminPage', () => {
     adminCourses.mockClear();
     await user.click(screen.getByRole('button', { name: 'Áp dụng' }));
 
-    expect(adminCourses).toHaveBeenCalledWith('admin-token', expect.objectContaining({ instructor_id: 1, page: 1 }));
+    expect(adminCourses).toHaveBeenCalledWith('admin-token', expect.objectContaining({ teacher_profile_id: 1, page: 1 }));
   });
 
   it('names the selected course before running its destructive mutation', async () => {

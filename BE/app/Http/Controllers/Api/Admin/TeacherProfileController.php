@@ -30,10 +30,6 @@ class TeacherProfileController extends Controller
     public function update(Request $request, TeacherProfile $teacherProfile)
     {
         $teacherProfile->update($this->validated($request, $teacherProfile));
-        $teacherProfile->courses()->update([
-            'instructor_name' => $teacherProfile->name,
-            'instructor_bio' => $teacherProfile->bio,
-        ]);
         $teacherProfile->loadCount('courses');
 
         return new TeacherProfileResource($teacherProfile);

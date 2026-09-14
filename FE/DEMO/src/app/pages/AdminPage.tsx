@@ -58,10 +58,7 @@ type CourseDraft = {
   description: string;
   thumbnail: string;
   price: string;
-  instructor_id: number | null;
   teacher_profile_id: number | null;
-  instructor_name: string;
-  instructor_bio: string;
   level: 'beginner' | 'intermediate' | 'advanced';
   status: 'draft' | 'published';
   anti_cheat_enabled: boolean;
@@ -170,10 +167,7 @@ const blankCourse: CourseDraft = {
   description: '',
   thumbnail: '',
   price: '299000',
-  instructor_id: null,
   teacher_profile_id: null,
-  instructor_name: '',
-  instructor_bio: '',
   level: 'beginner',
   status: 'draft',
   anti_cheat_enabled: false,
@@ -219,10 +213,7 @@ function courseDraftFrom(course: ApiCourse): CourseDraft {
     description: course.description ?? '',
     thumbnail: course.thumbnail ?? '',
     price: String(course.price),
-    instructor_id: course.instructor_id ?? null,
-    teacher_profile_id: course.teacher_profile_id ?? course.instructor_id ?? null,
-    instructor_name: course.instructor_name ?? '',
-    instructor_bio: course.instructor_bio ?? '',
+    teacher_profile_id: course.teacher_profile_id ?? null,
     level: course.level ?? 'beginner',
     status: course.status,
     anti_cheat_enabled: course.anti_cheat_enabled ?? false,
@@ -378,7 +369,7 @@ export function AdminPage() {
           const [nextCourses, nextCategories, nextInstructors] = await Promise.all([
             adminRepositories.courses.list(token, {
               category_id: appliedCourseFilters.categoryId ? Number(appliedCourseFilters.categoryId) : undefined,
-              instructor_id: appliedCourseFilters.instructorId ? Number(appliedCourseFilters.instructorId) : undefined,
+              teacher_profile_id: appliedCourseFilters.instructorId ? Number(appliedCourseFilters.instructorId) : undefined,
               course_id: appliedCourseFilters.courseId ? Number(appliedCourseFilters.courseId) : undefined,
               q: appliedCourseFilters.q || undefined,
               status: appliedCourseFilters.status || undefined,
@@ -557,6 +548,12 @@ export function AdminPage() {
     }
   };
 
+  const refreshInstructors = async () => {
+    if (!token) return;
+    const response = await adminRepositories.instructors.list(token);
+    setInstructors(response.data);
+  };
+
   const editContent = async (courseId: number) => {
     setError(null);
     try {
@@ -611,9 +608,6 @@ export function AdminPage() {
       price: Number(courseForm.price),
       description: courseForm.description || null,
       thumbnail: courseForm.thumbnail || null,
-      instructor_name: courseForm.instructor_name || null,
-      instructor_bio: courseForm.instructor_bio || null,
-      instructor_id: courseForm.instructor_id,
       teacher_profile_id: courseForm.teacher_profile_id,
       anti_cheat_enabled: courseForm.anti_cheat_enabled,
     };
@@ -901,6 +895,10 @@ export function AdminPage() {
     ><MenuRoundedIcon fontSize="small" /></IconButton> },
   ];
 
+  const selectedTeacherProfile = courseForm.teacher_profile_id === null
+    ? null
+    : instructors.find((candidate) => candidate.id === courseForm.teacher_profile_id) ?? null;
+
   const courseBasicEditor = (
     <Card component="form" onSubmit={submitCourse} sx={{ borderRadius: 3 }}>
       <CardContent>
@@ -941,20 +939,26 @@ export function AdminPage() {
           </Box>
           <FormControl>
             <InputLabel id="course-instructor">Giảng viên</InputLabel>
-            <Select labelId="course-instructor" label="Giảng viên" value={courseForm.teacher_profile_id === null ? (courseForm.instructor_name ? 'legacy' : '') : String(courseForm.teacher_profile_id)} onChange={(event) => {
+            <Select labelId="course-instructor" label="Giảng viên" value={courseForm.teacher_profile_id === null ? '' : String(courseForm.teacher_profile_id)} onChange={(event) => {
               const value = event.target.value;
-              if (value === 'legacy') return;
-              const instructor = instructors.find((candidate) => candidate.id === Number(value));
-              setCourseForm((form) => instructor
-                ? { ...form, instructor_id: instructor.id, teacher_profile_id: instructor.id, instructor_name: instructor.name, instructor_bio: instructor.bio ?? '' }
-                : { ...form, instructor_id: null, teacher_profile_id: null, instructor_name: '', instructor_bio: '' });
+              setCourseForm((form) => ({ ...form, teacher_profile_id: value === '' ? null : Number(value) }));
             }}>
               <MenuItem value="">Chưa chọn giảng viên</MenuItem>
-              {courseForm.instructor_name && courseForm.instructor_id === null && <MenuItem value="legacy">{courseForm.instructor_name} (legacy)</MenuItem>}
               {instructors.map((instructor) => <MenuItem key={instructor.id} value={String(instructor.id)}><Stack direction="row" spacing={1} alignItems="center"><Avatar src={resolveMaterialUrl(instructor.avatar ?? undefined)} alt={`Ảnh giảng viên ${instructor.name}`} sx={{ width: 28, height: 28 }} /><span>{instructor.name}</span></Stack></MenuItem>)}
-              {instructors.length === 0 && !courseForm.instructor_name && <MenuItem value="" disabled>Chưa có danh mục giảng viên</MenuItem>}
+              {instructors.length === 0 && <MenuItem value="" disabled>Chưa có danh mục giảng viên</MenuItem>}
             </Select>
           </FormControl>
+          {selectedTeacherProfile && <Card variant="outlined" sx={{ borderRadius: 2 }}>
+            <CardContent>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ sm: 'center' }}>
+                <Avatar src={resolveMaterialUrl(selectedTeacherProfile.avatar ?? undefined)} alt={`Ảnh hồ sơ giảng viên ${selectedTeacherProfile.name}`} sx={{ width: 72, height: 72 }}>{selectedTeacherProfile.name[0]}</Avatar>
+                <Stack spacing={1} sx={{ flexGrow: 1 }}>
+                  <Typography fontWeight={800}>{selectedTeacherProfile.name}</Typography>
+                  <TextField label="Giới thiệu giảng viên" value={selectedTeacherProfile.bio ?? ''} multiline minRows={2} fullWidth InputProps={{ readOnly: true }} />
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>}
           <FormControlLabel
             control={<Switch checked={courseForm.anti_cheat_enabled} onChange={(_, checked) => setCourseForm((form) => ({ ...form, anti_cheat_enabled: checked }))} />}
             label="Bật chống gian lận video"
@@ -1137,7 +1141,7 @@ export function AdminPage() {
                 // The reference ERD has no phone field, so this table omits it.
                 { key: 'account', header: 'Tài khoản', width: '21%', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
                 { key: 'email', header: 'Email', width: '26%', render: (user) => <Tooltip title={user.email} describeChild><Typography variant="body2" noWrap tabIndex={0}>{user.email}</Typography></Tooltip> },
-                { key: 'role', header: 'Vai trò', width: '12%', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : user.role === 'teacher' ? 'Giảng viên' : 'Học viên'}</Typography> },
+                { key: 'role', header: 'Vai trò', width: '12%', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : 'Học viên'}</Typography> },
                 { key: 'created', header: 'Ngày tạo', width: '14%', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</Typography> },
                 { key: 'status', header: 'Trạng thái', width: '17%', render: (user) => <StatusChip status={user.status} /> },
                 { key: 'actions', header: 'Thao tác', width: '10%', render: (user) => <IconButton
@@ -1191,7 +1195,7 @@ export function AdminPage() {
                     <Typography component="h3" variant="h6" fontWeight={800} sx={{ mb: 1 }}>Thông tin cơ bản</Typography>
                     {[
                       ['Họ tên', detailUser.name],
-                      ['Vai trò', detailUser.role === 'admin' ? 'Quản trị viên' : detailUser.role === 'teacher' ? 'Giảng viên' : 'Học viên'],
+                      ['Vai trò', detailUser.role === 'admin' ? 'Quản trị viên' : 'Học viên'],
                       ['Trạng thái', detailUser.status === 'active' ? 'Đang hoạt động' : 'Đã khóa'],
                       ['Khóa đã đăng ký', String(detailUser.enrollments_count ?? 0)],
                     ].map(([label, value]) => <Box key={label} sx={{ py: 0.75 }}><Typography variant="caption" color="text.secondary">{label}</Typography><Typography fontWeight={700}>{value}</Typography></Box>)}
@@ -1230,7 +1234,7 @@ export function AdminPage() {
             <Card sx={{ borderRadius: 3 }}><CardContent><Stack divider={<Divider flexItem />}>{categories.map((category) => <Stack key={category.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{category.name}</Typography><Typography variant="body2" color="text.secondary">{category.description || 'Chưa có mô tả'}</Typography></Box><Button size="small" onClick={() => { setEditingCategory(category); setCategoryName(category.name); setCategoryDescription(category.description ?? ''); }}>Sửa</Button><Button color="error" size="small" onClick={() => token && requestConfirmation('Xóa danh mục', category.name, () => adminRepositories.categories.remove(token, category.id), 'Đã xóa danh mục.')}>Xóa</Button></Stack>)}{categories.length === 0 && <EmptyState title="Chưa có danh mục." />}</Stack></CardContent></Card>
             </Box>}
             {categoryTab === 'news' && token && <Box role="tabpanel" id="news-categories-panel" aria-labelledby="news-categories-tab"><NewsCatalogManager token={token} /></Box>}
-            {categoryTab === 'instructors' && token && <Box role="tabpanel" id="instructor-categories-panel" aria-labelledby="instructor-categories-tab"><InstructorCatalogManager token={token} /></Box>}
+            {categoryTab === 'instructors' && token && <Box role="tabpanel" id="instructor-categories-panel" aria-labelledby="instructor-categories-tab"><InstructorCatalogManager token={token} onChanged={refreshInstructors} /></Box>}
           </Stack>}
 
           {tab === 'courses' && !selectedCourse && <Stack spacing={2}>
@@ -1332,7 +1336,7 @@ export function AdminPage() {
                       ['Cấp độ', ({ beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao' }[selectedCourse.level ?? 'beginner'])],
                       ['Học phí', `${Number(selectedCourse.price).toLocaleString('vi-VN')} đ`],
                       ['Thời hạn truy cập', '730 ngày (2 năm) từ ngày ghi danh'],
-                      ['Giảng viên', selectedCourse.instructor_name || '—'],
+                      ['Giảng viên', selectedCourse.teacher_profile?.name || '—'],
                       ['Chống gian lận video', selectedCourse.anti_cheat_enabled ? 'Đã bật' : 'Đã tắt'],
                       ['Bài kiểm tra', selectedCourse.exam_exists ? 'Đã cấu hình' : 'Chưa có'],
                       ['Ngày tạo', selectedCourse.created_at ? new Date(selectedCourse.created_at).toLocaleDateString('vi-VN') : '—'],

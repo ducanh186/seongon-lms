@@ -12,6 +12,7 @@ use App\Models\Lesson;
 use App\Models\Order;
 use App\Models\Question;
 use App\Models\Review;
+use App\Models\TeacherProfile;
 use App\Models\User;
 use App\Support\CuratedDemoCatalog;
 use App\Support\CuratedLessonVideo;
@@ -138,6 +139,14 @@ class GeneratedDemoCatalogSeeder extends Seeder
     private function createCourses(): Collection
     {
         $courses = collect();
+        $teacherIds = collect(self::INSTRUCTORS)->mapWithKeys(function (string $name): array {
+            $profile = TeacherProfile::query()->updateOrCreate(
+                ['name' => $name],
+                ['bio' => 'Giảng viên thực chiến của SEONGON với kinh nghiệm triển khai dự án Digital Marketing.'],
+            );
+
+            return [$name => $profile->id];
+        });
 
         foreach (CuratedDemoCatalog::tracks() as $track) {
             $category = Category::query()->create([
@@ -148,6 +157,7 @@ class GeneratedDemoCatalogSeeder extends Seeder
 
             foreach ($track['titles'] as $titleIndex => $title) {
                 $number = $titleIndex + 1;
+                $teacherName = self::INSTRUCTORS[($number - 1) % count(self::INSTRUCTORS)];
                 $course = Course::query()->create([
                     'category_id' => $category->id,
                     'title' => $title,
@@ -155,8 +165,7 @@ class GeneratedDemoCatalogSeeder extends Seeder
                     'description' => $track['description'].' Chương trình gồm bài học nền tảng, quy trình thực hành và bài tập ứng dụng.',
                     'thumbnail' => DemoCourseThumbnail::forTrack($track['slug'], $number),
                     'price' => [299000, 399000, 499000, 599000][($number - 1) % 4],
-                    'instructor_name' => self::INSTRUCTORS[($number - 1) % count(self::INSTRUCTORS)],
-                    'instructor_bio' => 'Giảng viên thực chiến của SEONGON với kinh nghiệm triển khai dự án Digital Marketing.',
+                    'teacher_profile_id' => $teacherIds[$teacherName],
                     'level' => ['beginner', 'intermediate', 'advanced'][($number - 1) % 3],
                     'status' => 'published',
                 ]);

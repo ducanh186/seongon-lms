@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CoursePage } from './CoursePage';
@@ -61,6 +61,16 @@ describe('CoursePage', () => {
         price: '299000.00',
         instructor_name: 'Nguyễn Minh Anh',
         instructor_bio: 'Chuyên gia SEO với kinh nghiệm triển khai dự án thực tế.',
+        teacher_profile_id: 7,
+        teacher_profile: {
+          id: 7,
+          name: 'Nguyễn Minh Anh',
+          bio: 'Chuyên gia SEO với kinh nghiệm triển khai dự án thực tế.',
+          avatar: '/storage/teacher-profile-images/minh-anh.jpg',
+          courses_count: 1,
+          created_at: '2026-07-01T00:00:00Z',
+          updated_at: '2026-07-01T00:00:00Z',
+        },
         level: 'beginner',
         status: 'published',
         lessons_count: 1,
@@ -84,6 +94,7 @@ describe('CoursePage', () => {
     const instructor = screen.getByRole('region', { name: 'Thông tin giảng viên' });
     expect(instructor).toHaveTextContent('Nguyễn Minh Anh');
     expect(instructor).toHaveTextContent('Chuyên gia SEO với kinh nghiệm triển khai dự án thực tế.');
+    expect(within(instructor).getByRole('img', { name: 'Ảnh giảng viên Nguyễn Minh Anh' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/minh-anh.jpg');
     expect(course).toHaveBeenCalledWith('seo-foundation', undefined);
     expect(reviews).toHaveBeenCalledWith('seo-foundation');
   });
@@ -130,6 +141,25 @@ describe('CoursePage', () => {
     const { default: userEvent } = await import('@testing-library/user-event');
     await userEvent.setup().click(await screen.findByRole('link', { name: 'Đăng nhập để đăng ký' }));
     expect(await screen.findByText('from: /courses/seo-foundation')).toBeInTheDocument();
+  });
+
+  it('does not render a legacy teacher snapshot without a teacher profile', async () => {
+    useAuth.mockReturnValue({ user: null });
+    useCart.mockReturnValue({ add, contains: () => false });
+    course.mockResolvedValue({
+      data: {
+        id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: null, thumbnail: null,
+        price: '299000.00', instructor_name: 'Giảng viên ma', instructor_bio: 'Dữ liệu cũ', teacher_profile: null,
+        level: 'beginner', status: 'published', created_at: '2026-07-10T00:00:00Z',
+      },
+    });
+    reviews.mockResolvedValue({ data: [] });
+
+    render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /></Routes></MemoryRouter>);
+
+    expect(await screen.findByRole('heading', { name: 'SEO Foundation' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Thông tin giảng viên' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Giảng viên ma')).not.toBeInTheDocument();
   });
 
   it('loads an uploaded thumbnail from the Laravel origin', async () => {

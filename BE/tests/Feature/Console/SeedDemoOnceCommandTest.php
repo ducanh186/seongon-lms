@@ -56,7 +56,7 @@ class SeedDemoOnceCommandTest extends TestCase
         ])->assertSuccessful();
 
         $this->assertDatabaseHas('roles', ['code' => 'admin']);
-        $this->assertDatabaseHas('roles', ['code' => 'teacher']);
+        $this->assertDatabaseMissing('roles', ['code' => 'teacher']);
         $this->assertDatabaseHas('roles', ['code' => 'student']);
         $this->assertDatabaseHas('users', [
             'email' => 'admin2@demo.seongon.vn',

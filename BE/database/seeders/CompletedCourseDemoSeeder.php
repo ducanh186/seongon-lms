@@ -11,6 +11,7 @@ use App\Models\Exam;
 use App\Models\LearningProgress;
 use App\Models\Lesson;
 use App\Models\Question;
+use App\Models\TeacherProfile;
 use App\Models\User;
 use App\Services\CertificateService;
 use App\Support\CuratedLessonVideo;
@@ -44,6 +45,11 @@ class CompletedCourseDemoSeeder extends Seeder
                 ],
             );
 
+            $teacher = TeacherProfile::query()->updateOrCreate(
+                ['name' => 'Nguyễn Minh Anh'],
+                ['bio' => 'Giảng viên SEONGON giàu kinh nghiệm triển khai chiến lược SEO cho doanh nghiệp.'],
+            );
+
             $course = Course::query()->updateOrCreate(
                 ['slug' => 'completed-demo-course'],
                 [
@@ -52,8 +58,7 @@ class CompletedCourseDemoSeeder extends Seeder
                     'description' => 'Khóa học giúp học viên xây dựng nền tảng SEO, xác định KPI và lập kế hoạch triển khai 90 ngày.',
                     'thumbnail' => DemoCourseThumbnail::completed(),
                     'price' => 299000,
-                    'instructor_name' => 'Nguyễn Minh Anh',
-                    'instructor_bio' => 'Giảng viên SEONGON giàu kinh nghiệm triển khai chiến lược SEO cho doanh nghiệp.',
+                    'teacher_profile_id' => $teacher->id,
                     'level' => 'beginner',
                     'status' => 'published',
                 ],

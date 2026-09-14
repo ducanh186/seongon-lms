@@ -14,7 +14,6 @@ import type {
   ApiAdminLesson,
   ApiAdminOrder,
   ApiAdminQuestionIndex,
-  ApiInstructor,
   ApiTeacherProfile,
   ApiAdminRole,
   ApiAdminStats,
@@ -259,7 +258,7 @@ export const api = {
     apiRequest<{ data: ApiUserRecord[] }>(`/admin/users/${userId}/records`, { token }),
   updateUserStatus: (token: string, userId: number, status: 'active' | 'locked', reason?: string) =>
     apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/status`, { method: 'PATCH', token, body: reason === undefined ? { status } : { status, reason } }),
-  updateUserRole: (token: string, userId: number, role: 'student' | 'admin' | 'teacher') =>
+  updateUserRole: (token: string, userId: number, role: 'student' | 'admin') =>
     apiRequest<{ data: ApiUser }>(`/admin/users/${userId}/role`, { method: 'PATCH', token, body: { role } }),
   adminCategories: (token: string) => apiRequest<{ data: ApiCategory[] }>('/admin/categories', { token }),
   adminCatalogs: (token: string) => apiRequest<{ data: ApiCatalog[] }>('/admin/catalogs', { token }),
@@ -269,13 +268,6 @@ export const api = {
     apiRequest<{ data: ApiCatalog }>(`/admin/catalogs/${id}`, { token, method: 'PUT', body }),
   deleteCatalog: (token: string, id: number) =>
     apiRequest<null>(`/admin/catalogs/${id}`, { token, method: 'DELETE' }),
-  adminInstructors: (token: string) => apiRequest<{ data: ApiInstructor[] }>('/admin/instructors', { token }),
-  createInstructor: (token: string, body: { name: string; bio?: string }) =>
-    apiRequest<{ data: ApiInstructor }>('/admin/instructors', { token, method: 'POST', body }),
-  updateInstructor: (token: string, id: number, body: { name: string; bio?: string }) =>
-    apiRequest<{ data: ApiInstructor }>(`/admin/instructors/${id}`, { token, method: 'PUT', body }),
-  deleteInstructor: (token: string, id: number) =>
-    apiRequest<null>(`/admin/instructors/${id}`, { token, method: 'DELETE' }),
   adminTeacherProfiles: (token: string) => apiRequest<{ data: ApiTeacherProfile[] }>('/admin/teacher-profiles', { token }),
   createTeacherProfile: (token: string, body: { name: string; bio?: string; avatar?: string | null }) =>
     apiRequest<{ data: ApiTeacherProfile }>('/admin/teacher-profiles', { token, method: 'POST', body }),

@@ -23,7 +23,6 @@ class CourseController extends Controller
     {
         $filters = $request->validate([
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'instructor_id' => ['nullable', 'integer', 'exists:instructors,id'],
             'teacher_profile_id' => ['nullable', 'integer', 'exists:teacher_profiles,id'],
             'course_id' => ['nullable', 'integer', 'min:1'],
             'q' => ['nullable', 'string', 'max:255'],
@@ -109,9 +108,9 @@ class CourseController extends Controller
             'description' => ['nullable', 'string'],
             'thumbnail' => ['nullable', 'string', 'max:2048'],
             'price' => ['required', 'numeric', 'min:0'],
-            'instructor_name' => ['nullable', 'string', 'max:255'],
-            'instructor_bio' => ['nullable', 'string'],
-            'instructor_id' => ['nullable', 'integer', 'exists:instructors,id'],
+            'instructor_name' => ['prohibited'],
+            'instructor_bio' => ['prohibited'],
+            'instructor_id' => ['prohibited'],
             'teacher_profile_id' => ['nullable', 'integer', 'exists:teacher_profiles,id'],
             'level' => ['nullable', 'in:beginner,intermediate,advanced'],
             'status' => ['required', 'in:draft,published,hidden'],

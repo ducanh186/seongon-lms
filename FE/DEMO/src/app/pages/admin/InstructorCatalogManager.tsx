@@ -6,7 +6,12 @@ import { adminRepositories } from '../../data/repositories/adminRepositories';
 import { AdminDataTable } from '../../components/AdminDataTable';
 import { EmptyState } from '../../components/AsyncState';
 
-export function InstructorCatalogManager({ token }: { token: string }) {
+type InstructorCatalogManagerProps = {
+  token: string;
+  onChanged?: () => void | Promise<void>;
+};
+
+export function InstructorCatalogManager({ token, onChanged }: InstructorCatalogManagerProps) {
   const [rows, setRows] = useState<ApiTeacherProfile[]>([]);
   const [editing, setEditing] = useState<ApiTeacherProfile | null>(null);
   const [removing, setRemoving] = useState<ApiTeacherProfile | null>(null);
@@ -56,6 +61,7 @@ export function InstructorCatalogManager({ token }: { token: string }) {
       else await adminRepositories.instructors.create(token, body);
       reset();
       await reload();
+      await onChanged?.();
       setNotice('Đã lưu danh mục giảng viên.');
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Không thể lưu danh mục giảng viên.');
@@ -87,6 +93,7 @@ export function InstructorCatalogManager({ token }: { token: string }) {
       if (editing?.id === removing.id) reset();
       setRemoving(null);
       await reload();
+      await onChanged?.();
       setNotice('Đã xóa danh mục giảng viên.');
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Không thể xóa danh mục giảng viên.');

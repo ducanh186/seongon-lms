@@ -12,7 +12,6 @@ use App\Http\Controllers\Api\Admin\CourseController as AdminCourseController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\EnrollmentController as AdminEnrollmentController;
 use App\Http\Controllers\Api\Admin\ExamController as AdminExamController;
-use App\Http\Controllers\Api\Admin\InstructorController as AdminInstructorController;
 use App\Http\Controllers\Api\Admin\TeacherProfileController as AdminTeacherProfileController;
 use App\Http\Controllers\Api\Admin\LearningProgressController as AdminLearningProgressController;
 use App\Http\Controllers\Api\Admin\LessonController as AdminLessonController;
@@ -140,7 +139,6 @@ Route::prefix('v1')->group(function () {
             Route::put('categories/{category}', [AdminCategoryController::class, 'update']);
             Route::delete('categories/{category}', [AdminCategoryController::class, 'destroy']);
 
-            Route::apiResource('instructors', AdminInstructorController::class)->except('show');
             Route::post('teacher-profiles/images', [AdminTeacherProfileController::class, 'uploadImage']);
             Route::apiResource('teacher-profiles', AdminTeacherProfileController::class)->except('show');
 

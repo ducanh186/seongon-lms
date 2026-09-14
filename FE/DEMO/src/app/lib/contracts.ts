@@ -1,4 +1,4 @@
-export type UserRole = 'student' | 'admin' | 'teacher';
+export type UserRole = 'student' | 'admin';
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
 export type CourseStatus = 'draft' | 'published' | 'hidden';
 export type EnrollmentStatus = 'active' | 'expired';
@@ -48,15 +48,6 @@ export interface ApiCatalog {
   description: string | null;
   created_at: string;
   news_count?: number;
-}
-
-export interface ApiInstructor {
-  id: number;
-  name: string;
-  bio: string | null;
-  courses_count: number;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface ApiTeacherProfile {
@@ -111,7 +102,6 @@ export interface ApiCourse {
   price: string | number;
   instructor_name: string | null;
   instructor_bio: string | null;
-  instructor_id?: number | null;
   teacher_profile_id?: number | null;
   teacher_profile?: ApiTeacherProfile | null;
   level: CourseLevel | null;

@@ -9,6 +9,8 @@ class CourseResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $teacherProfile = $this->relationLoaded('teacherProfile') ? $this->teacherProfile : null;
+
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,
@@ -17,10 +19,9 @@ class CourseResource extends JsonResource
             'description' => $this->description,
             'thumbnail' => $this->thumbnail,
             'price' => $this->price,
-            'instructor_id' => $this->instructor_id,
             'teacher_profile_id' => $this->teacher_profile_id,
-            'instructor_name' => $this->instructor_name,
-            'instructor_bio' => $this->instructor_bio,
+            'instructor_name' => $teacherProfile?->name,
+            'instructor_bio' => $teacherProfile?->bio,
             'teacher_profile' => new TeacherProfileResource($this->whenLoaded('teacherProfile')),
             'level' => $this->level,
             'status' => $this->status,

@@ -43,7 +43,7 @@ class CompletedCourseDemoSeederTest extends TestCase
         $this->assertSame('published', $course->status);
         $this->assertSame('Thực hành xây dựng kế hoạch SEO 90 ngày', $course->title);
         $this->assertSame('SEO thực chiến', $course->category->name);
-        $this->assertSame('Nguyễn Minh Anh', $course->instructor_name);
+        $this->assertSame('Nguyễn Minh Anh', $course->teacherProfile->name);
         $this->assertSame(
             ['Xác định mục tiêu SEO và KPI', 'Xây dựng kế hoạch SEO 90 ngày'],
             $course->lessons()->orderBy('sort_order')->pluck('title')->all(),
@@ -54,8 +54,8 @@ class CompletedCourseDemoSeederTest extends TestCase
             $course->category->description,
             $course->title,
             $course->description,
-            $course->instructor_name,
-            $course->instructor_bio,
+            $course->teacherProfile->name,
+            $course->teacherProfile->bio,
             ...$course->lessons()->pluck('title')->all(),
             $course->quiz->title,
         ]);

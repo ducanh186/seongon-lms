@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Models\CourseCategory;
-use App\Models\Instructor;
 use App\Models\TeacherProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -60,8 +59,8 @@ class CourseService
             $query->whereHas('categories', fn (Builder $categoryQuery) => $categoryQuery->whereKey($categoryId));
         }
 
-        if ($instructorId = $filters['instructor_id'] ?? null) {
-            $query->where('instructor_id', $instructorId);
+        if ($teacherProfileId = $filters['teacher_profile_id'] ?? null) {
+            $query->where('teacher_profile_id', $teacherProfileId);
         }
 
         if (array_key_exists('price', $filters) && $filters['price'] !== null) {
@@ -155,13 +154,9 @@ class CourseService
             $teacherProfile = TeacherProfile::query()->findOrFail($data['teacher_profile_id']);
             $data['instructor_name'] = $teacherProfile->name;
             $data['instructor_bio'] = $teacherProfile->bio;
-            // Teacher profiles are the canonical relationship. Do not copy the
-            // profile id into the legacy instructors FK, which may not exist.
-            unset($data['instructor_id']);
-        } elseif (! empty($data['instructor_id'])) {
-            $instructor = Instructor::query()->findOrFail($data['instructor_id']);
-            $data['instructor_name'] = $instructor->name;
-            $data['instructor_bio'] = $instructor->bio;
+        } else {
+            $data['instructor_name'] = null;
+            $data['instructor_bio'] = null;
         }
 
         return $data;

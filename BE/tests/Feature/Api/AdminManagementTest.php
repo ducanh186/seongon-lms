@@ -8,11 +8,11 @@ use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Exam;
-use App\Models\Instructor;
 use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\Review;
 use App\Models\Role;
+use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -103,9 +103,10 @@ class AdminManagementTest extends TestCase
         $admin = User::factory()->admin()->create();
         $primary = Category::factory()->create(['name' => 'SEO']);
         $secondary = Category::factory()->create(['name' => 'Analytics']);
+        $teacher = TeacherProfile::query()->create(['name' => 'SEONGON Mentor']);
         $course = Course::factory()->create([
             'category_id' => $primary->id,
-            'instructor_name' => 'SEONGON Mentor',
+            'teacher_profile_id' => $teacher->id,
         ]);
         $course->categories()->attach($secondary->id);
         Lesson::factory()->count(2)->create(['course_id' => $course->id]);
@@ -238,11 +239,10 @@ class AdminManagementTest extends TestCase
         ]);
     }
 
-    public function test_admin_account_list_places_administrators_and_teachers_before_students(): void
+    public function test_admin_account_list_places_administrators_before_students(): void
     {
         $firstAdmin = User::factory()->admin()->create(['email' => 'admin-first@example.test']);
         User::factory()->admin()->create(['email' => 'admin-second@example.test']);
-        User::factory()->teacher()->create(['email' => 'teacher@example.test']);
         User::factory()->create(['email' => 'student-newest@example.test']);
         $token = $firstAdmin->createToken('test')->plainTextToken;
 
@@ -250,34 +250,20 @@ class AdminManagementTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.email', 'admin-second@example.test')
             ->assertJsonPath('data.1.email', 'admin-first@example.test')
-            ->assertJsonPath('data.2.email', 'teacher@example.test')
-            ->assertJsonPath('data.3.email', 'student-newest@example.test');
+            ->assertJsonPath('data.2.email', 'student-newest@example.test');
     }
 
     public function test_admin_can_filter_accounts_by_role_and_open_account_detail(): void
     {
         $admin = User::factory()->admin()->create();
-        $teacherRole = Role::query()->where('code', 'teacher')->firstOrCreate([
-            'code' => 'teacher',
-        ], ['name' => 'Giảng viên', 'description' => 'Giảng viên']);
-        $teacher = User::factory()->create(['email' => 'teacher-detail@example.test']);
-        $teacher->role = 'teacher';
-        $teacher->role_id = $teacherRole->id;
-        $teacher->save();
         $student = User::factory()->create(['email' => 'student-detail@example.test']);
         $token = $admin->createToken('test')->plainTextToken;
 
-        $this->withToken($token)->getJson('/api/v1/admin/users?role=teacher')
+        $this->withToken($token)->getJson("/api/v1/admin/users/{$student->id}")
             ->assertOk()
-            ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('data.0.email', $teacher->email)
-            ->assertJsonPath('data.0.role', 'teacher');
-
-        $this->withToken($token)->getJson("/api/v1/admin/users/{$teacher->id}")
-            ->assertOk()
-            ->assertJsonPath('data.email', $teacher->email)
+            ->assertJsonPath('data.email', $student->email)
             ->assertJsonPath('data.enrollments_count', 0)
-            ->assertJsonPath('data.updated_at', $teacher->updated_at->toJSON());
+            ->assertJsonPath('data.updated_at', $student->updated_at->toJSON());
 
         $this->withToken($token)->getJson('/api/v1/admin/users?role=student')
             ->assertOk()
@@ -289,10 +275,10 @@ class AdminManagementTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $category = Category::factory()->create(['name' => 'SEO']);
-        $instructor = Instructor::factory()->create(['name' => 'Filter Instructor']);
+        $instructor = TeacherProfile::query()->create(['name' => 'Filter Instructor']);
         $course = Course::factory()->create([
             'category_id' => $category->id,
-            'instructor_id' => $instructor->id,
+            'teacher_profile_id' => $instructor->id,
             'title' => 'SEO Filter Target',
             'price' => 499000,
             'status' => 'published',
@@ -302,14 +288,14 @@ class AdminManagementTest extends TestCase
         Course::factory()->create([
             'category_id' => $category->id,
             'title' => 'Filter Instructor Other Course',
-            'instructor_id' => Instructor::factory()->create(['name' => 'Other Instructor'])->id,
+            'teacher_profile_id' => TeacherProfile::query()->create(['name' => 'Other Instructor'])->id,
             'price' => 499000,
             'status' => 'published',
             'updated_at' => '2026-08-20 11:00:00',
         ]);
         $token = $admin->createToken('test')->plainTextToken;
 
-        $this->withToken($token)->getJson('/api/v1/admin/courses?category_id='.$category->id.'&instructor_id='.$instructor->id.'&course_id='.$course->id.'&q=Filter&status=published&price=499000&published_on=2026-08-20')
+        $this->withToken($token)->getJson('/api/v1/admin/courses?category_id='.$category->id.'&teacher_profile_id='.$instructor->id.'&course_id='.$course->id.'&q=Filter&status=published&price=499000&published_on=2026-08-20')
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonPath('data.0.id', $course->id)
@@ -356,6 +342,7 @@ class AdminManagementTest extends TestCase
         ]);
         $categoryResponse->assertCreated()->assertJsonPath('data.name', 'Analytics');
         $categoryId = $categoryResponse->json('data.id');
+        $teacher = TeacherProfile::query()->create(['name' => 'Instructor', 'bio' => 'Bio']);
 
         $courseResponse = $this->withToken($token)->postJson('/api/v1/admin/courses', [
             'category_id' => $categoryId,
@@ -363,8 +350,7 @@ class AdminManagementTest extends TestCase
             'description' => 'Mo ta khoa hoc',
             'thumbnail' => 'https://example.test/course.png',
             'price' => 299000,
-            'instructor_name' => 'Instructor',
-            'instructor_bio' => 'Bio',
+            'teacher_profile_id' => $teacher->id,
             'level' => 'beginner',
             'status' => 'draft',
         ]);
@@ -519,6 +505,7 @@ class AdminManagementTest extends TestCase
         $admin = User::factory()->admin()->create();
         $category = Category::factory()->create();
         $course = Course::factory()->create(['category_id' => $category->id]);
+        $teacher = TeacherProfile::query()->create(['name' => 'Instructor', 'bio' => 'Bio']);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
         $quiz = Exam::factory()->create(['course_id' => $course->id]);
         $question = Question::factory()->create(['exam_id' => $quiz->id]);
@@ -537,8 +524,7 @@ class AdminManagementTest extends TestCase
             'description' => 'Updated description',
             'thumbnail' => null,
             'price' => 100000,
-            'instructor_name' => 'Instructor',
-            'instructor_bio' => 'Bio',
+            'teacher_profile_id' => $teacher->id,
             'level' => 'beginner',
             'status' => 'draft',
         ])->assertOk()->assertJsonPath('data.title', 'Updated course');

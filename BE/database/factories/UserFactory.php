@@ -50,11 +50,6 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => ['role' => 'admin']);
     }
 
-    public function teacher(): static
-    {
-        return $this->state(fn (array $attributes) => ['role' => 'teacher']);
-    }
-
     public function locked(): static
     {
         return $this->state(fn (array $attributes) => ['status' => 'locked']);

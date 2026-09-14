@@ -36,7 +36,7 @@ class UserController extends Controller
         }
 
         return UserResource::collection($query
-            ->orderByRaw("CASE roles.code WHEN 'admin' THEN 0 WHEN 'teacher' THEN 1 ELSE 2 END")
+            ->orderByRaw("CASE roles.code WHEN 'admin' THEN 0 ELSE 1 END")
             ->orderByDesc('users.created_at')
             ->orderByDesc('users.id')
             ->paginate(15)
@@ -51,7 +51,7 @@ class UserController extends Controller
     public function updateRole(Request $request, User $user)
     {
         $data = $request->validate([
-            'role' => ['required', 'string', Rule::exists('roles', 'code')],
+            'role' => ['required', 'string', Rule::in(['admin', 'student'])],
         ]);
 
         $role = Role::query()->where('code', $data['role'])->firstOrFail();

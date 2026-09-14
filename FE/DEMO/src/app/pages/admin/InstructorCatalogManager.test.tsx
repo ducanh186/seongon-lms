@@ -32,7 +32,8 @@ describe('InstructorCatalogManager', () => {
   });
 
   it('creates an instructor from the catalog form', async () => {
-    render(<InstructorCatalogManager token="admin-token" />);
+    const onChanged = vi.fn();
+    render(<InstructorCatalogManager token="admin-token" onChanged={onChanged} />);
     const user = userEvent.setup();
 
     await user.type(await screen.findByRole('textbox', { name: /Tên giảng viên/ }), 'Lê An');
@@ -40,6 +41,7 @@ describe('InstructorCatalogManager', () => {
     await user.click(screen.getByRole('button', { name: 'Lưu giảng viên' }));
 
     await waitFor(() => expect(create).toHaveBeenCalledWith('admin-token', { name: 'Lê An', bio: 'Chuyên gia SEO', avatar: null }));
+    expect(onChanged).toHaveBeenCalledOnce();
     expect(await screen.findByRole('alert')).toHaveTextContent('Đã lưu danh mục giảng viên.');
   });
 

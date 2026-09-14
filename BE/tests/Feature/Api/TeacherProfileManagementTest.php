@@ -51,4 +51,77 @@ class TeacherProfileManagementTest extends TestCase
             ->assertJsonPath('data.teacher_profile.avatar', $avatar->json('url'));
         $this->assertDatabaseHas('courses', ['id' => $course->json('data.id'), 'teacher_profile_id' => $profile['id']]);
     }
+
+    public function test_admin_filters_courses_by_external_teacher_profile(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+        $category = Category::factory()->create();
+        $targetProfile = TeacherProfile::query()->create(['name' => 'Nguyễn Minh Anh', 'bio' => 'SEO']);
+        $otherProfile = TeacherProfile::query()->create(['name' => 'Lê Thu Hà', 'bio' => 'Ads']);
+        Course::factory()->create([
+            'category_id' => $category->id,
+            'title' => 'Target course',
+            'teacher_profile_id' => $targetProfile->id,
+        ]);
+        Course::factory()->create([
+            'category_id' => $category->id,
+            'title' => 'Other course',
+            'teacher_profile_id' => $otherProfile->id,
+        ]);
+
+        $this->withToken($token)
+            ->getJson("/api/v1/admin/courses?teacher_profile_id={$targetProfile->id}")
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.title', 'Target course');
+    }
+
+    public function test_course_teacher_data_is_read_only_and_derived_from_profile(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+        $category = Category::factory()->create();
+        $profile = TeacherProfile::query()->create([
+            'name' => 'Nguyễn Minh Anh',
+            'bio' => 'Tiểu sử chuẩn.',
+            'avatar' => '/storage/teacher-profile-images/minh-anh.jpg',
+        ]);
+
+        $this->withToken($token)->postJson('/api/v1/admin/courses', [
+            'category_id' => $category->id,
+            'title' => 'Manual teacher data is forbidden',
+            'price' => 299000,
+            'status' => 'draft',
+            'teacher_profile_id' => $profile->id,
+            'instructor_name' => 'Tên nhập tay',
+        ])->assertUnprocessable()->assertJsonValidationErrors('instructor_name');
+
+        $course = Course::factory()->create([
+            'category_id' => $category->id,
+            'slug' => 'relationship-derived-teacher',
+            'status' => 'published',
+            'teacher_profile_id' => $profile->id,
+            'instructor_name' => 'Tên snapshot sai',
+            'instructor_bio' => 'Tiểu sử snapshot sai',
+        ]);
+
+        $this->getJson("/api/v1/courses/{$course->slug}")
+            ->assertOk()
+            ->assertJsonPath('data.instructor_name', 'Nguyễn Minh Anh')
+            ->assertJsonPath('data.instructor_bio', 'Tiểu sử chuẩn.')
+            ->assertJsonPath('data.teacher_profile.avatar', '/storage/teacher-profile-images/minh-anh.jpg');
+    }
+
+    public function test_teacher_is_not_an_assignable_user_role(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)
+            ->patchJson("/api/v1/admin/users/{$student->id}/role", ['role' => 'teacher'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('role');
+    }
 }

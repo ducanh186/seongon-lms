@@ -15,7 +15,7 @@ class CourseController extends Controller
     {
         $query = Course::query()
             ->published()
-            ->with(['category', 'categories'])
+            ->with(['category', 'categories', 'teacherProfile'])
             ->withCount([
                 'lessons',
                 'enrollments',
@@ -83,7 +83,7 @@ class CourseController extends Controller
         $course = Course::query()
             ->published()
             ->where('slug', $slug)
-            ->with(['category', 'categories', 'lessons', 'quiz'])
+            ->with(['category', 'categories', 'teacherProfile', 'lessons', 'quiz'])
             ->withCount([
                 'lessons',
                 'enrollments',
