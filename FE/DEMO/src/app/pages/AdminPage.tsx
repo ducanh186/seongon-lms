@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   Container,
   Dialog,
   Divider,
@@ -20,6 +21,7 @@ import {
   Pagination,
   Radio,
   RadioGroup,
+  Rating,
   Select,
   Snackbar,
   Stack,
@@ -41,8 +43,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useAdminNotifications } from '../contexts/AdminNotificationContext';
 import { AdminSectionHeader } from '../components/AdminSectionHeader';
 import { StatusChip } from '../components/StatusChip';
-import { AdminDataTable, type AdminColumn } from '../components/AdminDataTable';
-import { AdminFilterToolbar } from '../components/AdminFilterToolbar';
+import { AdminDataTable, type AdminColumn, type AdminSortState } from '../components/AdminDataTable';
+import { AdminFilterToolbar, type AdminActiveFilter } from '../components/AdminFilterToolbar';
 import { AdminShell, type AdminSection } from '../components/AdminShell';
 import { AdminOverview } from './AdminOverview';
 import { RichTextEditor } from '../components/RichTextEditor';
@@ -103,6 +105,7 @@ type AppliedNewsFilters = {
   status: string;
   category: string;
   page: number;
+  perPage: number;
 };
 
 type AppliedAdminFilters = {
@@ -110,6 +113,15 @@ type AppliedAdminFilters = {
   status: string;
   role: string;
   page: number;
+  perPage: number;
+};
+
+type AppliedReviewFilters = {
+  q: string;
+  courseId: string;
+  rating: string;
+  page: number;
+  perPage: number;
 };
 
 type CourseAdminFilters = {
@@ -121,10 +133,11 @@ type CourseAdminFilters = {
   price: string;
   publishedOn: string;
   page: number;
+  perPage: number;
 };
 
 const blankCourseFilters: CourseAdminFilters = {
-  categoryId: '', instructorId: '', courseId: '', q: '', status: '', price: '', publishedOn: '', page: 1,
+  categoryId: '', instructorId: '', courseId: '', q: '', status: '', price: '', publishedOn: '', page: 1, perPage: 15,
 };
 
 type OperationSection = 'lessons' | 'quizzes' | 'enrollments' | 'quizAttempts' | 'certificates';
@@ -190,6 +203,8 @@ const blankQuestionOptions: QuestionOptionDraft[] = [
   { content: '', is_correct: false },
 ];
 
+const defaultReviewFilters: AppliedReviewFilters = { q: '', courseId: '', rating: '', page: 1, perPage: 15 };
+
 const adminSectionCopy: Record<AdminSection, { title: string; description: string }> = {
   overview: { title: 'Tổng quan vận hành', description: '' },
   paymentSettings: { title: 'Cài đặt thanh toán', description: 'Quản lý phương thức thanh toán và tài khoản nhận tiền.' },
@@ -253,6 +268,15 @@ function newsDraftFrom(newsPost: ApiNewsPost): NewsDraft {
   };
 }
 
+function adminRouteIsActive(): boolean {
+  return typeof window !== 'undefined' && window.location.pathname === '/admin';
+}
+
+function positiveQueryNumber(value: string | null, fallback: number): number {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
 export function AdminPage() {
   const { token } = useAuth();
   const { pushNotification } = useAdminNotifications();
@@ -277,15 +301,23 @@ export function AdminPage() {
 
   const [userQuery, setUserQuery] = useState('');
   const [userStatus, setUserStatus] = useState('');
-  const [appliedUserFilters, setAppliedUserFilters] = useState<AppliedAdminFilters>({ q: '', status: '', role: '', page: 1 });
+  const [appliedUserFilters, setAppliedUserFilters] = useState<AppliedAdminFilters>({ q: '', status: '', role: '', page: 1, perPage: 15 });
+  const [userSort, setUserSort] = useState<AdminSortState>({ key: 'created', direction: 'desc' });
+  const [courseSort, setCourseSort] = useState<AdminSortState>({ key: 'enrollments', direction: 'desc' });
+  const [newsSort, setNewsSort] = useState<AdminSortState>({ key: 'updated', direction: 'desc' });
+  const [reviewSort, setReviewSort] = useState<AdminSortState>({ key: 'created', direction: 'desc' });
   const [userRole, setUserRole] = useState('');
   const [courseFilters, setCourseFilters] = useState<CourseAdminFilters>(blankCourseFilters);
   const [appliedCourseFilters, setAppliedCourseFilters] = useState<CourseAdminFilters>(blankCourseFilters);
-  const [reviewPage, setReviewPage] = useState(1);
+  const [reviewQuery, setReviewQuery] = useState('');
+  const [reviewCourseId, setReviewCourseId] = useState('');
+  const [reviewRating, setReviewRating] = useState('');
+  const [appliedReviewFilters, setAppliedReviewFilters] = useState<AppliedReviewFilters>(defaultReviewFilters);
+  const [selectedReviewIds, setSelectedReviewIds] = useState<number[]>([]);
   const [newsQuery, setNewsQuery] = useState('');
   const [newsStatus, setNewsStatus] = useState('');
   const [newsCategory, setNewsCategory] = useState('');
-  const [appliedNewsFilters, setAppliedNewsFilters] = useState<AppliedNewsFilters>({ q: '', status: '', category: '', page: 1 });
+  const [appliedNewsFilters, setAppliedNewsFilters] = useState<AppliedNewsFilters>({ q: '', status: '', category: '', page: 1, perPage: 15 });
   const [operationDrafts, setOperationDrafts] = useState<Record<OperationSection, OperationFilters>>(createOperationFilterMap);
   const [operationFilters, setOperationFilters] = useState<Record<OperationSection, OperationFilters>>(createOperationFilterMap);
 
@@ -331,26 +363,82 @@ export function AdminPage() {
   const [statusReason, setStatusReason] = useState('');
   const loadRequestId = useRef(0);
   const loadedKeyBySection = useRef<Partial<Record<AdminSection, string>>>({});
+  const restoredUrlState = useRef(false);
   const courseCategoryFieldRef = useRef<HTMLDivElement>(null);
   const courseTitleFieldRef = useRef<HTMLInputElement>(null);
   const coursePriceFieldRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (!adminRouteIsActive()) {
+      restoredUrlState.current = true;
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section') as AdminSection | null;
+    if (section && Object.prototype.hasOwnProperty.call(adminSectionCopy, section)) setTab(section);
+
+    const restoredUsers = {
+      q: params.get('u_q') ?? '',
+      status: params.get('u_status') ?? '',
+      role: params.get('u_role') ?? '',
+      page: positiveQueryNumber(params.get('u_page'), 1),
+      perPage: [15, 25, 50].includes(positiveQueryNumber(params.get('u_per_page'), 15)) ? positiveQueryNumber(params.get('u_per_page'), 15) : 15,
+    };
+    setUserQuery(restoredUsers.q); setUserStatus(restoredUsers.status); setUserRole(restoredUsers.role); setAppliedUserFilters(restoredUsers);
+    const restoredCourses = {
+      ...blankCourseFilters,
+      categoryId: params.get('c_category') ?? '', instructorId: params.get('c_instructor') ?? '', courseId: params.get('c_id') ?? '',
+      q: params.get('c_q') ?? '', status: params.get('c_status') ?? '', price: params.get('c_price') ?? '', publishedOn: params.get('c_date') ?? '',
+      page: positiveQueryNumber(params.get('c_page'), 1), perPage: [15, 25, 50].includes(positiveQueryNumber(params.get('c_per_page'), 15)) ? positiveQueryNumber(params.get('c_per_page'), 15) : 15,
+    };
+    setCourseFilters(restoredCourses); setAppliedCourseFilters(restoredCourses);
+    const restoredNews = {
+      q: params.get('n_q') ?? '', status: params.get('n_status') ?? '', category: params.get('n_category') ?? '', page: positiveQueryNumber(params.get('n_page'), 1),
+      perPage: [15, 25, 50].includes(positiveQueryNumber(params.get('n_per_page'), 15)) ? positiveQueryNumber(params.get('n_per_page'), 15) : 15,
+    };
+    setNewsQuery(restoredNews.q); setNewsStatus(restoredNews.status); setNewsCategory(restoredNews.category); setAppliedNewsFilters(restoredNews);
+    const restoredReviews = {
+      q: params.get('r_q') ?? '', courseId: params.get('r_course') ?? '', rating: params.get('r_rating') ?? '', page: positiveQueryNumber(params.get('r_page'), 1),
+      perPage: [15, 25, 50].includes(positiveQueryNumber(params.get('r_per_page'), 15)) ? positiveQueryNumber(params.get('r_per_page'), 15) : 15,
+    };
+    setReviewQuery(restoredReviews.q); setReviewCourseId(restoredReviews.courseId); setReviewRating(restoredReviews.rating); setAppliedReviewFilters(restoredReviews);
+    const restoreSort = (key: string, fallback: AdminSortState): AdminSortState => ({ key: params.get(`${key}_sort`) ?? fallback.key, direction: params.get(`${key}_dir`) === 'asc' ? 'asc' : params.get(`${key}_dir`) === 'desc' ? 'desc' : fallback.direction });
+    setUserSort(restoreSort('u', { key: 'created', direction: 'desc' }));
+    setCourseSort(restoreSort('c', { key: 'enrollments', direction: 'desc' }));
+    setNewsSort(restoreSort('n', { key: 'updated', direction: 'desc' }));
+    setReviewSort(restoreSort('r', { key: 'created', direction: 'desc' }));
+    restoredUrlState.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!restoredUrlState.current || !adminRouteIsActive()) return;
+    const params = new URLSearchParams();
+    if (tab !== 'overview') params.set('section', tab);
+    const setFilterParams = (prefix: string, values: Record<string, string | number>) => Object.entries(values).forEach(([key, value]) => { if (value !== '' && value !== 0) params.set(`${prefix}_${key}`, String(value)); });
+    setFilterParams('u', { q: appliedUserFilters.q, status: appliedUserFilters.status, role: appliedUserFilters.role, page: appliedUserFilters.page, per_page: appliedUserFilters.perPage, sort: userSort.key, dir: userSort.direction });
+    setFilterParams('c', { category: appliedCourseFilters.categoryId, instructor: appliedCourseFilters.instructorId, id: appliedCourseFilters.courseId, q: appliedCourseFilters.q, status: appliedCourseFilters.status, price: appliedCourseFilters.price, date: appliedCourseFilters.publishedOn, page: appliedCourseFilters.page, per_page: appliedCourseFilters.perPage, sort: courseSort.key, dir: courseSort.direction });
+    setFilterParams('n', { q: appliedNewsFilters.q, status: appliedNewsFilters.status, category: appliedNewsFilters.category, page: appliedNewsFilters.page, per_page: appliedNewsFilters.perPage, sort: newsSort.key, dir: newsSort.direction });
+    setFilterParams('r', { q: appliedReviewFilters.q, course: appliedReviewFilters.courseId, rating: appliedReviewFilters.rating, page: appliedReviewFilters.page, per_page: appliedReviewFilters.perPage, sort: reviewSort.key, dir: reviewSort.direction });
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`);
+  }, [appliedCourseFilters, appliedNewsFilters, appliedReviewFilters, appliedUserFilters, courseSort, newsSort, reviewSort, tab, userSort]);
+
   const cacheKeyFor = useCallback((section: AdminSection) => {
     switch (section) {
       case 'users':
-        return `${section}:${appliedUserFilters.q}:${appliedUserFilters.status}:${appliedUserFilters.role}:${appliedUserFilters.page}`;
+        return `${section}:${Object.values(appliedUserFilters).join(':')}:${userSort.key}:${userSort.direction}`;
       case 'courses':
-        return `${section}:${Object.values(appliedCourseFilters).join(':')}`;
+        return `${section}:${Object.values(appliedCourseFilters).join(':')}:${courseSort.key}:${courseSort.direction}`;
       case 'reviews':
-        return `${section}:${reviewPage}`;
+        return `${section}:${Object.values(appliedReviewFilters).join(':')}:${reviewSort.key}:${reviewSort.direction}`;
       case 'news':
-        return `${section}:${appliedNewsFilters.q}:${appliedNewsFilters.status}:${appliedNewsFilters.category}:${appliedNewsFilters.page}`;
+        return `${section}:${Object.values(appliedNewsFilters).join(':')}:${newsSort.key}:${newsSort.direction}`;
       default:
         return isOperationSection(section)
           ? `${section}:${operationFilters[section].q}:${operationFilters[section].courseId}:${operationFilters[section].status}:${operationFilters[section].page}`
           : section;
     }
-  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, operationFilters, reviewPage]);
+  }, [appliedCourseFilters, appliedNewsFilters, appliedReviewFilters, appliedUserFilters, courseSort, newsSort, operationFilters, reviewSort, userSort]);
 
   const load = useCallback(async (section: AdminSection, force = false) => {
     if (!token) return;
@@ -377,6 +465,8 @@ export function AdminPage() {
             status: appliedUserFilters.status || undefined,
             ...(appliedUserFilters.role ? { role: appliedUserFilters.role } : {}),
             page: appliedUserFilters.page,
+            ...(appliedUserFilters.perPage !== 15 ? { per_page: appliedUserFilters.perPage } : {}),
+            ...(userSort.key !== 'created' || userSort.direction !== 'desc' ? { sort: userSort.key, direction: userSort.direction } : {}),
           });
           if (requestId !== loadRequestId.current) return;
           setUsers(nextUsers);
@@ -400,6 +490,8 @@ export function AdminPage() {
               price: appliedCourseFilters.price === '' ? undefined : Number(appliedCourseFilters.price),
               published_on: appliedCourseFilters.publishedOn || undefined,
               page: appliedCourseFilters.page,
+              ...(appliedCourseFilters.perPage !== 15 ? { per_page: appliedCourseFilters.perPage } : {}),
+              ...(courseSort.key !== 'enrollments' || courseSort.direction !== 'desc' ? { sort: courseSort.key, direction: courseSort.direction } : {}),
             }),
             needsCategories ? adminRepositories.categories.list(token) : Promise.resolve(null),
             adminRepositories.instructors.list(token),
@@ -414,7 +506,14 @@ export function AdminPage() {
           break;
         }
         case 'reviews': {
-          const nextReviews = await adminRepositories.reviews.list(token, { page: reviewPage });
+          const nextReviews = await adminRepositories.reviews.list(token, {
+            q: appliedReviewFilters.q || undefined,
+            course_id: appliedReviewFilters.courseId ? Number(appliedReviewFilters.courseId) : undefined,
+            rating: appliedReviewFilters.rating ? Number(appliedReviewFilters.rating) : undefined,
+            page: appliedReviewFilters.page,
+            ...(appliedReviewFilters.perPage !== 15 ? { per_page: appliedReviewFilters.perPage } : {}),
+            ...(reviewSort.key !== 'created' || reviewSort.direction !== 'desc' ? { sort: reviewSort.key, direction: reviewSort.direction } : {}),
+          });
           if (requestId !== loadRequestId.current) return;
           setReviews(nextReviews);
           break;
@@ -425,6 +524,8 @@ export function AdminPage() {
             status: appliedNewsFilters.status || undefined,
             ...(appliedNewsFilters.category ? { category: appliedNewsFilters.category } : {}),
             page: appliedNewsFilters.page,
+            ...(appliedNewsFilters.perPage !== 15 ? { per_page: appliedNewsFilters.perPage } : {}),
+            ...(newsSort.key !== 'updated' || newsSort.direction !== 'desc' ? { sort: newsSort.key, direction: newsSort.direction } : {}),
           });
           if (requestId !== loadRequestId.current) return;
           setNews(nextNews);
@@ -499,7 +600,7 @@ export function AdminPage() {
         setLoading(false);
       }
     }
-  }, [appliedCourseFilters, appliedNewsFilters, appliedUserFilters, cacheKeyFor, operationFilters, reviewPage, token]);
+  }, [appliedCourseFilters, appliedNewsFilters, appliedReviewFilters, appliedUserFilters, cacheKeyFor, courseSort, newsSort, operationFilters, reviewSort, token, userSort]);
 
   useEffect(() => {
     if (isErdReadSection(tab)) {
@@ -846,7 +947,7 @@ export function AdminPage() {
   };
 
   const applyNewsFilters = () => {
-    setAppliedNewsFilters({ q: newsQuery, status: newsStatus, category: newsCategory, page: 1 });
+    setAppliedNewsFilters((current) => ({ ...current, q: newsQuery, status: newsStatus, category: newsCategory, page: 1 }));
   };
 
   const uploadNewsImage = async (file: File): Promise<string> => {
@@ -1044,14 +1145,36 @@ export function AdminPage() {
     certificates: adminCertificates,
   };
 
+  const userActiveFilters: AdminActiveFilter[] = [
+    userQuery && { key: 'user-q', label: `Tìm: ${userQuery}`, onRemove: () => setUserQuery('') },
+    userStatus && { key: 'user-status', label: `Trạng thái: ${userStatus === 'active' ? 'Đang hoạt động' : 'Đã khóa'}`, onRemove: () => setUserStatus('') },
+    userRole && { key: 'user-role', label: `Vai trò: ${userRole === 'admin' ? 'Quản trị viên' : 'Học viên'}`, onRemove: () => setUserRole('') },
+  ].filter(Boolean) as AdminActiveFilter[];
+  const courseActiveFilters: AdminActiveFilter[] = [
+    courseFilters.q && { key: 'course-q', label: `Tên: ${courseFilters.q}`, onRemove: () => setCourseFilters((current) => ({ ...current, q: '' })) },
+    courseFilters.categoryId && { key: 'course-category', label: 'Có danh mục', onRemove: () => setCourseFilters((current) => ({ ...current, categoryId: '' })) },
+    courseFilters.instructorId && { key: 'course-instructor', label: 'Có người biên soạn', onRemove: () => setCourseFilters((current) => ({ ...current, instructorId: '' })) },
+    courseFilters.status && { key: 'course-status', label: `Trạng thái: ${courseFilters.status}`, onRemove: () => setCourseFilters((current) => ({ ...current, status: '' })) },
+  ].filter(Boolean) as AdminActiveFilter[];
+  const newsActiveFilters: AdminActiveFilter[] = [
+    newsQuery && { key: 'news-q', label: `Tìm: ${newsQuery}`, onRemove: () => setNewsQuery('') },
+    newsStatus && { key: 'news-status', label: `Trạng thái: ${newsStatus}`, onRemove: () => setNewsStatus('') },
+    newsCategory && { key: 'news-category', label: `Danh mục: ${newsCategory}`, onRemove: () => setNewsCategory('') },
+  ].filter(Boolean) as AdminActiveFilter[];
+  const reviewActiveFilters: AdminActiveFilter[] = [
+    reviewQuery && { key: 'review-q', label: `Tìm: ${reviewQuery}`, onRemove: () => setReviewQuery('') },
+    reviewCourseId && { key: 'review-course', label: `Khóa học #${reviewCourseId}`, onRemove: () => setReviewCourseId('') },
+    reviewRating && { key: 'review-rating', label: `${reviewRating} sao`, onRemove: () => setReviewRating('') },
+  ].filter(Boolean) as AdminActiveFilter[];
+
   const courseColumns: AdminColumn<ApiCourse>[] = [
     { key: 'id', header: 'ID', width: 46, align: 'center', render: (course) => course.id },
     { key: 'course', header: 'Khóa học', render: (course) => <Typography fontWeight={750}>{course.title}</Typography> },
     { key: 'categories', header: 'Danh mục', width: 140, render: (course) => course.categories?.map((category) => category.name).join(', ') || course.category?.name || '—' },
-    { key: 'price', header: 'Học phí', width: 108, align: 'center', render: (course) => <Typography sx={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{Number(course.price).toLocaleString('vi-VN')} đ</Typography> },
-    { key: 'enrollments', header: 'Ghi danh', width: 84, align: 'center', render: (course) => course.enrollments_count ?? 0 },
+    { key: 'price', header: 'Học phí', width: 108, align: 'center', sortable: true, sortValue: (course) => Number(course.price), render: (course) => <Typography sx={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{Number(course.price).toLocaleString('vi-VN')} đ</Typography> },
+    { key: 'enrollments', header: 'Ghi danh', width: 84, align: 'center', sortable: true, sortValue: (course) => course.enrollments_count ?? 0, render: (course) => course.enrollments_count ?? 0 },
     { key: 'status', header: 'Trạng thái', width: 136, render: (course) => <StatusChip status={course.status} /> },
-    { key: 'updated_at', header: 'Cập nhật', width: 104, render: (course) => <Typography sx={{ whiteSpace: 'nowrap' }}>{course.updated_at ? new Date(course.updated_at).toLocaleDateString('vi-VN') : '—'}</Typography> },
+    { key: 'updated_at', header: 'Cập nhật', width: 104, sortable: true, sortValue: (course) => course.updated_at ?? '', render: (course) => <Typography sx={{ whiteSpace: 'nowrap' }}>{course.updated_at ? new Date(course.updated_at).toLocaleDateString('vi-VN') : '—'}</Typography> },
     { key: 'actions', header: 'Thao tác', width: 88, align: 'center', render: (course) => <Tooltip title="Thao tác"><IconButton
       id={`course-actions-${course.id}`}
       aria-label={`Thao tác ${course.title}`}
@@ -1189,13 +1312,19 @@ export function AdminPage() {
     </Card>
   );
 
+  const adminBreadcrumbs = [
+    { label: 'Tổng quan', onClick: tab === 'overview' ? undefined : () => setTab('overview') },
+    ...(tab === 'overview' ? [] : [{ label: adminSectionCopy[tab].title, onClick: selectedCourse ? () => { setSelectedCourse(null); setIsCourseEditorOpen(false); } : undefined }]),
+    ...(selectedCourse ? [{ label: selectedCourse.title }] : []),
+  ];
+
   if (loading && !stats) {
     return <Container sx={{ py: 6 }}><PageSkeleton rows={5} /></Container>;
   }
 
   return (
     <Box sx={{ minHeight: '100dvh' }}>
-      <AdminShell active={tab} onChange={(section) => { setNotice(null); setError(null); setTab(section); }}>
+      <AdminShell breadcrumbs={adminBreadcrumbs} active={tab} onChange={(section) => { setNotice(null); setError(null); setTab(section); }}>
         <Stack spacing={3}>
           <AdminSectionHeader title={adminSectionCopy[tab].title} description={adminSectionCopy[tab].description} />
           {notice && <Alert severity="success" onClose={() => setNotice(null)}>{notice}</Alert>}
@@ -1350,15 +1479,28 @@ export function AdminPage() {
           {tab === 'users' && !detailUser && <Card sx={{ borderRadius: 3, minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
             <Stack spacing={2} sx={{ p: 2.5, bgcolor: '#F8FBFC', borderBottom: '1px solid', borderColor: 'divider' }}>
               <Typography component="h2" variant="h6" fontWeight={800}>Danh sách tài khoản</Typography>
-              <AdminFilterToolbar label="Bộ lọc tài khoản" action={<Button variant="contained" onClick={() => setAppliedUserFilters({ q: userQuery, status: userStatus, role: userRole, page: 1 })}>Áp dụng</Button>}>
+              <AdminFilterToolbar
+                label="Bộ lọc tài khoản"
+                onReset={() => { setUserQuery(''); setUserStatus(''); setUserRole(''); setAppliedUserFilters((current) => ({ ...current, q: '', status: '', role: '', page: 1 })); }}
+                resetDisabled={userActiveFilters.length === 0}
+                activeFilters={userActiveFilters}
+                action={<Button variant="contained" onClick={() => setAppliedUserFilters((current) => ({ ...current, q: userQuery, status: userStatus, role: userRole, page: 1 }))}>Áp dụng</Button>}
+              >
                 <TextField label="Tìm tài khoản" value={userQuery} onChange={(event) => setUserQuery(event.target.value)} fullWidth />
                 <FormControl fullWidth><InputLabel id="student-status">Trạng thái</InputLabel><Select labelId="student-status" label="Trạng thái" value={userStatus} onChange={(event) => setUserStatus(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="active">Đang hoạt động</MenuItem><MenuItem value="locked">Đã khóa</MenuItem></Select></FormControl>
                 <FormControl fullWidth><InputLabel id="user-role-filter">Vai trò</InputLabel><Select labelId="user-role-filter" label="Vai trò" value={userRole} onChange={(event) => setUserRole(event.target.value)}><MenuItem value="">Tất cả</MenuItem><MenuItem value="admin">Quản trị viên</MenuItem><MenuItem value="student">Học viên</MenuItem></Select></FormControl>
               </AdminFilterToolbar>
             </Stack>
-            {users?.data.length ? <Box sx={{ width: '100%', minWidth: 0 }}><AdminDataTable<ApiUser>
+            {loading ? <Box sx={{ p: 2.5, pt: 0 }}><PageSkeleton rows={4} /></Box> : users?.data.length ? <Box sx={{ width: '100%', minWidth: 0 }}><AdminDataTable<ApiUser>
               label="Danh sách tài khoản"
               rows={users.data}
+              totalCount={users.meta.total}
+              page={appliedUserFilters.page}
+              pageSize={appliedUserFilters.perPage}
+              onPageChange={(page) => setAppliedUserFilters((filters) => ({ ...filters, page }))}
+              onPageSizeChange={(perPage) => setAppliedUserFilters((filters) => ({ ...filters, perPage, page: 1 }))}
+              sort={userSort}
+              onSortChange={setUserSort}
               getRowKey={(user) => user.id}
               columns={[
                 // Account Management displays fields returned by UserResource.
@@ -1366,7 +1508,7 @@ export function AdminPage() {
                 { key: 'account', header: 'Tài khoản', width: '21%', render: (user) => <Typography fontWeight={750}>{user.name}</Typography> },
                 { key: 'email', header: 'Email', width: '26%', render: (user) => <Tooltip title={user.email} describeChild><Typography variant="body2" noWrap tabIndex={0}>{user.email}</Typography></Tooltip> },
                 { key: 'role', header: 'Vai trò', width: '12%', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{user.role === 'admin' ? 'Quản trị viên' : 'Học viên'}</Typography> },
-                { key: 'created', header: 'Ngày tạo', width: '14%', render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</Typography> },
+                { key: 'created', header: 'Ngày tạo', width: '14%', sortable: true, sortValue: (user) => user.created_at, render: (user) => <Typography sx={{ whiteSpace: 'nowrap' }}>{new Date(user.created_at).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</Typography> },
                 { key: 'status', header: 'Trạng thái', width: '17%', render: (user) => <StatusChip status={user.status} /> },
                 { key: 'actions', header: 'Thao tác', width: '10%', render: (user) => <IconButton
                   id={`user-actions-${user.id}`}
@@ -1400,7 +1542,6 @@ export function AdminPage() {
                 {userMenu?.user.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
               </MenuItem>
             </Menu>
-            {users && users.meta.last_page > 1 && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><Pagination count={users.meta.last_page} page={appliedUserFilters.page} onChange={(_, page) => setAppliedUserFilters((filters) => ({ ...filters, page }))} color="primary" /></Box>}
           </CardContent></Card>}
           {tab === 'users' && detailUser && <Card sx={{ borderRadius: 3, minWidth: 0 }}>
             <CardContent>
@@ -1474,7 +1615,13 @@ export function AdminPage() {
                   <Typography component="h2" variant="h6" fontWeight={800} sx={{ flexGrow: 1 }}>Danh sách khóa học</Typography>
                   <Button variant="contained" onClick={() => { resetCourseFormErrors(); setEditingCourse(null); setSelectedCourse(null); setCourseCategoryIds([]); setCourseForm(blankCourse); setCourseStep(0); setIsCourseEditorOpen(true); }} sx={{ whiteSpace: 'nowrap', minWidth: 164 }}>Tạo khóa học mới</Button>
                 </Stack>
-                <AdminFilterToolbar label="Bộ lọc khóa học" action={<Button variant="contained" onClick={() => setAppliedCourseFilters({ ...courseFilters, page: 1 })}>Áp dụng</Button>}>
+                <AdminFilterToolbar
+                  label="Bộ lọc khóa học"
+                  onReset={() => { setCourseFilters((current) => ({ ...blankCourseFilters, perPage: current.perPage })); setAppliedCourseFilters((current) => ({ ...blankCourseFilters, perPage: current.perPage })); }}
+                  resetDisabled={courseActiveFilters.length === 0}
+                  activeFilters={courseActiveFilters}
+                  action={<Button variant="contained" onClick={() => setAppliedCourseFilters({ ...courseFilters, page: 1 })}>Áp dụng</Button>}
+                >
                   <FormControl fullWidth><InputLabel id="course-category-filter">Lọc danh mục</InputLabel><Select labelId="course-category-filter" label="Lọc danh mục" value={courseFilters.categoryId} onChange={(event) => setCourseFilters((current) => ({ ...current, categoryId: event.target.value }))}><MenuItem value="">Tất cả</MenuItem>{categories.map((category) => <MenuItem key={category.id} value={String(category.id)}>{category.name}</MenuItem>)}</Select></FormControl>
                   <FormControl fullWidth><InputLabel id="course-instructor-filter">Lọc người biên soạn chương trình học</InputLabel><Select labelId="course-instructor-filter" label="Lọc người biên soạn chương trình học" value={courseFilters.instructorId} onChange={(event) => setCourseFilters((current) => ({ ...current, instructorId: event.target.value }))}><MenuItem value="">Tất cả</MenuItem>{instructors.map((instructor) => <MenuItem key={instructor.id} value={String(instructor.id)}>{instructor.name}</MenuItem>)}</Select></FormControl>
                   <TextField fullWidth label="Mã khóa học" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} value={courseFilters.courseId} onChange={(event) => setCourseFilters((current) => ({ ...current, courseId: event.target.value.replace(/[^0-9]/g, '') }))} />
@@ -1484,9 +1631,16 @@ export function AdminPage() {
                   <TextField fullWidth label="Ngày xuất bản" type="date" InputLabelProps={{ shrink: true }} value={courseFilters.publishedOn} onChange={(event) => setCourseFilters((current) => ({ ...current, publishedOn: event.target.value }))} />
                 </AdminFilterToolbar>
               </Stack>
-              {courses?.data.length ? <Box sx={{ maxWidth: 1120, mx: 'auto', width: '100%' }}><AdminDataTable<ApiCourse>
+              {loading ? <PageSkeleton rows={4} /> : courses?.data.length ? <Box sx={{ maxWidth: 1120, mx: 'auto', width: '100%' }}><AdminDataTable<ApiCourse>
                 label="Danh sách khóa học"
                 rows={courses.data}
+                totalCount={courses.meta.total}
+                page={appliedCourseFilters.page}
+                pageSize={appliedCourseFilters.perPage}
+                onPageChange={(page) => setAppliedCourseFilters((filters) => ({ ...filters, page }))}
+                onPageSizeChange={(perPage) => setAppliedCourseFilters((filters) => ({ ...filters, perPage, page: 1 }))}
+                sort={courseSort}
+                onSortChange={setCourseSort}
                 getRowKey={(course) => course.id}
                 columns={courseColumns}
                 minWidth={0}
@@ -1507,7 +1661,6 @@ export function AdminPage() {
                 <MenuItem onClick={() => { if (!courseMenu) return; void editContent(courseMenu.course.id); setCourseMenu(null); }}>Sửa khóa học</MenuItem>
               </Menu>
             </CardContent></Card>
-            {courses && courses.meta.last_page > 1 && <Pagination count={courses.meta.last_page} page={appliedCourseFilters.page} onChange={(_, page) => setAppliedCourseFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
 
           {tab === 'courses' && selectedCourse && <Stack spacing={3} sx={{ minWidth: 0 }}>
@@ -1709,7 +1862,13 @@ export function AdminPage() {
                     <Typography component="h2" variant="h6" fontWeight={800}>Danh sách tin tức</Typography>
                     <Button variant="contained" onClick={() => { resetNewsForm(); setIsNewsEditorOpen(true); }} sx={{ whiteSpace: 'nowrap', minWidth: 164 }}>Tạo tin tức mới</Button>
                   </Stack>
-                  <AdminFilterToolbar label="Bộ lọc tin tức" action={<Button variant="contained" onClick={applyNewsFilters}>Áp dụng</Button>}>
+                  <AdminFilterToolbar
+                    label="Bộ lọc tin tức"
+                    onReset={() => { setNewsQuery(''); setNewsStatus(''); setNewsCategory(''); setAppliedNewsFilters((current) => ({ ...current, q: '', status: '', category: '', page: 1 })); }}
+                    resetDisabled={newsActiveFilters.length === 0}
+                    activeFilters={newsActiveFilters}
+                    action={<Button variant="contained" onClick={applyNewsFilters}>Áp dụng</Button>}
+                  >
               <TextField label="Tìm tin tức" value={newsQuery} onChange={(event) => setNewsQuery(event.target.value)} fullWidth />
               <FormControl fullWidth>
                 <InputLabel id="news-status-filter">Trạng thái tin tức</InputLabel>
@@ -1728,19 +1887,26 @@ export function AdminPage() {
               </FormControl>
                   </AdminFilterToolbar>
                 </Stack>
-                {news?.data.length ? <AdminDataTable<ApiNewsPost>
+                {loading ? <PageSkeleton rows={4} /> : news?.data.length ? <AdminDataTable<ApiNewsPost>
                   label="Danh sách tin tức"
                   minWidth={0}
                   fixedLayout
                   rows={news.data}
+                  totalCount={news.meta.total}
+                  page={appliedNewsFilters.page}
+                  pageSize={appliedNewsFilters.perPage}
+                  onPageChange={(page) => setAppliedNewsFilters((filters) => ({ ...filters, page }))}
+                  onPageSizeChange={(perPage) => setAppliedNewsFilters((filters) => ({ ...filters, perPage, page: 1 }))}
+                  sort={newsSort}
+                  onSortChange={setNewsSort}
                   getRowKey={(newsPost) => newsPost.id}
                   columns={[
                     { key: 'title', header: 'Tin tức', render: (newsPost) => <Stack direction="row" spacing={1.25} alignItems="center" sx={{ minWidth: 0 }}>{newsPost.thumbnail && <Box component="img" src={resolveMaterialUrl(newsPost.thumbnail) ?? newsPost.thumbnail} alt={newsPost.title} sx={{ width: 56, height: 42, borderRadius: 1.5, objectFit: 'cover', flexShrink: 0 }} />}<Box sx={{ minWidth: 0 }}><Typography fontWeight={750}>{newsPost.title}</Typography><Typography variant="body2" color="text.secondary">{newsPost.excerpt}</Typography></Box></Stack> },
-                    { key: 'category', header: 'Danh mục', width: 100, render: (newsPost) => newsPost.category },
+                    { key: 'category', header: 'Danh mục', width: 100, sortable: true, sortValue: (newsPost) => newsPost.category, render: (newsPost) => newsPost.category },
                     { key: 'author', header: 'Tác giả', width: 140, render: (newsPost) => newsPost.author?.name ?? '—' },
                     { key: 'status', header: 'Trạng thái', width: 136, render: (newsPost) => <StatusChip status={newsPost.status} /> },
                     { key: 'published', header: 'Ngày xuất bản', width: 132, render: (newsPost) => newsPost.published_at ? new Date(newsPost.published_at).toLocaleDateString('vi-VN') : '—' },
-                    { key: 'updated', header: 'Cập nhật', width: 98, render: (newsPost) => new Date(newsPost.updated_at).toLocaleDateString('vi-VN') },
+                    { key: 'updated', header: 'Cập nhật', width: 98, sortable: true, sortValue: (newsPost) => newsPost.updated_at, render: (newsPost) => new Date(newsPost.updated_at).toLocaleDateString('vi-VN') },
                     { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (newsPost) => <Tooltip title="Thao tác"><IconButton
                       id={`news-actions-${newsPost.id}`}
                       aria-label={`Thao tác ${newsPost.title}`}
@@ -1774,7 +1940,6 @@ export function AdminPage() {
               </MenuItem>
               <MenuItem sx={{ color: 'error.main' }} onClick={() => { if (!newsMenu) return; const post = newsMenu.newsPost; setNewsMenu(null); if (token) requestConfirmation('Xóa tin tức', post.title, () => adminRepositories.news.remove(token, post.id), 'Đã xóa tin tức.'); }}>Xóa</MenuItem>
             </Menu>
-            {!isNewsEditorOpen && news && news.meta.last_page > 1 && <Pagination count={news.meta.last_page} page={appliedNewsFilters.page} onChange={(_, page) => setAppliedNewsFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
             {isNewsEditorOpen && <Card component="form" noValidate onSubmit={submitNews} sx={{ borderRadius: 3 }}>
               <CardContent>
                 <Stack spacing={2}>
@@ -1816,15 +1981,41 @@ export function AdminPage() {
 
           {tab === 'reviews' && <Stack spacing={2}>
             <Card sx={{ minWidth: 0 }}><CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-              {reviews?.data.length ? <AdminDataTable<ApiReview>
+              <Stack spacing={2} sx={{ p: 2.5, bgcolor: '#F8FBFC', borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }} justifyContent="space-between">
+                  <Typography component="h2" variant="h6" fontWeight={800}>Danh sách đánh giá</Typography>
+                  {selectedReviewIds.length > 0 && <Button color="error" variant="outlined" onClick={() => token && requestConfirmation('Xóa đánh giá', `${selectedReviewIds.length} đánh giá đã chọn`, async () => { await Promise.all(selectedReviewIds.map((reviewId) => adminRepositories.reviews.remove(token, reviewId))); setSelectedReviewIds([]); }, `Đã xóa ${selectedReviewIds.length} đánh giá.`, true)}>Xóa đã chọn ({selectedReviewIds.length})</Button>}
+                </Stack>
+                <AdminFilterToolbar
+                  label="Bộ lọc đánh giá"
+                  onReset={() => { setReviewQuery(''); setReviewCourseId(''); setReviewRating(''); setAppliedReviewFilters((current) => ({ ...current, q: '', courseId: '', rating: '', page: 1 })); }}
+                  resetDisabled={reviewActiveFilters.length === 0}
+                  activeFilters={reviewActiveFilters}
+                  action={<Button variant="contained" onClick={() => setAppliedReviewFilters((current) => ({ ...current, q: reviewQuery, courseId: reviewCourseId, rating: reviewRating, page: 1 }))}>Áp dụng</Button>}
+                >
+                  <TextField label="Tìm người đánh giá hoặc khóa học" value={reviewQuery} onChange={(event) => setReviewQuery(event.target.value)} fullWidth />
+                  <TextField label="Mã khóa học" value={reviewCourseId} onChange={(event) => setReviewCourseId(event.target.value.replace(/\D/g, ''))} inputProps={{ inputMode: 'numeric' }} fullWidth />
+                  <FormControl fullWidth><InputLabel id="review-rating-filter">Số sao</InputLabel><Select labelId="review-rating-filter" label="Số sao" value={reviewRating} onChange={(event) => setReviewRating(event.target.value)}><MenuItem value="">Tất cả</MenuItem>{[5, 4, 3, 2, 1].map((rating) => <MenuItem key={rating} value={String(rating)}>{rating} sao</MenuItem>)}</Select></FormControl>
+                </AdminFilterToolbar>
+              </Stack>
+              {loading ? <PageSkeleton rows={4} /> : reviews?.data.length ? <AdminDataTable<ApiReview>
                 label="Danh sách đánh giá"
                 rows={reviews.data}
+                totalCount={reviews.meta.total}
+                page={appliedReviewFilters.page}
+                pageSize={appliedReviewFilters.perPage}
+                onPageChange={(page) => setAppliedReviewFilters((filters) => ({ ...filters, page }))}
+                onPageSizeChange={(perPage) => setAppliedReviewFilters((filters) => ({ ...filters, perPage, page: 1 }))}
+                sort={reviewSort}
+                onSortChange={setReviewSort}
                 getRowKey={(review) => review.id}
                 columns={[
+                  { key: 'select', header: 'Chọn', width: 58, align: 'center', render: (review) => <Checkbox size="small" checked={selectedReviewIds.includes(review.id)} onChange={(_, checked) => setSelectedReviewIds((ids) => checked ? [...new Set([...ids, review.id])] : ids.filter((id) => id !== review.id))} inputProps={{ 'aria-label': `Chọn đánh giá của ${review.user.name}` }} /> },
                   { key: 'reviewer', header: 'Người đánh giá', render: (review) => <Typography fontWeight={750} sx={{ minWidth: 160 }}>{review.user.name}</Typography> },
                   { key: 'course', header: 'Tên khóa học', render: (review) => review.course?.title ?? '—' },
-                  { key: 'rating', header: 'Số sao', align: 'center', render: (review) => `${review.rating}/5` },
-                  { key: 'comment', header: 'Nhận xét', render: (review) => <Typography variant="body2" sx={{ minWidth: 220, maxWidth: 360, overflowWrap: 'anywhere' }}>{review.comment || 'Không có nhận xét'}</Typography> },
+                  { key: 'rating', header: 'Số sao', align: 'center', sortable: true, sortValue: (review) => review.rating, render: (review) => <Stack direction="row" spacing={0.5} alignItems="center" justifyContent="center"><Rating value={review.rating} readOnly size="small" aria-label={`${review.rating} trên 5 sao`} /><Box component="span" sx={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>{review.rating}/5</Box></Stack> },
+                  { key: 'comment', header: 'Nhận xét', render: (review) => <Typography variant="body2" sx={{ minWidth: 220, maxWidth: 360, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{review.comment || 'Không có nhận xét'}</Typography> },
+                  { key: 'created', header: 'Ngày tạo', width: 112, sortable: true, sortValue: (review) => review.created_at, render: (review) => new Date(review.created_at).toLocaleDateString('vi-VN') },
                   { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (review) => <Tooltip title="Thao tác"><IconButton
                     id={`review-actions-${review.id}`}
                     aria-label={`Thao tác đánh giá của ${review.user.name}`}
@@ -1855,7 +2046,6 @@ export function AdminPage() {
             >
               <MenuItem sx={{ color: 'error.main' }} onClick={() => { if (!reviewMenu) return; const review = reviewMenu.review; setReviewMenu(null); if (token) requestConfirmation('Xóa đánh giá', `${review.user.name}, ${review.rating}/5`, () => adminRepositories.reviews.remove(token, review.id), 'Đã xóa đánh giá.'); }}>Xóa</MenuItem>
             </Menu>
-            {reviews && reviews.meta.last_page > 1 && <Pagination count={reviews.meta.last_page} page={reviewPage} onChange={(_, page) => setReviewPage(page)} color="primary" sx={{ alignSelf: 'center' }} />}
           </Stack>}
           </Stack>
           <Dialog

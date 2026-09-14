@@ -1,11 +1,16 @@
 import type { ReactNode } from 'react';
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Pagination, Select, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography } from '@mui/material';
+
+export type AdminSortDirection = 'asc' | 'desc';
+export type AdminSortState = { key: string; direction: AdminSortDirection };
 
 export type AdminColumn<T> = {
   key: string;
   header: string;
   align?: 'left' | 'center' | 'right';
   width?: number | string;
+  sortable?: boolean;
+  sortValue?: (row: T) => string | number | null | undefined;
   render: (row: T) => ReactNode;
 };
 
@@ -20,6 +25,15 @@ interface AdminDataTableProps<T> {
   stickyFirstColumn?: boolean;
   stickyLastColumn?: boolean;
   onRowClick?: (row: T) => void;
+  totalCount?: number;
+  page?: number;
+  pageSize?: number;
+  pageSizeOptions?: number[];
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  loading?: boolean;
+  sort?: AdminSortState;
+  onSortChange?: (sort: AdminSortState) => void;
 }
 
 export function AdminDataTable<T>({
@@ -33,26 +47,57 @@ export function AdminDataTable<T>({
   stickyFirstColumn = true,
   stickyLastColumn = false,
   onRowClick,
+  totalCount,
+  page = 1,
+  pageSize = 15,
+  pageSizeOptions = [15, 25, 50],
+  onPageChange,
+  onPageSizeChange,
+  loading = false,
+  sort,
+  onSortChange,
 }: AdminDataTableProps<T>) {
+  const visibleTotal = totalCount ?? rows.length;
+  const firstResult = visibleTotal === 0 ? 0 : (page - 1) * pageSize + 1;
+  const lastResult = Math.min(page * pageSize, visibleTotal);
+  const sortedRows = sort?.key
+    ? [...rows].sort((left, right) => {
+        const column = columns.find((candidate) => candidate.key === sort.key);
+        const leftValue = column?.sortValue?.(left) ?? '';
+        const rightValue = column?.sortValue?.(right) ?? '';
+        const comparison = String(leftValue).localeCompare(String(rightValue), 'vi', { numeric: true, sensitivity: 'base' });
+        return sort.direction === 'asc' ? comparison : -comparison;
+      })
+    : rows;
+
+  const handleSort = (column: AdminColumn<T>) => {
+    if (!column.sortable || !onSortChange) return;
+    onSortChange({
+      key: column.key,
+      direction: sort?.key === column.key && sort.direction === 'asc' ? 'desc' : 'asc',
+    });
+  };
+
   return (
-    <TableContainer
-      component={Box}
-      role="region"
-      tabIndex={0}
-      aria-label={`${label}, có thể cuộn ngang`}
-      sx={{
-        width: '100%',
-        maxWidth: '100%',
-        overflowX: 'auto',
-        WebkitOverflowScrolling: 'touch',
-        '&:focus-visible': {
-          outline: '3px solid',
-          outlineColor: 'primary.main',
-          outlineOffset: 2,
-        },
-      }}
-    >
-      <Table
+    <Stack spacing={1.25}>
+      <TableContainer
+        component={Box}
+        role="region"
+        tabIndex={0}
+        aria-label={`${label}, có thể cuộn ngang`}
+        sx={{
+          width: '100%',
+          maxWidth: '100%',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          '&:focus-visible': {
+            outline: '3px solid',
+            outlineColor: 'primary.main',
+            outlineOffset: 2,
+          },
+        }}
+      >
+        <Table
         stickyHeader
         size="small"
         aria-label={label}
@@ -104,13 +149,21 @@ export function AdminDataTable<T>({
           <TableRow>
             {columns.map((column) => (
               <TableCell key={column.key} align={column.align} scope="col" sx={{ width: column.width, ...(cellPaddingX !== undefined ? { px: cellPaddingX } : {}) }}>
-                {column.header}
+                {column.sortable ? <TableSortLabel
+                  active={sort?.key === column.key}
+                  direction={sort?.key === column.key ? sort.direction : 'asc'}
+                  onClick={() => handleSort(column)}
+                >{column.header}</TableSortLabel> : column.header}
               </TableCell>
             ))}
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {loading ? Array.from({ length: Math.min(pageSize, 5) }, (_, index) => (
+            <TableRow key={`loading-${index}`} aria-label="Đang tải dữ liệu">
+              {columns.map((column) => <TableCell key={column.key}><Skeleton variant="text" width="80%" /></TableCell>)}
+            </TableRow>
+          )) : sortedRows.map((row) => (
             <TableRow
               key={getRowKey(row)}
               tabIndex={onRowClick ? 0 : undefined}
@@ -136,7 +189,22 @@ export function AdminDataTable<T>({
             </TableRow>
           ))}
         </TableBody>
-      </Table>
-    </TableContainer>
+        </Table>
+      </TableContainer>
+      {(totalCount !== undefined || onPageSizeChange || onPageChange) && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="space-between" alignItems={{ sm: 'center' }} sx={{ px: 0.5 }}>
+        <Typography variant="body2" color="text.secondary" aria-live="polite">
+          {visibleTotal === 0 ? `Không có ${label.toLowerCase()}.` : `Hiển thị ${firstResult}-${lastResult} trong ${visibleTotal} ${label.toLowerCase()}`}
+        </Typography>
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          {onPageSizeChange && <FormControl size="small" sx={{ minWidth: 112 }}>
+            <InputLabel id={`${label.replace(/\s+/g, '-')}-page-size`}>Số dòng</InputLabel>
+            <Select labelId={`${label.replace(/\s+/g, '-')}-page-size`} label="Số dòng" value={pageSize} onChange={(event) => onPageSizeChange(Number(event.target.value))}>
+              {pageSizeOptions.map((option) => <MenuItem key={option} value={option}>{option} / trang</MenuItem>)}
+            </Select>
+          </FormControl>}
+          {onPageChange && visibleTotal > pageSize && <Pagination count={Math.ceil(visibleTotal / pageSize)} page={page} onChange={(_, nextPage) => onPageChange(nextPage)} size="small" color="primary" />}
+        </Stack>
+      </Stack>}
+    </Stack>
   );
 }

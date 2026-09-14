@@ -1,8 +1,28 @@
 import { Children, type ReactNode } from 'react';
-import { Box } from '@mui/material';
+import { Box, Button, Chip, Stack } from '@mui/material';
+
+export type AdminActiveFilter = {
+  key: string;
+  label: string;
+  onRemove: () => void;
+};
 
 /** Keep equal-width fields readable within the actual remaining content width. */
-export function AdminFilterToolbar({ label, children, action }: { label: string; children: ReactNode; action: ReactNode }) {
+export function AdminFilterToolbar({
+  label,
+  children,
+  action,
+  onReset,
+  resetDisabled = true,
+  activeFilters = [],
+}: {
+  label: string;
+  children: ReactNode;
+  action: ReactNode;
+  onReset?: () => void;
+  resetDisabled?: boolean;
+  activeFilters?: AdminActiveFilter[];
+}) {
   const count = Children.count(children);
   return (
     <Box component="section" role="region" aria-label={label} data-admin-toolbar="true" sx={{ containerType: 'inline-size', minWidth: 0 }}>
@@ -15,8 +35,14 @@ export function AdminFilterToolbar({ label, children, action }: { label: string;
           '& .MuiInputBase-root': { bgcolor: 'background.paper' },
           '& .MuiOutlinedInput-notchedOutline': { borderColor: '#A6BDC6' },
         }}>{children}</Box>
-        <Box sx={{ '& .MuiButton-root': { minWidth: 112, px: 2.5, whiteSpace: 'nowrap' } }}>{action}</Box>
+        <Stack direction="row" spacing={1} sx={{ '& .MuiButton-root': { minWidth: 112, px: 2.5, whiteSpace: 'nowrap' } }}>
+          {onReset && <Button variant="text" color="inherit" disabled={resetDisabled} onClick={onReset}>Xóa bộ lọc</Button>}
+          {action}
+        </Stack>
       </Box>
+      {activeFilters.length > 0 && <Stack direction="row" spacing={0.75} useFlexGap flexWrap="wrap" sx={{ mt: 1.25 }} aria-label="Bộ lọc đang áp dụng">
+        {activeFilters.map((filter) => <Chip key={filter.key} size="small" label={filter.label} onDelete={filter.onRemove} />)}
+      </Stack>}
     </Box>
   );
 }

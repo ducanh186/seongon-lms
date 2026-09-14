@@ -75,7 +75,7 @@ class CourseService
             ->orderByDesc('reviews_avg_rating')
             ->orderByDesc('reviews_count')
             ->latest()
-            ->paginate(15)->withQueryString();
+            ->paginate((int) ($filters['per_page'] ?? 15))->withQueryString();
     }
 
     public function forAdmin(Course $course): Course

@@ -20,6 +20,7 @@ class NewsController extends Controller
             'q' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', 'in:draft,published'],
             'category' => ['nullable', 'string', 'max:100'],
+            'per_page' => ['nullable', 'integer', 'in:15,25,50'],
         ]);
         $categories = NewsPost::query()->distinct()->orderBy('category')->pluck('category')->values();
         $query = NewsPost::query()->with('author:id,name')->latest();
@@ -40,7 +41,7 @@ class NewsController extends Controller
             $query->where('category', $category);
         }
 
-        return NewsPostResource::collection($query->paginate(15)->withQueryString())
+        return NewsPostResource::collection($query->paginate((int) ($filters['per_page'] ?? 15))->withQueryString())
             ->additional(['categories' => $categories]);
     }
 

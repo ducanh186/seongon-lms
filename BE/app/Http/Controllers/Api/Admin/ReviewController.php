@@ -12,7 +12,10 @@ class ReviewController extends Controller
     public function index(Request $request)
     {
         $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:255'],
             'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+            'rating' => ['nullable', 'integer', 'between:1,5'],
+            'per_page' => ['nullable', 'integer', 'in:15,25,50'],
         ]);
 
         $query = Review::with(['user', 'course']);
@@ -21,7 +24,18 @@ class ReviewController extends Controller
             $query->where('course_id', $courseId);
         }
 
-        return ReviewResource::collection($query->latest()->paginate(15)->withQueryString());
+        if ($search = $filters['q'] ?? null) {
+            $query->where(function ($reviewQuery) use ($search): void {
+                $reviewQuery->whereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('course', fn ($courseQuery) => $courseQuery->where('title', 'like', "%{$search}%"));
+            });
+        }
+
+        if ($rating = $filters['rating'] ?? null) {
+            $query->where('rating', $rating);
+        }
+
+        return ReviewResource::collection($query->latest()->paginate((int) ($filters['per_page'] ?? 15))->withQueryString());
     }
 
     public function destroy(Review $review)

@@ -1,5 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
 import { AdminDataTable } from './AdminDataTable';
 
 describe('AdminDataTable', () => {
@@ -59,5 +60,32 @@ describe('AdminDataTable', () => {
       position: 'sticky',
       top: '0px',
     });
+  });
+
+  it('shows result count, page size controls, and sort labels', async () => {
+    const user = userEvent.setup();
+    const onPageSizeChange = vi.fn();
+    const onSortChange = vi.fn();
+    render(
+      <AdminDataTable
+        label="Danh sách khóa học"
+        rows={[{ id: 1, name: 'Course A' }]}
+        totalCount={47}
+        page={2}
+        pageSize={15}
+        onPageChange={vi.fn()}
+        onPageSizeChange={onPageSizeChange}
+        onSortChange={onSortChange}
+        getRowKey={(row) => row.id}
+        columns={[{ key: 'name', header: 'Khóa học', sortable: true, sortValue: (row) => row.name, render: (row) => row.name }]}
+      />,
+    );
+
+    expect(screen.getByText('Hiển thị 16-30 trong 47 danh sách khóa học')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Khóa học/ }));
+    expect(onSortChange).toHaveBeenCalledWith({ key: 'name', direction: 'asc' });
+    await user.click(screen.getByRole('combobox', { name: 'Số dòng' }));
+    await user.click(screen.getByRole('option', { name: '25 / trang' }));
+    expect(onPageSizeChange).toHaveBeenCalledWith(25);
   });
 });

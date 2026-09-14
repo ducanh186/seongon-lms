@@ -29,6 +29,7 @@ class CourseController extends Controller
             'status' => ['nullable', Rule::in(['draft', 'published', 'hidden'])],
             'price' => ['nullable', 'numeric', 'min:0'],
             'published_on' => ['nullable', 'date_format:Y-m-d'],
+            'per_page' => ['nullable', 'integer', 'in:15,25,50'],
         ]);
 
         return AdminCourseResource::collection($this->courses->paginateForAdmin($filters));

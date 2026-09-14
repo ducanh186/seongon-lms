@@ -15,6 +15,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
+        $perPage = min(50, max(15, (int) $request->query('per_page', 15)));
         $query = User::query()
             ->leftJoin('roles', 'roles.id', '=', 'users.role_id')
             ->select('users.*')
@@ -39,7 +40,7 @@ class UserController extends Controller
             ->orderByRaw("CASE roles.code WHEN 'admin' THEN 0 ELSE 1 END")
             ->orderByDesc('users.created_at')
             ->orderByDesc('users.id')
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString());
     }
 
