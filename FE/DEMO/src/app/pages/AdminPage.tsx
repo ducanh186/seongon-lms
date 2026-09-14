@@ -13,6 +13,7 @@ import {
   FormControlLabel,
   IconButton,
   InputLabel,
+  InputAdornment,
   Menu,
   MenuItem,
   Pagination,
@@ -30,7 +31,6 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { ApiError, resolveMaterialUrl } from '../lib/api';
 import type { ApiAdminAttempt, ApiAdminCertificateStatus, ApiAdminCourse, ApiAdminExam, ApiAdminLesson, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiNewsList, ApiNewsPost, ApiReview, ApiTeacherProfile, ApiUser, ApiUserRecord, Paginated } from '../lib/contracts';
@@ -190,7 +190,7 @@ const adminSectionCopy: Record<AdminSection, { title: string; description: strin
   carts: { title: 'Quản lý giỏ hàng', description: 'Theo dõi giỏ hàng hiện tại của học viên từ dữ liệu trong carts.' },
   cartItems: { title: 'Mục giỏ hàng', description: 'Đối chiếu từng khóa học đang nằm trong cart_items.' },
   orders: { title: 'Quản lý đơn hàng', description: 'Theo dõi đơn hàng, trạng thái thanh toán và quan hệ học viên - khóa học.' },
-  categories: { title: 'DANH MỤC', description: 'Tổ chức chủ đề để học viên khám phá nội dung dễ dàng.' },
+  categories: { title: 'Danh mục', description: 'Tổ chức chủ đề để học viên khám phá nội dung dễ dàng.' },
   courseCategories: { title: 'Gán danh mục khóa học', description: 'Đối chiếu quan hệ nhiều-nhiều từ course_categories.' },
   courses: { title: 'Quản lý khóa học', description: 'Quản lý nội dung, bài học, bài kiểm tra và trạng thái xuất bản.' },
   lessons: { title: 'Quản lý bài học', description: 'Tra cứu bài học theo khóa học và mở trình biên tập nội dung thống nhất.' },
@@ -207,6 +207,11 @@ const adminSectionCopy: Record<AdminSection, { title: string; description: strin
 
 function getErrorMessage(reason: unknown, fallback: string): string {
   return reason instanceof ApiError ? reason.message : fallback;
+}
+
+function formatCoursePrice(value: string): string {
+  const amount = value.replace(/\D/g, '');
+  return amount ? Number(amount).toLocaleString('vi-VN') : '';
 }
 
 function courseDraftFrom(course: ApiCourse): CourseDraft {
@@ -908,7 +913,7 @@ export function AdminPage() {
     { key: 'enrollments', header: 'Ghi danh', width: 84, align: 'center', render: (course) => course.enrollments_count ?? 0 },
     { key: 'status', header: 'Trạng thái', width: 136, render: (course) => <StatusChip status={course.status} /> },
     { key: 'updated_at', header: 'Cập nhật', width: 104, render: (course) => <Typography sx={{ whiteSpace: 'nowrap' }}>{course.updated_at ? new Date(course.updated_at).toLocaleDateString('vi-VN') : '—'}</Typography> },
-    { key: 'actions', header: 'Thao tác', width: 88, align: 'center', render: (course) => <IconButton
+    { key: 'actions', header: 'Thao tác', width: 88, align: 'center', render: (course) => <Tooltip title="Thao tác"><IconButton
       id={`course-actions-${course.id}`}
       aria-label={`Thao tác ${course.title}`}
       aria-haspopup="menu"
@@ -917,7 +922,7 @@ export function AdminPage() {
       onClick={(event) => setCourseMenu({ anchor: event.currentTarget, course })}
       color="primary"
       sx={{ width: 36, height: 36, border: 1, borderColor: 'divider', borderRadius: 1 }}
-    ><MenuRoundedIcon fontSize="small" /></IconButton> },
+    ><MoreVertIcon fontSize="small" /></IconButton></Tooltip> },
   ];
 
   const selectedTeacherProfile = courseForm.teacher_profile_id === null
@@ -952,7 +957,13 @@ export function AdminPage() {
             {courseForm.thumbnail && <Box component="img" src={resolveMaterialUrl(courseForm.thumbnail) ?? courseForm.thumbnail} alt="Xem trước thumbnail khóa học" sx={{ display: 'block', width: 200, height: 112, objectFit: 'cover', borderRadius: 1.5, mt: 1.5 }} />}
           </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
-            <TextField required label="Giá" type="number" inputProps={{ min: 1 }} value={courseForm.price} onChange={(event) => setCourseForm({ ...courseForm, price: event.target.value })} />
+            <TextField
+              required
+              label="Giá"
+              value={formatCoursePrice(courseForm.price)}
+              onChange={(event) => setCourseForm({ ...courseForm, price: event.target.value.replace(/\D/g, '') })}
+              slotProps={{ htmlInput: { inputMode: 'numeric' }, input: { endAdornment: <InputAdornment position="end">đ</InputAdornment> } }}
+            />
             <FormControl>
               <InputLabel id="course-level">Cấp độ</InputLabel>
               <Select labelId="course-level" label="Cấp độ" value={courseForm.level} onChange={(event) => setCourseForm({ ...courseForm, level: event.target.value as CourseDraft['level'] })}>
@@ -989,11 +1000,13 @@ export function AdminPage() {
             label="Bật chống gian lận video"
           />
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between">
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-              <Button type="submit" variant="contained">{editingCourse ? 'Cập nhật' : 'Lưu khóa học'}</Button>
+            <Box>
               {!selectedCourse && <Button onClick={() => { setEditingCourse(null); setCourseCategoryIds([]); setCourseForm(blankCourse); setIsCourseEditorOpen(false); }}>Hủy</Button>}
+            </Box>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+              <Button type="submit">Lưu nháp</Button>
+              <Button variant="contained" onClick={() => void saveCourseBasics(true)}>Tiếp: Bài học & tài liệu</Button>
             </Stack>
-            <Button variant="outlined" onClick={() => void saveCourseBasics(true)}>Tiếp: Bài học & tài liệu</Button>
           </Stack>
         </Stack>
       </CardContent>
@@ -1542,7 +1555,7 @@ export function AdminPage() {
                     { key: 'status', header: 'Trạng thái', width: 136, render: (newsPost) => <StatusChip status={newsPost.status} /> },
                     { key: 'published', header: 'Ngày xuất bản', width: 132, render: (newsPost) => newsPost.published_at ? new Date(newsPost.published_at).toLocaleDateString('vi-VN') : '—' },
                     { key: 'updated', header: 'Cập nhật', width: 98, render: (newsPost) => new Date(newsPost.updated_at).toLocaleDateString('vi-VN') },
-                    { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (newsPost) => <IconButton
+                    { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (newsPost) => <Tooltip title="Thao tác"><IconButton
                       id={`news-actions-${newsPost.id}`}
                       aria-label={`Thao tác ${newsPost.title}`}
                       aria-haspopup="menu"
@@ -1552,7 +1565,7 @@ export function AdminPage() {
                       size="small"
                       onClick={(event) => setNewsMenu({ anchor: event.currentTarget, newsPost })}
                       sx={{ width: 36, height: 36, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
-                    ><MenuRoundedIcon fontSize="small" /></IconButton> },
+                    ><MoreVertIcon fontSize="small" /></IconButton></Tooltip> },
                   ] satisfies AdminColumn<ApiNewsPost>[]}
                   cellPaddingX={2}
                   stickyLastColumn
@@ -1625,7 +1638,7 @@ export function AdminPage() {
                   { key: 'course', header: 'Tên khóa học', render: (review) => review.course?.title ?? '—' },
                   { key: 'rating', header: 'Số sao', align: 'center', render: (review) => `${review.rating}/5` },
                   { key: 'comment', header: 'Nhận xét', render: (review) => <Typography variant="body2" sx={{ minWidth: 220, maxWidth: 360, overflowWrap: 'anywhere' }}>{review.comment || 'Không có nhận xét'}</Typography> },
-                  { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (review) => <IconButton
+                  { key: 'actions', header: 'Thao tác', width: 96, align: 'center', render: (review) => <Tooltip title="Thao tác"><IconButton
                     id={`review-actions-${review.id}`}
                     aria-label={`Thao tác đánh giá của ${review.user.name}`}
                     aria-haspopup="menu"
@@ -1635,7 +1648,7 @@ export function AdminPage() {
                     size="small"
                     onClick={(event) => setReviewMenu({ anchor: event.currentTarget, review })}
                     sx={{ width: 36, height: 36, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
-                  ><MenuRoundedIcon fontSize="small" /></IconButton> },
+                  ><MoreVertIcon fontSize="small" /></IconButton></Tooltip> },
                 ] satisfies AdminColumn<ApiReview>[]}
                 minWidth={0}
                 fixedLayout

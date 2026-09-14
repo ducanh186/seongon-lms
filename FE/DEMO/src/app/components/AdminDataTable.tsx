@@ -53,6 +53,7 @@ export function AdminDataTable<T>({
       }}
     >
       <Table
+        stickyHeader
         size="small"
         aria-label={label}
         sx={{
@@ -72,7 +73,8 @@ export function AdminDataTable<T>({
             py: 1.5,
             px: 2,
           },
-          '& td': { fontSize: 14, py: 1.75, px: 2, overflowWrap: 'anywhere' },
+          '& td': { fontSize: 14, py: 1.75, px: 2, overflowWrap: 'normal' },
+          '& td .MuiChip-label': { whiteSpace: 'nowrap' },
           ...(fixedLayout && {
             '& th, & td': { px: cellPaddingX ?? 1.25 },
             '& td .MuiTypography-root': { fontSize: 14 },

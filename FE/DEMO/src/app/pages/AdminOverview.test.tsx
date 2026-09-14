@@ -69,6 +69,7 @@ describe('AdminOverview', () => {
 
     expect(screen.queryByRole('link', { name: 'Tải báo cáo ghi danh' })).not.toBeInTheDocument();
     expect(clickSpy).toHaveBeenCalledOnce();
+    expect(await screen.findByRole('alert')).toHaveTextContent('Đã tạo báo cáo BC-01.pdf.');
     clickSpy.mockRestore();
   });
 
@@ -87,7 +88,7 @@ describe('AdminOverview', () => {
     await user.type(within(dialog).getByLabelText('Đến ngày'), '2026-09-01');
     await user.click(within(dialog).getByRole('button', { name: 'Xuất báo cáo' }));
 
-    expect(within(dialog).getByText('Ngày kết thúc không được trước ngày bắt đầu.')).toBeInTheDocument();
+    expect(within(dialog).getByText('Từ ngày phải trước Đến ngày')).toBeInTheDocument();
     expect(downloadSpy).not.toHaveBeenCalled();
   });
 

@@ -240,6 +240,43 @@ describe('AdminPage', () => {
     expect(screen.getByRole('button', { name: 'Lưu danh mục' })).toBeInTheDocument();
   });
 
+  it('uses sentence case for the categories page heading', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Danh mục', exact: true }));
+
+    expect(screen.getByRole('heading', { name: 'Danh mục' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'DANH MỤC' })).not.toBeInTheDocument();
+  });
+
+  it('formats the course price for Vietnamese currency while saving the raw amount', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    await user.click(screen.getByRole('button', { name: 'Tạo khóa học mới' }));
+
+    const price = screen.getByRole('textbox', { name: 'Giá' });
+    expect(price).toHaveValue('299.000');
+    expect(screen.getByText('đ')).toBeInTheDocument();
+
+    await user.clear(price);
+    await user.type(price, '450000');
+    expect(price).toHaveValue('450.000');
+
+    await user.type(screen.getByRole('textbox', { name: /Tiêu đề/ }), 'Khóa học giá định dạng');
+    await user.click(screen.getByRole('combobox', { name: 'Danh mục' }));
+    await user.click(screen.getByRole('option', { name: 'SEO' }));
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('combobox', { name: 'Danh mục' })).toHaveTextContent('SEO');
+    await user.click(screen.getByRole('button', { name: 'Lưu nháp' }));
+
+    await waitFor(() => expect(saveCourse).toHaveBeenCalledWith('admin-token', expect.objectContaining({ price: 450000 }), undefined));
+  });
+
   it('selects a managed instructor when saving a Course', async () => {
     mockAdminData();
     render(<AdminPage />);
@@ -254,7 +291,7 @@ describe('AdminPage', () => {
     await user.keyboard('{Escape}');
     await user.click(screen.getByRole('combobox', { name: 'Người biên soạn chương trình học' }));
     await user.click(screen.getByRole('option', { name: /SEONGON/ }));
-    await user.click(screen.getByRole('button', { name: 'Lưu khóa học' }));
+    await user.click(screen.getByRole('button', { name: 'Lưu nháp' }));
 
     await waitFor(() => expect(saveCourse).toHaveBeenCalled());
     const body = saveCourse.mock.calls[0][1];
@@ -296,7 +333,7 @@ describe('AdminPage', () => {
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('textbox', { name: 'Giới thiệu người biên soạn chương trình học' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('switch', { name: 'Bật chống gian lận video' }));
-    await user.click(screen.getByRole('button', { name: 'Lưu khóa học' }));
+    await user.click(screen.getByRole('button', { name: 'Lưu nháp' }));
 
     await waitFor(() => expect(saveCourse).toHaveBeenCalledWith(
       'admin-token',
@@ -505,7 +542,7 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('option', { name: 'SEO' }));
     await user.click(screen.getByRole('option', { name: 'Analytics' }));
     await user.keyboard('{Escape}');
-    await user.click(screen.getByRole('button', { name: 'Lưu khóa học' }));
+    await user.click(screen.getByRole('button', { name: 'Lưu nháp' }));
 
     await waitFor(() => expect(saveCourse).toHaveBeenCalledWith(
       'admin-token',

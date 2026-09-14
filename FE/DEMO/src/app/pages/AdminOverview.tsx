@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Menu, MenuItem, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Menu, MenuItem, Snackbar, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import type { ApiAdminStats } from '../lib/contracts';
@@ -43,6 +43,7 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
   const [dateError, setDateError] = useState('');
   const [downloadingReport, setDownloadingReport] = useState<AdminReport | null>(null);
   const [readyDownload, setReadyDownload] = useState<{ label: string; filename: string; url: string } | null>(null);
+  const [reportNotice, setReportNotice] = useState<{ severity: 'success' | 'error'; message: string; retry?: (typeof reportOptions)[number] } | null>(null);
   const maxMonthly = Math.max(1, ...stats.monthly_enrollments.map((item) => item.total));
   const kpis = [
     ['Học viên', stats.students.toLocaleString('vi-VN')],
@@ -58,7 +59,7 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
       return;
     }
     if (dateRange.to_date < dateRange.from_date) {
-      setDateError('Ngày kết thúc không được trước ngày bắt đầu.');
+      setDateError('Từ ngày phải trước Đến ngày');
       return;
     }
 
@@ -76,8 +77,10 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
       link.remove();
       setReportAnchor(null);
       setSelectedReport(null);
+      setReportNotice({ severity: 'success', message: `Đã tạo báo cáo ${option.filename}.` });
     } catch {
       setDateError('Không thể tạo báo cáo. Vui lòng thử lại.');
+      setReportNotice({ severity: 'error', message: 'Không thể tạo báo cáo.', retry: option });
     } finally {
       setDownloadingReport(null);
     }
@@ -106,7 +109,14 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
         >
           Xuất báo cáo
         </Button>
-        <Menu anchorEl={reportAnchor} open={Boolean(reportAnchor)} onClose={() => setReportAnchor(null)}>
+        <Menu
+          anchorEl={reportAnchor}
+          open={Boolean(reportAnchor)}
+          onClose={() => setReportAnchor(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          slotProps={{ paper: { sx: { mt: 1 } } }}
+        >
           {reportOptions.map((option) => (
             <MenuItem
               key={option.report}
@@ -144,6 +154,7 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
                 value={dateRange.from_date}
                 onChange={(event) => setDateRange((range) => ({ ...range, from_date: event.target.value }))}
                 slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: dateRange.to_date } }}
+                error={Boolean(dateError)}
                 fullWidth
               />
               <TextField
@@ -152,10 +163,11 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
                 value={dateRange.to_date}
                 onChange={(event) => setDateRange((range) => ({ ...range, to_date: event.target.value }))}
                 slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: dateRange.from_date } }}
+                error={Boolean(dateError)}
+                helperText={dateError || undefined}
                 fullWidth
               />
             </Box>
-            {dateError && <Typography role="alert" color="error" variant="body2" sx={{ mt: 1.5 }}>{dateError}</Typography>}
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 2.5 }}>
             <Button color="inherit" disabled={Boolean(downloadingReport)} onClick={() => setSelectedReport(null)}>Hủy</Button>
@@ -169,6 +181,16 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
           </DialogActions>
         </Dialog>
       </Box>
+      <Snackbar open={Boolean(reportNotice)} autoHideDuration={5000} onClose={() => setReportNotice(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert
+          severity={reportNotice?.severity ?? 'success'}
+          variant="filled"
+          onClose={() => setReportNotice(null)}
+          action={reportNotice?.retry ? <Button color="inherit" size="small" onClick={() => void downloadReport(reportNotice.retry!)}>Thử lại</Button> : undefined}
+        >
+          {reportNotice?.message}
+        </Alert>
+      </Snackbar>
       <Box
         data-testid="admin-kpi-strip"
         sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}

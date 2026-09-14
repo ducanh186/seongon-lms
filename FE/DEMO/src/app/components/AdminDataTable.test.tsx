@@ -44,4 +44,20 @@ describe('AdminDataTable', () => {
     });
     expect(within(table).getByRole('cell', { name: 'Course A' })).toHaveStyle({ fontSize: '14px' });
   });
+
+  it('keeps column headers visible while a long table scrolls', () => {
+    render(
+      <AdminDataTable
+        label="Sticky header table"
+        rows={[{ id: 1, name: 'Course A' }]}
+        getRowKey={(row) => row.id}
+        columns={[{ key: 'name', header: 'Khóa học', render: (row) => row.name }]}
+      />,
+    );
+
+    expect(within(screen.getByRole('table', { name: 'Sticky header table' })).getByRole('columnheader', { name: 'Khóa học' })).toHaveStyle({
+      position: 'sticky',
+      top: '0px',
+    });
+  });
 });
