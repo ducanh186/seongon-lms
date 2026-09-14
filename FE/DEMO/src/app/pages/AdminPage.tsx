@@ -829,7 +829,7 @@ export function AdminPage() {
     setError(null);
     try {
       const { imported } = await adminRepositories.courses.importQuestionBankCsv(token, selectedCourse.quiz.id, file);
-      setNotice(`Đã import ${imported} câu vào ngân hàng câu hỏi.`);
+      setNotice(`Đã thay thế ngân hàng bằng ${imported} câu hỏi.`);
       await load(tab, true);
       await refreshSelectedCourse();
     } catch (reason) {
@@ -1475,7 +1475,7 @@ export function AdminPage() {
                           <Box>
                             <Typography fontWeight={700}>Import ngân hàng câu hỏi CSV</Typography>
                           </Box>
-                          <Button component="label" variant="outlined" disabled={importingQuestionBank || selectedCourse.quiz.questions.length > 0} sx={{ whiteSpace: 'nowrap' }}>
+                          <Button component="label" variant="outlined" disabled={importingQuestionBank} sx={{ whiteSpace: 'nowrap' }}>
                             {importingQuestionBank ? 'Đang import' : 'Chọn file CSV'}
                             <input hidden type="file" accept=".csv,text/csv" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importQuestionBank(file); }} />
                           </Button>

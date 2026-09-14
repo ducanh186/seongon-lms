@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Models\Exam;
+use App\Models\Attempt;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -27,11 +28,13 @@ final class QuestionBankCsvImportService
 
         return DB::transaction(function () use ($exam, $rows): int {
             $lockedExam = Exam::query()->lockForUpdate()->findOrFail($exam->id);
-            if ($lockedExam->questions()->exists()) {
+            if (Attempt::query()->where('exam_id', $lockedExam->id)->exists()) {
                 throw ValidationException::withMessages([
-                    'file' => ['Chỉ import CSV vào bài kiểm tra chưa có câu hỏi. Hãy tạo khóa học mới hoặc xóa ngân hàng hiện tại trước.'],
+                    'file' => ['Không thể thay thế ngân hàng vì đã có học viên làm bài.'],
                 ]);
             }
+
+            $lockedExam->questions()->delete();
 
             foreach ($rows as $index => $row) {
                 $question = $lockedExam->questions()->create([
