@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Box, Button, Card, CardContent, Chip, Container, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
 import AccountBalanceRoundedIcon from '@mui/icons-material/AccountBalanceRounded';
-import CreditCardRoundedIcon from '@mui/icons-material/CreditCardRounded';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { QRCodeSVG } from 'qrcode.react';
 import { ApiError } from '../lib/api';
@@ -15,11 +14,9 @@ import { PageSkeleton } from '../components/AsyncState';
 function PaymentMethodOption({ code, label }: { code: PaymentMethod; label: string }) {
   const logo = code === 'momo'
     ? <Box component="img" src="/images/momo-logo.png" alt="" aria-hidden="true" data-testid="momo-payment-logo" sx={{ width: 42, height: 42, objectFit: 'contain', borderRadius: 1 }} />
-    : code === 'bank'
-      ? <Box data-testid="bank-payment-logo" aria-hidden="true" sx={{ width: 42, height: 42, borderRadius: 1, bgcolor: '#e8f3ff', color: '#1769aa', display: 'grid', placeItems: 'center' }}><AccountBalanceRoundedIcon /></Box>
-      : <Box data-testid="card-payment-logo" aria-hidden="true" sx={{ width: 42, height: 42, borderRadius: 1, bgcolor: '#eef8f7', color: 'primary.main', display: 'grid', placeItems: 'center' }}><CreditCardRoundedIcon /></Box>;
+    : <Box data-testid="bank-payment-logo" aria-hidden="true" sx={{ width: 42, height: 42, borderRadius: 1, bgcolor: '#e8f3ff', color: '#1769aa', display: 'grid', placeItems: 'center' }}><AccountBalanceRoundedIcon /></Box>;
 
-  return <Stack direction="row" spacing={1.5} alignItems="center">{logo}<Box><Typography>{label}</Typography>{code === 'card' && <Typography variant="caption" color="text.secondary">VISA · Mastercard · JCB</Typography>}</Box></Stack>;
+  return <Stack direction="row" spacing={1.5} alignItems="center">{logo}<Typography>{label}</Typography></Stack>;
 }
 
 export function CheckoutPage() {
@@ -33,7 +30,6 @@ export function CheckoutPage() {
   const [order, setOrder] = useState<ApiOrder | null>(null);
   const [methods, setMethods] = useState<Array<{ code: PaymentMethod; label: string }>>([]);
   const [method, setMethod] = useState<PaymentMethod | ''>('');
-  const [cardChoice, setCardChoice] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [restoring, setRestoring] = useState(Boolean(orderId));
@@ -46,7 +42,7 @@ export function CheckoutPage() {
     let active = true;
     setCourse(null); setOrder(null); setError(null);
     applicationRepositories.catalog.getCourse(slug).then(({ data }) => { if (active) setCourse(data); }).catch(() => { if (active) setError('Không thể tải khóa học.'); });
-    if (token) applicationRepositories.checkout.methods(token).then(({ data }) => { if (active) { setMethods(data); setMethod(data[0]?.code ?? ''); } }).catch(() => { if (active) setError('Không thể tải phương thức thanh toán. Vui lòng tải lại trang.'); });
+    if (token) applicationRepositories.checkout.methods(token).then(({ data }) => { if (active) { const available = data.filter((item) => item.code !== 'card'); setMethods(available); setMethod(available[0]?.code ?? ''); } }).catch(() => { if (active) setError('Không thể tải phương thức thanh toán. Vui lòng tải lại trang.'); });
     return () => { active = false; };
   }, [slug, token]);
 
@@ -60,7 +56,7 @@ export function CheckoutPage() {
       setOrder(data);
     }).catch(() => { if (active) setError('Không thể khôi phục đơn hàng này. Vui lòng quay lại chi tiết khóa học.'); }).finally(() => { if (active) setRestoring(false); });
     return () => { active = false; };
-  }, [orderId, course, token, order?.id]);
+  }, [orderId, course, token]);
 
   useEffect(() => {
     if (!order || paymentStatus(order) !== 'pending') return;
@@ -101,7 +97,7 @@ export function CheckoutPage() {
     finally { setSubmitting(false); }
   };
   const start = async () => {
-    if (!token || !order || !method) return;
+    if (!token || !order || !method || method === 'card') return;
     setSubmitting(true); setError(null);
     try { const { data } = await applicationRepositories.checkout.startPayment(token, order.id, method); setOrder(data); setNow(Date.now()); }
     catch (reason) { setError(reason instanceof ApiError ? reason.message : 'Không thể mở phiên thanh toán.'); }
@@ -131,7 +127,7 @@ export function CheckoutPage() {
     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) 340px' }, gap: 3, alignItems: 'start' }}>
       <Card variant="outlined" sx={{ borderRadius: 2.5, minWidth: 0 }}><CardContent sx={{ p: { xs: 2.5, md: 4 } }}>
         <Chip label="Thanh toán an toàn" color="primary" variant="outlined" size="small" />
-        <Typography id="checkout-title" component="h1" variant="h4" sx={{ mt: 2 }}>{activeSession ? (order.payment_method === 'momo' ? 'Cổng thanh toán MoMo' : order.payment_method === 'card' ? 'Thanh toán bằng thẻ' : 'Chuyển khoản ngân hàng') : status === 'paid' ? 'Thanh toán thành công' : 'Xác nhận đăng ký'}</Typography>
+        <Typography id="checkout-title" component="h1" variant="h4" sx={{ mt: 2 }}>{activeSession ? (order.payment_method === 'momo' ? 'Cổng thanh toán MoMo' : order.payment_method === 'bank' ? 'Chuyển khoản ngân hàng' : 'Phiên thanh toán cũ') : status === 'paid' ? 'Thanh toán thành công' : 'Xác nhận đăng ký'}</Typography>
         <Stack spacing={2.5} sx={{ mt: 3 }}>
           {error && <Alert severity="error">{error}</Alert>}
           {restoring ? <PageSkeleton rows={2} /> : !order ? <Box component="form" onSubmit={(event) => { event.preventDefault(); void createOrder(); }}>
@@ -145,19 +141,11 @@ export function CheckoutPage() {
             <Typography>Mã đơn hàng: <strong>LMS-{order.id}</strong></Typography>
             <Typography>{session.merchant_name} · {course.title}</Typography>
             {session.bank && <Box component="dl" sx={{ m: 0, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '150px minmax(0, 1fr)' }, gap: 1 }}>{[['Ngân hàng', session.bank.bank_name], ['Chủ tài khoản', session.bank.account_name], ['Số tài khoản', session.bank.account_number], ['Chi nhánh', session.bank.branch || '—'], ['Nội dung chuyển khoản', session.reference], ['Số tiền', amount]].map(([label, value]) => <Box key={label} sx={{ display: 'contents' }}><Typography component="dt" color="text.secondary">{label}</Typography><Typography component="dd" sx={{ m: 0, overflowWrap: 'anywhere' }}>{value}</Typography></Box>)}</Box>}
-            {order.payment_method === 'card' ? <>
-              <Alert severity="info">Không nhập số thẻ, CVV hoặc mật khẩu thật.</Alert>
-              <Typography component="h2" variant="h6">Chọn loại thẻ</Typography>
-              <RadioGroup value={cardChoice} onChange={(event) => setCardChoice(event.target.value)}>
-                <FormControlLabel value="domestic" control={<Radio />} label="Thẻ nội địa và tài khoản ngân hàng" />
-                <FormControlLabel value="international" control={<Radio />} label="Thẻ thanh toán quốc tế (Visa, Mastercard, JCB)" />
-              </RadioGroup>
-              <Typography variant="body2" color="text.secondary">Chọn loại thẻ rồi xác nhận giao dịch giả lập. Hệ thống không xử lý hoặc lưu thông tin thẻ.</Typography>
-            </> : <>
+            {order.payment_method === 'card' ? <Alert severity="warning">Phiên thanh toán cũ không còn được hỗ trợ. Hãy hủy phiên để chọn MoMo hoặc chuyển khoản ngân hàng.</Alert> : <>
               {session.qr_payload ? <Box sx={{ alignSelf: 'center', p: 1, bgcolor: 'white', maxWidth: '100%' }}><QRCodeSVG aria-label="Mã QR thanh toán" value={session.qr_payload} size={232} marginSize={4} style={{ maxWidth: '100%', height: 'auto' }} /></Box> : <Alert severity="info">Ngân hàng chưa cấu hình QR. Thông tin chuyển khoản được hiển thị phía trên.</Alert>}
               <Typography variant="body2">{session.bank ? session.bank.instructions || 'Kiểm tra tài khoản, nhập đúng số tiền và nội dung chuyển khoản của đơn hàng.' : 'Mở ứng dụng MoMo trên điện thoại, dùng chức năng quét QR và xác nhận đúng số tiền của đơn hàng.'}</Typography>
             </>}
-            {order.mock_callback_allowed && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}><Button variant="contained" disabled={submitting || (order.payment_method === 'card' && !cardChoice)} onClick={() => void confirm('success')}>{order.payment_method === 'card' ? 'Xác nhận thanh toán' : 'Tôi đã thanh toán'}</Button><Button variant="outlined" disabled={submitting} onClick={() => void confirm('cancel')}>Hủy phiên thanh toán</Button></Stack>}
+            {order.mock_callback_allowed && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>{order.payment_method !== 'card' && <Button variant="contained" disabled={submitting} onClick={() => void confirm('success')}>Tôi đã thanh toán</Button>}<Button variant="outlined" disabled={submitting} onClick={() => void confirm('cancel')}>Hủy phiên thanh toán</Button></Stack>}
           </> : <>
             {(expired || status === 'cancelled') && <Alert severity="warning">{expired ? 'Phiên thanh toán đã hết hạn.' : 'Phiên thanh toán đã hủy.'} Chọn phương thức để tạo phiên mới.</Alert>}
             <Typography component="h2" variant="h6">2. Chọn phương thức thanh toán</Typography>

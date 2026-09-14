@@ -12,6 +12,13 @@ class TeacherProfile extends Model
 
     protected $fillable = ['name', 'bio', 'avatar'];
 
+    public function displayBio(): ?string
+    {
+        return $this->bio === null
+            ? null
+            : str_replace('Giảng viên', 'Người biên soạn chương trình học', $this->bio);
+    }
+
     public function courses(): HasMany
     {
         return $this->hasMany(Course::class);

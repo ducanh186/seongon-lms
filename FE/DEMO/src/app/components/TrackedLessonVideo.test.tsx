@@ -1,9 +1,12 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TrackedLessonVideo } from './TrackedLessonVideo';
 
 describe('TrackedLessonVideo', () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
 
   it('restores native video position and persists playback after ten seconds', async () => {
     const onProgress = vi.fn().mockResolvedValue(undefined);

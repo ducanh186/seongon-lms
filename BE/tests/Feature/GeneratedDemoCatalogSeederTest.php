@@ -5,23 +5,72 @@ namespace Tests\Feature;
 use App\Models\Course;
 use App\Models\Exam;
 use App\Models\Lesson;
+use App\Models\Question;
 use App\Models\User;
 use Database\Seeders\CompletedCourseDemoSeeder;
 use Database\Seeders\GeneratedDemoCatalogSeeder;
+use Database\Seeders\MainCourseQuizSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class GeneratedDemoCatalogSeederTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_each_generated_course_has_a_question_bank_and_randomized_attempt_size(): void
+    public function test_the_question_bank_seed_preserves_prices_of_existing_courses(): void
+    {
+        $existingCourse = Course::factory()->create(['price' => 0]);
+
+        $this->seed(MainCourseQuizSeeder::class);
+
+        $this->assertEquals(0, $existingCourse->fresh()->price);
+    }
+
+    public function test_the_question_bank_seed_stops_at_one_hundred_questions_when_a_featured_course_already_has_three(): void
+    {
+        $course = Course::factory()->create(['slug' => 'seo-ai-max-01']);
+        $exam = Exam::factory()->create(['course_id' => $course->id]);
+        Question::factory()->count(3)->create(['exam_id' => $exam->id]);
+
+        $this->seed(MainCourseQuizSeeder::class);
+
+        $this->assertSame(100, $exam->questions()->count());
+    }
+
+    public function test_the_question_bank_seed_removes_legacy_question_bank_overflow_without_removing_original_questions(): void
+    {
+        $course = Course::factory()->create(['slug' => 'seo-ai-max-01']);
+        $exam = Exam::factory()->create(['course_id' => $course->id]);
+        Question::factory()->count(3)->create(['exam_id' => $exam->id, 'sort_order' => 1]);
+        foreach (range(100, 199) as $sortOrder) {
+            Question::factory()->create(['exam_id' => $exam->id, 'sort_order' => $sortOrder]);
+        }
+
+        $this->seed(MainCourseQuizSeeder::class);
+
+        $this->assertSame(100, $exam->questions()->count());
+        $this->assertSame(3, $exam->questions()->where('sort_order', 1)->count());
+    }
+
+    public function test_only_six_featured_courses_have_one_hundred_question_banks(): void
     {
         $this->seed(GeneratedDemoCatalogSeeder::class);
+        $this->seed(MainCourseQuizSeeder::class);
 
-        $exam = Exam::query()->withCount('questions')->whereHas('course', fn ($query) => $query->where('slug', 'seo-ai-max-01'))->firstOrFail();
+        $questionCounts = DB::table('courses')
+            ->join('exams', 'exams.course_id', '=', 'courses.id')
+            ->leftJoin('questions', 'questions.exam_id', '=', 'exams.id')
+            ->select('courses.slug')
+            ->selectRaw('COUNT(questions.id) AS question_count')
+            ->groupBy('courses.slug')
+            ->pluck('question_count', 'slug');
 
-        $this->assertSame(100, $exam->questions_count);
+        $this->assertSame(6, $questionCounts->filter(fn ($count): bool => (int) $count === 100)->count());
+        $this->assertSame(94, $questionCounts->filter(fn ($count): bool => (int) $count === 3)->count());
+        foreach (['seo-ai-max-01', 'seo-ai-max-02', 'google-ads-01', 'google-ads-02', 'content-seo-01', 'content-seo-02'] as $slug) {
+            $this->assertSame(100, (int) $questionCounts[$slug], "{$slug} should have 100 questions.");
+        }
     }
 
     public function test_it_uses_the_prototype_course_thumbnail_set_instead_of_random_images(): void
@@ -89,6 +138,14 @@ class GeneratedDemoCatalogSeederTest extends TestCase
 
         $this->assertSame(101, Course::query()->count());
         $this->assertSame(101, Course::query()->distinct()->count('title'));
+        $this->assertSame(
+            3,
+            Exam::query()
+                ->whereHas('course', fn ($query) => $query->where('slug', 'completed-demo-course'))
+                ->withCount('questions')
+                ->firstOrFail()
+                ->questions_count,
+        );
     }
 
     public function test_it_seeds_realistic_unique_vietnamese_student_names(): void

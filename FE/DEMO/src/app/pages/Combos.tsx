@@ -140,7 +140,7 @@ export function Combos() {
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span>Hỗ trợ 1-1 từ giảng viên</span>
+                        <span>Hỗ trợ 1-1 từ người biên soạn chương trình học</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <CheckCircle className="h-4 w-4 text-green-600" />

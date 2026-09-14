@@ -25,7 +25,7 @@ export const mockCourses: Course[] = [
         userName: 'Nguyễn Thị Mai',
         userAvatar: '/generated-images/course-seo.webp',
         rating: 5,
-        comment: 'Khóa học rất bổ ích, giảng viên nhiệt tình và dễ hiểu. Tôi đã áp dụng được ngay vào công việc!',
+        comment: 'Khóa học rất bổ ích, người biên soạn chương trình học truyền đạt nhiệt tình và dễ hiểu. Tôi đã áp dụng được ngay vào công việc!',
         createdAt: new Date('2026-03-10'),
       },
       {

@@ -24,6 +24,7 @@ import type {
   ApiQuiz,
   ApiQuizAttempt,
   ApiQuizSubmissionResponse,
+  ApiCertificate,
 } from '../lib/contracts';
 
 type DraftAnswer = { question_id: number; option_id: number | null };
@@ -35,6 +36,8 @@ type ExamAttemptPanelProps = {
   submitAttempt: (attemptId: number) => Promise<ApiQuizSubmissionResponse>;
   onResult: (result: ApiQuizSubmissionResponse) => void;
   onBackToCourse: () => void;
+  certificate?: ApiCertificate | null;
+  onDownloadCertificate?: () => void;
 };
 
 export function ExamAttemptPanel({
@@ -44,6 +47,8 @@ export function ExamAttemptPanel({
   submitAttempt,
   onResult,
   onBackToCourse,
+  certificate,
+  onDownloadCertificate,
 }: ExamAttemptPanelProps) {
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const [activeQuestionIds, setActiveQuestionIds] = useState<number[] | null>(null);
@@ -292,6 +297,10 @@ export function ExamAttemptPanel({
 
         {bestScore !== null && bestScore !== undefined && (
           <Typography variant="h6" fontWeight={800} textAlign="center">Điểm tổng kết của bạn: {bestScore}%</Typography>
+        )}
+
+        {bestScore !== null && bestScore !== undefined && bestScore >= 75 && certificate && onDownloadCertificate && (
+          <Button variant="outlined" onClick={onDownloadCertificate} sx={{ alignSelf: 'center' }}>Tải chứng chỉ ở đây</Button>
         )}
 
         {error && <Alert severity="error">{error}</Alert>}

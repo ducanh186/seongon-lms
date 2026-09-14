@@ -21,7 +21,7 @@ class CourseResource extends JsonResource
             'price' => $this->price,
             'teacher_profile_id' => $this->teacher_profile_id,
             'instructor_name' => $teacherProfile?->name,
-            'instructor_bio' => $teacherProfile?->bio,
+            'instructor_bio' => $teacherProfile?->displayBio(),
             'teacher_profile' => new TeacherProfileResource($this->whenLoaded('teacherProfile')),
             'level' => $this->level,
             'status' => $this->status,

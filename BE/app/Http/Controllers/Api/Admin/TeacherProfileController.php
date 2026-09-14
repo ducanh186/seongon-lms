@@ -52,7 +52,7 @@ class TeacherProfileController extends Controller
         if ($courseCount > 0) {
             throw new ResourceHasDependenciesException(
                 ['courses' => $courseCount],
-                'Không thể xóa giảng viên đang được khóa học sử dụng.',
+                'Không thể xóa người biên soạn chương trình học đang được khóa học sử dụng.',
             );
         }
 

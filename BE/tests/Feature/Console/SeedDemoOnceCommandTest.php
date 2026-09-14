@@ -26,7 +26,15 @@ class SeedDemoOnceCommandTest extends TestCase
             'email' => 'admin@seongon.vn',
             'role_id' => DB::table('roles')->where('code', 'admin')->value('id'),
         ]);
-        $this->assertDatabaseCount('courses', 100);
+        $this->assertDatabaseCount('courses', 101);
+        $this->assertSame(
+            3,
+            DB::table('questions')
+                ->join('exams', 'exams.id', '=', 'questions.exam_id')
+                ->join('courses', 'courses.id', '=', 'exams.course_id')
+                ->where('courses.slug', 'completed-demo-course')
+                ->count(),
+        );
     }
 
     public function test_it_skips_demo_seed_when_a_user_already_exists(): void

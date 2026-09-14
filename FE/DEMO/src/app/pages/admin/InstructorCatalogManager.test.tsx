@@ -25,9 +25,9 @@ describe('InstructorCatalogManager', () => {
   it('renders the instructor catalog form and course count', async () => {
     render(<InstructorCatalogManager token="admin-token" />);
 
-    expect(await screen.findByRole('heading', { name: 'Tạo danh mục giảng viên' })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /Tên giảng viên/ })).toBeInTheDocument();
-    expect(screen.getByRole('table', { name: 'Danh sách giảng viên' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Tạo người biên soạn chương trình học' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Tên người biên soạn chương trình học/ })).toBeInTheDocument();
+    expect(screen.getByRole('table', { name: 'Danh sách người biên soạn chương trình học' })).toBeInTheDocument();
     expect(screen.getByText('3 khóa học')).toBeInTheDocument();
   });
 
@@ -36,13 +36,13 @@ describe('InstructorCatalogManager', () => {
     render(<InstructorCatalogManager token="admin-token" onChanged={onChanged} />);
     const user = userEvent.setup();
 
-    await user.type(await screen.findByRole('textbox', { name: /Tên giảng viên/ }), 'Lê An');
-    await user.type(screen.getByRole('textbox', { name: /Giới thiệu giảng viên/ }), 'Chuyên gia SEO');
-    await user.click(screen.getByRole('button', { name: 'Lưu giảng viên' }));
+    await user.type(await screen.findByRole('textbox', { name: /Tên người biên soạn chương trình học/ }), 'Lê An');
+    await user.type(screen.getByRole('textbox', { name: /Giới thiệu người biên soạn chương trình học/ }), 'Chuyên gia SEO');
+    await user.click(screen.getByRole('button', { name: 'Lưu người biên soạn' }));
 
     await waitFor(() => expect(create).toHaveBeenCalledWith('admin-token', { name: 'Lê An', bio: 'Chuyên gia SEO', avatar: null }));
     expect(onChanged).toHaveBeenCalledOnce();
-    expect(await screen.findByRole('alert')).toHaveTextContent('Đã lưu danh mục giảng viên.');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Đã lưu người biên soạn chương trình học.');
   });
 
   it('shows the teacher avatar and uploads a replacement image', async () => {
@@ -50,8 +50,8 @@ describe('InstructorCatalogManager', () => {
     render(<InstructorCatalogManager token="admin-token" />);
     const user = userEvent.setup();
 
-    expect(await screen.findByRole('img', { name: 'Ảnh giảng viên Nguyễn Minh Anh' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/teacher.jpg');
-    const input = screen.getByLabelText('Ảnh giảng viên');
+    expect(await screen.findByRole('img', { name: 'Ảnh người biên soạn chương trình học Nguyễn Minh Anh' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/teacher.jpg');
+    const input = screen.getByLabelText('Ảnh người biên soạn chương trình học');
     const file = new File(['avatar'], 'new.jpg', { type: 'image/jpeg' });
     await user.upload(input, file);
 

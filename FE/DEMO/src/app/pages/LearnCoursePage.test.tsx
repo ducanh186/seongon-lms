@@ -16,10 +16,11 @@ const saveQuizAnswers = vi.hoisted(() => vi.fn());
 const finalizeQuizAttempt = vi.hoisted(() => vi.fn());
 const myReview = vi.hoisted(() => vi.fn());
 const reviewCourse = vi.hoisted(() => vi.fn());
+const downloadCertificate = vi.hoisted(() => vi.fn());
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  api: { myCourses, lessons, progress, quiz, submitQuiz, completeLesson, saveLessonProgress, startQuizAttempt, saveQuizAnswers, finalizeQuizAttempt, myReview, reviewCourse },
+  api: { myCourses, lessons, progress, quiz, submitQuiz, completeLesson, saveLessonProgress, startQuizAttempt, saveQuizAnswers, finalizeQuizAttempt, myReview, reviewCourse, downloadCertificate },
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth: () => ({ token: 'student-token' }) }));
 
@@ -197,7 +198,59 @@ describe('LearnCoursePage', () => {
     await userEvent.setup().click(screen.getByRole('button', { name: 'Xem kết quả bài kiểm tra' }));
     expect(await screen.findByRole('heading', { name: 'Tổng quan các lần làm bài' })).toBeInTheDocument();
     expect(await screen.findByRole('button', { name: 'Làm lại' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Tải chứng chỉ ở đây' })).toBeInTheDocument();
     expect(quiz).toHaveBeenCalledWith('student-token', 10);
+  });
+
+  it('downloads the certificate from a passing quiz result and hides the action below 75 percent', async () => {
+    const certificateBlob = new Blob(['certificate'], { type: 'application/pdf' });
+    const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:certificate');
+    const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    downloadCertificate.mockResolvedValue(certificateBlob);
+    myCourses.mockResolvedValue({
+      ...enrollmentResponse,
+      data: [{
+        ...enrollmentResponse.data[0],
+        certificate: { id: 8, enrollment_id: 1, certificate_code: 'CERT-COMPLETE-001', issued_at: '2026-09-12T00:00:00Z' },
+      }],
+    });
+    lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học 1', video_url: '', description: null, duration: null, position: 1, is_completed: true }] });
+    progress.mockResolvedValue({ completed: 1, total: 1, percent: 100, can_take_exam: true });
+    quiz.mockResolvedValue({ data: {
+      id: 7, course_id: 10, title: 'Bài kiểm tra cuối khóa', pass_score: 75, max_attempts: 2,
+      duration_minutes: 30, attempts_remaining: 1, ended: false, best_score: 75,
+      attempts: [{ id: 9, quiz_id: 7, score: 75, passed: true, attempt_no: 1, status: 'submitted', started_at: null, expires_at: null, finished_at: null, submitted_at: null, answers: [] }],
+      questions: [],
+    } });
+
+    renderPage();
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Xem kết quả bài kiểm tra' }));
+    await user.click(await screen.findByRole('button', { name: 'Tải chứng chỉ ở đây' }));
+
+    await waitFor(() => expect(downloadCertificate).toHaveBeenCalledWith('student-token', 10));
+    expect(createObjectURL).toHaveBeenCalledWith(certificateBlob);
+    expect(click).toHaveBeenCalledTimes(1);
+    expect((click.mock.instances[0] as HTMLAnchorElement).download).toBe('certificate-CERT-COMPLETE-001.pdf');
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:certificate');
+  });
+
+  it('does not show the certificate action for a 74 percent result', async () => {
+    myCourses.mockResolvedValue(enrollmentResponse);
+    lessons.mockResolvedValue({ data: [{ id: 5, course_id: 10, title: 'Bài học 1', video_url: '', description: null, duration: null, position: 1, is_completed: true }] });
+    progress.mockResolvedValue({ completed: 1, total: 1, percent: 100, can_take_exam: true });
+    quiz.mockResolvedValue({ data: {
+      id: 7, course_id: 10, title: 'Bài kiểm tra cuối khóa', pass_score: 75, max_attempts: 2,
+      duration_minutes: 30, attempts_remaining: 1, ended: false, best_score: 74,
+      attempts: [{ id: 9, quiz_id: 7, score: 74, passed: false, attempt_no: 1, status: 'submitted', started_at: null, expires_at: null, finished_at: null, submitted_at: null, answers: [] }],
+      questions: [],
+    } });
+
+    renderPage();
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Mở bài kiểm tra' }));
+
+    expect(screen.queryByRole('button', { name: 'Tải chứng chỉ ở đây' })).not.toBeInTheDocument();
   });
 
   const reviewableCourse = () => {

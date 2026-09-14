@@ -142,7 +142,7 @@ class GeneratedDemoCatalogSeeder extends Seeder
         $teacherIds = collect(self::INSTRUCTORS)->mapWithKeys(function (string $name): array {
             $profile = TeacherProfile::query()->updateOrCreate(
                 ['name' => $name],
-                ['bio' => 'Giảng viên thực chiến của SEONGON với kinh nghiệm triển khai dự án Digital Marketing.'],
+                ['bio' => 'Người biên soạn chương trình học thực chiến của SEONGON với kinh nghiệm triển khai dự án Digital Marketing.'],
             );
 
             return [$name => $profile->id];
@@ -198,7 +198,7 @@ class GeneratedDemoCatalogSeeder extends Seeder
             'max_attempts' => 2,
         ]);
 
-        foreach (range(1, 100) as $questionNumber) {
+        foreach (range(1, 3) as $questionNumber) {
             $template = self::QUIZ_QUESTIONS[($questionNumber - 1) % count(self::QUIZ_QUESTIONS)];
             $question = Question::query()->create([
                 'exam_id' => $exam->id,

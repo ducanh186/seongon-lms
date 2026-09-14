@@ -47,7 +47,7 @@ class CompletedCourseDemoSeeder extends Seeder
 
             $teacher = TeacherProfile::query()->updateOrCreate(
                 ['name' => 'Nguyễn Minh Anh'],
-                ['bio' => 'Giảng viên SEONGON giàu kinh nghiệm triển khai chiến lược SEO cho doanh nghiệp.'],
+                ['bio' => 'Người biên soạn chương trình học SEONGON giàu kinh nghiệm triển khai chiến lược SEO cho doanh nghiệp.'],
             );
 
             $course = Course::query()->updateOrCreate(
@@ -115,6 +115,32 @@ class CompletedCourseDemoSeeder extends Seeder
                 ],
                 ['is_correct' => false],
             );
+
+            foreach ([
+                [
+                    'content' => 'Bước đầu tiên khi lập kế hoạch SEO là gì?',
+                    'correct' => 'Xác định mục tiêu kinh doanh và dữ liệu hiện có',
+                    'wrong' => 'Tăng số lượng bài viết mà không xác định mục tiêu',
+                ],
+                [
+                    'content' => 'Khi nào cần rà soát KPI trong kế hoạch SEO 90 ngày?',
+                    'correct' => 'Theo mốc đã định và điều chỉnh theo dữ liệu thực',
+                    'wrong' => 'Chỉ sau khi chiến dịch kết thúc',
+                ],
+            ] as $index => $definition) {
+                $demoQuestion = Question::query()->updateOrCreate(
+                    ['exam_id' => $exam->id, 'content' => $definition['content']],
+                    ['sort_order' => $index + 2],
+                );
+                Answer::query()->updateOrCreate(
+                    ['question_id' => $demoQuestion->id, 'content' => $definition['correct']],
+                    ['is_correct' => true],
+                );
+                Answer::query()->updateOrCreate(
+                    ['question_id' => $demoQuestion->id, 'content' => $definition['wrong']],
+                    ['is_correct' => false],
+                );
+            }
 
             $enrollment = Enrollment::query()->updateOrCreate(
                 ['user_id' => $student->id, 'course_id' => $course->id],

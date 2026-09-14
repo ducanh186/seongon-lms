@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Services\QuestionBankImportService;
-use App\Support\CuratedDemoCatalog;
 use App\Support\QuestionBankManifest;
+use App\Support\QuestionBankScope;
 use App\Models\Course;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -18,7 +18,7 @@ class SyncQuestionBanks extends Command
         {manifest : Path to a reviewed JSON question bank manifest}
         {--apply : Apply the validated manifest to the database}';
 
-    protected $description = 'Validate and additively sync reviewed question banks for the original catalog';
+    protected $description = 'Validate and additively sync reviewed question banks for six featured courses';
 
     public function handle(QuestionBankImportService $importer): int
     {
@@ -33,26 +33,21 @@ class SyncQuestionBanks extends Command
             if (! is_array($data) || ! isset($data['courses']) || ! is_array($data['courses'])) {
                 throw new InvalidArgumentException('Expected a JSON object with a courses map.');
             }
-            $expectedSlugs = [];
-            foreach (CuratedDemoCatalog::tracks() as $track) {
-                foreach ($track['titles'] as $index => $_title) {
-                    $expectedSlugs[] = sprintf('%s-%02d', $track['slug'], $index + 1);
-                }
-            }
+            $expectedSlugs = QuestionBankScope::FEATURED_SLUGS;
             QuestionBankManifest::validate($data['courses'], $expectedSlugs);
             if (! $this->option('apply')) {
-                $this->info('Manifest valid for 100 original courses. No database changes made.');
+                $this->info('Manifest valid for 6 featured courses. No database changes made.');
                 return self::SUCCESS;
             }
 
-            $actualSlugs = Course::query()->pluck('slug')->sort()->values()->all();
+            $actualSlugs = Course::query()->whereIn('slug', $expectedSlugs)->pluck('slug')->sort()->values()->all();
             sort($expectedSlugs);
             if ($actualSlugs !== $expectedSlugs || ! Schema::hasColumn('questions', 'bank_key')) {
-                throw new InvalidArgumentException('Expected the original 100-course catalog and the question bank migration before applying.');
+                throw new InvalidArgumentException('Expected the six featured courses and the question bank migration before applying.');
             }
 
             $importer->import($data['courses'], $expectedSlugs);
-            $this->info('Question banks synced for 100 original courses.');
+            $this->info('Question banks synced for 6 featured courses.');
             return self::SUCCESS;
         } catch (JsonException | InvalidArgumentException | ModelNotFoundException $exception) {
             $this->error($exception->getMessage());

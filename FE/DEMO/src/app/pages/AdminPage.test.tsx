@@ -54,8 +54,8 @@ async function openCourseDetails(user: ReturnType<typeof userEvent.setup>) {
 
 const course = {
   id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: 'Course description', thumbnail: null,
-  price: '299000', instructor_name: 'SEONGON', instructor_bio: 'Giảng viên SEO', teacher_profile_id: 1,
-  teacher_profile: { id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' },
+  price: '299000', instructor_name: 'SEONGON', instructor_bio: 'Người biên soạn SEO', teacher_profile_id: 1,
+  teacher_profile: { id: 1, name: 'SEONGON', bio: 'Người biên soạn SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' },
   level: 'beginner' as const, status: 'draft' as const,
   lessons_count: 2, questions_count: 3, enrollments_count: 4, reviews_count: 2, rating: 4.5, exam_exists: true,
   category: { id: 1, name: 'SEO', slug: 'seo', description: null },
@@ -140,9 +140,9 @@ function mockAdminData() {
   createCatalog.mockResolvedValue({ data: { id: 3, name: 'Mới', description: null } });
   updateCatalog.mockResolvedValue({ data: { id: 1, name: 'Marketing', description: 'Tin tức marketing' } });
   deleteCatalog.mockResolvedValue(null);
-  adminTeacherProfiles.mockResolvedValue({ data: [{ id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' }] });
+  adminTeacherProfiles.mockResolvedValue({ data: [{ id: 1, name: 'SEONGON', bio: 'Người biên soạn SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' }] });
   createTeacherProfile.mockResolvedValue({ data: { id: 2, name: 'Mới', bio: null, avatar: null, courses_count: 0, created_at: '', updated_at: '' } });
-  updateTeacherProfile.mockResolvedValue({ data: { id: 1, name: 'SEONGON', bio: 'Giảng viên SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' } });
+  updateTeacherProfile.mockResolvedValue({ data: { id: 1, name: 'SEONGON', bio: 'Người biên soạn SEO', avatar: '/storage/teacher-profile-images/seongon.jpg', courses_count: 1, created_at: '', updated_at: '' } });
   deleteTeacherProfile.mockResolvedValue(null);
   adminCourses.mockResolvedValue({ data: [course], meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 } });
   adminLessons.mockResolvedValue({
@@ -231,8 +231,8 @@ describe('AdminPage', () => {
     expect(within(panel).getAllByRole('button', { name: 'Sửa' })).toHaveLength(2);
     expect(within(panel).getAllByRole('button', { name: 'Xóa' })).toHaveLength(2);
     expect(within(panel).getAllByRole('button', { name: 'Xóa' })[0]).toHaveStyle({ whiteSpace: 'nowrap' });
-    await user.click(screen.getByRole('tab', { name: 'Danh mục giảng viên' }));
-    const instructorPanel = screen.getByRole('tabpanel', { name: 'Danh mục giảng viên' });
+    await user.click(screen.getByRole('tab', { name: 'Người biên soạn chương trình học' }));
+    const instructorPanel = screen.getByRole('tabpanel', { name: 'Người biên soạn chương trình học' });
     expect(await within(instructorPanel).findByText('SEONGON')).toBeInTheDocument();
     expect(within(instructorPanel).getByText('1 khóa học')).toBeInTheDocument();
     expect(within(instructorPanel).getByRole('button', { name: 'Xóa' })).toHaveStyle({ whiteSpace: 'nowrap' });
@@ -248,11 +248,11 @@ describe('AdminPage', () => {
     await user.click(await screen.findByRole('button', { name: 'Khóa học', exact: true }));
     await user.click(screen.getByRole('button', { name: 'Tạo khóa học mới' }));
     await screen.findByRole('heading', { name: 'Tạo khóa học' });
-    await user.type(screen.getByRole('textbox', { name: /Tiêu đề/ }), 'Course có giảng viên');
+    await user.type(screen.getByRole('textbox', { name: /Tiêu đề/ }), 'Course có người biên soạn');
     await user.click(screen.getByRole('combobox', { name: 'Danh mục' }));
     await user.click(screen.getByRole('option', { name: 'SEO' }));
     await user.keyboard('{Escape}');
-    await user.click(screen.getByRole('combobox', { name: 'Giảng viên' }));
+    await user.click(screen.getByRole('combobox', { name: 'Người biên soạn chương trình học' }));
     await user.click(screen.getByRole('option', { name: /SEONGON/ }));
     await user.click(screen.getByRole('button', { name: 'Lưu khóa học' }));
 
@@ -274,12 +274,12 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('combobox', { name: 'Danh mục' }));
     await user.click(screen.getByRole('option', { name: 'SEO' }));
     await user.keyboard('{Escape}');
-    await user.click(screen.getByRole('combobox', { name: 'Giảng viên' }));
+    await user.click(screen.getByRole('combobox', { name: 'Người biên soạn chương trình học' }));
 
-    expect(await screen.findByRole('img', { name: 'Ảnh giảng viên SEONGON' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/seongon.jpg');
+    expect(await screen.findByRole('img', { name: 'Ảnh người biên soạn chương trình học SEONGON' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/seongon.jpg');
     await user.click(screen.getByRole('option', { name: /SEONGON/ }));
-    expect(screen.getByRole('textbox', { name: 'Giới thiệu giảng viên' })).toHaveValue('Giảng viên SEO');
-    expect(screen.getByRole('img', { name: 'Ảnh hồ sơ giảng viên SEONGON' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/seongon.jpg');
+    expect(screen.getByRole('textbox', { name: 'Giới thiệu người biên soạn chương trình học' })).toHaveValue('Người biên soạn SEO');
+    expect(screen.getByRole('img', { name: 'Ảnh hồ sơ người biên soạn chương trình học SEONGON' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/seongon.jpg');
   });
 
   it('saves playback protection as a per-course setting', async () => {
@@ -294,7 +294,7 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('combobox', { name: 'Danh mục' }));
     await user.click(screen.getByRole('option', { name: 'SEO' }));
     await user.keyboard('{Escape}');
-    expect(screen.queryByRole('textbox', { name: 'Giới thiệu giảng viên' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'Giới thiệu người biên soạn chương trình học' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('switch', { name: 'Bật chống gian lận video' }));
     await user.click(screen.getByRole('button', { name: 'Lưu khóa học' }));
 
@@ -557,7 +557,7 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Tài khoản' }));
-    expect(screen.queryByText('Quản lý tài khoản Admin, Giảng viên và Học viên, vai trò, ghi danh và trạng thái truy cập.')).not.toBeInTheDocument();
+    expect(screen.queryByText('Quản lý tài khoản Admin, Người biên soạn chương trình học và Học viên, vai trò, ghi danh và trạng thái truy cập.')).not.toBeInTheDocument();
     const userToolbar = screen.getByRole('region', { name: 'Bộ lọc tài khoản' });
     expect(userToolbar).toHaveAttribute('data-admin-toolbar', 'true');
     expect(within(userToolbar).getByRole('button', { name: 'Áp dụng' })).toBeEnabled();
@@ -795,7 +795,7 @@ describe('AdminPage', () => {
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
-    await user.click(screen.getByLabelText('Lọc giảng viên'));
+    await user.click(screen.getByLabelText('Lọc người biên soạn chương trình học'));
     await user.click(await screen.findByRole('option', { name: 'SEONGON' }));
     adminCourses.mockClear();
     await user.click(screen.getByRole('button', { name: 'Áp dụng' }));
@@ -1103,6 +1103,20 @@ describe('AdminPage', () => {
       pass_score: 75,
       max_attempts: 3,
     }));
+  });
+
+  it('shows the three-question attempt size for the quick demo course', async () => {
+    mockAdminData();
+    adminCourse.mockResolvedValue({ data: { ...selectedCourse, slug: 'completed-demo-course' } });
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học' }));
+    await openCourseDetails(user);
+    await user.click(await screen.findByRole('button', { name: 'Sửa khóa học' }));
+    await user.click(await screen.findByRole('button', { name: 'Bài kiểm tra' }));
+
+    expect(screen.getByText('Mỗi lượt làm bài gồm 3 câu hỏi từ ngân hàng câu hỏi của khóa demo nhanh.')).toBeInTheDocument();
   });
 
   it('waits for Apply before requesting News filters and keeps the newest applied result', async () => {

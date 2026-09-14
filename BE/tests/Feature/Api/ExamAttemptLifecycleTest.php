@@ -308,9 +308,10 @@ class ExamAttemptLifecycleTest extends TestCase
         $this->assertSame([], array_values(array_intersect($first['question_ids'], $second['question_ids'])));
     }
 
-    public function test_start_uses_all_available_questions_when_the_bank_has_fewer_than_forty(): void
+    public function test_quick_demo_attempt_uses_exactly_three_questions(): void
     {
         [$student, $course, $exam] = $this->learningFixture();
+        $course->update(['slug' => 'completed-demo-course']);
         $keptQuestionIds = $exam->questions()->limit(3)->pluck('id');
         $exam->questions()->whereNotIn('id', $keptQuestionIds)->delete();
         $token = $student->createToken('test')->plainTextToken;
@@ -324,9 +325,24 @@ class ExamAttemptLifecycleTest extends TestCase
         $this->assertEqualsCanonicalizing($keptQuestionIds->all(), $attempt['question_ids']);
     }
 
+    public function test_regular_course_rejects_a_bank_with_only_three_questions(): void
+    {
+        [$student, $course, $exam] = $this->learningFixture();
+        $keptQuestionIds = $exam->questions()->limit(3)->pluck('id');
+        $exam->questions()->whereNotIn('id', $keptQuestionIds)->delete();
+        $token = $student->createToken('test')->plainTextToken;
+
+        $this->withToken($token)
+            ->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts/start")
+            ->assertUnprocessable();
+    }
+
     public function test_retired_question_remains_visible_in_history_but_is_not_selected_for_new_attempts(): void
     {
         [$student, $course, $exam, $retiredQuestion] = $this->learningFixture();
+        $extraQuestion = Question::factory()->create(['exam_id' => $exam->id]);
+        Answer::factory()->correct()->create(['question_id' => $extraQuestion->id]);
+        Answer::factory()->create(['question_id' => $extraQuestion->id]);
         $retiredQuestion->update(['status' => 'retired']);
         $enrollment = Enrollment::query()->where('user_id', $student->id)->firstOrFail();
         Attempt::query()->create([
@@ -349,7 +365,7 @@ class ExamAttemptLifecycleTest extends TestCase
             ->assertOk()
             ->json('attempt');
 
-        $this->assertCount(39, $newAttempt['question_ids']);
+        $this->assertCount(40, $newAttempt['question_ids']);
         $this->assertNotContains($retiredQuestion->id, $newAttempt['question_ids']);
     }
 

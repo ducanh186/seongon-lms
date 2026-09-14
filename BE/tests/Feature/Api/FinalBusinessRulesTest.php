@@ -81,6 +81,37 @@ class FinalBusinessRulesTest extends TestCase
             ->assertUnprocessable();
     }
 
+    public function test_publishing_allows_the_three_question_quick_demo_course(): void
+    {
+        $course = Course::factory()->create([
+            'slug' => 'completed-demo-course',
+            'status' => 'draft',
+        ]);
+        $this->actingAs(User::factory()->admin()->create());
+        Lesson::factory()->create(['course_id' => $course->id]);
+        $exam = Exam::factory()->create(['course_id' => $course->id]);
+        foreach (range(1, 3) as $index) {
+            $question = Question::factory()->create([
+                'exam_id' => $exam->id,
+                'content' => "Quick demo question {$index}",
+            ]);
+            Answer::factory()->create(['question_id' => $question->id, 'is_correct' => true]);
+            Answer::factory()->create(['question_id' => $question->id, 'is_correct' => false]);
+        }
+
+        $this->patchJson("/api/v1/admin/courses/{$course->id}/publish", ['status' => 'published'])
+            ->assertOk();
+
+        $extraQuestion = Question::factory()->create([
+            'exam_id' => $exam->id,
+            'content' => 'Quick demo question 4',
+        ]);
+        Answer::factory()->create(['question_id' => $extraQuestion->id, 'is_correct' => true]);
+        Answer::factory()->create(['question_id' => $extraQuestion->id, 'is_correct' => false]);
+        $this->patchJson("/api/v1/admin/courses/{$course->id}/publish", ['status' => 'published'])
+            ->assertUnprocessable();
+    }
+
     public function test_question_requires_exactly_one_correct_answer(): void
     {
         $exam = Exam::factory()->create();

@@ -74,6 +74,7 @@ describe('CoursePage', () => {
         level: 'beginner',
         status: 'published',
         lessons_count: 1,
+        has_quiz: true,
         reviews_count: 0,
         rating: 4.8,
         category: { id: 1, name: 'SEO', slug: 'seo', description: null },
@@ -91,12 +92,37 @@ describe('CoursePage', () => {
 
     expect(await screen.findByRole('complementary', { name: 'Thông tin đăng ký' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'SEO Foundation' })).toBeInTheDocument();
-    const instructor = screen.getByRole('region', { name: 'Thông tin giảng viên' });
+    const courseInformation = screen.getByRole('region', { name: 'Thông tin khóa học' });
+    expect(courseInformation).toHaveTextContent('SEO');
+    expect(courseInformation).toHaveTextContent('Cơ bản');
+    expect(courseInformation).toHaveTextContent('2 năm');
+    expect(courseInformation).toHaveTextContent('1 bài học');
+    expect(courseInformation).toHaveTextContent('Có bài kiểm tra cuối khóa');
+    expect(courseInformation).toHaveTextContent('Nguyễn Minh Anh');
+    const instructor = screen.getByRole('region', { name: 'Thông tin người biên soạn chương trình học' });
     expect(instructor).toHaveTextContent('Nguyễn Minh Anh');
     expect(instructor).toHaveTextContent('Chuyên gia SEO với kinh nghiệm triển khai dự án thực tế.');
-    expect(within(instructor).getByRole('img', { name: 'Ảnh giảng viên Nguyễn Minh Anh' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/minh-anh.jpg');
+    expect(within(instructor).getByRole('img', { name: 'Ảnh người biên soạn chương trình học Nguyễn Minh Anh' })).toHaveAttribute('src', 'http://127.0.0.1:8000/storage/teacher-profile-images/minh-anh.jpg');
     expect(course).toHaveBeenCalledWith('seo-foundation', undefined);
     expect(reviews).toHaveBeenCalledWith('seo-foundation');
+  });
+
+  it('does not promise an end-of-course quiz when the course has none', async () => {
+    useAuth.mockReturnValue({ user: null });
+    useCart.mockReturnValue({ add, contains: () => false });
+    course.mockResolvedValue({
+      data: {
+        id: 11, category_id: 1, title: 'SEO Basics', slug: 'seo-basics', description: null, thumbnail: null,
+        price: '99000.00', level: 'beginner', status: 'published', has_quiz: false, lessons_count: 2,
+      },
+    });
+    reviews.mockResolvedValue({ data: [] });
+
+    render(<MemoryRouter initialEntries={['/courses/seo-basics']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /></Routes></MemoryRouter>);
+
+    expect(await screen.findByRole('heading', { name: 'SEO Basics' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Thông tin khóa học' })).toHaveTextContent('Không yêu cầu bài kiểm tra');
+    expect(screen.getByRole('complementary', { name: 'Thông tin đăng ký' })).not.toHaveTextContent('Bài kiểm tra cuối khóa');
   });
 
   it('keeps public course browsing available to admins without learner purchase controls', async () => {
@@ -149,7 +175,7 @@ describe('CoursePage', () => {
     course.mockResolvedValue({
       data: {
         id: 10, category_id: 1, title: 'SEO Foundation', slug: 'seo-foundation', description: null, thumbnail: null,
-        price: '299000.00', instructor_name: 'Giảng viên ma', instructor_bio: 'Dữ liệu cũ', teacher_profile: null,
+        price: '299000.00', instructor_name: 'Người biên soạn cũ', instructor_bio: 'Dữ liệu cũ', teacher_profile: null,
         level: 'beginner', status: 'published', created_at: '2026-07-10T00:00:00Z',
       },
     });
@@ -158,8 +184,8 @@ describe('CoursePage', () => {
     render(<MemoryRouter initialEntries={['/courses/seo-foundation']}><Routes><Route path="/courses/:slug" element={<CoursePage />} /></Routes></MemoryRouter>);
 
     expect(await screen.findByRole('heading', { name: 'SEO Foundation' })).toBeInTheDocument();
-    expect(screen.queryByRole('region', { name: 'Thông tin giảng viên' })).not.toBeInTheDocument();
-    expect(screen.queryByText('Giảng viên ma')).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Thông tin người biên soạn chương trình học' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Người biên soạn cũ')).not.toBeInTheDocument();
   });
 
   it('loads an uploaded thumbnail from the Laravel origin', async () => {

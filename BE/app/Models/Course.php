@@ -15,6 +15,8 @@ class Course extends Model
 {
     use HasFactory;
 
+    public const QUICK_DEMO_SLUG = 'completed-demo-course';
+
     protected $fillable = [
         'category_id',
         'title',

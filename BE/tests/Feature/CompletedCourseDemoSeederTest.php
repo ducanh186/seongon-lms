@@ -70,7 +70,7 @@ class CompletedCourseDemoSeederTest extends TestCase
             ->where('is_completed', true)
             ->count());
         $this->assertSame(1, $course->quiz()->count());
-        $this->assertSame(1, $course->quiz->questions()->count());
+        $this->assertSame(3, $course->quiz->questions()->count());
         $this->assertSame(2, $course->quiz->questions->first()->answers()->count());
         $this->assertSame(1, $course->quiz->questions->first()->answers()->where('is_correct', true)->count());
         $this->assertSame(1, $course->quiz->questions->first()->answers()->where('is_correct', false)->count());

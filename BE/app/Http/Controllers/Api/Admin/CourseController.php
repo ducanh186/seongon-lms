@@ -73,19 +73,25 @@ class CourseController extends Controller
         if ($data['status'] === 'published') {
             $course->load(['lessons:id,course_id', 'exam.questions.answers']);
             $exam = $course->exam;
-            $hasValidQuestions = $exam
-                && $exam->questions->filter(fn ($question): bool => $question->status === 'ready'
+            $validQuestionCount = $exam
+                ? $exam->questions->filter(fn ($question): bool => $question->status === 'ready'
                     && trim((string) $question->content) !== ''
                     && $question->answers->count() >= 2
                     && $question->answers->count() <= 4
                     && $question->answers->pluck('content')->map(fn ($content): string => mb_strtolower(trim((string) $content)))->unique()->count() === $question->answers->count()
                     && $question->answers->where('is_correct', true)->count() === 1)
                     ->unique(fn ($question): string => mb_strtolower(trim($question->content)))
-                    ->count() >= 100;
+                    ->count()
+                : 0;
+            $hasValidQuestions = $course->slug === Course::QUICK_DEMO_SLUG
+                ? $validQuestionCount === 3
+                : $validQuestionCount >= 100;
 
             if ($course->lessons->isEmpty() || ! $exam || ! $hasValidQuestions) {
                 throw ValidationException::withMessages([
-                    'status' => ['Khóa học cần có bài học, bài kiểm tra và ít nhất 100 câu hỏi hợp lệ trước khi xuất bản.'],
+                    'status' => [$course->slug === Course::QUICK_DEMO_SLUG
+                        ? 'Khóa demo nhanh cần có bài học, bài kiểm tra và đúng 3 câu hỏi hợp lệ trước khi xuất bản.'
+                        : 'Khóa học cần có bài học, bài kiểm tra và ít nhất 100 câu hỏi hợp lệ trước khi xuất bản.'],
                 ]);
             }
         }

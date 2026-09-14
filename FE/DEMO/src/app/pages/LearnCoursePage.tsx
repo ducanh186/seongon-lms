@@ -140,6 +140,25 @@ export function LearnCoursePage() {
     }
   };
 
+  const downloadCertificate = async () => {
+    if (!token) return;
+    const certificate = quizResult?.certificate ?? enrollment?.certificate;
+    if (!certificate) return;
+
+    try {
+      const blob = await applicationRepositories.learning.downloadCertificate(token, courseId);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `certificate-${certificate.certificate_code}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+      setError(null);
+    } catch (reason) {
+      setError(reason instanceof ApiError ? reason.message : 'Không thể tải chứng chỉ.');
+    }
+  };
+
   if (loading) return <Container sx={{ py: 6 }}><PageSkeleton rows={4} /></Container>;
   if (error && !enrollment) return <Container sx={{ py: 6 }}><Alert severity="error">{error}</Alert></Container>;
 
@@ -247,6 +266,8 @@ export function LearnCoursePage() {
                 submitAttempt={(attemptId) => applicationRepositories.learning.finalizeQuizAttempt(token!, attemptId)}
                 onResult={setQuizResult}
                 onBackToCourse={() => setQuiz(null)}
+                certificate={quizResult?.certificate ?? enrollment?.certificate}
+                onDownloadCertificate={() => void downloadCertificate()}
               />
             )}
           </Stack>

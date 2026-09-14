@@ -12,7 +12,7 @@ class TeacherProfileResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'bio' => $this->bio,
+            'bio' => $this->displayBio(),
             'avatar' => $this->avatar,
             'courses_count' => $this->whenCounted('courses'),
             'created_at' => $this->created_at,

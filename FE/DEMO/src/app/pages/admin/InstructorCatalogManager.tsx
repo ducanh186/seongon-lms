@@ -36,7 +36,7 @@ export function InstructorCatalogManager({ token, onChanged }: InstructorCatalog
     adminRepositories.instructors.list(token).then((response) => {
       if (!cancelled) setRows(response.data);
     }).catch((reason) => {
-      if (!cancelled) setError(reason instanceof ApiError ? reason.message : 'Không thể tải danh mục giảng viên.');
+      if (!cancelled) setError(reason instanceof ApiError ? reason.message : 'Không thể tải danh sách người biên soạn chương trình học.');
     }).finally(() => {
       if (!cancelled) setLoading(false);
     });
@@ -62,9 +62,9 @@ export function InstructorCatalogManager({ token, onChanged }: InstructorCatalog
       reset();
       await reload();
       await onChanged?.();
-      setNotice('Đã lưu danh mục giảng viên.');
+      setNotice('Đã lưu người biên soạn chương trình học.');
     } catch (reason) {
-      setError(reason instanceof ApiError ? reason.message : 'Không thể lưu danh mục giảng viên.');
+      setError(reason instanceof ApiError ? reason.message : 'Không thể lưu người biên soạn chương trình học.');
     } finally {
       setBusy(false);
     }
@@ -77,7 +77,7 @@ export function InstructorCatalogManager({ token, onChanged }: InstructorCatalog
       const response = await adminRepositories.instructors.uploadImage(token, file);
       setAvatar(response.url);
     } catch (reason) {
-      setError(reason instanceof ApiError ? reason.message : 'Không thể tải ảnh giảng viên.');
+      setError(reason instanceof ApiError ? reason.message : 'Không thể tải ảnh người biên soạn chương trình học.');
     } finally {
       setUploading(false);
     }
@@ -94,9 +94,9 @@ export function InstructorCatalogManager({ token, onChanged }: InstructorCatalog
       setRemoving(null);
       await reload();
       await onChanged?.();
-      setNotice('Đã xóa danh mục giảng viên.');
+      setNotice('Đã xóa người biên soạn chương trình học.');
     } catch (reason) {
-      setError(reason instanceof ApiError ? reason.message : 'Không thể xóa danh mục giảng viên.');
+      setError(reason instanceof ApiError ? reason.message : 'Không thể xóa người biên soạn chương trình học.');
       setRemoving(null);
     } finally {
       setBusy(false);
@@ -111,21 +111,21 @@ export function InstructorCatalogManager({ token, onChanged }: InstructorCatalog
         <Card component="form" onSubmit={(event) => void save(event)} sx={{ borderRadius: 3 }}>
           <CardContent>
             <Stack spacing={2}>
-              <Typography component="h2" variant="h6" fontWeight={800}>{editing ? 'Sửa danh mục giảng viên' : 'Tạo danh mục giảng viên'}</Typography>
-              <TextField required label="Tên giảng viên" value={name} onChange={(event) => setName(event.target.value)} inputProps={{ maxLength: 255 }} />
-              <TextField label="Giới thiệu giảng viên" multiline minRows={3} value={bio} onChange={(event) => setBio(event.target.value)} />
+              <Typography component="h2" variant="h6" fontWeight={800}>{editing ? 'Sửa người biên soạn chương trình học' : 'Tạo người biên soạn chương trình học'}</Typography>
+              <TextField required label="Tên người biên soạn chương trình học" value={name} onChange={(event) => setName(event.target.value)} inputProps={{ maxLength: 255 }} />
+              <TextField label="Giới thiệu người biên soạn chương trình học" multiline minRows={3} value={bio} onChange={(event) => setBio(event.target.value)} />
               <Box>
-                <Typography variant="body2" fontWeight={700}>Ảnh giảng viên</Typography>
+                <Typography variant="body2" fontWeight={700}>Ảnh người biên soạn chương trình học</Typography>
                 <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mt: 1 }}>
-                  <Avatar src={resolveMaterialUrl(avatar ?? undefined)} alt="Xem trước ảnh giảng viên" sx={{ width: 56, height: 56 }} />
+                  <Avatar src={resolveMaterialUrl(avatar ?? undefined)} alt="Xem trước ảnh người biên soạn chương trình học" sx={{ width: 56, height: 56 }} />
                   <Button component="label" variant="outlined" disabled={busy || uploading}>
                     {uploading ? 'Đang tải ảnh' : 'Chọn ảnh'}
-                    <input aria-label="Ảnh giảng viên" hidden type="file" accept="image/jpeg,image/png" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void uploadAvatar(file); }} />
+                    <input aria-label="Ảnh người biên soạn chương trình học" hidden type="file" accept="image/jpeg,image/png" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void uploadAvatar(file); }} />
                   </Button>
                 </Stack>
               </Box>
               <Stack direction="row" spacing={1}>
-                <Button type="submit" variant="contained" disabled={busy || !name.trim()}>{editing ? 'Cập nhật giảng viên' : 'Lưu giảng viên'}</Button>
+                <Button type="submit" variant="contained" disabled={busy || !name.trim()}>{editing ? 'Cập nhật người biên soạn' : 'Lưu người biên soạn'}</Button>
                 {editing && <Button disabled={busy} onClick={reset}>Hủy</Button>}
               </Stack>
             </Stack>
@@ -133,13 +133,13 @@ export function InstructorCatalogManager({ token, onChanged }: InstructorCatalog
         </Card>
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
-            {loading ? <Typography role="status">Đang tải danh mục giảng viên…</Typography> : rows.length === 0 ? <EmptyState title="Chưa có danh mục giảng viên." /> : <AdminDataTable<ApiTeacherProfile>
-              label="Danh sách giảng viên"
+            {loading ? <Typography role="status">Đang tải người biên soạn chương trình học...</Typography> : rows.length === 0 ? <EmptyState title="Chưa có người biên soạn chương trình học." /> : <AdminDataTable<ApiTeacherProfile>
+              label="Danh sách người biên soạn chương trình học"
               rows={rows}
               getRowKey={(row) => row.id}
               minWidth={620}
               columns={[
-                { key: 'name', header: 'Tên giảng viên', render: (row) => <Stack direction="row" spacing={1} alignItems="center"><Avatar src={resolveMaterialUrl(row.avatar ?? undefined)} alt={`Ảnh giảng viên ${row.name}`} sx={{ width: 32, height: 32 }} /> <Typography fontWeight={700}>{row.name}</Typography></Stack> },
+                { key: 'name', header: 'Tên người biên soạn', render: (row) => <Stack direction="row" spacing={1} alignItems="center"><Avatar src={resolveMaterialUrl(row.avatar ?? undefined)} alt={`Ảnh người biên soạn chương trình học ${row.name}`} sx={{ width: 32, height: 32 }} /> <Typography fontWeight={700}>{row.name}</Typography></Stack> },
                 { key: 'bio', header: 'Giới thiệu', render: (row) => row.bio || 'Chưa có giới thiệu' },
                 { key: 'courses_count', header: 'Khóa học', align: 'center', render: (row) => `${row.courses_count} khóa học` },
                 { key: 'actions', header: 'Thao tác', align: 'center', width: 150, render: (row) => <Stack direction="row" spacing={0.5} justifyContent="center" sx={{ flexWrap: 'nowrap', '& .MuiButton-root': { minWidth: 48, whiteSpace: 'nowrap', flexShrink: 0 } }}><Button disabled={busy} onClick={() => { setEditing(row); setName(row.name); setBio(row.bio ?? ''); setAvatar(row.avatar); }}>Sửa</Button><Button color="error" disabled={busy} onClick={() => setRemoving(row)}>Xóa</Button></Stack> },
@@ -149,7 +149,7 @@ export function InstructorCatalogManager({ token, onChanged }: InstructorCatalog
         </Card>
       </Box>
       <Dialog open={!!removing} onClose={() => !busy && setRemoving(null)} aria-labelledby="delete-instructor-title">
-        <DialogTitle id="delete-instructor-title">Xóa danh mục giảng viên?</DialogTitle>
+        <DialogTitle id="delete-instructor-title">Xóa người biên soạn chương trình học?</DialogTitle>
         <DialogContent>{removing?.name}</DialogContent>
         <DialogActions><Button disabled={busy} onClick={() => setRemoving(null)}>Hủy</Button><Button color="error" disabled={busy} onClick={() => void remove()}>Xóa</Button></DialogActions>
       </Dialog>

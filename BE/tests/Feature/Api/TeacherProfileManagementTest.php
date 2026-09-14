@@ -113,6 +113,31 @@ class TeacherProfileManagementTest extends TestCase
             ->assertJsonPath('data.teacher_profile.avatar', '/storage/teacher-profile-images/minh-anh.jpg');
     }
 
+    public function test_legacy_teacher_bio_uses_current_wording_in_admin_and_public_responses(): void
+    {
+        $profile = TeacherProfile::query()->create([
+            'name' => 'Nguyễn Minh Anh',
+            'bio' => 'Giảng viên thực chiến về SEO.',
+        ]);
+        $course = Course::factory()->create([
+            'slug' => 'legacy-teacher-copy',
+            'status' => 'published',
+            'teacher_profile_id' => $profile->id,
+        ]);
+        $expectedBio = 'Người biên soạn chương trình học thực chiến về SEO.';
+
+        $admin = User::factory()->admin()->create();
+        $token = $admin->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson('/api/v1/admin/teacher-profiles')
+            ->assertOk()
+            ->assertJsonPath('data.0.bio', $expectedBio);
+        $this->getJson("/api/v1/courses/{$course->slug}")
+            ->assertOk()
+            ->assertJsonPath('data.instructor_bio', $expectedBio)
+            ->assertJsonPath('data.teacher_profile.bio', $expectedBio);
+    }
+
     public function test_teacher_is_not_an_assignable_user_role(): void
     {
         $admin = User::factory()->admin()->create();

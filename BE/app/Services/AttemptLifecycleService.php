@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Attempt;
+use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Exam;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +48,18 @@ class AttemptLifecycleService
                     'quiz' => 'Ngân hàng câu hỏi chưa có câu hỏi.',
                 ]);
             }
-            $questionsPerAttempt = min(self::QUESTIONS_PER_ATTEMPT, $allIds->count());
+            $isQuickDemo = $exam->course()->value('slug') === Course::QUICK_DEMO_SLUG;
+            if ($isQuickDemo && $allIds->count() !== 3) {
+                throw ValidationException::withMessages([
+                    'quiz' => 'Khóa demo nhanh cần đúng 3 câu hỏi trước khi bắt đầu.',
+                ]);
+            }
+            if (! $isQuickDemo && $allIds->count() < self::QUESTIONS_PER_ATTEMPT) {
+                throw ValidationException::withMessages([
+                    'quiz' => 'Ngân hàng câu hỏi cần ít nhất 40 câu trước khi bắt đầu.',
+                ]);
+            }
+            $questionsPerAttempt = $isQuickDemo ? 3 : self::QUESTIONS_PER_ATTEMPT;
             $previousIds = Attempt::query()
                 ->where('enrollment_id', $enrollment->id)
                 ->where('exam_id', $exam->id)

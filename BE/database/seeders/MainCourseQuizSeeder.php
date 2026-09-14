@@ -6,8 +6,10 @@ use App\Models\Answer;
 use App\Models\Course;
 use App\Models\Exam;
 use App\Models\Question;
+use App\Support\QuestionBankScope;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 /**
  * Original scenario questions based on the linked primary-source guides.
@@ -43,7 +45,7 @@ class MainCourseQuizSeeder extends Seeder
         ['Dữ liệu Search Console giúp kiểm tra điều gì?', 'Hiệu suất và trạng thái hiện diện trên Google Search', 'Doanh thu mọi kênh không cần cấu hình', 'Số lượng đơn hàng trong CRM'],
         ['Khi traffic organic giảm, bước đầu hợp lý là gì?', 'Đối chiếu trang, truy vấn và thời điểm thay đổi', 'Viết lại toàn bộ website ngay', 'Xóa tài khoản Search Console'],
         ['Nội dung cập nhật nên dựa trên điều gì?', 'Thông tin mới thực sự giúp người đọc', 'Chỉ đổi ngày xuất bản', 'Chỉ thêm số từ'],
-        ['Trang quan trọng bị chặn crawl nên kiểm tra gì?', 'Quy tắc robots và khả năng truy cập URL', 'Màu nút mua hàng', 'Ảnh đại diện giảng viên'],
+        ['Trang quan trọng bị chặn crawl nên kiểm tra gì?', 'Quy tắc robots và khả năng truy cập URL', 'Màu nút mua hàng', 'Ảnh đại diện người biên soạn chương trình học'],
         ['Một đoạn anchor text hữu ích nên thế nào?', 'Cho biết đích liên kết nói về gì', 'Luôn là cùng một từ chung chung', 'Không liên quan nội dung đích'],
         ['Khi đánh giá hiệu quả SEO, cần gắn chỉ số với gì?', 'Mục tiêu kinh doanh và nhu cầu người dùng', 'Chỉ số lượt xem bất kỳ', 'Số lượng tab trình duyệt'],
     ];
@@ -102,24 +104,40 @@ class MainCourseQuizSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function (): void {
-            Course::query()->where('price', '<=', 0)->update(['price' => 299000]);
-
-            foreach ([
-                'seo-ai-max-01' => self::SEO,
-                'google-ads-01' => self::ADS,
-                'content-seo-01' => self::CONTENT,
-            ] as $slug => $concepts) {
+            foreach (QuestionBankScope::FEATURED_SLUGS as $slug) {
+                $concepts = str_starts_with($slug, 'seo-ai-max-')
+                    ? self::SEO
+                    : (str_starts_with($slug, 'google-ads-') ? self::ADS : self::CONTENT);
                 $exam = Course::query()->where('slug', $slug)->first()?->exam;
                 if (! $exam) {
                     continue;
                 }
 
                 $exam->update(['max_attempts' => 2]);
-                if ($exam->questions()->count() >= 100) {
+                $questionCount = $exam->questions()->count();
+                $overflow = max(0, $questionCount - 100);
+                if ($overflow > 0) {
+                    $legacyQuestionBankRows = $exam->questions()
+                        ->where('sort_order', '>=', 100)
+                        ->orderByDesc('sort_order')
+                        ->limit($overflow)
+                        ->get();
+                    if ($legacyQuestionBankRows->count() !== $overflow) {
+                        throw new RuntimeException("{$slug} has question overflow outside the generated question bank range.");
+                    }
+                    $legacyQuestionBankRows->each->delete();
+                    $questionCount -= $overflow;
+                }
+
+                $questionsNeeded = max(0, 100 - $questionCount);
+                if ($questionsNeeded === 0) {
                     continue;
                 }
                 foreach (self::CONTEXTS as $contextIndex => $context) {
                     foreach ($concepts as $conceptIndex => [$stem, $correct, $wrongA, $wrongB]) {
+                        if ($questionsNeeded === 0) {
+                            break 2;
+                        }
                         $content = sprintf('%s: %s', $context, $stem);
                         $question = Question::query()->firstOrCreate(
                             ['exam_id' => $exam->id, 'content' => $content],
@@ -130,6 +148,9 @@ class MainCourseQuizSeeder extends Seeder
                                 ['question_id' => $question->id, 'content' => $answer],
                                 ['is_correct' => $answerIndex === 0],
                             );
+                        }
+                        if ($question->wasRecentlyCreated) {
+                            $questionsNeeded--;
                         }
                     }
                 }

@@ -35,24 +35,20 @@ class PaymentFlowTest extends TestCase
         $settings['momo']['enabled'] = false;
         $this->putJson('/api/v1/admin/payment-settings', $settings)->assertOk();
         Sanctum::actingAs($order->user);
-        $this->getJson('/api/v1/payment-methods')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.code', 'card');
+        $this->getJson('/api/v1/payment-methods')->assertOk()->assertJsonCount(0, 'data');
         $this->postJson("/api/v1/orders/{$order->id}/payment-session", ['payment_method' => 'momo'])->assertUnprocessable();
     }
 
-    public function test_card_mock_session_is_available_and_records_card_as_payment_method(): void
+    public function test_card_is_not_available_for_new_payment_sessions(): void
     {
-        Mail::fake();
         $order = $this->checkout();
-        $this->getJson('/api/v1/payment-methods')->assertOk()->assertJsonFragment(['code' => 'card', 'mode' => 'mock']);
-        $session = $this->postJson("/api/v1/orders/{$order->id}/payment-session", ['payment_method' => 'card'])
-            ->assertOk()->assertJsonPath('data.payment_method', 'card')->assertJsonPath('data.payment_status', 'pending')
-            ->assertJsonPath('data.payment_session.mode', 'mock')->json('data.payment_session');
-        $this->assertNull($session['qr_payload']);
-        $this->postJson("/api/v1/orders/{$order->id}/mock-callback", ['session_token' => $session['token'], 'outcome' => 'success'])
-            ->assertOk()->assertJsonPath('order.payment_method', 'card')->assertJsonPath('order.payment_status', 'paid');
-        $this->getJson('/api/v1/my/transactions')->assertOk()->assertJsonPath('data.0.payment_method', 'card');
-        $this->assertDatabaseCount('enrollments', 1);
-        Mail::assertQueued(PaymentConfirmation::class, 1);
+        $this->getJson('/api/v1/payment-methods')
+            ->assertOk()
+            ->assertJsonMissing(['code' => 'card']);
+        $this->postJson("/api/v1/orders/{$order->id}/payment-session", ['payment_method' => 'card'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('payment_method');
+        $this->assertSame('draft', $order->fresh()->payment_status);
     }
 
     public function test_momo_session_starts_pending_then_callback_grants_access_and_queues_one_email(): void

@@ -33,7 +33,7 @@ class ExternalTeacherProfileMigrationTest extends TestCase
         $this->assertNotNull($course->teacher_profile_id);
         $this->assertSame('Nguyễn Minh Anh', $course->teacherProfile?->name);
         $this->assertSame(
-            'Giảng viên SEONGON giàu kinh nghiệm triển khai chiến lược SEO cho doanh nghiệp.',
+            'Người biên soạn chương trình học SEONGON giàu kinh nghiệm triển khai chiến lược SEO cho doanh nghiệp.',
             $course->teacherProfile?->bio,
         );
     }

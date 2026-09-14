@@ -145,7 +145,7 @@ export function CourseDetail() {
 
           {/* Instructor */}
           <div className="p-6 border border-border rounded-lg mb-8">
-            <h3 className="mb-4">Giảng viên</h3>
+            <h3 className="mb-4">Người biên soạn chương trình học</h3>
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                 <Users className="h-8 w-8 text-primary" />

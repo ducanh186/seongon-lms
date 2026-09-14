@@ -15,6 +15,12 @@ import {
 } from '@mui/material';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import CategoryRoundedIcon from '@mui/icons-material/CategoryRounded';
+import MenuBookRoundedIcon from '@mui/icons-material/MenuBookRounded';
+import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
+import QuizRoundedIcon from '@mui/icons-material/QuizRounded';
+import SignalCellularAltRoundedIcon from '@mui/icons-material/SignalCellularAltRounded';
+import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
 import { Link, useNavigate, useParams } from 'react-router';
 import { ApiError } from '../lib/api';
 import { resolveMaterialUrl } from '../lib/apiUrl';
@@ -56,6 +62,17 @@ export function CoursePage() {
   const isStudent = user?.role === 'student';
   const isEnrolled = Boolean(isStudent && course.enrollment && !course.enrollment.is_expired);
   const isInCart = contains(course.id);
+  const levelLabel = course.level ? ({ beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao' }[course.level]) : 'Đang cập nhật';
+  const categoriesLabel = course.categories?.map((category) => category.name).join(', ') || course.category?.name || 'Đang cập nhật';
+  const lessonsCount = course.lessons_count ?? course.lessons?.length ?? 0;
+  const courseFacts = [
+    { label: 'Danh mục', value: categoriesLabel, icon: <CategoryRoundedIcon /> },
+    { label: 'Cấp độ', value: levelLabel, icon: <SignalCellularAltRoundedIcon /> },
+    { label: 'Thời hạn truy cập', value: '730 ngày (2 năm) từ ngày ghi danh', icon: <TodayRoundedIcon /> },
+    { label: 'Nội dung học', value: `${lessonsCount} bài học`, icon: <MenuBookRoundedIcon /> },
+    { label: 'Bài kiểm tra', value: course.has_quiz ? 'Có bài kiểm tra cuối khóa' : 'Không yêu cầu bài kiểm tra', icon: <QuizRoundedIcon /> },
+    { label: 'Người biên soạn chương trình học', value: course.teacher_profile?.name || 'Đang cập nhật', icon: <PersonRoundedIcon /> },
+  ];
   const beginCheckout = async () => {
     try {
       if (!isInCart) await add(course.id);
@@ -85,6 +102,24 @@ export function CoursePage() {
             <Box sx={{ bgcolor: '#E9F7F5', border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden' }}>
               <Box component="img" src={resolveMaterialUrl(course.thumbnail) ?? FALLBACK_COURSE_IMAGE} alt="" sx={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', display: 'block' }} />
             </Box>
+            <Card component="section" role="region" aria-label="Thông tin khóa học" variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
+              <CardContent sx={{ p: { xs: 2.5, md: 3 }, '&:last-child': { pb: { xs: 2.5, md: 3 } }, bgcolor: 'action.hover' }}>
+                <Typography component="h2" variant="h5" fontWeight={850}>Thông tin khóa học</Typography>
+                <Typography color="text.secondary" sx={{ mt: 0.75 }}>Những thông tin cần biết trước khi đăng ký.</Typography>
+              </CardContent>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' }, gap: '1px', bgcolor: 'divider', borderTop: '1px solid', borderColor: 'divider' }}>
+                {courseFacts.map((fact) => (
+                  <Stack key={fact.label} direction="row" spacing={1.5} alignItems="flex-start" sx={{ bgcolor: 'background.paper', p: 2.5, minWidth: 0 }}>
+                    <Box sx={{ width: 38, height: 38, flexShrink: 0, display: 'grid', placeItems: 'center', borderRadius: 2, bgcolor: 'primary.main', color: 'primary.contrastText', '& .MuiSvgIcon-root': { fontSize: 21 } }}>{fact.icon}</Box>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" color="text.secondary" fontWeight={750}>{fact.label}</Typography>
+                      <Typography fontWeight={750} sx={{ mt: 0.25, lineHeight: 1.45, overflowWrap: 'anywhere' }}>{fact.value}</Typography>
+                    </Box>
+                  </Stack>
+                ))}
+              </Box>
+            </Card>
+            {course.teacher_profile && <Card component="section" role="region" aria-label="Thông tin người biên soạn chương trình học" variant="outlined" sx={{ borderRadius: 2.5 }}><CardContent sx={{ p: { xs: 2.5, md: 3 } }}><Stack direction={{ xs: 'column', sm: 'row' }} spacing={2.5} alignItems={{ sm: 'center' }}><Avatar src={resolveMaterialUrl(course.teacher_profile.avatar ?? undefined)} alt={`Ảnh người biên soạn chương trình học ${course.teacher_profile.name}`} sx={{ width: { xs: 72, sm: 88 }, height: { xs: 72, sm: 88 }, bgcolor: 'primary.dark', fontSize: 30 }}>{course.teacher_profile.name[0]}</Avatar><Box><Typography color="primary.dark" fontWeight={800}>Người biên soạn chương trình học</Typography><Typography component="h2" variant="h5" fontWeight={850} sx={{ mt: 0.25 }}>{course.teacher_profile.name}</Typography><Typography color="text.secondary" sx={{ mt: 0.75, lineHeight: 1.75 }}>{course.teacher_profile.bio || 'Thông tin chuyên môn của người biên soạn chương trình học đang được cập nhật.'}</Typography></Box></Stack></CardContent></Card>}
             <Divider />
             <Box>
               <Typography component="h2" variant="h5" fontWeight={800}>Nội dung khóa học</Typography>
@@ -112,7 +147,6 @@ export function CoursePage() {
                 ))}
               </Stack>
             </Box>
-            {course.teacher_profile && <Card component="section" role="region" aria-label="Thông tin giảng viên" variant="outlined" sx={{ borderRadius: 2.5 }}><CardContent sx={{ p: { xs: 2.5, md: 3 } }}><Stack direction={{ xs: 'column', sm: 'row' }} spacing={2.5} alignItems={{ sm: 'center' }}><Avatar src={resolveMaterialUrl(course.teacher_profile.avatar ?? undefined)} alt={`Ảnh giảng viên ${course.teacher_profile.name}`} sx={{ width: 72, height: 72, bgcolor: 'primary.dark', fontSize: 28 }}>{course.teacher_profile.name[0]}</Avatar><Box><Typography variant="overline" color="primary.dark" fontWeight={800}>Thông tin giảng viên</Typography><Typography component="h2" variant="h5" fontWeight={850}>{course.teacher_profile.name}</Typography><Typography color="text.secondary" sx={{ mt: .75, lineHeight: 1.75 }}>{course.teacher_profile.bio || 'Thông tin chuyên môn của giảng viên đang được cập nhật.'}</Typography></Box></Stack></CardContent></Card>}
           </Stack>
           <Card component="aside" aria-label="Thông tin đăng ký" variant="outlined" sx={{ position: { md: 'sticky' }, top: 96, borderRadius: 2.5 }}>
             <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
@@ -129,7 +163,7 @@ export function CoursePage() {
               {cartError && <Alert severity="error" sx={{ mt: 1.5 }}>{cartError}</Alert>}
               {cartNotice && <Alert severity="info" sx={{ mt: 1.5 }}>{cartNotice}</Alert>}
               <Stack spacing={1.25} sx={{ mt: 3 }}>
-                {['Theo dõi tiến độ học', 'Bài kiểm tra cuối khóa', 'Chứng chỉ khi đạt điều kiện'].map((text) => <Stack key={text} direction="row" spacing={1} alignItems="center"><CheckRoundedIcon color="primary" fontSize="small" /><Typography variant="body2">{text}</Typography></Stack>)}
+                {['Theo dõi tiến độ học', ...(course.has_quiz ? ['Bài kiểm tra cuối khóa'] : []), 'Chứng chỉ khi đạt điều kiện'].map((text) => <Stack key={text} direction="row" spacing={1} alignItems="center"><CheckRoundedIcon color="primary" fontSize="small" /><Typography variant="body2">{text}</Typography></Stack>)}
               </Stack>
             </CardContent>
           </Card>
