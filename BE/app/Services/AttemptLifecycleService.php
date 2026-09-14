@@ -42,11 +42,12 @@ class AttemptLifecycleService
 
             $startedAt = now();
             $allIds = $exam->questions()->pluck('id');
-            if ($allIds->count() < self::QUESTIONS_PER_ATTEMPT) {
+            if ($allIds->isEmpty()) {
                 throw ValidationException::withMessages([
-                    'quiz' => "Ngân hàng câu hỏi chỉ có {$allIds->count()} câu, cần ".self::QUESTIONS_PER_ATTEMPT.' câu cho mỗi lượt làm bài.',
+                    'quiz' => 'Ngân hàng câu hỏi chưa có câu hỏi.',
                 ]);
             }
+            $questionsPerAttempt = min(self::QUESTIONS_PER_ATTEMPT, $allIds->count());
             $previousIds = Attempt::query()
                 ->where('enrollment_id', $enrollment->id)
                 ->where('exam_id', $exam->id)
@@ -54,8 +55,8 @@ class AttemptLifecycleService
                 ->flatMap(fn (Attempt $previous) => $previous->question_ids ?? [])
                 ->unique();
             $available = $allIds->diff($previousIds);
-            $pool = $available->count() >= self::QUESTIONS_PER_ATTEMPT ? $available : $allIds;
-            $questionIds = $pool->shuffle()->take(self::QUESTIONS_PER_ATTEMPT)->values()->all();
+            $pool = $available->count() >= $questionsPerAttempt ? $available : $allIds;
+            $questionIds = $pool->shuffle()->take($questionsPerAttempt)->values()->all();
             $expiresAt = $startedAt->copy()->addMinutes($exam->duration_minutes ?? 30);
 
             return Attempt::create([

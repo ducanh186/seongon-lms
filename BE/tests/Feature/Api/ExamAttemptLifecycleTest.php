@@ -308,6 +308,22 @@ class ExamAttemptLifecycleTest extends TestCase
         $this->assertSame([], array_values(array_intersect($first['question_ids'], $second['question_ids'])));
     }
 
+    public function test_start_uses_all_available_questions_when_the_bank_has_fewer_than_forty(): void
+    {
+        [$student, $course, $exam] = $this->learningFixture();
+        $keptQuestionIds = $exam->questions()->limit(3)->pluck('id');
+        $exam->questions()->whereNotIn('id', $keptQuestionIds)->delete();
+        $token = $student->createToken('test')->plainTextToken;
+
+        $attempt = $this->withToken($token)
+            ->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts/start")
+            ->assertOk()
+            ->json('attempt');
+
+        $this->assertCount(3, $attempt['question_ids']);
+        $this->assertEqualsCanonicalizing($keptQuestionIds->all(), $attempt['question_ids']);
+    }
+
     /** @return array{User, Course, Exam, Question, Answer} */
     private function learningFixture(int $durationMinutes = 30): array
     {
