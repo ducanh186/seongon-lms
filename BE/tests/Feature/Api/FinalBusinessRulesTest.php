@@ -42,7 +42,7 @@ class FinalBusinessRulesTest extends TestCase
         $this->putJson("/api/v1/admin/categories/{$category->id}", ['name' => $category->name])->assertOk();
     }
 
-    public function test_publishing_requires_lessons_exam_and_five_valid_questions(): void
+    public function test_publishing_requires_lessons_exam_and_one_hundred_valid_questions(): void
     {
         $course = Course::factory()->create(['status' => 'draft']);
         $this->actingAs(User::factory()->admin()->create());
@@ -50,15 +50,35 @@ class FinalBusinessRulesTest extends TestCase
         $this->patchJson($url, ['status' => 'published'])->assertUnprocessable();
         Lesson::factory()->create(['course_id' => $course->id]);
         $exam = Exam::factory()->create(['course_id' => $course->id]);
-        foreach (range(1, 5) as $index) {
+        foreach (range(1, 100) as $index) {
             $question = Question::factory()->create(['exam_id' => $exam->id]);
             Answer::factory()->create(['question_id' => $question->id, 'is_correct' => true]);
             Answer::factory()->create(['question_id' => $question->id, 'is_correct' => false]);
-            if ($index < 5) {
+            if ($index < 100) {
                 $this->patchJson($url, ['status' => 'published'])->assertUnprocessable();
             }
         }
         $this->patchJson($url, ['status' => 'published'])->assertOk();
+    }
+
+    public function test_publishing_rejects_one_hundred_reworded_copies_of_the_same_question(): void
+    {
+        $course = Course::factory()->create(['status' => 'draft']);
+        $this->actingAs(User::factory()->admin()->create());
+        Lesson::factory()->create(['course_id' => $course->id]);
+        $exam = Exam::factory()->create(['course_id' => $course->id]);
+        foreach (range(1, 100) as $index) {
+            $question = Question::factory()->create([
+                'exam_id' => $exam->id,
+                'content' => 'Which action should be taken?',
+                'sort_order' => $index,
+            ]);
+            Answer::factory()->create(['question_id' => $question->id, 'is_correct' => true]);
+            Answer::factory()->create(['question_id' => $question->id, 'is_correct' => false]);
+        }
+
+        $this->patchJson("/api/v1/admin/courses/{$course->id}/publish", ['status' => 'published'])
+            ->assertUnprocessable();
     }
 
     public function test_question_requires_exactly_one_correct_answer(): void

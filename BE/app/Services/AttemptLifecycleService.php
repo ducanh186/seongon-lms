@@ -41,7 +41,7 @@ class AttemptLifecycleService
             }
 
             $startedAt = now();
-            $allIds = $exam->questions()->pluck('id');
+            $allIds = $exam->questions()->where('status', 'ready')->pluck('id');
             if ($allIds->isEmpty()) {
                 throw ValidationException::withMessages([
                     'quiz' => 'Ngân hàng câu hỏi chưa có câu hỏi.',

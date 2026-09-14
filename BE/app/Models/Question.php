@@ -11,7 +11,19 @@ class Question extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['exam_id', 'content', 'sort_order'];
+    protected $fillable = [
+        'exam_id',
+        'content',
+        'topic',
+        'learning_objective',
+        'difficulty',
+        'item_form',
+        'status',
+        'version',
+        'source_url',
+        'bank_key',
+        'sort_order',
+    ];
 
     public function exam(): BelongsTo
     {

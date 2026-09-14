@@ -50,7 +50,7 @@ class GeneratedDemoCatalogSeederTest extends TestCase
         );
     }
 
-    public function test_it_seeds_one_hundred_unique_editorial_course_titles_without_placeholder_copy(): void
+    public function test_it_seeds_one_hundred_unique_editorial_course_titles_evenly_across_tracks(): void
     {
         $this->seed(GeneratedDemoCatalogSeeder::class);
 
@@ -64,6 +64,22 @@ class GeneratedDemoCatalogSeederTest extends TestCase
         $this->assertFalse($titles->contains(fn (string $title): bool => preg_match('/\b(?:Qui|Nobis|Eum|Facilis|Distinctio|Optio|Harum|Iste|Expedita)\b/i', $title) === 1));
         $this->assertFalse($titles->contains(fn (string $title): bool => preg_match('/\bDemo\b/i', $title) === 1));
         $this->assertFalse($titles->contains(fn (string $title): bool => preg_match('/\b\d{2}\s*:/', $title) === 1));
+
+        $this->assertSame(
+            [
+                'Content Marketing' => 33,
+                'Google Ads' => 33,
+                'SEO & AI' => 34,
+            ],
+            Course::query()
+                ->join('categories', 'categories.id', '=', 'courses.category_id')
+                ->selectRaw('categories.name, count(courses.id) as aggregate')
+                ->groupBy('categories.name')
+                ->orderBy('categories.name')
+                ->pluck('aggregate', 'name')
+                ->map(fn ($count): int => (int) $count)
+                ->all(),
+        );
     }
 
     public function test_the_completed_fixture_keeps_a_distinct_editorial_identity_in_the_full_catalog(): void

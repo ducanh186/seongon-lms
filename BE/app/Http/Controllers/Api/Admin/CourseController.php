@@ -74,13 +74,18 @@ class CourseController extends Controller
             $course->load(['lessons:id,course_id', 'exam.questions.answers']);
             $exam = $course->exam;
             $hasValidQuestions = $exam
-                && $exam->questions->count() >= 5
-                && $exam->questions->every(fn ($question): bool => $question->answers->count() >= 2
-                    && $question->answers->where('is_correct', true)->count() === 1);
+                && $exam->questions->filter(fn ($question): bool => $question->status === 'ready'
+                    && trim((string) $question->content) !== ''
+                    && $question->answers->count() >= 2
+                    && $question->answers->count() <= 4
+                    && $question->answers->pluck('content')->map(fn ($content): string => mb_strtolower(trim((string) $content)))->unique()->count() === $question->answers->count()
+                    && $question->answers->where('is_correct', true)->count() === 1)
+                    ->unique(fn ($question): string => mb_strtolower(trim($question->content)))
+                    ->count() >= 100;
 
             if ($course->lessons->isEmpty() || ! $exam || ! $hasValidQuestions) {
                 throw ValidationException::withMessages([
-                    'status' => ['Khóa học cần có bài học, bài kiểm tra và ít nhất 5 câu hỏi hợp lệ trước khi xuất bản.'],
+                    'status' => ['Khóa học cần có bài học, bài kiểm tra và ít nhất 100 câu hỏi hợp lệ trước khi xuất bản.'],
                 ]);
             }
         }

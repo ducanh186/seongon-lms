@@ -324,6 +324,35 @@ class ExamAttemptLifecycleTest extends TestCase
         $this->assertEqualsCanonicalizing($keptQuestionIds->all(), $attempt['question_ids']);
     }
 
+    public function test_retired_question_remains_visible_in_history_but_is_not_selected_for_new_attempts(): void
+    {
+        [$student, $course, $exam, $retiredQuestion] = $this->learningFixture();
+        $retiredQuestion->update(['status' => 'retired']);
+        $enrollment = Enrollment::query()->where('user_id', $student->id)->firstOrFail();
+        Attempt::query()->create([
+            'enrollment_id' => $enrollment->id,
+            'exam_id' => $exam->id,
+            'attempt_number' => 1,
+            'status' => 'submitted',
+            'started_at' => now()->subMinute(),
+            'finished_at' => now(),
+            'question_ids' => [$retiredQuestion->id],
+            'answers' => [],
+        ]);
+        $token = $student->createToken('test')->plainTextToken;
+
+        $this->withToken($token)->getJson("/api/v1/my/courses/{$course->id}/quiz")
+            ->assertOk()
+            ->assertJsonFragment(['id' => $retiredQuestion->id, 'content' => $retiredQuestion->content]);
+        $newAttempt = $this->withToken($token)
+            ->postJson("/api/v1/my/courses/{$course->id}/quiz/attempts/start")
+            ->assertOk()
+            ->json('attempt');
+
+        $this->assertCount(39, $newAttempt['question_ids']);
+        $this->assertNotContains($retiredQuestion->id, $newAttempt['question_ids']);
+    }
+
     /** @return array{User, Course, Exam, Question, Answer} */
     private function learningFixture(int $durationMinutes = 30): array
     {
