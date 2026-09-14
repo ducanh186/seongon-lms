@@ -211,15 +211,20 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
             {stats.monthly_enrollments.length === 0 ? (
               <Typography color="text.secondary" sx={{ mt: 3 }}>Chưa có dữ liệu ghi danh theo tháng.</Typography>
             ) : (
-              <Box role="img" aria-label="Biểu đồ ghi danh theo tháng" sx={{ display: 'grid', gridTemplateColumns: `repeat(${stats.monthly_enrollments.length}, minmax(0, 1fr))`, alignItems: 'end', gap: 0.5, minHeight: 190, mt: 2 }}>
-                {stats.monthly_enrollments.map((item) => (
-                  <Stack key={item.month} alignItems="center" justifyContent="flex-end" spacing={1} sx={{ position: 'relative', height: '100%' }}>
-                    <Typography variant="caption" fontWeight={800}>{item.total}</Typography>
-                    <Box sx={{ width: '64%', maxWidth: 34, minWidth: 16, height: `${Math.max(8, item.total / maxMonthly * 110)}px`, bgcolor: 'primary.main', borderRadius: '5px 5px 0 0' }} />
-                    <Typography variant="caption" color="text.secondary" sx={{ writingMode: 'horizontal-tb', whiteSpace: 'nowrap', fontSize: 11 }}>{formatMonth(item.month)}</Typography>
-                    <Box component="span" data-visually-hidden="true" sx={{ position: 'absolute', inset: 0, width: 1, maxWidth: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' }}>{item.month}: {item.total} lượt ghi danh</Box>
-                  </Stack>
-                ))}
+              <Box role="img" aria-label="Biểu đồ ghi danh theo tháng" sx={{ position: 'relative', minHeight: 220, mt: 2, pl: 5 }}>
+                {[1, 0.5, 0].map((ratio) => <Box key={ratio} sx={{ position: 'absolute', left: 36, right: 0, top: `${(1 - ratio) * 150 + 8}px`, borderTop: '1px solid', borderColor: 'divider' }}><Typography variant="caption" color="text.secondary" sx={{ position: 'absolute', right: '100%', top: -10, pr: 1, whiteSpace: 'nowrap' }}>{Math.round(maxMonthly * ratio)}</Typography></Box>)}
+                <Box sx={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: `repeat(${stats.monthly_enrollments.length}, minmax(0, 1fr))`, alignItems: 'end', gap: 0.5, height: 190 }}>
+                  {stats.monthly_enrollments.map((item) => (
+                    <Stack key={item.month} alignItems="center" justifyContent="flex-end" spacing={1} sx={{ position: 'relative', height: '100%' }}>
+                      <Typography variant="caption" fontWeight={800}>{item.total}</Typography>
+                      <Tooltip title={`${formatMonth(item.month)}: ${item.total} lượt ghi danh`} placement="top" arrow>
+                        <Box tabIndex={0} sx={{ width: '64%', maxWidth: 34, minWidth: 16, height: `${Math.max(8, item.total / maxMonthly * 110)}px`, bgcolor: 'primary.main', borderRadius: '5px 5px 0 0', '&:hover, &:focus-visible': { bgcolor: 'primary.dark', outline: '2px solid', outlineColor: 'primary.dark', outlineOffset: 2 } }} />
+                      </Tooltip>
+                      <Typography variant="caption" color="text.secondary" sx={{ writingMode: 'horizontal-tb', whiteSpace: 'nowrap', fontSize: 11 }}>{formatMonth(item.month)}</Typography>
+                      <Box component="span" data-visually-hidden="true" sx={{ position: 'absolute', inset: 0, width: 1, maxWidth: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' }}>{item.month}: {item.total} lượt ghi danh</Box>
+                    </Stack>
+                  ))}
+                </Box>
               </Box>
             )}
           </CardContent>

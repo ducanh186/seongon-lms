@@ -10,7 +10,7 @@ import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
 import RateReviewRoundedIcon from '@mui/icons-material/RateReviewRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
-import { Avatar, Box, Button, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
+import { Avatar, Box, Breadcrumbs, Button, IconButton, Link, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { resolveMaterialUrl } from '../lib/apiUrl';
@@ -21,6 +21,7 @@ export type { AdminSection } from '../admin/adminNavigation';
 interface AdminShellProps {
   active: AdminSection;
   onChange: (section: AdminSection) => void;
+  breadcrumbs?: Array<{ label: string; onClick?: () => void }>;
   children: ReactNode;
 }
 
@@ -45,7 +46,7 @@ function getNavigationIcon(section: AdminSection) {
   }
 }
 
-export function AdminShell({ active, onChange, children }: AdminShellProps) {
+export function AdminShell({ active, onChange, breadcrumbs = [], children }: AdminShellProps) {
   const { user, logout } = useAuth();
   const compactViewport = useMediaQuery('(max-width:1199.95px)');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(compactViewport);
@@ -151,6 +152,10 @@ export function AdminShell({ active, onChange, children }: AdminShellProps) {
         </Box>
 
         <Box component="main" aria-live="polite" sx={{ minWidth: 0, overflowX: 'hidden', p: { xs: 4, lg: 5 } }}>
+          {breadcrumbs.length > 0 && <Breadcrumbs aria-label="Đường dẫn quản trị" sx={{ mb: 2 }}>
+            {breadcrumbs.slice(0, -1).map((item) => <Link key={item.label} component="button" underline="hover" color="inherit" onClick={item.onClick} sx={{ font: 'inherit', border: 0, bgcolor: 'transparent', cursor: item.onClick ? 'pointer' : 'default', p: 0 }}>{item.label}</Link>)}
+            {breadcrumbs.length > 0 && <Typography color="text.primary" fontWeight={700}>{breadcrumbs[breadcrumbs.length - 1].label}</Typography>}
+          </Breadcrumbs>}
           {children}
         </Box>
       </Box>
