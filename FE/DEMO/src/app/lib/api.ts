@@ -209,8 +209,12 @@ export const api = {
 
   adminStats: (token: string, period?: DashboardPeriod) =>
     apiRequest<ApiAdminStats>(`/admin/dashboard/stats${queryString({ period: period && period !== 'all' ? period : undefined })}`, { token }),
-  downloadAdminReport: async (token: string, report: 'enrollments' | 'completion' | 'courses' | 'popular-courses' | 'revenue') => {
-    const response = await fetch(`${API_BASE_URL}/admin/reports/${report}/pdf`, {
+  downloadAdminReport: async (
+    token: string,
+    report: 'enrollments' | 'completion' | 'courses' | 'popular-courses' | 'revenue',
+    filters: { from_date: string; to_date: string },
+  ) => {
+    const response = await fetch(`${API_BASE_URL}/admin/reports/${report}/pdf${queryString(filters)}`, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/pdf' },
     });
 

@@ -7,6 +7,9 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -63,9 +66,10 @@ class ReportController extends Controller
         });
     }
 
-    public function enrollmentsPdf()
+    public function enrollmentsPdf(Request $request)
     {
-        $rows = Enrollment::query()
+        $range = $this->reportDateRange($request);
+        $rows = $this->withinReportRange(Enrollment::query(), 'enrolled_at', $range)
             ->with(['user:id,name,email', 'course:id,title'])
             ->orderBy('id')
             ->get()
@@ -82,9 +86,10 @@ class ReportController extends Controller
         return $this->pdf('BC-01', 'Báo cáo ghi danh', ['Mã', 'Học viên', 'Email', 'Khóa học', 'Ngày ghi danh', 'Hết hạn', 'Trạng thái'], $rows);
     }
 
-    public function completionPdf()
+    public function completionPdf(Request $request)
     {
-        $rows = Enrollment::query()
+        $range = $this->reportDateRange($request);
+        $rows = $this->withinReportRange(Enrollment::query(), 'enrolled_at', $range)
             ->with([
                 'user:id,name,email',
                 'certificate',
@@ -114,9 +119,10 @@ class ReportController extends Controller
         return $this->pdf('BC-02', 'Báo cáo hoàn thành & chứng chỉ', ['Mã ghi danh', 'Học viên', 'Khóa học', 'Bài học hoàn tất', 'Trạng thái', 'Mã chứng chỉ', 'Ngày cấp'], $rows);
     }
 
-    public function coursesPdf()
+    public function coursesPdf(Request $request)
     {
-        $rows = Course::query()
+        $range = $this->reportDateRange($request);
+        $rows = $this->withinReportRange(Course::query(), 'created_at', $range)
             ->with('category:id,name')
             ->withCount(['lessons', 'enrollments'])
             ->orderBy('id')
@@ -135,10 +141,20 @@ class ReportController extends Controller
         return $this->pdf('BC-03', 'Báo cáo xuất bản khóa học', ['Mã', 'Khóa học', 'Danh mục', 'Trạng thái', 'Bài học', 'Ghi danh', 'Giá', 'Ngày tạo'], $rows);
     }
 
-    public function popularCoursesPdf()
+    public function popularCoursesPdf(Request $request)
     {
-        $rows = Course::query()
-            ->withCount('enrollments')
+        $range = $this->reportDateRange($request);
+        $query = Course::query();
+        if ($range !== null) {
+            $enrollmentsInRange = fn (Builder $query): Builder => $this->withinReportRange($query, 'enrolled_at', $range);
+            $query
+                ->whereHas('enrollments', $enrollmentsInRange)
+                ->withCount(['enrollments' => $enrollmentsInRange]);
+        } else {
+            $query->withCount('enrollments');
+        }
+
+        $rows = $query
             ->orderByDesc('enrollments_count')
             ->orderBy('title')
             ->orderBy('id')
@@ -155,9 +171,10 @@ class ReportController extends Controller
         return $this->pdf('BC-04', 'Báo cáo khóa học phổ biến', ['Hạng', 'Khóa học', 'Trạng thái', 'Lượt ghi danh', 'Giá'], $rows);
     }
 
-    public function revenuePdf()
+    public function revenuePdf(Request $request)
     {
-        $rows = Order::query()
+        $range = $this->reportDateRange($request);
+        $rows = $this->withinReportRange(Order::query(), 'paid_at', $range)
             ->where('status', 'paid')
             ->with(['user:id,name,email', 'course:id,title'])
             ->orderBy('id')
@@ -188,7 +205,38 @@ class ReportController extends Controller
             'total' => $rows->count(),
         ])->setPaper('a4', 'landscape');
 
-        return $pdf->download($code.'.pdf');
+        return $pdf->download($code.'.pdf')
+            ->header('X-Report-Row-Count', (string) $rows->count());
+    }
+
+    /**
+     * @return array{from: CarbonImmutable, to: CarbonImmutable}|null
+     */
+    private function reportDateRange(Request $request): ?array
+    {
+        $filters = $request->validate([
+            'from_date' => ['required_with:to_date', 'date_format:Y-m-d'],
+            'to_date' => ['required_with:from_date', 'date_format:Y-m-d', 'after_or_equal:from_date'],
+        ]);
+
+        if (! isset($filters['from_date'], $filters['to_date'])) {
+            return null;
+        }
+
+        return [
+            'from' => CarbonImmutable::createFromFormat('Y-m-d', $filters['from_date'])->startOfDay(),
+            'to' => CarbonImmutable::createFromFormat('Y-m-d', $filters['to_date'])->endOfDay(),
+        ];
+    }
+
+    /**
+     * @param  array{from: CarbonImmutable, to: CarbonImmutable}|null  $range
+     */
+    private function withinReportRange(Builder $query, string $column, ?array $range): Builder
+    {
+        return $range === null
+            ? $query
+            : $query->whereBetween($column, [$range['from'], $range['to']]);
     }
 
     private function ensurePdfMemoryLimit(): void

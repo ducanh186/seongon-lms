@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Card, CardContent, LinearProgress, Menu, MenuItem, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Menu, MenuItem, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import type { ApiAdminStats } from '../lib/contracts';
 import { api } from '../lib/api';
@@ -14,6 +15,21 @@ const reportOptions: Array<{ report: AdminReport; label: string; filename: strin
   { report: 'revenue', label: 'Báo cáo doanh thu', filename: 'BC-05.pdf' },
 ];
 
+function formatDateInput(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function currentMonthRange() {
+  const today = new Date();
+  return {
+    from_date: formatDateInput(new Date(today.getFullYear(), today.getMonth(), 1)),
+    to_date: formatDateInput(today),
+  };
+}
+
 // Full year on purpose: `09/25` reads as a day/month date to reviewers.
 function formatMonth(value: string) {
   const [year, month] = value.split('-');
@@ -22,6 +38,9 @@ function formatMonth(value: string) {
 
 export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: string | null }) {
   const [reportAnchor, setReportAnchor] = useState<HTMLElement | null>(null);
+  const [selectedReport, setSelectedReport] = useState<(typeof reportOptions)[number] | null>(null);
+  const [dateRange, setDateRange] = useState(currentMonthRange);
+  const [dateError, setDateError] = useState('');
   const [downloadingReport, setDownloadingReport] = useState<AdminReport | null>(null);
   const [readyDownload, setReadyDownload] = useState<{ label: string; filename: string; url: string } | null>(null);
   const maxMonthly = Math.max(1, ...stats.monthly_enrollments.map((item) => item.total));
@@ -34,10 +53,19 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
 
   const downloadReport = async (option: (typeof reportOptions)[number]) => {
     if (!token || downloadingReport) return;
+    if (!dateRange.from_date || !dateRange.to_date) {
+      setDateError('Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc.');
+      return;
+    }
+    if (dateRange.to_date < dateRange.from_date) {
+      setDateError('Ngày kết thúc không được trước ngày bắt đầu.');
+      return;
+    }
 
+    setDateError('');
     setDownloadingReport(option.report);
     try {
-      const blob = await api.downloadAdminReport(token, option.report);
+      const blob = await api.downloadAdminReport(token, option.report, dateRange);
       const url = URL.createObjectURL(blob);
       setReadyDownload({ label: option.label, filename: option.filename, url });
       const link = document.createElement('a');
@@ -47,9 +75,19 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
       link.click();
       link.remove();
       setReportAnchor(null);
+      setSelectedReport(null);
+    } catch {
+      setDateError('Không thể tạo báo cáo. Vui lòng thử lại.');
     } finally {
       setDownloadingReport(null);
     }
+  };
+
+  const openDateFilter = (option: (typeof reportOptions)[number]) => {
+    setReportAnchor(null);
+    setSelectedReport(option);
+    setDateRange(currentMonthRange());
+    setDateError('');
   };
 
   useEffect(() => () => {
@@ -73,12 +111,63 @@ export function AdminOverview({ stats, token }: { stats: ApiAdminStats; token?: 
             <MenuItem
               key={option.report}
               disabled={!token || Boolean(downloadingReport)}
-              onClick={() => void downloadReport(option)}
+              onClick={() => openDateFilter(option)}
             >
               {downloadingReport === option.report ? 'Đang tạo báo cáo...' : option.label}
             </MenuItem>
           ))}
         </Menu>
+        <Dialog
+          open={Boolean(selectedReport)}
+          onClose={() => !downloadingReport && setSelectedReport(null)}
+          fullWidth
+          maxWidth="sm"
+          PaperProps={{ 'aria-label': 'Chọn thời gian báo cáo', sx: { borderRadius: 3 } }}
+        >
+          <DialogTitle sx={{ pb: 1 }}>
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Box sx={{ display: 'grid', placeItems: 'center', width: 40, height: 40, borderRadius: 2, color: 'primary.dark', bgcolor: 'rgba(0,137,148,.1)' }}>
+                <CalendarMonthRoundedIcon />
+              </Box>
+              <Typography component="span" variant="h6" fontWeight={800}>Chọn thời gian báo cáo</Typography>
+            </Stack>
+          </DialogTitle>
+          <DialogContent sx={{ pt: '16px !important' }}>
+            <Typography variant="subtitle2" fontWeight={750}>{selectedReport?.label}</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+              Báo cáo chỉ gồm dữ liệu phát sinh trong khoảng thời gian đã chọn.
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
+              <TextField
+                label="Từ ngày"
+                type="date"
+                value={dateRange.from_date}
+                onChange={(event) => setDateRange((range) => ({ ...range, from_date: event.target.value }))}
+                slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: dateRange.to_date } }}
+                fullWidth
+              />
+              <TextField
+                label="Đến ngày"
+                type="date"
+                value={dateRange.to_date}
+                onChange={(event) => setDateRange((range) => ({ ...range, to_date: event.target.value }))}
+                slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: dateRange.from_date } }}
+                fullWidth
+              />
+            </Box>
+            {dateError && <Typography role="alert" color="error" variant="body2" sx={{ mt: 1.5 }}>{dateError}</Typography>}
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button color="inherit" disabled={Boolean(downloadingReport)} onClick={() => setSelectedReport(null)}>Hủy</Button>
+            <Button
+              variant="contained"
+              disabled={!token || Boolean(downloadingReport)}
+              onClick={() => selectedReport && void downloadReport(selectedReport)}
+            >
+              {downloadingReport ? 'Đang tạo báo cáo...' : 'Xuất báo cáo'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
       <Box
         data-testid="admin-kpi-strip"

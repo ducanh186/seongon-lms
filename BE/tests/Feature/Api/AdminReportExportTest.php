@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\Course;
 use App\Models\Certificate;
+use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Order;
 use App\Models\User;
@@ -149,5 +149,53 @@ class AdminReportExportTest extends TestCase
 
         Carbon::setTestNow();
         $this->assertNotSame($first, $second);
+    }
+
+    public function test_pdf_reports_apply_an_inclusive_date_range(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->create();
+        $insideCourse = Course::factory()->create([
+            'created_at' => '2026-09-30 23:59:59',
+            'updated_at' => '2026-09-30 23:59:59',
+        ]);
+        $outsideCourse = Course::factory()->create([
+            'created_at' => '2026-10-01 00:00:00',
+            'updated_at' => '2026-10-01 00:00:00',
+        ]);
+
+        foreach ([
+            [$insideCourse, '2026-09-30 23:59:59'],
+            [$outsideCourse, '2026-10-01 00:00:00'],
+        ] as [$course, $date]) {
+            Enrollment::factory()->create([
+                'user_id' => $student->id,
+                'course_id' => $course->id,
+                'enrolled_at' => $date,
+            ]);
+            Order::factory()->create([
+                'user_id' => $student->id,
+                'course_id' => $course->id,
+                'status' => 'paid',
+                'paid_at' => $date,
+            ]);
+        }
+
+        foreach (['enrollments', 'completion', 'courses', 'popular-courses', 'revenue'] as $report) {
+            $this->actingAs($admin, 'sanctum')
+                ->get("/api/v1/admin/reports/{$report}/pdf?from_date=2026-09-01&to_date=2026-09-30")
+                ->assertOk()
+                ->assertHeader('X-Report-Row-Count', '1');
+        }
+    }
+
+    public function test_pdf_report_rejects_an_inverted_date_range(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin, 'sanctum')
+            ->getJson('/api/v1/admin/reports/enrollments/pdf?from_date=2026-09-30&to_date=2026-09-01')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('to_date');
     }
 }

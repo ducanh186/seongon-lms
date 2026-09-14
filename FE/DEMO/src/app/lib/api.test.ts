@@ -160,11 +160,14 @@ describe('apiRequest', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
 
-    const report = await api.downloadAdminReport('admin-token', 'popular-courses');
+    const report = await api.downloadAdminReport('admin-token', 'popular-courses', {
+      from_date: '2026-09-01',
+      to_date: '2026-09-30',
+    });
     const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '');
 
     expect(fetchMock).toHaveBeenCalledWith(
-      `${apiBaseUrl}/admin/reports/popular-courses/pdf`,
+      `${apiBaseUrl}/admin/reports/popular-courses/pdf?from_date=2026-09-01&to_date=2026-09-30`,
       { headers: { Authorization: 'Bearer admin-token', Accept: 'application/pdf' } },
     );
     expect(report).toBe(reportBlob);

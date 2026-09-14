@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ApiAdminStats } from '../lib/contracts';
 import { api } from '../lib/api';
 import { AdminOverview } from './AdminOverview';
@@ -29,6 +29,11 @@ const stats: ApiAdminStats = {
 };
 
 describe('AdminOverview', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
   it('offers one live PDF report per dashboard report from one dropdown', async () => {
     const user = userEvent.setup();
     render(<AdminOverview stats={stats} token="admin-token" />);
@@ -54,9 +59,51 @@ describe('AdminOverview', () => {
     await user.click(screen.getByRole('button', { name: 'Xuất báo cáo' }));
     await user.click(screen.getByRole('menuitem', { name: 'Báo cáo ghi danh' }));
 
+    const dialog = screen.getByRole('dialog', { name: 'Chọn thời gian báo cáo' });
+    expect(dialog).toHaveTextContent('Báo cáo ghi danh');
+    await user.clear(within(dialog).getByLabelText('Từ ngày'));
+    await user.type(within(dialog).getByLabelText('Từ ngày'), '2026-09-01');
+    await user.clear(within(dialog).getByLabelText('Đến ngày'));
+    await user.type(within(dialog).getByLabelText('Đến ngày'), '2026-09-30');
+    await user.click(within(dialog).getByRole('button', { name: 'Xuất báo cáo' }));
+
     expect(screen.queryByRole('link', { name: 'Tải báo cáo ghi danh' })).not.toBeInTheDocument();
     expect(clickSpy).toHaveBeenCalledOnce();
     clickSpy.mockRestore();
+  });
+
+  it('keeps the report dialog open when the end date is before the start date', async () => {
+    const user = userEvent.setup();
+    const downloadSpy = vi.spyOn(api, 'downloadAdminReport');
+
+    render(<AdminOverview stats={stats} token="admin-token" />);
+    await user.click(screen.getByRole('button', { name: 'Xuất báo cáo' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Báo cáo doanh thu' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Chọn thời gian báo cáo' });
+    await user.clear(within(dialog).getByLabelText('Từ ngày'));
+    await user.type(within(dialog).getByLabelText('Từ ngày'), '2026-09-30');
+    await user.clear(within(dialog).getByLabelText('Đến ngày'));
+    await user.type(within(dialog).getByLabelText('Đến ngày'), '2026-09-01');
+    await user.click(within(dialog).getByRole('button', { name: 'Xuất báo cáo' }));
+
+    expect(within(dialog).getByText('Ngày kết thúc không được trước ngày bắt đầu.')).toBeInTheDocument();
+    expect(downloadSpy).not.toHaveBeenCalled();
+  });
+
+  it('keeps the selected date range available when report generation fails', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(api, 'downloadAdminReport').mockRejectedValue(new Error('network unavailable'));
+
+    render(<AdminOverview stats={stats} token="admin-token" />);
+    await user.click(screen.getByRole('button', { name: 'Xuất báo cáo' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Báo cáo xuất bản khóa học' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Chọn thời gian báo cáo' });
+    await user.click(within(dialog).getByRole('button', { name: 'Xuất báo cáo' }));
+
+    expect(await within(dialog).findByText('Không thể tạo báo cáo. Vui lòng thử lại.')).toBeInTheDocument();
+    expect((within(dialog).getByLabelText('Từ ngày') as HTMLInputElement).value).toMatch(/^\d{4}-\d{2}-01$/);
   });
 
   it('renders API ranking and genuine ties without inventing extra courses or counts', () => {
