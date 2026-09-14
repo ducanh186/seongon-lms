@@ -1474,14 +1474,12 @@ export function AdminPage() {
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="space-between" alignItems={{ sm: 'center' }}>
                           <Box>
                             <Typography fontWeight={700}>Import ngân hàng câu hỏi CSV</Typography>
-                            <Typography variant="body2" color="text.secondary">Header: question, option_a, option_b, option_c, correct_answer. Cần ít nhất 100 câu; đáp án dùng A/B/C hoặc 1/2/3.</Typography>
                           </Box>
                           <Button component="label" variant="outlined" disabled={importingQuestionBank || selectedCourse.quiz.questions.length > 0} sx={{ whiteSpace: 'nowrap' }}>
                             {importingQuestionBank ? 'Đang import' : 'Chọn file CSV'}
                             <input hidden type="file" accept=".csv,text/csv" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importQuestionBank(file); }} />
                           </Button>
                         </Stack>
-                        {selectedCourse.quiz.questions.length > 0 && <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>CSV chỉ import vào bài kiểm tra chưa có câu hỏi.</Typography>}
                       </Box>
                       <Stack direction="row" spacing={1} flexWrap="wrap">{selectedCourse.quiz.questions.map((question) => <Button key={question.id} size="small" variant={question.id === editingQuestionId ? 'contained' : 'outlined'} onClick={() => chooseQuestion(question)}>Câu hỏi {question.id}</Button>)}</Stack>
                       <Typography variant="body2" color="text.secondary">Hoặc nhập thủ công một câu với đúng 3 phương án.</Typography>
