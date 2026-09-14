@@ -240,6 +240,36 @@ describe('AdminPage', () => {
     expect(screen.getByRole('button', { name: 'Lưu danh mục' })).toBeInTheDocument();
   });
 
+  it('shows an inline error when an empty course category is submitted', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Danh mục', exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Lưu danh mục' }));
+
+    expect(await screen.findByText('Vui lòng nhập tên danh mục.')).toBeInTheDocument();
+    expect(screen.getByText('Vui lòng điền đầy đủ các trường bắt buộc.')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Tên danh mục' })).toHaveAttribute('aria-invalid', 'true');
+    expect(createCatalog).not.toHaveBeenCalled();
+  });
+
+  it('shows inline errors when an empty news article is submitted', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Tin tức', exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Tạo tin tức mới' }));
+    await user.click(screen.getByRole('button', { name: 'Lưu tin tức' }));
+
+    expect(await screen.findByText('Vui lòng nhập tiêu đề tin tức.')).toBeInTheDocument();
+    expect(screen.getByText('Vui lòng nhập danh mục tin tức.')).toBeInTheDocument();
+    expect(screen.getByText('Vui lòng nhập tóm tắt tin tức.')).toBeInTheDocument();
+    expect(screen.getByText('Vui lòng nhập nội dung tin tức.')).toBeInTheDocument();
+    expect(saveNews).not.toHaveBeenCalled();
+  });
+
   it('uses sentence case for the categories page heading', async () => {
     mockAdminData();
     render(<AdminPage />);
@@ -275,6 +305,22 @@ describe('AdminPage', () => {
     await user.click(screen.getByRole('button', { name: 'Lưu nháp' }));
 
     await waitFor(() => expect(saveCourse).toHaveBeenCalledWith('admin-token', expect.objectContaining({ price: 450000 }), undefined));
+  });
+
+  it('shows inline errors and focuses the first required course field on empty submit', async () => {
+    mockAdminData();
+    render(<AdminPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Khóa học', exact: true }));
+    await user.click(screen.getByRole('button', { name: 'Tạo khóa học mới' }));
+    await user.click(screen.getByRole('button', { name: 'Lưu nháp' }));
+    expect(await screen.findByText('Vui lòng chọn ít nhất một danh mục.')).toBeInTheDocument();
+    expect(screen.getByText('Vui lòng nhập tiêu đề khóa học.')).toBeInTheDocument();
+    expect(screen.getByText('Vui lòng điền đầy đủ các trường bắt buộc.')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Danh mục' })).toHaveAttribute('aria-invalid', 'true');
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Danh mục' })).toHaveFocus());
+    expect(saveCourse).not.toHaveBeenCalled();
   });
 
   it('selects a managed instructor when saving a Course', async () => {

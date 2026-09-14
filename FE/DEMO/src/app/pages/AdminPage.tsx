@@ -11,6 +11,7 @@ import {
   Divider,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   IconButton,
   InputLabel,
   InputAdornment,
@@ -20,6 +21,7 @@ import {
   Radio,
   RadioGroup,
   Select,
+  Snackbar,
   Stack,
   Switch,
   Step,
@@ -64,6 +66,12 @@ type CourseDraft = {
   status: 'draft' | 'published';
   anti_cheat_enabled: boolean;
 };
+
+type CourseFormField = 'category' | 'title' | 'price';
+type CourseFormErrors = Partial<Record<CourseFormField, string>>;
+type CategoryFormErrors = { name?: string };
+type NewsFormField = 'title' | 'category' | 'excerpt' | 'content';
+type NewsFormErrors = Partial<Record<NewsFormField, string>>;
 
 type LessonDraft = {
   title: string;
@@ -265,6 +273,7 @@ export function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [formValidationNotice, setFormValidationNotice] = useState<string | null>(null);
 
   const [userQuery, setUserQuery] = useState('');
   const [userStatus, setUserStatus] = useState('');
@@ -283,9 +292,11 @@ export function AdminPage() {
   const [editingCategory, setEditingCategory] = useState<ApiCategory | null>(null);
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
+  const [categoryFormErrors, setCategoryFormErrors] = useState<CategoryFormErrors>({});
   const [editingCourse, setEditingCourse] = useState<ApiCourse | null>(null);
   const [courseCategoryIds, setCourseCategoryIds] = useState<number[]>([]);
   const [courseForm, setCourseForm] = useState<CourseDraft>(blankCourse);
+  const [courseFormErrors, setCourseFormErrors] = useState<CourseFormErrors>({});
   const [uploadingCourseImage, setUploadingCourseImage] = useState(false);
   const [isCourseEditorOpen, setIsCourseEditorOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<ApiAdminCourse | null>(null);
@@ -307,6 +318,7 @@ export function AdminPage() {
   const [editingNews, setEditingNews] = useState<ApiNewsPost | null>(null);
   const [isNewsEditorOpen, setIsNewsEditorOpen] = useState(false);
   const [newsForm, setNewsForm] = useState<NewsDraft>(blankNews);
+  const [newsFormErrors, setNewsFormErrors] = useState<NewsFormErrors>({});
   const [pendingConfirmation, setPendingConfirmation] = useState<PendingConfirmation | null>(null);
   const [detailUser, setDetailUser] = useState<ApiUser | null>(null);
   const [userMenu, setUserMenu] = useState<{ anchor: HTMLElement; user: ApiUser } | null>(null);
@@ -319,6 +331,9 @@ export function AdminPage() {
   const [statusReason, setStatusReason] = useState('');
   const loadRequestId = useRef(0);
   const loadedKeyBySection = useRef<Partial<Record<AdminSection, string>>>({});
+  const courseCategoryFieldRef = useRef<HTMLDivElement>(null);
+  const courseTitleFieldRef = useRef<HTMLInputElement>(null);
+  const coursePriceFieldRef = useRef<HTMLInputElement>(null);
 
   const cacheKeyFor = useCallback((section: AdminSection) => {
     switch (section) {
@@ -596,22 +611,98 @@ export function AdminPage() {
     }
   };
 
+  const resetCategoryForm = () => {
+    setEditingCategory(null);
+    setCategoryName('');
+    setCategoryDescription('');
+    setCategoryFormErrors({});
+    setFormValidationNotice(null);
+  };
+
+  const validateCategoryForm = (): boolean => {
+    if (categoryName.trim()) {
+      setCategoryFormErrors({});
+      return true;
+    }
+    setCategoryFormErrors({ name: 'Vui lòng nhập tên danh mục.' });
+    setFormValidationNotice('Vui lòng điền đầy đủ các trường bắt buộc.');
+    window.setTimeout(() => {
+      const target = document.getElementById('course-category-name');
+      if (target) {
+        if (typeof target.scrollIntoView === 'function') target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.focus();
+      }
+    }, 0);
+    return false;
+  };
+
   const submitCategory = (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!validateCategoryForm() || !token) return;
     const body = { name: categoryName, description: categoryDescription || undefined };
     void runMutation(
       () => editingCategory ? adminRepositories.categories.update(token, editingCategory.id, body) : adminRepositories.categories.create(token, body),
       editingCategory ? 'Đã cập nhật danh mục.' : 'Đã tạo danh mục.',
-    ).then(() => {
-      setEditingCategory(null);
-      setCategoryName('');
-      setCategoryDescription('');
+    ).then((didSucceed) => {
+      if (didSucceed) resetCategoryForm();
     });
   };
 
+  const getCourseFieldError = (field: CourseFormField): string | undefined => {
+    if (field === 'category' && courseCategoryIds.length === 0) return 'Vui lòng chọn ít nhất một danh mục.';
+    if (field === 'title' && !courseForm.title.trim()) return 'Vui lòng nhập tiêu đề khóa học.';
+    if (field === 'price' && !courseForm.price.trim()) return 'Vui lòng nhập giá khóa học.';
+    return undefined;
+  };
+
+  const validateCourseField = (field: CourseFormField): boolean => {
+    const message = getCourseFieldError(field);
+    setCourseFormErrors((current) => ({ ...current, [field]: message }));
+    return !message;
+  };
+
+  const clearCourseFieldError = (field: CourseFormField) => {
+    setCourseFormErrors((current) => {
+      if (!current[field]) return current;
+      const { [field]: _removed, ...remaining } = current;
+      return remaining;
+    });
+  };
+
+  const resetCourseFormErrors = () => {
+    setCourseFormErrors({});
+    setFormValidationNotice(null);
+  };
+
+  const focusInvalidCourseField = (field: CourseFormField) => {
+    const target = field === 'category'
+      ? courseCategoryFieldRef.current?.querySelector<HTMLElement>('[role="combobox"]')
+      : field === 'title' ? courseTitleFieldRef.current : coursePriceFieldRef.current;
+    if (!target) return;
+    if (typeof target.scrollIntoView === 'function') {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    target.focus();
+  };
+
+  const validateCourseForm = (): boolean => {
+    const fields: CourseFormField[] = ['category', 'title', 'price'];
+    const nextErrors = fields.reduce<CourseFormErrors>((errors, field) => {
+      const message = getCourseFieldError(field);
+      if (message) errors[field] = message;
+      return errors;
+    }, {});
+    setCourseFormErrors(nextErrors);
+    const firstInvalidField = fields.find((field) => nextErrors[field]);
+    if (!firstInvalidField) return true;
+
+    setFormValidationNotice('Vui lòng điền đầy đủ các trường bắt buộc.');
+    window.setTimeout(() => focusInvalidCourseField(firstInvalidField), 0);
+    return false;
+  };
+
   const saveCourseBasics = async (advanceToLessons = false): Promise<boolean> => {
-    if (!token || courseCategoryIds.length === 0) return false;
+    if (!validateCourseForm() || !token) return false;
     const body = {
       ...courseForm,
       category_ids: courseCategoryIds,
@@ -660,6 +751,7 @@ export function AdminPage() {
   };
 
   const beginCourseEdit = (course: ApiCourse) => {
+    resetCourseFormErrors();
     setEditingCourse(course);
     setCourseCategoryIds(course.categories?.map((category) => category.id) ?? [course.category_id]);
     setCourseForm(courseDraftFrom(course));
@@ -668,9 +760,55 @@ export function AdminPage() {
     setTab('courses');
   };
 
+  const getNewsFieldError = (field: NewsFormField): string | undefined => {
+    if (field === 'title' && !newsForm.title.trim()) return 'Vui lòng nhập tiêu đề tin tức.';
+    if (field === 'category' && !newsForm.category.trim()) return 'Vui lòng nhập danh mục tin tức.';
+    if (field === 'excerpt' && !newsForm.excerpt.trim()) return 'Vui lòng nhập tóm tắt tin tức.';
+    if (field === 'content' && !newsForm.content.replace(/<[^>]*>/g, '').trim()) return 'Vui lòng nhập nội dung tin tức.';
+    return undefined;
+  };
+
+  const validateNewsForm = (): boolean => {
+    const fields: NewsFormField[] = ['title', 'category', 'excerpt', 'content'];
+    const nextErrors = fields.reduce<NewsFormErrors>((errors, field) => {
+      const message = getNewsFieldError(field);
+      if (message) errors[field] = message;
+      return errors;
+    }, {});
+    setNewsFormErrors(nextErrors);
+    const firstInvalidField = fields.find((field) => nextErrors[field]);
+    if (!firstInvalidField) return true;
+
+    setFormValidationNotice('Vui lòng điền đầy đủ các trường bắt buộc.');
+    window.setTimeout(() => {
+      const targetId = firstInvalidField === 'content' ? 'news-content' : `news-${firstInvalidField}`;
+      const target = document.getElementById(targetId);
+      if (target) {
+        if (typeof target.scrollIntoView === 'function') target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.focus();
+      }
+    }, 0);
+    return false;
+  };
+
+  const clearNewsFieldError = (field: NewsFormField) => {
+    setNewsFormErrors((current) => {
+      if (!current[field]) return current;
+      const { [field]: _removed, ...remaining } = current;
+      return remaining;
+    });
+  };
+
+  const resetNewsForm = () => {
+    setEditingNews(null);
+    setNewsForm(blankNews);
+    setNewsFormErrors({});
+    setFormValidationNotice(null);
+  };
+
   const submitNews = (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!validateNewsForm() || !token) return;
     const body = {
       ...newsForm,
       thumbnail: newsForm.thumbnail || null,
@@ -680,13 +818,14 @@ export function AdminPage() {
       editingNews ? 'Đã cập nhật tin tức.' : 'Đã tạo tin tức.',
     ).then((didSucceed) => {
       if (!didSucceed) return;
-      setEditingNews(null);
+      resetNewsForm();
       setIsNewsEditorOpen(false);
-      setNewsForm(blankNews);
     });
   };
 
   const beginNewsEdit = (newsPost: ApiNewsPost) => {
+    setNewsFormErrors({});
+    setFormValidationNotice(null);
     setEditingNews(newsPost);
     setNewsForm(newsDraftFrom(newsPost));
     setIsNewsEditorOpen(true);
@@ -930,7 +1069,7 @@ export function AdminPage() {
     : instructors.find((candidate) => candidate.id === courseForm.teacher_profile_id) ?? null;
 
   const courseBasicEditor = (
-    <Card component="form" onSubmit={submitCourse} sx={{ borderRadius: 3 }}>
+    <Card component="form" noValidate onSubmit={submitCourse} sx={{ borderRadius: 3 }}>
       <CardContent>
         <Stack spacing={2}>
           <Box>
@@ -939,13 +1078,42 @@ export function AdminPage() {
               {editingCourse ? 'Thông tin hiện có đã được điền sẵn. Thay đổi chỉ được lưu khi bạn bấm nút lưu.' : 'Khóa học mới bắt đầu với dữ liệu trống và trạng thái bản nháp.'}
             </Typography>
           </Box>
-          <FormControl required>
+          <FormControl ref={courseCategoryFieldRef} required error={Boolean(courseFormErrors.category)}>
             <InputLabel id="course-category">Danh mục</InputLabel>
-            <Select multiple labelId="course-category" label="Danh mục" value={courseCategoryIds} onChange={(event) => { const value = event.target.value; setCourseCategoryIds(typeof value === 'string' ? value.split(',').map(Number) : value); }} renderValue={(selected) => selected.map((id) => categories.find((category) => category.id === id)?.name ?? id).join(', ')}>
+            <Select
+              multiple
+              labelId="course-category"
+              label="Danh mục"
+              value={courseCategoryIds}
+              error={Boolean(courseFormErrors.category)}
+              aria-invalid={Boolean(courseFormErrors.category)}
+              onChange={(event) => {
+                const value = event.target.value;
+                const nextIds = typeof value === 'string' ? value.split(',').map(Number) : value;
+                setCourseCategoryIds(nextIds);
+                if (nextIds.length > 0) clearCourseFieldError('category');
+              }}
+              onBlur={() => validateCourseField('category')}
+              renderValue={(selected) => selected.map((id) => categories.find((category) => category.id === id)?.name ?? id).join(', ')}
+            >
               {categories.map((category) => <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>)}
             </Select>
+            {courseFormErrors.category && <FormHelperText>{courseFormErrors.category}</FormHelperText>}
           </FormControl>
-          <TextField required label="Tiêu đề khóa học" value={courseForm.title} onChange={(event) => setCourseForm({ ...courseForm, title: event.target.value })} />
+          <TextField
+            required
+            inputRef={courseTitleFieldRef}
+            label="Tiêu đề khóa học"
+            value={courseForm.title}
+            error={Boolean(courseFormErrors.title)}
+            helperText={courseFormErrors.title}
+            onChange={(event) => {
+              const value = event.target.value;
+              setCourseForm({ ...courseForm, title: value });
+              if (value.trim()) clearCourseFieldError('title');
+            }}
+            onBlur={() => validateCourseField('title')}
+          />
           <TextField label="Mô tả" multiline minRows={4} value={courseForm.description} onChange={(event) => setCourseForm({ ...courseForm, description: event.target.value })} />
           <Box sx={{ p: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 2 }}>
             <Typography fontWeight={700}>Ảnh thumbnail</Typography>
@@ -959,9 +1127,17 @@ export function AdminPage() {
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
             <TextField
               required
+              inputRef={coursePriceFieldRef}
               label="Giá"
               value={formatCoursePrice(courseForm.price)}
-              onChange={(event) => setCourseForm({ ...courseForm, price: event.target.value.replace(/\D/g, '') })}
+              error={Boolean(courseFormErrors.price)}
+              helperText={courseFormErrors.price}
+              onChange={(event) => {
+                const value = event.target.value.replace(/\D/g, '');
+                setCourseForm({ ...courseForm, price: value });
+                if (value.trim()) clearCourseFieldError('price');
+              }}
+              onBlur={() => validateCourseField('price')}
               slotProps={{ htmlInput: { inputMode: 'numeric' }, input: { endAdornment: <InputAdornment position="end">đ</InputAdornment> } }}
             />
             <FormControl>
@@ -1001,7 +1177,7 @@ export function AdminPage() {
           />
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between">
             <Box>
-              {!selectedCourse && <Button onClick={() => { setEditingCourse(null); setCourseCategoryIds([]); setCourseForm(blankCourse); setIsCourseEditorOpen(false); }}>Hủy</Button>}
+              {!selectedCourse && <Button onClick={() => { resetCourseFormErrors(); setEditingCourse(null); setCourseCategoryIds([]); setCourseForm(blankCourse); setIsCourseEditorOpen(false); }}>Hủy</Button>}
             </Box>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
               <Button type="submit">Lưu nháp</Button>
@@ -1024,6 +1200,16 @@ export function AdminPage() {
           <AdminSectionHeader title={adminSectionCopy[tab].title} description={adminSectionCopy[tab].description} />
           {notice && <Alert severity="success" onClose={() => setNotice(null)}>{notice}</Alert>}
           {error && <RequestError message={error} onRetry={() => void load(tab, true)} />}
+          <Snackbar
+            open={Boolean(formValidationNotice)}
+            autoHideDuration={5000}
+            onClose={() => setFormValidationNotice(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          >
+            <Alert severity="error" variant="filled" onClose={() => setFormValidationNotice(null)}>
+              {formValidationNotice}
+            </Alert>
+          </Snackbar>
           <Stack spacing={3} sx={{ minWidth: 0 }}>
 
           {token && isErdReadSection(tab) && (
@@ -1268,7 +1454,7 @@ export function AdminPage() {
               <Tab id="instructor-categories-tab" aria-controls="instructor-categories-panel" value="instructors" label="Người biên soạn chương trình học" />
             </Tabs>
             {categoryTab === 'courses' && <Box role="tabpanel" id="course-categories-panel" aria-labelledby="course-categories-tab" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(260px, .6fr) 1fr' }, gap: 3 }}>
-            <Card component="form" onSubmit={submitCategory} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingCategory ? 'Sửa danh mục' : 'Tạo danh mục'}</Typography><TextField required label="Tên danh mục" value={categoryName} onChange={(event) => setCategoryName(event.target.value)} /><TextField label="Mô tả" multiline minRows={3} value={categoryDescription} onChange={(event) => setCategoryDescription(event.target.value)} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingCategory ? 'Cập nhật' : 'Lưu danh mục'}</Button>{editingCategory && <Button onClick={() => { setEditingCategory(null); setCategoryName(''); setCategoryDescription(''); }}>Hủy</Button>}</Stack></Stack></CardContent></Card>
+            <Card component="form" noValidate onSubmit={submitCategory} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>{editingCategory ? 'Sửa danh mục' : 'Tạo danh mục'}</Typography><TextField id="course-category-name" required label="Tên danh mục" value={categoryName} error={Boolean(categoryFormErrors.name)} helperText={categoryFormErrors.name} aria-invalid={Boolean(categoryFormErrors.name)} onChange={(event) => { const value = event.target.value; setCategoryName(value); if (value.trim()) setCategoryFormErrors({}); }} onBlur={validateCategoryForm} /><TextField label="Mô tả" multiline minRows={3} value={categoryDescription} onChange={(event) => setCategoryDescription(event.target.value)} /><Stack direction="row" spacing={1}><Button type="submit" variant="contained">{editingCategory ? 'Cập nhật' : 'Lưu danh mục'}</Button>{editingCategory && <Button onClick={resetCategoryForm}>Hủy</Button>}</Stack></Stack></CardContent></Card>
             <Card sx={{ borderRadius: 3 }}><CardContent><Stack divider={<Divider flexItem />}>{categories.map((category) => <Stack key={category.id} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ py: 1.25 }}><Box sx={{ flexGrow: 1 }}><Typography fontWeight={700}>{category.name}</Typography><Typography variant="body2" color="text.secondary">{category.description || 'Chưa có mô tả'}</Typography></Box><Button size="small" onClick={() => { setEditingCategory(category); setCategoryName(category.name); setCategoryDescription(category.description ?? ''); }}>Sửa</Button><Button color="error" size="small" onClick={() => token && requestConfirmation('Xóa danh mục', category.name, () => adminRepositories.categories.remove(token, category.id), 'Đã xóa danh mục.')}>Xóa</Button></Stack>)}{categories.length === 0 && <EmptyState title="Chưa có danh mục." />}</Stack></CardContent></Card>
             </Box>}
             {categoryTab === 'news' && token && <Box role="tabpanel" id="news-categories-panel" aria-labelledby="news-categories-tab"><NewsCatalogManager token={token} /></Box>}
@@ -1286,7 +1472,7 @@ export function AdminPage() {
               <Stack spacing={2} sx={{ p: 2.5, bgcolor: '#F8FBFC', borderBottom: '1px solid', borderColor: 'divider' }}>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
                   <Typography component="h2" variant="h6" fontWeight={800} sx={{ flexGrow: 1 }}>Danh sách khóa học</Typography>
-                  <Button variant="contained" onClick={() => { setEditingCourse(null); setSelectedCourse(null); setCourseCategoryIds([]); setCourseForm(blankCourse); setCourseStep(0); setIsCourseEditorOpen(true); }} sx={{ whiteSpace: 'nowrap', minWidth: 164 }}>Tạo khóa học mới</Button>
+                  <Button variant="contained" onClick={() => { resetCourseFormErrors(); setEditingCourse(null); setSelectedCourse(null); setCourseCategoryIds([]); setCourseForm(blankCourse); setCourseStep(0); setIsCourseEditorOpen(true); }} sx={{ whiteSpace: 'nowrap', minWidth: 164 }}>Tạo khóa học mới</Button>
                 </Stack>
                 <AdminFilterToolbar label="Bộ lọc khóa học" action={<Button variant="contained" onClick={() => setAppliedCourseFilters({ ...courseFilters, page: 1 })}>Áp dụng</Button>}>
                   <FormControl fullWidth><InputLabel id="course-category-filter">Lọc danh mục</InputLabel><Select labelId="course-category-filter" label="Lọc danh mục" value={courseFilters.categoryId} onChange={(event) => setCourseFilters((current) => ({ ...current, categoryId: event.target.value }))}><MenuItem value="">Tất cả</MenuItem>{categories.map((category) => <MenuItem key={category.id} value={String(category.id)}>{category.name}</MenuItem>)}</Select></FormControl>
@@ -1521,7 +1707,7 @@ export function AdminPage() {
                 <Stack spacing={2} sx={{ p: 2.5, bgcolor: '#F8FBFC', borderBottom: '1px solid', borderColor: 'divider' }}>
                   <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
                     <Typography component="h2" variant="h6" fontWeight={800}>Danh sách tin tức</Typography>
-                    <Button variant="contained" onClick={() => { setEditingNews(null); setNewsForm(blankNews); setIsNewsEditorOpen(true); }} sx={{ whiteSpace: 'nowrap', minWidth: 164 }}>Tạo tin tức mới</Button>
+                    <Button variant="contained" onClick={() => { resetNewsForm(); setIsNewsEditorOpen(true); }} sx={{ whiteSpace: 'nowrap', minWidth: 164 }}>Tạo tin tức mới</Button>
                   </Stack>
                   <AdminFilterToolbar label="Bộ lọc tin tức" action={<Button variant="contained" onClick={applyNewsFilters}>Áp dụng</Button>}>
               <TextField label="Tìm tin tức" value={newsQuery} onChange={(event) => setNewsQuery(event.target.value)} fullWidth />
@@ -1589,19 +1775,20 @@ export function AdminPage() {
               <MenuItem sx={{ color: 'error.main' }} onClick={() => { if (!newsMenu) return; const post = newsMenu.newsPost; setNewsMenu(null); if (token) requestConfirmation('Xóa tin tức', post.title, () => adminRepositories.news.remove(token, post.id), 'Đã xóa tin tức.'); }}>Xóa</MenuItem>
             </Menu>
             {!isNewsEditorOpen && news && news.meta.last_page > 1 && <Pagination count={news.meta.last_page} page={appliedNewsFilters.page} onChange={(_, page) => setAppliedNewsFilters((filters) => ({ ...filters, page }))} color="primary" sx={{ alignSelf: 'center' }} />}
-            {isNewsEditorOpen && <Card component="form" onSubmit={submitNews} sx={{ borderRadius: 3 }}>
+            {isNewsEditorOpen && <Card component="form" noValidate onSubmit={submitNews} sx={{ borderRadius: 3 }}>
               <CardContent>
                 <Stack spacing={2}>
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
                     <Typography component="h2" variant="h6" fontWeight={800} sx={{ flexGrow: 1 }}>{editingNews ? 'Sửa tin tức' : 'Tạo tin tức'}</Typography>
-                    <Button onClick={() => { setEditingNews(null); setNewsForm(blankNews); setIsNewsEditorOpen(false); }}>Quay lại danh sách</Button>
+                    <Button onClick={() => { resetNewsForm(); setIsNewsEditorOpen(false); }}>Quay lại danh sách</Button>
                   </Stack>
-                  <TextField id="news-title" required label="Tiêu đề" value={newsForm.title} onChange={(event) => setNewsForm({ ...newsForm, title: event.target.value })} />
-                  <TextField id="news-category" required label="Danh mục" value={newsForm.category} onChange={(event) => setNewsForm({ ...newsForm, category: event.target.value })} />
-                  <TextField id="news-excerpt" required label="Tóm tắt" multiline minRows={2} value={newsForm.excerpt} onChange={(event) => setNewsForm({ ...newsForm, excerpt: event.target.value })} />
-                  <Box>
+                  <TextField id="news-title" required label="Tiêu đề" value={newsForm.title} error={Boolean(newsFormErrors.title)} helperText={newsFormErrors.title} aria-invalid={Boolean(newsFormErrors.title)} onChange={(event) => { const value = event.target.value; setNewsForm({ ...newsForm, title: value }); if (value.trim()) clearNewsFieldError('title'); }} onBlur={() => { const message = getNewsFieldError('title'); setNewsFormErrors((current) => ({ ...current, title: message })); }} />
+                  <TextField id="news-category" required label="Danh mục" value={newsForm.category} error={Boolean(newsFormErrors.category)} helperText={newsFormErrors.category} aria-invalid={Boolean(newsFormErrors.category)} onChange={(event) => { const value = event.target.value; setNewsForm({ ...newsForm, category: value }); if (value.trim()) clearNewsFieldError('category'); }} onBlur={() => { const message = getNewsFieldError('category'); setNewsFormErrors((current) => ({ ...current, category: message })); }} />
+                  <TextField id="news-excerpt" required label="Tóm tắt" multiline minRows={2} value={newsForm.excerpt} error={Boolean(newsFormErrors.excerpt)} helperText={newsFormErrors.excerpt} aria-invalid={Boolean(newsFormErrors.excerpt)} onChange={(event) => { const value = event.target.value; setNewsForm({ ...newsForm, excerpt: value }); if (value.trim()) clearNewsFieldError('excerpt'); }} onBlur={() => { const message = getNewsFieldError('excerpt'); setNewsFormErrors((current) => ({ ...current, excerpt: message })); }} />
+                  <Box id="news-content" aria-invalid={Boolean(newsFormErrors.content)}>
                     <Typography component="label" htmlFor="news-content" variant="body2" fontWeight={700} sx={{ display: 'block', mb: 0.75 }}>Nội dung *</Typography>
-                    <RichTextEditor value={newsForm.content} onChange={(content) => setNewsForm({ ...newsForm, content })} onUploadImage={uploadNewsImage} />
+                    <RichTextEditor value={newsForm.content} onChange={(content) => { setNewsForm({ ...newsForm, content }); if (content.replace(/<[^>]*>/g, '').trim()) clearNewsFieldError('content'); }} onUploadImage={uploadNewsImage} />
+                    {newsFormErrors.content && <FormHelperText error>{newsFormErrors.content}</FormHelperText>}
                   </Box>
                   <Stack spacing={1}>
                     <TextField id="news-thumbnail" label="Ảnh thumbnail URL (tuỳ chọn)" value={newsForm.thumbnail} onChange={(event) => setNewsForm({ ...newsForm, thumbnail: event.target.value })} />
@@ -1620,7 +1807,7 @@ export function AdminPage() {
                   </FormControl>
                   <Stack direction="row" spacing={1}>
                     <Button type="submit" variant="contained">Lưu tin tức</Button>
-                    <Button onClick={() => { setEditingNews(null); setNewsForm(blankNews); setIsNewsEditorOpen(false); }}>Hủy</Button>
+                    <Button onClick={() => { resetNewsForm(); setIsNewsEditorOpen(false); }}>Hủy</Button>
                   </Stack>
                 </Stack>
               </CardContent>
