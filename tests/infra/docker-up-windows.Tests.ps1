@@ -75,7 +75,7 @@ Describe 'Docker Desktop Windows launcher contract' {
 
         $envExample | Should Match '(?m)^HTTP_PORT=5173$'
         $envExample | Should Match '(?m)^APP_URL=http://localhost:5173$'
-        $compose | Should Match '\$\{HTTP_PORT:-5173\}:80'
+        $compose | Should Match '127\.0\.0\.1:\$\{HTTP_PORT:-5173\}:80'
         $script | Should Match 'Stop-PortProcess'
         $script | Should Match 'Get-NetTCPConnection'
         $script | Should Match 'Stop-Process'
