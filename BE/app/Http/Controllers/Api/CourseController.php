@@ -70,7 +70,7 @@ class CourseController extends Controller
                 'price_asc' => $query->orderBy('price'),
                 'price_desc' => $query->orderByDesc('price'),
                 'oldest' => $query->orderBy('created_at'),
-                'popular' => $query->orderByDesc('reviews_count'),
+                'popular' => $query->orderByDesc('enrollments_count'),
                 default => $query->orderByDesc('created_at'),
             };
         }

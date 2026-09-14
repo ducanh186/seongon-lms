@@ -32,6 +32,20 @@ class PublicCourseContractTest extends TestCase
             ->assertJsonPath('data.enrollment', null);
     }
 
+    public function test_popular_courses_are_sorted_by_enrollment_count(): void
+    {
+        $popular = Course::factory()->create(['status' => 'published', 'title' => 'Popular by enrollment']);
+        $reviewed = Course::factory()->create(['status' => 'published', 'title' => 'Popular by review']);
+
+        Enrollment::factory()->count(3)->create(['course_id' => $popular->id]);
+        Enrollment::factory()->create(['course_id' => $reviewed->id]);
+        Review::factory()->count(5)->create(['course_id' => $reviewed->id]);
+
+        $this->getJson('/api/v1/courses?sort=popular')->assertOk()
+            ->assertJsonPath('data.0.id', $popular->id)
+            ->assertJsonPath('data.0.enrollments_count', 3);
+    }
+
     public function test_course_detail_reports_the_caller_enrollment_when_a_student_token_is_sent(): void
     {
         $student = User::factory()->create();
