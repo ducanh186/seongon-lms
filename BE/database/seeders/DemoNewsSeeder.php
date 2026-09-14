@@ -3,10 +3,18 @@
 namespace Database\Seeders;
 
 use App\Models\NewsPost;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use RuntimeException;
 
 class DemoNewsSeeder extends Seeder
 {
+    private const AUTHOR_EMAILS = [
+        'admin@seongon.vn',
+        'admin2@demo.seongon.vn',
+        'admin3@demo.seongon.vn',
+    ];
+
     private const POSTS = [
         [
             'slug' => 'ai-seo-va-cach-tim-kiem-dang-thay-doi',
@@ -76,11 +84,31 @@ class DemoNewsSeeder extends Seeder
 
     public function run(): void
     {
+        $authorIds = User::query()
+            ->where('role', 'admin')
+            ->whereIn('email', self::AUTHOR_EMAILS)
+            ->orderBy('id')
+            ->pluck('id')
+            ->values();
+
+        if ($authorIds->isEmpty()) {
+            $authorIds = User::query()
+                ->where('role', 'admin')
+                ->orderBy('id')
+                ->pluck('id')
+                ->values();
+        }
+
+        if ($authorIds->isEmpty()) {
+            throw new RuntimeException('Demo news requires at least one admin account.');
+        }
+
         foreach (self::POSTS as $index => $post) {
             NewsPost::query()->updateOrCreate(
                 ['slug' => $post['slug']],
                 [
                     ...$post,
+                    'author_id' => $authorIds[$index % $authorIds->count()],
                     'status' => 'published',
                     'published_at' => now()->subDays(count(self::POSTS) - $index),
                 ],

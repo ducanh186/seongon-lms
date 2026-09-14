@@ -41,6 +41,7 @@ export function NewsDetailPage() {
               <Stack spacing={2}>
                 <Chip label={post.category} color="primary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
                 <Typography component="h1" variant="h3" fontWeight={800}>{post.title}</Typography>
+                {post.author && <Typography variant="body2" color="text.secondary">Bởi {post.author.name}</Typography>}
                 <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>{post.excerpt}</Typography>
                 <Box sx={{ lineHeight: 1.8, '& img': { display: 'block', maxWidth: '100%', height: 'auto', my: 2 }, '& h2, & h3': { mt: 3, mb: 1 } }} dangerouslySetInnerHTML={{ __html: sanitizeRichText(post.content, (url) => resolveMaterialUrl(url) ?? url) }} />
               </Stack>

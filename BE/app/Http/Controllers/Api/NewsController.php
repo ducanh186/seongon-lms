@@ -11,7 +11,7 @@ class NewsController extends Controller
 {
     public function index(Request $request)
     {
-        $publishedPosts = NewsPost::query()->published();
+        $publishedPosts = NewsPost::query()->published()->with('author:id,name');
         $categories = (clone $publishedPosts)
             ->select('category')
             ->distinct()
@@ -31,6 +31,7 @@ class NewsController extends Controller
     {
         $newsPost = NewsPost::query()
             ->published()
+            ->with('author:id,name')
             ->where('slug', $slug)
             ->firstOrFail();
 

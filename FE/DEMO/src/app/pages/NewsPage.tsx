@@ -91,6 +91,7 @@ export function NewsPage() {
                         <Typography variant="overline" color="primary.main">{post.category}</Typography>
                         <Typography component="h2" variant="h6" fontWeight={800}>{post.title}</Typography>
                         <Typography color="text.secondary" sx={{ lineHeight: 1.7, flexGrow: 1 }}>{post.excerpt}</Typography>
+                        {post.author && <Typography variant="body2" color="text.secondary">Bởi {post.author.name}</Typography>}
                         {post.published_at && <Typography variant="body2" color="text.secondary">{new Date(post.published_at).toLocaleDateString('vi-VN')}</Typography>}
                       </Stack>
                     </CardContent>

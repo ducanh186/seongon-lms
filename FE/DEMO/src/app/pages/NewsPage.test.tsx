@@ -21,6 +21,7 @@ const posts: ApiNewsPost[] = [
     title: 'SEO 2026: Những thay đổi quan trọng',
     slug: 'seo-2026-thay-doi-quan-trong',
     category: 'SEO',
+    author: { id: 1, name: 'SEONGON Admin' },
     excerpt: 'Các cập nhật SEO cần theo dõi.',
     content: 'Nội dung SEO thuần văn bản.',
     thumbnail: null,
@@ -86,6 +87,7 @@ describe('News public pages', () => {
     expect(await screen.findByRole('heading', { name: posts[0].title })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: posts[0].title })).toHaveAttribute('href', `/news/${posts[0].slug}`);
     expect(screen.getByText(posts[1].excerpt)).toBeInTheDocument();
+    expect(screen.getByText('Bởi SEONGON Admin')).toBeInTheDocument();
   });
 
   it('loads an uploaded news thumbnail from the Laravel origin', async () => {
@@ -209,6 +211,7 @@ describe('News public pages', () => {
 
     expect(await screen.findByRole('heading', { name: post.title })).toBeInTheDocument();
     expect(screen.getByText('Đoạn an toàn')).toBeInTheDocument();
+    expect(screen.getByText('Bởi SEONGON Admin')).toBeInTheDocument();
     expect(document.querySelector('script')).toBeNull();
     expect(api.newsPost).toHaveBeenCalledWith(post.slug);
   });

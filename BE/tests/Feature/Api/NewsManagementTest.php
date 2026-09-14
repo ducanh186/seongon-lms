@@ -16,7 +16,11 @@ class NewsManagementTest extends TestCase
 
     public function test_public_list_returns_only_published_posts(): void
     {
-        $published = NewsPost::factory()->published()->create(['title' => 'Published post']);
+        $author = User::factory()->admin()->create(['name' => 'SEONGON News Editor']);
+        $published = NewsPost::factory()->published()->create([
+            'title' => 'Published post',
+            'author_id' => $author->id,
+        ]);
         NewsPost::factory()->draft()->create(['title' => 'Draft post']);
         NewsPost::factory()->published()->create(['title' => 'Future post', 'published_at' => now()->addMinute()]);
 
@@ -24,6 +28,8 @@ class NewsManagementTest extends TestCase
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $published->id)
+            ->assertJsonPath('data.0.author.id', $author->id)
+            ->assertJsonPath('data.0.author.name', 'SEONGON News Editor')
             ->assertJsonStructure(['data' => [['id', 'title', 'slug', 'category', 'excerpt', 'content', 'thumbnail', 'status', 'published_at', 'created_at', 'updated_at']]]);
     }
 
