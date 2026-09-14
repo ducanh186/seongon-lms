@@ -31,8 +31,6 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(GeneratedDemoCatalogSeeder::class);
-        $this->call(CompletedCourseDemoSeeder::class);
-        $this->call(MainCourseQuizSeeder::class);
         $this->call(DemoPopularCoursesSeeder::class);
         $this->call(DemoDashboardSeeder::class);
         $this->call(DemoUserHistorySeeder::class);

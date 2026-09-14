@@ -385,7 +385,7 @@ class AdminManagementTest extends TestCase
         ]);
         $quiz->assertOk()->assertJsonPath('course_id', $courseId);
 
-        foreach (range(1, 5) as $questionNumber) {
+        foreach (range(1, 100) as $questionNumber) {
             $this->withToken($token)->postJson('/api/v1/admin/quizzes/'.$quiz->json('id').'/questions', [
                 'content' => "Cau hoi mau {$questionNumber}?",
                 'options' => [
