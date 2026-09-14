@@ -49,6 +49,14 @@ docker compose --env-file Infra/.env -f Infra/docker-compose.yml down
 
 `down` chỉ dừng container; volume `mysql_data` và `app_storage` vẫn giữ database, file upload và dữ liệu local. Không chạy `down -v` trừ khi muốn xóa toàn bộ dữ liệu local.
 
+Muốn xóa toàn bộ dữ liệu Docker hiện tại và tạo lại Full DB demo, chạy:
+
+```powershell
+Infra\docker-up-windows.bat -ResetDemoData
+```
+
+Lệnh này xóa cả database và file upload trong Docker volumes. Chỉ dùng cho môi trường demo; dữ liệu cũ không thể khôi phục bằng script.
+
 Nếu build hoặc healthcheck lỗi, script tự in trạng thái service và 120 dòng log gần nhất. Sửa nguyên nhân rồi chạy lại cùng một lệnh; không cần xóa volume.
 
 ## 4. Lỗi thường gặp

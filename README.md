@@ -1186,6 +1186,8 @@ Infra\docker-up-windows.bat
 
 Script tự tạo `Infra/.env` lần đầu, build lại `app` và `nginx` từ lockfile hiện tại, khởi động MySQL, chạy migration/seed/optimize trong container và chờ `/healthz` trước khi báo thành công.
 
+Nếu cần tạo lại toàn bộ Full DB demo và chấp nhận xóa database/file upload Docker hiện tại: `Infra\docker-up-windows.bat -ResetDemoData`.
+
 - Website: `http://localhost`
 - phpMyAdmin tùy chọn: `Infra\docker-up-windows.bat -Admin` → `http://127.0.0.1:8081`
 - Xem log: `docker compose --env-file Infra/.env -f Infra/docker-compose.yml logs --tail=120`

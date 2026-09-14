@@ -2,6 +2,7 @@
 [CmdletBinding()]
 param(
     [switch]$Admin,
+    [switch]$ResetDemoData,
     [ValidateRange(1, 900)]
     [int]$TimeoutSeconds = 120
 )
@@ -208,6 +209,12 @@ try {
 
     Ensure-LocalEnvFile -Path $envPath -ExamplePath $envExamplePath
     Assert-DockerReady
+
+    if ($ResetDemoData) {
+        Write-Host 'Removing Docker volumes to recreate the full demo database...' -ForegroundColor Yellow
+        Invoke-Compose -Arguments @('down', '--volumes', '--remove-orphans')
+    }
+
     Stop-PortProcess -Port (Get-HttpPort)
 
     Invoke-Compose -Arguments @('config', '--quiet')

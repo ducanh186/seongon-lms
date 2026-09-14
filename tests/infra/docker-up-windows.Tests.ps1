@@ -35,6 +35,14 @@ Describe 'Docker Desktop Windows launcher contract' {
         $script | Should Match 'profile.*admin'
     }
 
+    It 'resets Docker-managed demo data only when explicitly requested' {
+        $script = Get-Content -Raw -LiteralPath $scriptPath
+
+        $script | Should Match '\[switch\]\$ResetDemoData'
+        $script | Should Match 'if \(\$ResetDemoData\)'
+        $script | Should Match "Invoke-Compose -Arguments @\('down', '--volumes', '--remove-orphans'\)"
+    }
+
     It 'keeps Compose data and service health contracts' {
         $compose = Get-Content -Raw -LiteralPath $composePath
         $compose | Should Match 'condition: service_healthy'
