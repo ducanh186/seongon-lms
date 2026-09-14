@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { paymentMethodLabel } from '../../lib/payment';
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import type {
   ApiAdminAnswerIndex,
   ApiAdminCart,
@@ -169,8 +170,15 @@ export function AdminErdReadSection({ section, token, onOpenCourse }: Props) {
             { key: 'created', header: 'Ngày tạo', width: 112, render: (order) => <Typography sx={{ whiteSpace: 'nowrap' }}>{date(order.created_at)}</Typography> },
           ] satisfies AdminColumn<ApiAdminOrder>[]}
         />
-        <Dialog open={Boolean(selectedOrder)} onClose={() => setSelectedOrder(null)} aria-labelledby="order-detail-title" maxWidth="sm" fullWidth>
-          <DialogTitle id="order-detail-title">Chi tiết đơn hàng #{selectedOrder?.id}</DialogTitle>
+        <Dialog open={Boolean(selectedOrder)} onClose={() => setSelectedOrder(null)} aria-labelledby="order-detail-title" maxWidth="sm" fullWidth scroll="paper">
+          <DialogTitle id="order-detail-title" sx={{ pr: 7 }}>
+            Chi tiết đơn hàng #{selectedOrder?.id}
+            <Tooltip title="Đóng">
+              <IconButton aria-label="Đóng chi tiết đơn hàng" onClick={() => setSelectedOrder(null)} size="small" sx={{ position: 'absolute', top: 16, right: 20 }}>
+                <CloseRoundedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </DialogTitle>
           {selectedOrder && <DialogContent><Box component="dl" sx={{ m: 0, display: 'grid', gridTemplateColumns: '180px minmax(0, 1fr)', gap: 2 }}>
             {[
               ['Mã đơn hàng', selectedOrder.id],

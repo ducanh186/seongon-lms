@@ -106,7 +106,7 @@ describe('AdminErdReadSection', () => {
     expect(within(dialog).getByText('399.000 đ')).toBeInTheDocument();
     expect(within(dialog).getByText('Không ghi nhận lý do thanh toán thất bại.')).toBeInTheDocument();
     expect(within(dialog).getAllByText('—')).toHaveLength(3);
-    await actor.click(within(dialog).getByRole('button', { name: 'Đóng' }));
+    await actor.click(within(dialog).getByRole('button', { name: 'Đóng chi tiết đơn hàng' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     await actor.click(row);
     expect(await screen.findByRole('dialog', { name: 'Chi tiết đơn hàng #31' })).toBeInTheDocument();
