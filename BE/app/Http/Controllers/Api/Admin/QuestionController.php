@@ -8,6 +8,7 @@ use App\Models\Exam;
 use App\Models\Question;
 use App\Services\LearningOperationsService;
 use App\Services\ProtectedDeletionService;
+use App\Services\QuestionBankCsvImportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -17,6 +18,7 @@ class QuestionController extends Controller
     public function __construct(
         private readonly LearningOperationsService $operations,
         private readonly ProtectedDeletionService $deletion,
+        private readonly QuestionBankCsvImportService $csvImporter,
     ) {}
 
     public function index(Request $request)
@@ -44,6 +46,17 @@ class QuestionController extends Controller
         });
 
         return response()->json($question->load('options'), 201);
+    }
+
+    public function importCsv(Request $request, Exam $quiz)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'max:5120', 'extensions:csv,txt'],
+        ]);
+
+        $imported = $this->csvImporter->import($quiz, $request->file('file'));
+
+        return response()->json(['imported' => $imported], 201);
     }
 
     public function update(Request $request, Question $question)
@@ -75,12 +88,11 @@ class QuestionController extends Controller
     {
         $data = $request->validate([
             'content' => ['required', 'string'],
-            'options' => ['required', 'array', 'min:2', 'max:4'],
+            'options' => ['required', 'array', 'size:3'],
             'options.*.content' => ['required', 'string', 'max:500'],
             'options.*.is_correct' => ['required', 'boolean'],
         ], [
-            'options.min' => 'Mỗi câu hỏi cần ít nhất 2 phương án.',
-            'options.max' => 'Mỗi câu hỏi có tối đa 4 phương án.',
+            'options.size' => 'Mỗi câu hỏi cần đúng 3 phương án.',
         ]);
 
         if (collect($data['options'])->where('is_correct', true)->count() !== 1) {

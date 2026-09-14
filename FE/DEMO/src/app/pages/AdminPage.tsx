@@ -178,6 +178,7 @@ const blankNews: NewsDraft = { title: '', category: '', excerpt: '', content: ''
 const blankQuestionOptions: QuestionOptionDraft[] = [
   { content: '', is_correct: true },
   { content: '', is_correct: false },
+  { content: '', is_correct: false },
 ];
 
 const adminSectionCopy: Record<AdminSection, { title: string; description: string }> = {
@@ -295,6 +296,7 @@ export function AdminPage() {
   const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
   const [questionContent, setQuestionContent] = useState('');
   const [questionOptions, setQuestionOptions] = useState<QuestionOptionDraft[]>(blankQuestionOptions);
+  const [importingQuestionBank, setImportingQuestionBank] = useState(false);
   const [editingNews, setEditingNews] = useState<ApiNewsPost | null>(null);
   const [isNewsEditorOpen, setIsNewsEditorOpen] = useState(false);
   const [newsForm, setNewsForm] = useState<NewsDraft>(blankNews);
@@ -819,6 +821,22 @@ export function AdminPage() {
       setQuestionContent('');
       setQuestionOptions(blankQuestionOptions);
     });
+  };
+
+  const importQuestionBank = async (file: File) => {
+    if (!token || !selectedCourse?.quiz) return;
+    setImportingQuestionBank(true);
+    setError(null);
+    try {
+      const { imported } = await adminRepositories.courses.importQuestionBankCsv(token, selectedCourse.quiz.id, file);
+      setNotice(`Đã import ${imported} câu vào ngân hàng câu hỏi.`);
+      await load(tab, true);
+      await refreshSelectedCourse();
+    } catch (reason) {
+      setError(getErrorMessage(reason, 'Không thể import ngân hàng câu hỏi.'));
+    } finally {
+      setImportingQuestionBank(false);
+    }
   };
 
   const updateQuestionOption = (index: number, next: Partial<QuestionOptionDraft>) => {
@@ -1445,7 +1463,34 @@ export function AdminPage() {
 
               {courseStep === 2 && <Stack spacing={2}>
                 <Card component="form" onSubmit={submitQuiz} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Typography component="h2" variant="h6" fontWeight={800}>Bài kiểm tra cuối khóa</Typography><TextField required label="Tiêu đề bài kiểm tra" value={quizTitle} onChange={(event) => setQuizTitle(event.target.value)} /><TextField required label="Điểm đạt" type="number" inputProps={{ min: 1, max: 100 }} value={quizPassScore} onChange={(event) => setQuizPassScore(event.target.value)} /><TextField required label="Số lần làm tối đa" type="number" inputProps={{ min: 1, max: 20 }} value={quizMaxAttempts} onChange={(event) => setQuizMaxAttempts(event.target.value)} /><Typography variant="body2" color="text.secondary">{selectedCourse.slug === 'completed-demo-course' ? 'Mỗi lượt làm bài gồm 3 câu hỏi từ ngân hàng câu hỏi của khóa demo nhanh.' : `Mỗi lượt làm bài gồm ${QUIZ_QUESTIONS_PER_ATTEMPT} câu hỏi được chọn ngẫu nhiên từ ngân hàng câu hỏi.`}</Typography><Button type="submit" variant="outlined" sx={{ alignSelf: 'flex-start' }}>Lưu bài kiểm tra</Button></Stack></CardContent></Card>
-                {selectedCourse.quiz && <Card component="form" onSubmit={submitQuestion} sx={{ borderRadius: 3 }}><CardContent><Stack spacing={2}><Stack direction="row" justifyContent="space-between" alignItems="center"><Typography component="h2" variant="h6" fontWeight={800}>{editingQuestionId ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}</Typography>{editingQuestionId && <Button size="small" onClick={() => { setEditingQuestionId(null); setQuestionContent(''); setQuestionOptions(blankQuestionOptions); }}>Tạo câu hỏi mới</Button>}</Stack><Stack direction="row" spacing={1} flexWrap="wrap">{selectedCourse.quiz.questions.map((question) => <Button key={question.id} size="small" variant={question.id === editingQuestionId ? 'contained' : 'outlined'} onClick={() => chooseQuestion(question)}>Câu hỏi {question.id}</Button>)}</Stack><TextField required label="Câu hỏi" value={questionContent} onChange={(event) => setQuestionContent(event.target.value)} />{questionOptions.map((option, index) => <Stack key={index} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}><TextField required fullWidth label={`Phương án ${index + 1}`} value={option.content} onChange={(event) => updateQuestionOption(index, { content: event.target.value })} /><RadioGroup row value={String(index)} onChange={() => markCorrectOption(index)}><FormControlLabel value={String(index)} control={<Radio checked={option.is_correct} />} label="Đáp án đúng" /></RadioGroup>{questionOptions.length > 2 && <Button color="error" onClick={() => setQuestionOptions((options) => options.filter((_, optionIndex) => optionIndex !== index))}>Xóa</Button>}</Stack>)}<Button onClick={() => setQuestionOptions((options) => [...options, { content: '', is_correct: false }])}>Thêm phương án</Button><Button type="submit" variant="contained">{editingQuestionId ? 'Cập nhật câu hỏi' : 'Lưu câu hỏi'}</Button>{editingQuestionId && <Button color="error" onClick={() => token && requestConfirmation('Xóa câu hỏi', questionContent || `Câu hỏi ${editingQuestionId}`, () => adminRepositories.courses.removeQuestion(token, editingQuestionId), 'Đã xóa câu hỏi.', true)}>Xóa câu hỏi</Button>}</Stack></CardContent></Card>}
+                {selectedCourse.quiz && <Card component="form" onSubmit={submitQuestion} sx={{ borderRadius: 3 }}>
+                  <CardContent>
+                    <Stack spacing={2}>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Typography component="h2" variant="h6" fontWeight={800}>{editingQuestionId ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}</Typography>
+                        {editingQuestionId && <Button size="small" onClick={() => { setEditingQuestionId(null); setQuestionContent(''); setQuestionOptions(blankQuestionOptions); }}>Tạo câu hỏi mới</Button>}
+                      </Stack>
+                      <Box sx={{ p: 2, border: '1px dashed', borderColor: 'primary.light', bgcolor: 'action.hover', borderRadius: 2 }}>
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="space-between" alignItems={{ sm: 'center' }}>
+                          <Box>
+                            <Typography fontWeight={700}>Import ngân hàng câu hỏi CSV</Typography>
+                            <Typography variant="body2" color="text.secondary">Header: question, option_a, option_b, option_c, correct_answer. Cần ít nhất 100 câu; đáp án dùng A/B/C hoặc 1/2/3.</Typography>
+                          </Box>
+                          <Button component="label" variant="outlined" disabled={importingQuestionBank || selectedCourse.quiz.questions.length > 0} sx={{ whiteSpace: 'nowrap' }}>
+                            {importingQuestionBank ? 'Đang import' : 'Chọn file CSV'}
+                            <input hidden type="file" accept=".csv,text/csv" onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importQuestionBank(file); }} />
+                          </Button>
+                        </Stack>
+                        {selectedCourse.quiz.questions.length > 0 && <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>CSV chỉ import vào bài kiểm tra chưa có câu hỏi.</Typography>}
+                      </Box>
+                      <Stack direction="row" spacing={1} flexWrap="wrap">{selectedCourse.quiz.questions.map((question) => <Button key={question.id} size="small" variant={question.id === editingQuestionId ? 'contained' : 'outlined'} onClick={() => chooseQuestion(question)}>Câu hỏi {question.id}</Button>)}</Stack>
+                      <Typography variant="body2" color="text.secondary">Hoặc nhập thủ công một câu với đúng 3 phương án.</Typography>
+                      <TextField required label="Câu hỏi" value={questionContent} onChange={(event) => setQuestionContent(event.target.value)} />
+                      {questionOptions.map((option, index) => <Stack key={index} direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }}><TextField required fullWidth label={`Phương án ${String.fromCharCode(65 + index)}`} value={option.content} onChange={(event) => updateQuestionOption(index, { content: event.target.value })} /><RadioGroup row value={String(index)} onChange={() => markCorrectOption(index)}><FormControlLabel value={String(index)} control={<Radio checked={option.is_correct} />} label="Đáp án đúng" /></RadioGroup></Stack>)}
+                      <Stack direction="row" spacing={1} flexWrap="wrap"><Button type="submit" variant="contained">{editingQuestionId ? 'Cập nhật câu hỏi' : 'Lưu câu hỏi'}</Button>{editingQuestionId && <Button color="error" onClick={() => token && requestConfirmation('Xóa câu hỏi', questionContent || `Câu hỏi ${editingQuestionId}`, () => adminRepositories.courses.removeQuestion(token, editingQuestionId), 'Đã xóa câu hỏi.', true)}>Xóa câu hỏi</Button>}</Stack>
+                    </Stack>
+                  </CardContent>
+                </Card>}
                 <Card sx={{ borderRadius: 3 }}><CardContent><Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between" alignItems={{ sm: 'center' }}><Button onClick={() => setCourseStep(1)}>Quay lại: Bài học & tài liệu</Button><Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}><Button variant="outlined" onClick={() => token && void runMutation(() => adminRepositories.courses.publish(token, selectedCourse.id, 'draft'), 'Đã lưu khóa học ở trạng thái bản nháp.', true)}>Lưu bản nháp</Button><Button variant="contained" onClick={() => token && void runMutation(() => adminRepositories.courses.publish(token, selectedCourse.id, 'published'), 'Đã xuất bản khóa học.', true)}>Xuất bản</Button></Stack></Stack></CardContent></Card>
               </Stack>}
             </Stack>}

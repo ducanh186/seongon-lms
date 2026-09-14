@@ -115,17 +115,26 @@ class CompletedCourseDemoSeeder extends Seeder
                 ],
                 ['is_correct' => false],
             );
+            Answer::query()->updateOrCreate(
+                [
+                    'question_id' => $question->id,
+                    'content' => '75%',
+                ],
+                ['is_correct' => false],
+            );
 
             foreach ([
                 [
                     'content' => 'Bước đầu tiên khi lập kế hoạch SEO là gì?',
                     'correct' => 'Xác định mục tiêu kinh doanh và dữ liệu hiện có',
                     'wrong' => 'Tăng số lượng bài viết mà không xác định mục tiêu',
+                    'wrong_secondary' => 'Chọn công cụ đắt nhất trước khi xác định mục tiêu',
                 ],
                 [
                     'content' => 'Khi nào cần rà soát KPI trong kế hoạch SEO 90 ngày?',
                     'correct' => 'Theo mốc đã định và điều chỉnh theo dữ liệu thực',
                     'wrong' => 'Chỉ sau khi chiến dịch kết thúc',
+                    'wrong_secondary' => 'Không cần rà soát khi đã có kế hoạch',
                 ],
             ] as $index => $definition) {
                 $demoQuestion = Question::query()->updateOrCreate(
@@ -138,6 +147,10 @@ class CompletedCourseDemoSeeder extends Seeder
                 );
                 Answer::query()->updateOrCreate(
                     ['question_id' => $demoQuestion->id, 'content' => $definition['wrong']],
+                    ['is_correct' => false],
+                );
+                Answer::query()->updateOrCreate(
+                    ['question_id' => $demoQuestion->id, 'content' => $definition['wrong_secondary']],
                     ['is_correct' => false],
                 );
             }

@@ -68,6 +68,7 @@ export const adminRepositories = {
     saveQuiz: api.saveQuiz,
     removeQuiz: api.deleteQuiz,
     saveQuestion: api.saveQuestion,
+    importQuestionBankCsv: api.importQuestionBankCsv,
     updateQuestion: api.updateQuestion,
     removeQuestion: api.deleteQuestion,
   },

@@ -76,8 +76,7 @@ class CourseController extends Controller
             $validQuestionCount = $exam
                 ? $exam->questions->filter(fn ($question): bool => $question->status === 'ready'
                     && trim((string) $question->content) !== ''
-                    && $question->answers->count() >= 2
-                    && $question->answers->count() <= 4
+                    && $question->answers->count() === 3
                     && $question->answers->pluck('content')->map(fn ($content): string => mb_strtolower(trim((string) $content)))->unique()->count() === $question->answers->count()
                     && $question->answers->where('is_correct', true)->count() === 1)
                     ->unique(fn ($question): string => mb_strtolower(trim($question->content)))

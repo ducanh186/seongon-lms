@@ -158,6 +158,7 @@ Route::prefix('v1')->group(function () {
             Route::match(['post', 'put'], 'courses/{course}/quiz', [AdminQuizController::class, 'upsert']);
             Route::delete('courses/{course}/quiz', [AdminQuizController::class, 'destroy']);
             Route::post('quizzes/{quiz}/questions', [AdminQuestionController::class, 'store']);
+            Route::post('quizzes/{quiz}/questions/import-csv', [AdminQuestionController::class, 'importCsv']);
             Route::put('questions/{question}', [AdminQuestionController::class, 'update']);
             Route::delete('questions/{question}', [AdminQuestionController::class, 'destroy']);
 

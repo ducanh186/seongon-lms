@@ -340,6 +340,11 @@ export const api = {
   deleteQuiz: (token: string, courseId: number) => apiRequest<void>(`/admin/courses/${courseId}/quiz`, { method: 'DELETE', token }),
   saveQuestion: (token: string, quizId: number, body: { content: string; options: Array<{ content: string; is_correct: boolean }> }) =>
     apiRequest<ApiAdminQuestion>(`/admin/quizzes/${quizId}/questions`, { method: 'POST', token, body }),
+  importQuestionBankCsv: (token: string, quizId: number, file: File) => {
+    const body = new FormData();
+    body.append('file', file);
+    return apiRequest<{ imported: number }>(`/admin/quizzes/${quizId}/questions/import-csv`, { method: 'POST', token, body });
+  },
   updateQuestion: (token: string, questionId: number, body: { content: string; options: Array<{ content: string; is_correct: boolean }> }) =>
     apiRequest<ApiAdminQuestion>(`/admin/questions/${questionId}`, { method: 'PUT', token, body }),
   deleteQuestion: (token: string, questionId: number) => apiRequest<void>(`/admin/questions/${questionId}`, { method: 'DELETE', token }),
