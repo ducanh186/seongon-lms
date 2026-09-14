@@ -1,10 +1,12 @@
-import { IconButton, Menu, MenuItem } from '@mui/material';
+import { Badge, IconButton, ListItemText, Menu, MenuItem } from '@mui/material';
 import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
 import { useId } from 'react';
+import { useAdminNotifications } from '../contexts/AdminNotificationContext';
 import { useHeaderHoverMenu } from './useHeaderHoverMenu';
 
-export function NotificationMenu() {
+export function NotificationMenu({ role }: { role: 'admin' | 'student' }) {
   const hoverMenu = useHeaderHoverMenu();
+  const { notifications, clearNotifications } = useAdminNotifications();
   const triggerId = useId();
   const menuId = useId();
 
@@ -21,7 +23,9 @@ export function NotificationMenu() {
         onMouseLeave={hoverMenu.closeAfterDelay}
         onClick={hoverMenu.open}
       >
-        <NotificationsNoneRoundedIcon />
+        <Badge color="error" badgeContent={notifications.length} invisible={role !== 'admin' || notifications.length === 0}>
+          <NotificationsNoneRoundedIcon />
+        </Badge>
       </IconButton>
       <Menu
         anchorEl={hoverMenu.anchor}
@@ -42,7 +46,16 @@ export function NotificationMenu() {
           },
         }}
       >
-        <MenuItem disabled>Bạn chưa có thông báo mới.</MenuItem>
+        {role === 'student' && <MenuItem disabled>Bạn chưa có thông báo mới.</MenuItem>}
+        {role === 'admin' && notifications.length === 0 && <MenuItem disabled>Chưa có thông báo quản trị mới.</MenuItem>}
+        {role === 'admin' && notifications.map((notification) => (
+          <MenuItem key={notification.id} sx={{ minWidth: 280, whiteSpace: 'normal' }}>
+            <ListItemText primary={notification.message} secondary={notification.createdAt} />
+          </MenuItem>
+        ))}
+        {role === 'admin' && notifications.length > 0 && (
+          <MenuItem onClick={() => { clearNotifications(); hoverMenu.close(); }}>Xóa tất cả thông báo</MenuItem>
+        )}
       </Menu>
     </>
   );

@@ -36,6 +36,7 @@ import { ApiError, resolveMaterialUrl } from '../lib/api';
 import type { ApiAdminAttempt, ApiAdminCertificateStatus, ApiAdminCourse, ApiAdminExam, ApiAdminLesson, ApiAdminQuestion, ApiAdminStats, ApiCategory, ApiCourse, ApiEnrollment, ApiNewsList, ApiNewsPost, ApiReview, ApiTeacherProfile, ApiUser, ApiUserRecord, Paginated } from '../lib/contracts';
 import { EmptyState, PageSkeleton, RequestError } from '../components/AsyncState';
 import { useAuth } from '../contexts/AuthContext';
+import { useAdminNotifications } from '../contexts/AdminNotificationContext';
 import { AdminSectionHeader } from '../components/AdminSectionHeader';
 import { StatusChip } from '../components/StatusChip';
 import { AdminDataTable, type AdminColumn } from '../components/AdminDataTable';
@@ -241,6 +242,7 @@ function newsDraftFrom(newsPost: ApiNewsPost): NewsDraft {
 
 export function AdminPage() {
   const { token } = useAuth();
+  const { pushNotification } = useAdminNotifications();
   const [tab, setTab] = useState<AdminSection>('overview');
   const [stats, setStats] = useState<ApiAdminStats | null>(null);
   const [users, setUsers] = useState<Paginated<ApiUser> | null>(null);
@@ -576,6 +578,7 @@ export function AdminPage() {
     try {
       await work();
       setNotice(successMessage);
+      pushNotification(successMessage);
       delete loadedKeyBySection.current.overview;
       await load(tab, true);
       if (refreshContent) {
@@ -617,7 +620,9 @@ export function AdminPage() {
 
     try {
       const response = await adminRepositories.courses.save(token, body, editingCourse?.id);
-      setNotice(editingCourse ? 'Đã cập nhật khóa học.' : 'Đã tạo khóa học.');
+      const successMessage = editingCourse ? 'Đã cập nhật khóa học.' : 'Đã tạo khóa học.';
+      setNotice(successMessage);
+      pushNotification(successMessage);
       delete loadedKeyBySection.current.overview;
       delete loadedKeyBySection.current.courses;
       await loadCourseDetail(response.data.id);
@@ -829,7 +834,9 @@ export function AdminPage() {
     setError(null);
     try {
       const { imported } = await adminRepositories.courses.importQuestionBankCsv(token, selectedCourse.quiz.id, file);
-      setNotice(`Đã thay thế ngân hàng bằng ${imported} câu hỏi.`);
+      const successMessage = `Đã thay thế ngân hàng bằng ${imported} câu hỏi.`;
+      setNotice(successMessage);
+      pushNotification(successMessage);
       await load(tab, true);
       await refreshSelectedCourse();
     } catch (reason) {

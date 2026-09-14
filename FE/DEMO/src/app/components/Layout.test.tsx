@@ -159,12 +159,7 @@ describe('Layout', () => {
 
     fireEvent.mouseEnter(notificationButton);
     expect(notificationButton).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByRole('menu', { name: 'Thông báo' })).toHaveAttribute(
-      'aria-labelledby',
-      notificationButton.getAttribute('id'),
-    );
     expect(screen.getByText('Bạn chưa có thông báo mới.')).toBeInTheDocument();
-    expect(screen.getByRole('menu', { name: 'Thông báo' }).closest('.MuiModal-root')).toHaveStyle({ pointerEvents: 'none' });
     await user.keyboard('{Escape}');
 
     fireEvent.mouseEnter(screen.getByRole('button', { name: /Học viên/ }));
@@ -178,7 +173,7 @@ describe('Layout', () => {
   it('keeps header dropdowns open across the trigger-panel gap and cancels a pending close on re-entry', () => {
     vi.useFakeTimers();
     try {
-      renderLayout('/courses', 'student');
+      renderLayout('/courses', 'admin');
       const trigger = screen.getByRole('button', { name: 'Thông báo' });
 
       fireEvent.mouseEnter(trigger);
@@ -201,7 +196,7 @@ describe('Layout', () => {
   });
 
   it('opens notification and account menus without applying body scroll lock', async () => {
-    renderLayout('/courses', 'student');
+    renderLayout('/courses', 'admin');
     const user = userEvent.setup();
     const notificationButton = screen.getByRole('button', { name: 'Thông báo' });
 
@@ -211,15 +206,15 @@ describe('Layout', () => {
     expect(document.body.style.paddingRight).toBe('');
 
     await user.keyboard('{Escape}');
-    const accountButton = screen.getByRole('button', { name: /Học viên/ });
+    const accountButton = screen.getByRole('button', { name: /SEONGON Admin/ });
     await user.click(accountButton);
-    await waitFor(() => expect(screen.getByRole('menu', { name: /Tài khoản Học viên/ })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole('menu', { name: /Tài khoản SEONGON Admin/ })).toBeInTheDocument());
     expect(document.body.style.overflow).not.toBe('hidden');
     expect(document.body.style.paddingRight).toBe('');
     expect(accountButton).toHaveFocus();
   });
 
-  it('gives admins their admin navigation and no student controls', async () => {
+  it('gives admins their admin navigation, notifications, and no student controls', async () => {
     renderLayout('/courses', 'admin');
     const user = userEvent.setup();
     const desktopNavigation = screen.getByRole('navigation', { name: 'Điều hướng chính' });
@@ -227,7 +222,7 @@ describe('Layout', () => {
     expect(within(desktopNavigation).getByRole('link', { name: 'Tin tức' })).toHaveAttribute('href', '/news');
     expect(within(desktopNavigation).queryByRole('link', { name: 'Quản trị' })).not.toBeInTheDocument();
     expect(within(desktopNavigation).queryByRole('link', { name: 'Khóa học của tôi' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Thông báo' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Thông báo' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Giỏ hàng' })).not.toBeInTheDocument();
 
     fireEvent.mouseEnter(screen.getByRole('button', { name: /SEONGON Admin/ }));

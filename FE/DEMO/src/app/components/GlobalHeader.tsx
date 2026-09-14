@@ -123,7 +123,8 @@ export function GlobalHeader() {
 
             {user && (
               <>
-              {isStudent && <NotificationMenu />}
+              {isStudent && <NotificationMenu role="student" />}
+              {isAdmin && <NotificationMenu role="admin" />}
               {isStudent && (
                 <IconButton aria-label="Giỏ hàng" onClick={() => navigate('/cart')} color="primary">
                   <Badge badgeContent={count} color="primary"><ShoppingCartOutlinedIcon /></Badge>

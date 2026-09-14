@@ -8,6 +8,7 @@ import { RouterProvider } from 'react-router';
 import { CartProvider } from './cart/CartContext';
 import { DesktopOnlyGate } from './components/DesktopOnlyGate';
 import { AuthProvider } from './contexts/AuthContext';
+import { AdminNotificationProvider } from './contexts/AdminNotificationContext';
 import { router } from './routes';
 import { theme } from './theme';
 
@@ -16,7 +17,7 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <DesktopOnlyGate>
-        <AuthProvider><CartProvider><RouterProvider router={router} /></CartProvider></AuthProvider>
+        <AuthProvider><AdminNotificationProvider><CartProvider><RouterProvider router={router} /></CartProvider></AdminNotificationProvider></AuthProvider>
       </DesktopOnlyGate>
     </ThemeProvider>
   );
