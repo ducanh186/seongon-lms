@@ -6,22 +6,33 @@ import { PageSkeleton } from '../../components/AsyncState';
 
 export function PaymentSettingsPanel({ token }: { token: string }) {
   const [settings, setSettings] = useState<PaymentSettings | null>(null);
+  const [savedSettings, setSavedSettings] = useState<PaymentSettings | null>(null);
   const [savedBank, setSavedBank] = useState<PaymentSettings['bank'] | null>(null);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [saving, setSaving] = useState(false);
-  const load = () => api.paymentSettings(token).then(({ data }) => { setSettings(data); setSavedBank(data.bank); }).catch(() => setError('Không thể tải cấu hình thanh toán.'));
+  const load = () => api.paymentSettings(token).then(({ data }) => { setSettings(data); setSavedSettings(structuredClone(data)); setSavedBank(data.bank); }).catch(() => setError('Không thể tải cấu hình thanh toán.'));
   useEffect(() => { void load(); }, [token]);
+  const isDirty = Boolean(settings && savedSettings && JSON.stringify(settings) !== JSON.stringify(savedSettings));
+  useEffect(() => {
+    if (!isDirty) return undefined;
+    const warnBeforeLeave = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', warnBeforeLeave);
+    return () => window.removeEventListener('beforeunload', warnBeforeLeave);
+  }, [isDirty]);
   const save = async () => {
     if (!settings) return;
     setSaving(true); setError(''); setNotice('');
-    try { const { data } = await api.savePaymentSettings(token, settings); setSettings(data); setSavedBank(data.bank); setNotice('Đã lưu cấu hình thanh toán.'); }
+    try { const { data } = await api.savePaymentSettings(token, settings); setSettings(data); setSavedSettings(structuredClone(data)); setSavedBank(data.bank); setNotice('Đã lưu cấu hình thanh toán.'); }
     catch (reason) { setError(reason instanceof ApiError ? [reason.message, ...Object.values(reason.fields).flat()].join(' ') : 'Không thể lưu cấu hình.'); }
     finally { setSaving(false); }
   };
   if (!settings) return error ? <Alert severity="error" action={<Button onClick={() => void load()}>Thử lại</Button>}>{error}</Alert> : <PageSkeleton rows={3} />;
   const bankField = (key: keyof PaymentSettings['bank'], label: string, required = false) => <TextField key={key} label={label} value={settings.bank[key] ?? ''} required={required && settings.bank.enabled} onChange={(event) => setSettings({ ...settings, bank: { ...settings.bank, [key]: event.target.value } })} fullWidth multiline={key === 'instructions' || key === 'qr_payload'} minRows={key === 'instructions' ? 2 : 1} />;
-  return <Box component="form" onSubmit={(event) => { event.preventDefault(); void save(); }}><Stack spacing={3}>
+  return <Box component="form" noValidate onSubmit={(event) => { event.preventDefault(); void save(); }}><Stack spacing={3}>
     {error && <Alert severity="error">{error}</Alert>}{notice && <Alert severity="success">{notice}</Alert>}
     <Card variant="outlined"><CardContent><Stack spacing={2}>
       <Typography variant="h6">Ví MoMo</Typography>
@@ -36,7 +47,17 @@ export function PaymentSettingsPanel({ token }: { token: string }) {
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>{bankField('bank_name', 'Tên ngân hàng', true)}{bankField('account_name', 'Tên chủ tài khoản', true)}{bankField('account_number', 'Số tài khoản', true)}{bankField('branch', 'Chi nhánh')}</Box>
       {bankField('qr_payload', 'Nội dung mã QR ngân hàng (tùy chọn)')}
     </Stack></CardContent></Card>
-    <Button type="submit" variant="contained" disabled={saving} sx={{ alignSelf: 'flex-start' }}>{saving ? 'Đang lưu...' : 'Lưu cấu hình thanh toán'}</Button>
+    <Card variant="outlined" sx={{ position: 'sticky', bottom: 16, zIndex: 2, borderColor: isDirty ? 'primary.main' : 'divider', bgcolor: 'background.paper', boxShadow: '0 8px 24px rgba(16,46,56,.12)' }}>
+      <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }} justifyContent="space-between">
+          <Typography variant="body2" color={isDirty ? 'text.primary' : 'text.secondary'}>{isDirty ? 'Bạn có thay đổi chưa lưu.' : 'Cấu hình đã được lưu.'}</Typography>
+          <Stack direction="row" spacing={1}>
+            <Button type="button" color="inherit" disabled={!isDirty || saving} onClick={() => savedSettings && setSettings(structuredClone(savedSettings))}>Hoàn tác</Button>
+            <Button type="submit" variant="contained" disabled={!isDirty || saving}>{saving ? 'Đang lưu...' : 'Lưu cấu hình thanh toán'}</Button>
+          </Stack>
+        </Stack>
+      </CardContent>
+    </Card>
     {savedBank?.bank_name && savedBank.account_number && <Card variant="outlined"><CardContent><Stack spacing={1}>
       <Typography variant="h6">Tài khoản đã lưu</Typography>
       <Typography fontWeight={700}>{savedBank.bank_name} · {savedBank.account_number}</Typography>
