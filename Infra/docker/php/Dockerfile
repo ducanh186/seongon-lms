@@ -47,6 +47,7 @@ RUN composer install \
 
 COPY BE/ ./
 COPY Infra/docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY Infra/docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 COPY Infra/docker/php/entrypoint.sh /usr/local/bin/app-entrypoint
 
 RUN rm -f bootstrap/cache/*.php \
